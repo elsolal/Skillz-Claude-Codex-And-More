@@ -6,13 +6,17 @@
 # 21 skills, 20 commands, 18 templates, 4 agent compatibility layers
 #
 # Usage:
-#   # Fresh install
+#   # Fresh install in a project
 #   curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- .
 #   ./install.sh /path/to/project
 #
-#   # Update existing installation (preserves CLAUDE.md, settings.json, mcp.json)
+#   # Update existing project installation (preserves CLAUDE.md, settings.json, mcp.json)
 #   curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- . --update
 #   ./install.sh /path/to/project --update
+#
+#   # Global install into ~/.claude/ (available in ALL projects)
+#   curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- --global
+#   ./install.sh --global
 # ============================================================
 
 set -e
@@ -31,11 +35,16 @@ REPO_NAME="Skillz-Claude"
 
 # Parse arguments
 UPDATE_MODE=false
+GLOBAL_MODE=false
 TARGET_DIR=""
 
 for arg in "$@"; do
     case $arg in
         --update)
+            UPDATE_MODE=true
+            ;;
+        --global)
+            GLOBAL_MODE=true
             UPDATE_MODE=true
             ;;
         *)
@@ -45,6 +54,76 @@ for arg in "$@"; do
             ;;
     esac
 done
+
+# Global mode: install into ~/.claude/ (user-level, all projects)
+if [ "$GLOBAL_MODE" = true ]; then
+    echo -e "${BLUE}"
+    echo "╔═══════════════════════════════════════════════════════════════════════╗"
+    echo "║             D-EPCT+R Workflow v5.1 — Global Install                 ║"
+    echo "║                                                                       ║"
+    echo "║   Target: ~/.claude/ (available in ALL your projects)                 ║"
+    echo "║   Preserves: CLAUDE.md, settings.json, mcp.json                      ║"
+    echo "╚═══════════════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+
+    # Determine source
+    SCRIPT_SOURCE="${BASH_SOURCE[0]:-}"
+    SCRIPT_DIR=""
+    if [ -n "$SCRIPT_SOURCE" ] && [ "$SCRIPT_SOURCE" != "/dev/stdin" ] && [ -f "$SCRIPT_SOURCE" ]; then
+        SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_SOURCE")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+    fi
+
+    IS_REPO=false
+    if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/install.sh" ] && [ -d "$SCRIPT_DIR/.claude/skills" ]; then
+        IS_REPO=true
+        SOURCE_DIR="$SCRIPT_DIR/.claude"
+    fi
+
+    if [ "$IS_REPO" = false ]; then
+        echo -e "${BLUE}📥 Downloading from GitHub...${NC}"
+        TEMP_DIR=$(mktemp -d)
+        trap "rm -rf $TEMP_DIR" EXIT
+        git clone --depth 1 --quiet "$REPO_URL" "$TEMP_DIR/$REPO_NAME"
+        SOURCE_DIR="$TEMP_DIR/$REPO_NAME/.claude"
+        echo -e "${GREEN}✅ Downloaded${NC}"
+    fi
+
+    # Ensure ~/.claude/ exists
+    mkdir -p ~/.claude
+
+    # rsync contents, preserving user config files
+    echo -e "${CYAN}🔄 Syncing to ~/.claude/...${NC}"
+    rsync -a \
+        --exclude='CLAUDE.md' \
+        --exclude='settings.json' \
+        --exclude='mcp.json' \
+        "$SOURCE_DIR/" ~/.claude/
+
+    # Count what was installed
+    skills_count=$(ls -1d ~/.claude/skills/*/SKILL.md 2>/dev/null | wc -l | tr -d ' ')
+    commands_count=$(ls -1 ~/.claude/commands/*.md 2>/dev/null | wc -l | tr -d ' ')
+    knowledge_count=$(find ~/.claude/knowledge -type f 2>/dev/null | wc -l | tr -d ' ')
+
+    echo ""
+    echo -e "${GREEN}╔═══════════════════════════════════════════════════════════════════════╗"
+    echo -e "║                       ✅ Global Install Complete!                    ║"
+    echo -e "╚═══════════════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "   ${GREEN}✅ Skills:    $skills_count${NC}"
+    echo -e "   ${GREEN}✅ Commands:  $commands_count${NC}"
+    echo -e "   ${GREEN}✅ Knowledge: $knowledge_count files${NC}"
+    echo -e "   ${GREEN}✅ Templates, hooks, examples${NC}"
+    echo ""
+    echo -e "${GREEN}Preserved (your config):${NC}"
+    echo -e "   ${GREEN}✅ ~/.claude/CLAUDE.md${NC}"
+    echo -e "   ${GREEN}✅ ~/.claude/settings.json${NC}"
+    echo -e "   ${GREEN}✅ ~/.claude/mcp.json${NC}"
+    echo ""
+    echo -e "${CYAN}These skills & commands are now available in ALL your projects.${NC}"
+    echo -e "${CYAN}To update later: run the same command again.${NC}"
+    echo ""
+    exit 0
+fi
 
 # Default target is current directory
 TARGET_DIR="${TARGET_DIR:-.}"

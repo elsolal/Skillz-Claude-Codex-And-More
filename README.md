@@ -20,7 +20,16 @@ All workflows use an **orchestrator pattern**: the main thread keeps full contex
 
 ## Installation
 
-### Mac / Linux
+### Global (user-level — all projects)
+
+Install skills, commands, knowledge and templates into `~/.claude/` so they're available in **every project**. Preserves your existing CLAUDE.md, settings.json, and mcp.json.
+
+```bash
+# Install or update (same command)
+curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- --global
+```
+
+### Per-project (Mac / Linux)
 
 ```bash
 # One-line install
