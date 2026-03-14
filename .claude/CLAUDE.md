@@ -5,9 +5,9 @@
 
 <!-- PROJECT-RULES-END -->
 
----
+<!-- D-EPCT-START -->
 
-# D-EPCT+R v5.0 — Instructions de travail
+# D-EPCT+R v5.1 — Instructions de travail
 
 ## Quel workflow utiliser ?
 
@@ -164,3 +164,4 @@ fix/[issue-number]-description-courte
 - **KISS / DRY / YAGNI** — simplicité, pas d'over-engineering
 - **Tests** : risk-based, P0-P3, déterministes, ATDD quand possible
 - **Préférer la simplicité** à la complexité
+<!-- D-EPCT-END -->

@@ -62,7 +62,8 @@ if [ "$GLOBAL_MODE" = true ]; then
     echo "║             D-EPCT+R Workflow v5.1 — Global Install                 ║"
     echo "║                                                                       ║"
     echo "║   Target: ~/.claude/ (available in ALL your projects)                 ║"
-    echo "║   Preserves: CLAUDE.md, settings.json, mcp.json                      ║"
+    echo "║   CLAUDE.md: merges workflow section, keeps your content              ║"
+    echo "║   Preserves: settings.json, mcp.json                                 ║"
     echo "╚═══════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 
@@ -91,13 +92,44 @@ if [ "$GLOBAL_MODE" = true ]; then
     # Ensure ~/.claude/ exists
     mkdir -p ~/.claude
 
-    # rsync contents, preserving user config files
-    echo -e "${CYAN}🔄 Syncing to ~/.claude/...${NC}"
+    # rsync contents, preserving settings.json and mcp.json (CLAUDE.md handled separately)
+    echo -e "${CYAN}🔄 Syncing skills, commands, knowledge, templates...${NC}"
     rsync -a \
         --exclude='CLAUDE.md' \
         --exclude='settings.json' \
         --exclude='mcp.json' \
         "$SOURCE_DIR/" ~/.claude/
+
+    # Merge CLAUDE.md: preserve user content, update D-EPCT+R section
+    echo -e "${CYAN}🔄 Merging CLAUDE.md...${NC}"
+    if [ -f ~/.claude/CLAUDE.md ] && [ -f "$SOURCE_DIR/CLAUDE.md" ]; then
+        # Extract the D-EPCT section from the new source
+        NEW_DEPCT=$(sed -n '/<!-- D-EPCT-START -->/,/<!-- D-EPCT-END -->/p' "$SOURCE_DIR/CLAUDE.md")
+
+        if grep -q "<!-- D-EPCT-START -->" ~/.claude/CLAUDE.md 2>/dev/null; then
+            # User already has D-EPCT markers → replace that section
+            TEMP_MERGE=$(mktemp)
+            awk '
+                /<!-- D-EPCT-START -->/ { skip=1; next }
+                /<!-- D-EPCT-END -->/ { skip=0; next }
+                !skip { print }
+            ' ~/.claude/CLAUDE.md > "$TEMP_MERGE"
+            # Append the new D-EPCT section
+            echo "" >> "$TEMP_MERGE"
+            echo "$NEW_DEPCT" >> "$TEMP_MERGE"
+            mv "$TEMP_MERGE" ~/.claude/CLAUDE.md
+            echo -e "   ${CYAN}🔄 D-EPCT+R section updated (your content preserved)${NC}"
+        else
+            # No D-EPCT markers → append at the end
+            echo "" >> ~/.claude/CLAUDE.md
+            echo "$NEW_DEPCT" >> ~/.claude/CLAUDE.md
+            echo -e "   ${GREEN}✅ D-EPCT+R section added to your CLAUDE.md${NC}"
+        fi
+    elif [ -f "$SOURCE_DIR/CLAUDE.md" ]; then
+        # No existing CLAUDE.md → copy as-is
+        cp "$SOURCE_DIR/CLAUDE.md" ~/.claude/CLAUDE.md
+        echo -e "   ${GREEN}✅ CLAUDE.md created${NC}"
+    fi
 
     # Count what was installed
     skills_count=$(ls -1d ~/.claude/skills/*/SKILL.md 2>/dev/null | wc -l | tr -d ' ')
@@ -113,9 +145,10 @@ if [ "$GLOBAL_MODE" = true ]; then
     echo -e "   ${GREEN}✅ Commands:  $commands_count${NC}"
     echo -e "   ${GREEN}✅ Knowledge: $knowledge_count files${NC}"
     echo -e "   ${GREEN}✅ Templates, hooks, examples${NC}"
+    echo -e "   ${GREEN}✅ CLAUDE.md: D-EPCT+R section merged${NC}"
     echo ""
     echo -e "${GREEN}Preserved (your config):${NC}"
-    echo -e "   ${GREEN}✅ ~/.claude/CLAUDE.md${NC}"
+    echo -e "   ${GREEN}✅ ~/.claude/CLAUDE.md (your content kept, workflow updated)${NC}"
     echo -e "   ${GREEN}✅ ~/.claude/settings.json${NC}"
     echo -e "   ${GREEN}✅ ~/.claude/mcp.json${NC}"
     echo ""
