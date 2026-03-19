@@ -174,10 +174,11 @@ Merges main, runs tests, pre-landing review, generates changelog, creates PR.
 | `/metrics` | Project metrics dashboard |
 | `/init [template]` | Project scaffolding (next\|express\|api\|cli\|lib) |
 
-### Design
+### Design System & Figma
 
 | Command | Description |
 |---------|-------------|
+| `/ds-doc [--figma url]` | Document design system in CLAUDE.md (scan + Figma links) |
 | `/figma-setup [url]` | Configure Code Connect |
 | `/figma-to-code <url>` | Generate code from Figma |
 | `/supabase-security <url>` | Full Supabase security audit |
@@ -196,7 +197,7 @@ Stop: `/cancel-ralph` | Resume: `/resume-ralph [session-id]`
 
 ---
 
-## Skills (21)
+## Skills (22)
 
 ### Planning Phase
 
@@ -220,6 +221,7 @@ Stop: `/cancel-ralph` | Resume: `/resume-ralph [session-id]`
 | `figma-designer` | Design in Figma | Create designs via MCP Console |
 | `figma-design-system` | DS management | Tokens, audit, code→Figma, drift detection |
 | `figma-design-code-sync` | Design-code sync | Bidirectional component sync |
+| `ds-doc` | DS documenter | Scan project → CLAUDE.md + components/CLAUDE.md with Figma links |
 
 ### Development Phase
 
@@ -272,7 +274,7 @@ Stop: `/cancel-ralph` | Resume: `/resume-ralph [session-id]`
 │   ├── auto-dev.md                  # /auto-dev (RALPH)
 │   ├── ship.md, qa.md, ...          # Ship & QA commands
 │   └── ...
-├── skills/                          # 21 skills
+├── skills/                          # 22 skills
 │   ├── idea-brainstorm/
 │   ├── pm-prd/
 │   ├── architect/
@@ -281,6 +283,7 @@ Stop: `/cancel-ralph` | Resume: `/resume-ralph [session-id]`
 │   ├── test-runner/                 # Agent worker
 │   ├── code-reviewer/               # Parallel-ready
 │   ├── figma-*/                     # Figma integration (3 skills)
+│   ├── ds-doc/                      # Design system documenter
 │   └── ...
 ├── knowledge/                       # 51 files
 │   ├── testing/                     # 32 files (levels, priorities, fixtures...)

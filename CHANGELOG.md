@@ -2,6 +2,29 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## v5.2.0 (2026-03-19)
+
+**Design System Documenter**
+
+New `/ds-doc` skill that scans a project and generates design system documentation directly in CLAUDE.md, giving Claude persistent context about tokens, components, and patterns.
+
+### New skill: `ds-doc`
+- Scans project for tokens (tailwind.config, globals.css), UI components (shadcn), and business components
+- Asks for Figma file URL(s) upfront to link every component to its Figma counterpart
+- Generates two files:
+  - `CLAUDE.md` (root) — concise index with tables (tokens, components, patterns, rules)
+  - `src/components/CLAUDE.md` — detailed reference (props, variants, CSS values, Figma variable links, missing components list)
+- `--update` mode merges new components without overwriting manual Figma links
+- Detects components present in Figma but not yet in code ("Composants manquants" section)
+- Idempotent: re-running updates the section without duplicating
+
+### Files changed
+- New: `.claude/skills/ds-doc/SKILL.md`
+- Updated: `CLAUDE.md` — added `/ds-doc` to workflow routing and commands
+- Updated: `README.md` — skills count 21→22, new command and skill listed
+
+---
+
 ## v5.1.0 (2026-03-14)
 
 **Orchestrator Architecture — Context Preservation**

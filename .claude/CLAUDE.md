@@ -27,6 +27,7 @@ Utilisateur dit...                    → Workflow
 "crée un nouveau projet"              → /init [template]
 "importe ce design Figma"             → /figma-to-code <url>
 "design ça dans Figma"                → skill figma-designer
+"documente le design system"          → /ds-doc
 "crée/audite le design system"        → skill figma-design-system
 "le composant est différent en prod"  → skill figma-design-code-sync
 ```
@@ -84,7 +85,8 @@ Logger chaque itération dans `docs/ralph-logs/`.
 /metrics                    # Dashboard métriques
 /init [template]            # Scaffolding (next|express|api|cli|lib)
 
-# Design (nécessite Figma Console MCP pour designer/figma-design-system)
+# Design System & Figma
+/ds-doc [--figma url]       # Documente le DS dans CLAUDE.md (scan + Figma links)
 /figma-setup [url]          # Configure Code Connect
 /figma-to-code <url>        # Figma → Code
 # Skills auto-triggered :
