@@ -41,11 +41,20 @@ description: Développe une feature GitHub en mode RALPH autonome avec multi-age
 - Identifier fichiers à modifier, patterns, risques
 - Récupérer la synthèse du subagent
 
+### Phase 1.5: FRONTEND DETECTION (automatique)
+- Détecter si la feature implique du travail frontend :
+  - URL Figma dans l'issue ? → `get_design_context` pour récupérer le design
+  - Fichiers impactés sont `.tsx/.jsx/.vue/.css` ou dans `components/` ?
+  - `components/CLAUDE.md` existe ? → Lire pour connaître composants/tokens disponibles
+  - `components.json` (shadcn) existe ?
+- Si FRONTEND détecté : le plan intégrera réutilisation composants, tokens, Figma
+
 ### Phase 2: PLAN (Orchestrateur = TOI)
 - **PAS de Plan Mode, PAS de subagent** — TOI tu planifies directement
 - Tu as tout le contexte de Phase 1
 - Créer le plan d'implémentation avec étapes atomiques
 - Pour chaque étape : quoi, où (chemins absolus), comment, contraintes
+- **Si FRONTEND :** spécifier quels composants réutiliser, quels tokens, mapping Figma si applicable
 - TaskCreate si 2+ étapes
 - Préparer les prompts COMPLETS et AUTONOMES pour les subagents
 - Valider automatiquement (pas de STOP)
@@ -73,6 +82,7 @@ description: Développe une feature GitHub en mode RALPH autonome avec multi-age
 
 ### Phase 5: FINALIZE
 - Vérifier tous les tests passent
+- **Si FRONTEND + nouveaux composants créés :** lancer `/ds-doc --update` automatiquement
 - Créer un résumé des changements
 - Préparer pour PR
 

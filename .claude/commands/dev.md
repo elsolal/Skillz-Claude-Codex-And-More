@@ -36,6 +36,41 @@ Lancer un **subagent Explore** pour comprendre le codebase :
 
 ---
 
+## Phase 1.5: FRONTEND DETECTION (automatique, pas de stop)
+
+Après l'explore, détecter si la feature implique du **travail frontend** :
+
+### Signaux de détection
+
+| Signal | Comment vérifier | Poids |
+|--------|-----------------|-------|
+| URL Figma dans l'issue | `Grep` le body de l'issue pour `figma.com/design/` | Fort |
+| Fichiers à modifier sont `.tsx/.jsx/.vue/.css` | Résultat de l'Explore (fichiers impactés) | Fort |
+| `components/CLAUDE.md` existe | `Glob: **/components/CLAUDE.md` | Fort |
+| `components.json` (shadcn) existe | `Glob: components.json` | Moyen |
+| Keywords dans l'issue | "écran", "page", "composant", "UI", "design", "formulaire", "layout" | Faible |
+
+**Si 1+ signal fort ou 2+ signaux faibles → FRONTEND = true**
+
+### Si FRONTEND détecté
+
+Afficher dans la synthèse :
+
+```markdown
+🎨 **Frontend détecté**
+- Composants existants : [lire components/CLAUDE.md si existe]
+- Design Figma : [URL si trouvée dans l'issue, sinon "aucun"]
+- Design System : [documenté / non documenté]
+
+→ Le plan intégrera les étapes design (réutilisation composants, tokens, Figma)
+```
+
+**Si URL Figma trouvée :** appeler `get_design_context` pour récupérer le design et l'inclure dans le contexte du plan.
+
+**Si `components/CLAUDE.md` existe :** le lire pour connaître les composants et tokens disponibles — le plan devra prioriser la réutilisation.
+
+---
+
 ## Phase 2: PLAN (orchestrateur = TOI)
 
 **PAS de Plan Mode, PAS de subagent.** C'est TOI, l'orchestrateur principal, qui planifies directement.
@@ -49,7 +84,12 @@ Tu as tout le contexte de la Phase 1. Avec ce contexte :
    - **Comment** : pattern à suivre, références au code existant
    - **Contraintes** : ce que le subagent ne doit PAS toucher
 3. Si **2+ étapes** → créer des Tasks (`TaskCreate`) pour tracking
-4. Préparer les prompts des subagents de Phase 3 (chaque prompt doit être COMPLET et AUTONOME)
+4. **Si FRONTEND :** ajouter au plan :
+   - Quels composants existants réutiliser (depuis `components/CLAUDE.md`)
+   - Quels tokens/variables CSS utiliser (jamais de valeurs hardcodées)
+   - Si design Figma fourni : mapper les éléments Figma → composants code
+   - Si nouveaux composants créés : noter pour `/ds-doc --update` en Phase 5
+5. Préparer les prompts des subagents de Phase 3 (chaque prompt doit être COMPLET et AUTONOME)
 
 **STOP CHECKPOINT 2** — Validation du plan avant implémentation.
 
@@ -70,7 +110,8 @@ Règles :
 - Respecte les conventions du projet (CLAUDE.md)
 - Vérifie lint + types après chaque modification
 - Ne touche PAS aux fichiers hors scope
-- Résume ce que tu as fait à la fin
+- Si FRONTEND : réutilise les composants existants (components/CLAUDE.md), utilise les tokens CSS (jamais de hex/spacing hardcodés), respecte les patterns de composition
+- Résume ce que tu as fait à la fin (+ liste des nouveaux composants créés si frontend)
 
 Knowledge refs: .claude/knowledge/testing/error-handling.md, feature-flags.md"
 ```
@@ -188,8 +229,11 @@ Quand les 3 subagents reviennent :
 ## Phase 5: SHIP
 
 1. Vérifier que tous les tests passent après corrections review
-2. Proposer : **[S] /ship** (merge main, tests, review, changelog, PR) | **[C] Commit seulement** | **[R] Réviser encore**
-3. Si l'utilisateur choisit [S], lancer le workflow `/ship` automatiquement
+2. **Si FRONTEND + nouveaux composants créés :**
+   - Proposer `/ds-doc --update` pour mettre à jour la documentation design system
+   - Mentionner les composants à lier dans Figma si pas encore liés
+3. Proposer : **[S] /ship** (merge main, tests, review, changelog, PR) | **[D] /ds-doc --update puis ship** | **[C] Commit seulement** | **[R] Réviser encore**
+4. Si l'utilisateur choisit [S] ou [D], lancer le workflow correspondant
 
 ---
 

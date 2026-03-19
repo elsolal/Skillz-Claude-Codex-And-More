@@ -4,9 +4,7 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## v5.2.0 (2026-03-19)
 
-**Design System Documenter**
-
-New `/ds-doc` skill that scans a project and generates design system documentation directly in CLAUDE.md, giving Claude persistent context about tokens, components, and patterns.
+**Design System Documenter + Frontend-Aware Dev Workflow**
 
 ### New skill: `ds-doc`
 - Scans project for tokens (tailwind.config, globals.css), UI components (shadcn), and business components
@@ -18,8 +16,17 @@ New `/ds-doc` skill that scans a project and generates design system documentati
 - Detects components present in Figma but not yet in code ("Composants manquants" section)
 - Idempotent: re-running updates the section without duplicating
 
+### Frontend detection in `/dev` and `/auto-dev`
+- New **Phase 1.5: Frontend Detection** — automatically detects frontend work after the explore phase
+- Detection signals: Figma URL in issue, `.tsx/.jsx/.css` files, `components/CLAUDE.md` presence, shadcn `components.json`
+- When frontend detected: plan includes component reuse, token usage, Figma mapping
+- Code agent receives DS-aware instructions (reuse components, never hardcode colors/spacing)
+- Phase 5 proposes `/ds-doc --update` when new components were created (auto-runs in RALPH mode)
+
 ### Files changed
 - New: `.claude/skills/ds-doc/SKILL.md`
+- Updated: `.claude/commands/dev.md` — Phase 1.5 + frontend-aware plan/implement/ship
+- Updated: `.claude/commands/auto-dev.md` — same frontend detection for RALPH mode
 - Updated: `CLAUDE.md` — added `/ds-doc` to workflow routing and commands
 - Updated: `README.md` — skills count 21→22, new command and skill listed
 
