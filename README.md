@@ -134,6 +134,8 @@ Merges main, runs tests, pre-landing review, generates changelog, creates PR.
 
 **Key principle:** The orchestrator (main thread) keeps ALL context. It never forks to isolated skills for planning. Only execution (code, tests, reviews, issue creation) is dispatched to subagents via `SendMessage`.
 
+**Frontend-aware:** After the Explore phase, the workflow auto-detects frontend work (Figma URLs, `.tsx` files, `components/CLAUDE.md`). When detected, the plan prioritizes component reuse, token usage, and Figma mapping. After implementation, it proposes `/ds-doc --update` to keep the design system documentation in sync.
+
 ---
 
 ## Commands Reference
