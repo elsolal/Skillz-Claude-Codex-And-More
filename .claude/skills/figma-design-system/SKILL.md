@@ -9,7 +9,11 @@ Manages the design system in Figma: tokens, components, parity with code, and dr
 
 ## Prerequisites
 
-Figma Console MCP must be running and connected. Check with `figma_get_status`.
+The official Figma MCP must be available (`mcp__plugin_figma_figma__*` tools). Authentication is automatic via OAuth.
+
+> **Optional:** If `figma-console` MCP is also installed, additional batch tools become available (see [Batch Operations Reference](#batch-operations-reference) below). The official Figma MCP's `use_figma` can achieve the same results via Plugin API code.
+
+> **`fileKey` requirement:** The `use_figma` tool requires a `fileKey` parameter identifying the target Figma file. Extract it from the Figma URL (`figma.com/design/:fileKey/...`) or ask the user for the file URL.
 
 ## When to Use
 
@@ -25,9 +29,9 @@ Figma Console MCP must be running and connected. Check with `figma_get_status`.
 
 ## Core Rules
 
-- **ALWAYS** call `figma_search_components` at session start
-- **ALWAYS** use batch tools for multi-variable operations (`figma_batch_create_variables`, `figma_batch_update_variables`, `figma_setup_design_tokens`)
-- **ALWAYS** screenshot after modifications to validate visually
+- **ALWAYS** call `search_design_system` at session start to discover existing components
+- **ALWAYS** use batch tools for multi-variable operations when figma-console is available (`figma_batch_create_variables`, `figma_batch_update_variables`, `figma_setup_design_tokens`); otherwise use `use_figma` with Plugin API code
+- **ALWAYS** screenshot after modifications to validate visually (`get_screenshot`)
 - **ALWAYS** audit before modifying — understand current state first
 - **NEVER** delete existing variables/components without explicit user approval
 - **NEVER** overwrite Figma values without showing the diff first
@@ -54,7 +58,7 @@ Determine where tokens come from:
 
 ### 2. Create Token Collections
 
-Use `figma_setup_design_tokens` for atomic creation:
+Use `figma_setup_design_tokens` (figma-console) or `use_figma(fileKey, code, description)` for atomic creation:
 
 ```
 Collection: "Design Tokens"
@@ -92,10 +96,10 @@ Variables:
 
 ### 3. Create Component Library
 
-For each code component, create its Figma counterpart:
+For each code component, create its Figma counterpart using `use_figma(fileKey, code, description)`:
 
 ```javascript
-// Create a component set (variants)
+// Create a component set (variants) via use_figma Plugin API
 const componentSet = figma.combineAsVariants(variants, parentFrame);
 componentSet.name = 'Button';
 
@@ -103,8 +107,9 @@ componentSet.name = 'Button';
 const component = figma.createComponent();
 component.name = 'Button';
 
-// Add component properties
-// → use figma_add_component_property for each prop
+// Add component properties via Plugin API code
+component.addComponentProperty('variant', 'VARIANT', 'primary');
+component.addComponentProperty('size', 'VARIANT', 'md');
 ```
 
 **STOP** — Present component plan before creating.
@@ -112,8 +117,8 @@ component.name = 'Button';
 ### 4. Validate
 
 ```
-figma_take_screenshot → Visual check
-figma_audit_design_system → Automated audit
+get_screenshot           → Visual check
+figma_audit_design_system → Automated audit (figma-console, optional)
 ```
 
 ---
@@ -123,17 +128,19 @@ figma_audit_design_system → Automated audit
 ### 1. Gather Current State
 
 ```
-figma_get_design_system_summary  → Overview of DS
-figma_get_variables              → All token values
-figma_search_components          → All components
-figma_get_styles                 → All styles
+get_metadata + get_variable_defs  → Overview of DS and all token values
+search_design_system              → All components
 ```
+
+> **With figma-console (optional):** `figma_get_design_system_summary`, `figma_get_variables`, `figma_search_components`, and `figma_get_styles` provide richer detail.
 
 ### 2. Run Automated Audit
 
 ```
-figma_audit_design_system → Get issues
+figma_audit_design_system → Get issues (figma-console, optional)
 ```
+
+> Without figma-console, manually cross-reference `get_variable_defs` output with code tokens.
 
 ### 3. Cross-Reference with Code
 
@@ -189,12 +196,14 @@ Appliquer les corrections ?
 
 ### 5. Apply Corrections
 
-Use batch tools for efficiency:
+Use batch tools (figma-console) or `use_figma` Plugin API for efficiency:
 
 ```
-figma_batch_create_variables  → New tokens
-figma_batch_update_variables  → Fix mismatched values
-figma_take_screenshot         → Validate
+figma_batch_create_variables  → New tokens (figma-console)
+figma_batch_update_variables  → Fix mismatched values (figma-console)
+— OR —
+use_figma(fileKey, code, description) → Create/update variables via Plugin API
+get_screenshot                → Validate
 ```
 
 ---
@@ -214,19 +223,21 @@ Compare with last known state (or Figma current state)
 
 | Code Change | Figma Action |
 |-------------|-------------|
-| New variant added | `figma_add_component_property` or create new variant in component set |
-| Variant renamed | `figma_edit_component_property` |
-| Variant removed | `figma_delete_component_property` (with approval) |
-| Token value changed | `figma_update_variable` |
-| New token added | `figma_create_variable` |
-| Component restyled | Update fills, strokes, text styles via `figma_execute` |
+| New variant added | `use_figma` Plugin API: `component.addComponentProperty(...)` or create new variant in component set |
+| Variant renamed | `use_figma` Plugin API: `component.editComponentProperty(...)` |
+| Variant removed | `use_figma` Plugin API: `component.deleteComponentProperty(...)` (with approval) |
+| Token value changed | `use_figma` Plugin API: `variable.setValueForMode(...)` |
+| New token added | `use_figma` Plugin API: `figma.variables.createVariable(...)` |
+| Component restyled | Update fills, strokes, text styles via `use_figma(fileKey, code, description)` |
+
+> **With figma-console (optional):** `figma_add_component_property`, `figma_edit_component_property`, `figma_delete_component_property`, `figma_update_variable`, `figma_create_variable`, and `figma_execute` can be used as direct alternatives.
 
 ### 3. Apply & Validate
 
 ```
-Apply changes via appropriate tools
-figma_take_screenshot → Visual validation
-figma_check_design_parity → Automated parity check
+Apply changes via use_figma or figma-console tools
+get_screenshot               → Visual validation
+figma_check_design_parity    → Automated parity check (figma-console, optional)
 ```
 
 ### 4. Report
@@ -258,10 +269,11 @@ Detect and fix inconsistencies within the Figma DS itself.
 ### 1. Scan for Issues
 
 ```
-figma_audit_design_system → Get issues
-figma_browse_tokens → Check naming conventions
-figma_search_components → Find duplicates
+get_variable_defs        → Check naming conventions
+search_design_system     → Find duplicates
 ```
+
+> **With figma-console (optional):** `figma_audit_design_system`, `figma_browse_tokens`, and `figma_search_components` provide deeper scanning.
 
 Common issues:
 - **Naming inconsistencies** — `Color/Primary/500` vs `color-primary-500` vs `Primary 500`
@@ -297,6 +309,8 @@ Violations : [N]
 
 ## Batch Operations Reference
 
+> **Note:** These batch tools require `figma-console` MCP. Alternative: use `use_figma` with Plugin API code for the same operations.
+
 | Tool | Use Case | Limit |
 |------|----------|-------|
 | `figma_setup_design_tokens` | Create collection + modes + variables atomically | Full system |
@@ -305,7 +319,7 @@ Violations : [N]
 | `figma_audit_design_system` | Automated DS audit | Full file |
 | `figma_check_design_parity` | Check code↔Figma parity | Per component |
 
-Always prefer batch over individual calls (10-50x faster).
+Always prefer batch over individual calls (10-50x faster) when figma-console is available. When using only the official Figma MCP, use `use_figma(fileKey, code, description)` with Plugin API code to perform equivalent batch operations.
 
 ## Auto-Chain
 

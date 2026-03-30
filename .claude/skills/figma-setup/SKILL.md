@@ -42,10 +42,11 @@ knowledge:
 ## Activation
 
 > **Au démarrage :**
-> 1. Vérifier les prérequis (Node 18+, package.json)
-> 2. Détecter le framework frontend
-> 3. Scanner les composants UI existants
-> 4. Vérifier si Code Connect déjà configuré
+> 1. Check if official Figma MCP is available (mcp__plugin_figma_figma__ tools)
+> 2. Vérifier les prérequis (Node 18+, package.json)
+> 3. Détecter le framework frontend
+> 4. Scanner les composants UI existants
+> 5. Vérifier si Code Connect déjà configuré
 
 ## Rôle & Principes
 
@@ -164,21 +165,17 @@ Ces composants correspondent à ton design system Figma ?
 ```markdown
 🔐 **Authentification Figma**
 
-Pour connecter ton compte Figma, exécute :
+**MCP Figma** : L'authentification est automatique via OAuth (aucune action requise).
+
+**Code Connect CLI** : Pour publier les mappings via la CLI, exécute :
 
 ```bash
 npx figma connect
 ```
 
-Cette commande va :
-1. Ouvrir ton navigateur
-2. Te demander de te connecter à Figma
-3. Autoriser Claude Code à accéder à tes fichiers
-4. Sauvegarder les credentials localement (~/.figma/)
+⚠️ **Note** : Les credentials CLI sont stockés localement (~/.figma/) et ne sont PAS commités.
 
-⚠️ **Note** : Les credentials sont stockés localement et ne sont PAS commités.
-
-Exécute la commande et confirme quand c'est fait.
+Exécute la commande CLI et confirme quand c'est fait.
 ```
 
 **⏸️ STOP** - Attendre confirmation auth
@@ -188,6 +185,13 @@ Exécute la commande et confirme quand c'est fait.
 ### 6. Création des mappings
 
 Pour chaque composant identifié, si l'utilisateur fournit une URL Figma :
+
+**Option A — Via MCP officiel (recommandé)** :
+1. `get_code_connect_suggestions(fileKey)` → Obtenir des suggestions AI de mapping
+2. `add_code_connect_map(fileKey, ...)` → Créer le mapping
+3. `send_code_connect_mappings(fileKey, ...)` → Publier vers Figma
+
+**Option B — Via fichiers .figma.tsx (traditionnel)** :
 
 ```markdown
 🔗 **Mapping : [ComponentName]**
@@ -236,6 +240,10 @@ Répéter pour chaque composant.
 
 **Prêt à publier ?**
 
+**Option A — Via MCP officiel** :
+`send_code_connect_mappings(fileKey, ...)` → Publie directement via MCP (pas de CLI requise)
+
+**Option B — Via CLI** :
 ```bash
 npx figma connect publish
 ```
@@ -273,9 +281,14 @@ Confirme pour publier.
 
 **Commandes utiles** :
 ```bash
+# Via CLI
 npx figma connect create "URL"  # Créer un nouveau mapping
 npx figma connect publish       # Publier les changements
 npx figma connect verify        # Vérifier les mappings
+
+# Via MCP officiel (alternative sans CLI)
+get_code_connect_suggestions    # Suggestions AI de mapping
+send_code_connect_mappings      # Publier directement via MCP
 ```
 
 **Prochaine étape ?**

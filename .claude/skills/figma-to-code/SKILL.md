@@ -128,7 +128,11 @@ Je récupère les informations du design ?
 
 ### 3. Extraction du design
 
-Utiliser les outils MCP Figma :
+**Option : Capture Web → Figma** (si le design n'existe pas encore dans Figma)
+Si l'utilisateur a un site/app mais pas de fichier Figma, proposer :
+→ `generate_figma_design` pour capturer la page web dans Figma d'abord
+
+Utiliser les outils du MCP officiel Figma :
 
 ```markdown
 📐 **Design extrait**
@@ -467,6 +471,8 @@ Pour une meilleure génération, configure d'abord Code Connect :
 **Options** :
 - [S] Setup Code Connect d'abord (recommandé)
 - [C] Continuer sans mappings (génération basique)
+
+**Alternative MCP** : `get_code_connect_suggestions` peut proposer des mappings automatiquement via AI.
 ```
 
 ### Accès refusé

@@ -11,6 +11,8 @@ allowed-tools:
   - Bash
   - mcp__plugin_figma_figma__get_metadata
   - mcp__plugin_figma_figma__get_design_context
+  - mcp__plugin_figma_figma__get_variable_defs
+  - mcp__plugin_figma_figma__search_design_system
 argument-hint: [--figma <url>] [--update]
 user-invocable: true
 ---
@@ -50,7 +52,8 @@ Colle l'URL ou tape [S] pour skip Figma.
 Si URL fournie :
 1. Extraire `fileKey` de l'URL
 2. Appeler `get_metadata` pour récupérer le nom du fichier et la structure des pages
-3. Stocker le `fileKey` pour construire les liens composants plus tard
+3. Appeler `get_variable_defs` pour récupérer les tokens existants
+4. Stocker le `fileKey` pour construire les liens composants plus tard
 
 ---
 
@@ -98,7 +101,8 @@ Pour chaque composant :
 Pour les composants clés, chercher leur correspondance Figma :
 1. Vérifier si Code Connect existe (`figma.config.json`) → mapper automatiquement
 2. Sinon, utiliser `get_design_context` avec le `fileKey` pour trouver les composants Figma par nom
-3. Construire l'URL Figma : `figma.com/design/{fileKey}/?node-id={nodeId}`
+3. Utiliser `search_design_system` pour trouver les composants par nom dans les libraries
+4. Construire l'URL Figma : `figma.com/design/{fileKey}/?node-id={nodeId}`
 
 ---
 

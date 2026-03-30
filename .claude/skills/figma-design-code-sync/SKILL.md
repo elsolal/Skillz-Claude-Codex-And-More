@@ -37,34 +37,32 @@ This skill handles the **mapping layer** between the two worlds. The others hand
 
 ## Quick Reference
 
-### Figma Official MCP (read-only)
+### Figma MCP (official — read + write)
 
 | Tool | Purpose |
 |---|---|
-| `get_design_context(nodeId, fileKey)` | Extract component code + screenshot + props |
-| `get_screenshot(nodeId, fileKey)` | Visual snapshot for comparison |
-| `get_metadata(nodeId, fileKey)` | XML structure of a node/page |
-| `get_variable_defs(nodeId, fileKey)` | Design tokens and variables |
+| `get_design_context(fileKey, nodeId)` | Extract component code + screenshot + props |
+| `get_screenshot(fileKey, nodeId)` | Visual snapshot for comparison |
+| `get_metadata(fileKey, nodeId)` | XML structure of a node/page |
+| `get_variable_defs(fileKey)` | Design tokens and variables |
 | `get_code_connect_map(fileKey)` | Existing Code Connect mappings |
+| `get_code_connect_suggestions(fileKey)` | **New** — AI suggestions for Code Connect mappings |
+| `add_code_connect_map(fileKey, ...)` | Create/update a CC mapping |
+| `send_code_connect_mappings(fileKey, ...)` | Push mappings to Figma |
+| `search_design_system(query, fileKey)` | Find components across all libraries |
+| `use_figma(fileKey, code, description)` | Execute Plugin API code (create, modify, delete nodes) |
 
-### Figma Console MCP (read-write, requires bridge)
+### Figma Console MCP (optional — advanced features)
 
-When Figma Console is available, use these for deeper analysis and write-back:
+If figma-console is installed, these additional tools are available:
 
 | Tool | Purpose |
 |---|---|
-| `figma_search_components` | Find all components in current file (CALL AT SESSION START) |
-| `figma_get_component_details` | Detailed component props, variants, constraints |
-| `figma_get_variables` | All variables/tokens with values per mode |
-| `figma_get_token_values` | Token values for specific collection |
 | `figma_check_design_parity` | Automated parity check between code and Figma |
 | `figma_audit_design_system` | Full DS audit — detects inconsistencies |
-| `figma_take_screenshot` | Screenshot for visual validation after changes |
-| `figma_add_component_property` | Add missing prop to Figma component (reverse sync) |
-| `figma_edit_component_property` | Update prop name/type in Figma component |
 | `figma_batch_update_variables` | Batch update token values (up to 100/call) |
 
-**Rule:** If Figma Console is available, prefer `figma_check_design_parity` in Step 3 for automated gap detection instead of manual comparison.
+**Rule:** Prefer official MCP tools. Only use figma-console for automated parity checks and DS auditing. Use `figma_check_design_parity` from figma-console if available for automated gap detection.
 
 ### Code Connect API
 
@@ -83,7 +81,7 @@ digraph sync_flow {
   rankdir=TB;
   node [shape=box];
 
-  analyze_figma [label="1. Analyze Figma Component\n(get_design_context)"];
+  analyze_figma [label="1. Analyze Figma Component\n(get_design_context — official MCP, read+write)"];
   analyze_code [label="2. Analyze Code Component\n(Read component file)"];
   gap_analysis [label="3. Gap Analysis\n(compare props/variants/tokens)"];
   decision [label="Gaps found?" shape=diamond];
@@ -333,8 +331,8 @@ Glob: src/components/ui/*.tsx (exclude *.figma.tsx, *.test.tsx, *.stories.tsx)
 # Existing mappings
 Glob: src/components/**/*.figma.tsx
 
-# Figma components (requires Figma Console MCP)
-figma_search_components → all components in current file
+# Figma components (via official MCP)
+search_design_system → all components across libraries
 ```
 
 Present the coverage table:
