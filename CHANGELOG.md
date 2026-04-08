@@ -2,6 +2,37 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## v5.4.0 (2026-04-08)
+
+**Codex CLI Mirror + Manifest-based Drift Protection**
+
+### New: Codex CLI global install
+- `install.sh --global` now also mirrors skills/commands into `~/.codex/` when Codex CLI is detected
+- Skills are symlinked individually (`~/.codex/skills/X → ~/.claude/skills/X`) — single source of truth in `~/.claude/`
+- Commands mirrored to `~/.codex/prompts/` as symlinks (Codex convention for slash commands)
+- `~/.codex/AGENTS.md` generated from `~/.claude/CLAUDE.md` with auto-doc header (edits must go in `CLAUDE.md` and re-run install)
+- Native `~/.codex/skills/.system/` folder (OpenAI built-in skills) is preserved — skills are linked alongside, never over
+- `--no-codex` flag to skip the Codex mirror if you only want Claude
+- Codex MCP servers in `config.toml` are intentionally left untouched — mirror them manually if needed
+
+### Fix: drift protection via manifest
+- `~/.claude/.skillz-manifest` tracks skills/commands installed by Skillz
+- On each `--global` run, orphaned items (present in previous manifest but not in source) are purged automatically
+- User-added skills outside the manifest are never touched — zero risk of collateral damage
+- Dead Codex symlinks are swept at the start of every Codex mirror run
+- Root cause fixed: previously, removed skills (e.g. the 4 legacy Figma skills from v5.3.0) accumulated in `~/.claude/skills/` after migrations because `rsync` has no `--delete` by default
+
+### Cleanup: remaining `figma-console` references
+- Removed the "Figma Console MCP (optional — advanced features)" section from `figma-design-code-sync` — the skill is now 100% aligned with the official Figma MCP (`use_figma` + `get_design_context` + `search_design_system`)
+- No skill in the repo references the unofficial `figma-console` MCP anymore
+
+### Files changed
+- Updated: `install.sh` — `--no-codex` flag, Codex mirror block, manifest-based purge, dead-link sweep
+- Updated: `.claude/skills/figma-design-code-sync/SKILL.md` — removed `figma-console` section
+- Updated: `README.md` — documented Codex mirror behavior and drift protection
+
+---
+
 ## v5.3.0 (2026-04-02)
 
 **Official Figma Skills + ElevenLabs & Remotion Pipeline**

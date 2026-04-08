@@ -52,18 +52,6 @@ This skill handles the **mapping layer** between the two worlds. The others hand
 | `search_design_system(query, fileKey)` | Find components across all libraries |
 | `use_figma(fileKey, code, description)` | Execute Plugin API code (create, modify, delete nodes) |
 
-### Figma Console MCP (optional — advanced features)
-
-If figma-console is installed, these additional tools are available:
-
-| Tool | Purpose |
-|---|---|
-| `figma_check_design_parity` | Automated parity check between code and Figma |
-| `figma_audit_design_system` | Full DS audit — detects inconsistencies |
-| `figma_batch_update_variables` | Batch update token values (up to 100/call) |
-
-**Rule:** Prefer official MCP tools. Only use figma-console for automated parity checks and DS auditing. Use `figma_check_design_parity` from figma-console if available for automated gap detection.
-
 ### Code Connect API
 
 | API | Maps to |

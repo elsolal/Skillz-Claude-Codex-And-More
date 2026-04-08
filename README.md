@@ -24,10 +24,17 @@ All workflows use an **orchestrator pattern**: the main thread keeps full contex
 
 Install skills, commands, knowledge and templates into `~/.claude/` so they're available in **every project**. Preserves your existing CLAUDE.md, settings.json, and mcp.json.
 
+**Codex CLI is mirrored automatically** — if `~/.codex/` exists, skills are symlinked into `~/.codex/skills/` and commands into `~/.codex/prompts/`, and an `AGENTS.md` is generated from your `CLAUDE.md`. Native Codex system skills (`.system/`) are preserved.
+
 ```bash
-# Install or update (same command)
+# Install or update Claude + Codex (same command)
 curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- --global
+
+# Claude only, skip Codex mirror
+curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- --global --no-codex
 ```
+
+Drift protection: a manifest at `~/.claude/.skillz-manifest` tracks skills/commands installed by Skillz. On each `--global` run, orphaned items (present in the previous manifest but no longer in the source) are removed automatically. User-added skills outside the manifest are never touched. Dead Codex symlinks are swept as well.
 
 ### Per-project (Mac / Linux)
 
