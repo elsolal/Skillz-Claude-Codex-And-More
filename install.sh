@@ -1,25 +1,34 @@
 #!/bin/bash
 
 # ============================================================
-# D-EPCT+R Workflow v5.1 Installer
-# Install Claude Code skills + RALPH Mode + 54 Knowledge Files + Templates
-# 21 skills, 20 commands, 18 templates, 4 agent compatibility layers
+# D-EPCT+R Workflow Installer
+# Install Skillz-Claude skills + RALPH Mode + Knowledge Files + Templates
+# into Claude Code (~/.claude/) and/or Codex CLI (~/.codex/).
 #
-# Usage:
-#   # Fresh install in a project
-#   curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- .
-#   ./install.sh /path/to/project
+# USAGE (v5.6.0+ subcommand syntax — recommended):
 #
-#   # Update existing project installation (preserves CLAUDE.md, settings.json, mcp.json)
-#   curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- . --update
-#   ./install.sh /path/to/project --update
+#   ./install.sh install  claude|codex|all|<path>   — fresh install
+#   ./install.sh update   claude|codex|all|<path>   — update existing install
+#   ./install.sh uninstall claude|codex|all         — remove Skillz-managed items
+#   ./install.sh help                                — show full help
 #
-#   # Global install into ~/.claude/ AND ~/.codex/ (available in ALL projects)
-#   curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- --global
-#   ./install.sh --global
+# Examples:
+#   ./install.sh install all           # Claude + Codex global
+#   ./install.sh install claude        # Claude global only
+#   ./install.sh install codex         # Codex global only (Claude must exist)
+#   ./install.sh install .             # Per-project install in current directory
+#   ./install.sh update claude         # Refresh Claude from latest repo
+#   ./install.sh uninstall codex       # Remove Codex mirror, keep Claude
 #
-#   # Global install, Claude only (skip Codex)
-#   ./install.sh --global --no-codex
+#   # Via curl (no clone)
+#   curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- install all
+#   curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- install .
+#
+# LEGACY FLAGS (deprecated, still work with a warning):
+#   --global              → equivalent to "install all"
+#   --global --no-codex   → equivalent to "install claude"
+#   --update              → equivalent to "update <path>"
+#   <path>                → equivalent to "install <path>"
 # ============================================================
 
 set -e
@@ -36,31 +45,307 @@ NC='\033[0m' # No Color
 REPO_URL="https://github.com/elsolal/Skillz-Claude.git"
 REPO_NAME="Skillz-Claude"
 
-# Parse arguments
+# ============================================================
+# Subcommand helpers (v5.6.0+)
+# ============================================================
+
+show_usage() {
+    cat <<EOF
+Skillz-Claude Installer
+
+USAGE:
+  ./install.sh <action> <target>
+
+ACTIONS:
+  install       Fresh install (prompts if already installed)
+  update        Idempotent update (no prompt, preserves your config)
+  uninstall     Remove Skillz-managed skills/commands (preserves user-added ones)
+  help          Show this help
+
+TARGETS:
+  claude        ~/.claude/ globally (for Claude Code)
+  codex         ~/.codex/ globally (for Codex CLI, requires Claude installed first)
+  all           Both Claude and Codex
+  <path>        Per-project install in the given directory (Claude only)
+
+EXAMPLES:
+  ./install.sh install all            # Claude + Codex global
+  ./install.sh install claude         # Claude global only
+  ./install.sh install codex          # Codex mirror only (Claude must exist)
+  ./install.sh install .              # Per-project install in current dir
+  ./install.sh update claude          # Refresh Claude from latest repo
+  ./install.sh uninstall codex        # Remove Codex mirror, keep Claude
+  ./install.sh uninstall all          # Remove everything Skillz installed globally
+
+LEGACY FLAGS (deprecated, still work with a warning):
+  --global              → install all
+  --global --no-codex   → install claude
+  --update              → update <current dir>
+
+For full docs: https://github.com/elsolal/Skillz-Claude
+EOF
+}
+
+deprecation_warning() {
+    local old="$1"
+    local new="$2"
+    echo -e "${YELLOW}⚠️  '$old' is deprecated. Use '$new' instead.${NC}" >&2
+    echo -e "${YELLOW}   Continuing with legacy behavior for backwards compatibility.${NC}" >&2
+    echo "" >&2
+}
+
+# Uninstall Claude globally — reads ~/.claude/.skillz-manifest and removes
+# ONLY the skills/commands listed there. User-added items are preserved.
+# Never touches CLAUDE.md, settings.json, mcp.json, knowledge/, templates/.
+uninstall_claude_global() {
+    echo -e "${BLUE}"
+    echo "╔═══════════════════════════════════════════════════════════════════════╗"
+    echo "║             Uninstall Claude (Skillz-managed items)                   ║"
+    echo "║                                                                       ║"
+    echo "║   Removes: skills/* and commands/* that Skillz installed              ║"
+    echo "║   Preserves: CLAUDE.md, settings.json, mcp.json, user-added skills    ║"
+    echo "╚═══════════════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+
+    local manifest="$HOME/.claude/.skillz-manifest"
+    if [ ! -f "$manifest" ]; then
+        echo -e "${YELLOW}ℹ️  No manifest found at $manifest — nothing Skillz-managed to remove.${NC}"
+        echo -e "${YELLOW}   (Skills/commands added without Skillz will not be touched.)${NC}"
+        return 0
+    fi
+
+    local removed_skills=0
+    local removed_commands=0
+    while IFS= read -r line; do
+        [ -z "$line" ] && continue
+        case "$line" in \#*) continue ;; esac
+        local type="${line%%:*}"
+        local name="${line#*:}"
+        case "$type" in
+            skill)
+                if [ -d "$HOME/.claude/skills/$name" ] || [ -L "$HOME/.claude/skills/$name" ]; then
+                    rm -rf "$HOME/.claude/skills/$name"
+                    echo -e "   ${YELLOW}🗑️  skill: $name${NC}"
+                    removed_skills=$((removed_skills + 1))
+                fi
+                ;;
+            command)
+                if [ -f "$HOME/.claude/commands/$name" ] || [ -L "$HOME/.claude/commands/$name" ]; then
+                    rm -f "$HOME/.claude/commands/$name"
+                    echo -e "   ${YELLOW}🗑️  command: $name${NC}"
+                    removed_commands=$((removed_commands + 1))
+                fi
+                ;;
+        esac
+    done < "$manifest"
+
+    rm -f "$manifest"
+    echo ""
+    echo -e "${GREEN}✅ Removed $removed_skills skill(s) and $removed_commands command(s)${NC}"
+    echo -e "${GREEN}✅ Manifest deleted${NC}"
+    echo -e "${CYAN}ℹ️  Your CLAUDE.md, settings.json, mcp.json, and user-added skills are untouched.${NC}"
+}
+
+# Uninstall Codex globally — removes symlinks in ~/.codex/skills/ that point to
+# ~/.claude/skills/ (Skillz-managed), removes the 5 Codex-native prompts, and
+# preserves .system/, config.toml, AGENTS.md, and third-party prompts (BMad).
+uninstall_codex_global() {
+    echo -e "${BLUE}"
+    echo "╔═══════════════════════════════════════════════════════════════════════╗"
+    echo "║             Uninstall Codex (Skillz-managed items)                    ║"
+    echo "║                                                                       ║"
+    echo "║   Removes: skill symlinks pointing to ~/.claude/, Codex-native prompts║"
+    echo "║   Preserves: .system/, config.toml, AGENTS.md, third-party prompts    ║"
+    echo "╚═══════════════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+
+    if [ ! -d ~/.codex ]; then
+        echo -e "${YELLOW}ℹ️  ~/.codex/ not found — nothing to uninstall.${NC}"
+        return 0
+    fi
+
+    # 1. Remove skill symlinks pointing to ~/.claude/skills/
+    local removed_links=0
+    if [ -d ~/.codex/skills ]; then
+        for link in ~/.codex/skills/*; do
+            [ -L "$link" ] || continue
+            local name
+            name=$(basename "$link")
+            case "$name" in .system|.*) continue ;; esac
+            local target
+            target=$(readlink "$link")
+            # Only remove if it points to ~/.claude/ (Skillz-managed)
+            case "$target" in
+                "$HOME/.claude/skills/"*|"$HOME/.claude/skills/"*/)
+                    rm -f "$link"
+                    echo -e "   ${YELLOW}🗑️  skill symlink: $name${NC}"
+                    removed_links=$((removed_links + 1))
+                    ;;
+            esac
+        done
+    fi
+
+    # 2. Remove Codex-native prompts managed by Skillz (dev, discovery, ship, quick-fix, status)
+    local removed_prompts=0
+    for prompt in dev discovery ship quick-fix status; do
+        local f="$HOME/.codex/prompts/$prompt.md"
+        if [ -f "$f" ] && [ ! -L "$f" ]; then
+            rm -f "$f"
+            echo -e "   ${YELLOW}🗑️  prompt: $prompt.md${NC}"
+            removed_prompts=$((removed_prompts + 1))
+        fi
+    done
+
+    echo ""
+    echo -e "${GREEN}✅ Removed $removed_links skill symlink(s) and $removed_prompts Codex prompt(s)${NC}"
+    echo -e "${CYAN}ℹ️  ~/.codex/skills/.system/, config.toml, AGENTS.md, and third-party prompts (BMad) are untouched.${NC}"
+}
+
+# ============================================================
+# Argument parsing — subcommand dispatcher first, then legacy fallback
+# ============================================================
+
 UPDATE_MODE=false
 GLOBAL_MODE=false
 NO_CODEX=false
+CODEX_ONLY=false
 TARGET_DIR=""
 
-for arg in "$@"; do
-    case $arg in
-        --update)
-            UPDATE_MODE=true
-            ;;
-        --global)
-            GLOBAL_MODE=true
-            UPDATE_MODE=true
-            ;;
-        --no-codex)
-            NO_CODEX=true
-            ;;
-        *)
-            if [ -z "$TARGET_DIR" ]; then
-                TARGET_DIR="$arg"
-            fi
+# No arguments at all → show help. This prevents accidental install
+# into the current directory when user just runs `./install.sh`.
+if [ $# -eq 0 ]; then
+    show_usage
+    exit 0
+fi
+
+# Try to parse as subcommand first (install/update/uninstall/help as $1)
+SUBCOMMAND_CONSUMED=false
+if [ $# -gt 0 ]; then
+    case "$1" in
+        install|update|uninstall|help)
+            SUBCOMMAND_CONSUMED=true
+            ACTION="$1"
+            TARGET="${2:-}"
+
+            case "$ACTION" in
+                help)
+                    show_usage
+                    exit 0
+                    ;;
+                uninstall)
+                    case "$TARGET" in
+                        claude)
+                            uninstall_claude_global
+                            exit 0
+                            ;;
+                        codex)
+                            uninstall_codex_global
+                            exit 0
+                            ;;
+                        all)
+                            uninstall_codex_global
+                            echo ""
+                            uninstall_claude_global
+                            exit 0
+                            ;;
+                        "")
+                            echo -e "${RED}❌ Error: 'uninstall' requires a target: claude | codex | all${NC}"
+                            echo ""
+                            show_usage
+                            exit 1
+                            ;;
+                        *)
+                            echo -e "${RED}❌ Error: invalid uninstall target '$TARGET'. Valid: claude | codex | all${NC}"
+                            exit 1
+                            ;;
+                    esac
+                    ;;
+                install|update)
+                    # Both install and update translate to legacy flags.
+                    # The existing code is already idempotent, so update == re-install.
+                    [ "$ACTION" = "update" ] && UPDATE_MODE=true
+
+                    case "$TARGET" in
+                        claude)
+                            GLOBAL_MODE=true
+                            UPDATE_MODE=true
+                            NO_CODEX=true
+                            ;;
+                        codex)
+                            # Standalone Codex install: requires ~/.claude/ to exist already
+                            if [ ! -d ~/.claude/skills ]; then
+                                echo -e "${RED}❌ Error: ~/.claude/skills/ not found.${NC}"
+                                echo -e "${YELLOW}   Codex mirror requires Claude to be installed first.${NC}"
+                                echo -e "${YELLOW}   Run: ./install.sh install claude${NC}"
+                                exit 1
+                            fi
+                            GLOBAL_MODE=true
+                            UPDATE_MODE=true
+                            NO_CODEX=false
+                            CODEX_ONLY=true
+                            ;;
+                        all)
+                            GLOBAL_MODE=true
+                            UPDATE_MODE=true
+                            NO_CODEX=false
+                            ;;
+                        "")
+                            echo -e "${RED}❌ Error: '$ACTION' requires a target: claude | codex | all | <path>${NC}"
+                            echo ""
+                            show_usage
+                            exit 1
+                            ;;
+                        *)
+                            # Assume it's a path (absolute or relative)
+                            TARGET_DIR="$TARGET"
+                            ;;
+                    esac
+                    ;;
+            esac
             ;;
     esac
-done
+fi
+
+# Legacy flag parsing (runs only if no subcommand was consumed)
+if [ "$SUBCOMMAND_CONSUMED" = false ]; then
+    LEGACY_FLAG_USED=""
+    for arg in "$@"; do
+        case $arg in
+            --update)
+                UPDATE_MODE=true
+                LEGACY_FLAG_USED="--update"
+                ;;
+            --global)
+                GLOBAL_MODE=true
+                UPDATE_MODE=true
+                LEGACY_FLAG_USED="--global"
+                ;;
+            --no-codex)
+                NO_CODEX=true
+                ;;
+            --help|-h)
+                show_usage
+                exit 0
+                ;;
+            *)
+                if [ -z "$TARGET_DIR" ]; then
+                    TARGET_DIR="$arg"
+                fi
+                ;;
+        esac
+    done
+
+    # Print deprecation warnings for legacy flags
+    if [ -n "$LEGACY_FLAG_USED" ]; then
+        if [ "$GLOBAL_MODE" = true ] && [ "$NO_CODEX" = true ]; then
+            deprecation_warning "--global --no-codex" "install claude"
+        elif [ "$GLOBAL_MODE" = true ]; then
+            deprecation_warning "--global" "install all"
+        elif [ "$UPDATE_MODE" = true ] && [ -n "$TARGET_DIR" ]; then
+            deprecation_warning "--update" "update $TARGET_DIR"
+        fi
+    fi
+fi
 
 # Global mode: install into ~/.claude/ (user-level, all projects)
 if [ "$GLOBAL_MODE" = true ]; then
@@ -98,6 +383,13 @@ if [ "$GLOBAL_MODE" = true ]; then
 
     # Ensure ~/.claude/ exists
     mkdir -p ~/.claude
+
+    # If CODEX_ONLY is set (e.g. via `install codex` subcommand), skip the entire
+    # Claude-side install and jump directly to the Codex mirror block below.
+    if [ "$CODEX_ONLY" = true ]; then
+        echo -e "${CYAN}ℹ️  Codex-only mode — skipping Claude sync, reusing existing ~/.claude/${NC}"
+        echo ""
+    else
 
     # ------------------------------------------------------------
     # Manifest-based orphan purge (Claude side)
@@ -226,6 +518,8 @@ if [ "$GLOBAL_MODE" = true ]; then
     echo -e "${CYAN}These skills & commands are now available in ALL your projects.${NC}"
     echo -e "${CYAN}To update later: run the same command again.${NC}"
     echo ""
+
+    fi  # end of CODEX_ONLY skip guard
 
     # ====================================================================
     # Codex CLI install (symlinks ~/.claude/* into ~/.codex/*)
