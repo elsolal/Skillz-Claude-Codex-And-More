@@ -310,25 +310,46 @@ if [ "$GLOBAL_MODE" = true ]; then
         echo -e "   ${YELLOW}⚠️  $skill_skip_count skipped (real dirs — delete manually if you want them mirrored)${NC}"
     fi
 
-    # 2. Symlink each command → prompts/
-    echo -e "${CYAN}🔗 Symlinking commands → ~/.codex/prompts/...${NC}"
-    prompt_link_count=0
-    prompt_skip_count=0
-    for cmd_file in ~/.claude/commands/*.md; do
-        [ -f "$cmd_file" ] || continue
-        name=$(basename "$cmd_file")
-        target="$HOME/.codex/prompts/$name"
-        if [ -e "$target" ] && [ ! -L "$target" ]; then
-            echo -e "   ${YELLOW}⚠️  $name (skipped — real file, not symlink)${NC}"
-            prompt_skip_count=$((prompt_skip_count + 1))
-            continue
+    # 2. Copy Codex-native prompts from source .codex/prompts/ → ~/.codex/prompts/
+    #
+    # IMPORTANT: we do NOT symlink ~/.claude/commands → ~/.codex/prompts anymore.
+    # Claude commands use $ARGUMENTS and Claude-specific tools (SendMessage,
+    # TaskCreate, parallel subagents) that don't work in Codex. Instead, we ship
+    # a separate set of Codex-native prompts in .codex/prompts/ in the repo that
+    # are short BMad-style triggers loading shared workflow skills.
+    SOURCE_CODEX_PROMPTS="$(dirname "$SOURCE_DIR")/.codex/prompts"
+    if [ -d "$SOURCE_CODEX_PROMPTS" ]; then
+        echo -e "${CYAN}📋 Copying Codex-native prompts → ~/.codex/prompts/...${NC}"
+        prompt_copy_count=0
+        prompt_skip_count=0
+        for prompt_file in "$SOURCE_CODEX_PROMPTS"/*.md; do
+            [ -f "$prompt_file" ] || continue
+            name=$(basename "$prompt_file")
+            target="$HOME/.codex/prompts/$name"
+            # If a real file exists at target AND it's NOT one of our managed prompts,
+            # skip it to preserve user-added or third-party prompts (BMad, etc.).
+            # We detect "ours" by comparing content — if it exists and differs from
+            # source but isn't a symlink, assume it's user-managed and skip.
+            if [ -e "$target" ] && [ ! -L "$target" ]; then
+                # Safe to overwrite if content matches (already copied from us) OR
+                # if the existing file looks like a dead symlink that got replaced.
+                if ! cmp -s "$prompt_file" "$target"; then
+                    echo -e "   ${YELLOW}⚠️  $name (skipped — real file with different content)${NC}"
+                    prompt_skip_count=$((prompt_skip_count + 1))
+                    continue
+                fi
+            fi
+            # Remove any existing symlink (including dead ones from previous runs)
+            [ -L "$target" ] && rm -f "$target"
+            cp "$prompt_file" "$target"
+            prompt_copy_count=$((prompt_copy_count + 1))
+        done
+        echo -e "   ${GREEN}✅ $prompt_copy_count Codex prompts copied${NC}"
+        if [ "$prompt_skip_count" -gt 0 ]; then
+            echo -e "   ${YELLOW}⚠️  $prompt_skip_count skipped (existing files with different content)${NC}"
         fi
-        ln -sfn "$cmd_file" "$target"
-        prompt_link_count=$((prompt_link_count + 1))
-    done
-    echo -e "   ${GREEN}✅ $prompt_link_count prompts linked${NC}"
-    if [ "$prompt_skip_count" -gt 0 ]; then
-        echo -e "   ${YELLOW}⚠️  $prompt_skip_count skipped (real files)${NC}"
+    else
+        echo -e "${YELLOW}ℹ️  No .codex/prompts/ in source — skipping Codex prompts${NC}"
     fi
 
     # 3. Generate ~/.codex/AGENTS.md from ~/.claude/CLAUDE.md (replace H1, add header)
@@ -349,17 +370,26 @@ if [ "$GLOBAL_MODE" = true ]; then
 
     # Codex install summary
     codex_skills=$(find ~/.codex/skills -mindepth 1 -maxdepth 1 -type l 2>/dev/null | wc -l | tr -d ' ')
-    codex_prompts=$(find ~/.codex/prompts -mindepth 1 -maxdepth 1 -type l 2>/dev/null | wc -l | tr -d ' ')
+    # Count only the Codex-native prompts we manage (those present in source)
+    codex_prompts=0
+    if [ -d "$SOURCE_CODEX_PROMPTS" ]; then
+        for prompt_file in "$SOURCE_CODEX_PROMPTS"/*.md; do
+            [ -f "$prompt_file" ] || continue
+            name=$(basename "$prompt_file")
+            [ -f "$HOME/.codex/prompts/$name" ] && codex_prompts=$((codex_prompts + 1))
+        done
+    fi
 
     echo ""
     echo -e "${GREEN}╔═══════════════════════════════════════════════════════════════════════╗"
     echo -e "║                  ✅ Codex Mirror Complete!                          ║"
     echo -e "╚═══════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
-    echo -e "   ${GREEN}✅ Skills (symlinks):  $codex_skills${NC}"
-    echo -e "   ${GREEN}✅ Prompts (symlinks): $codex_prompts${NC}"
+    echo -e "   ${GREEN}✅ Skills (symlinks):       $codex_skills${NC}"
+    echo -e "   ${GREEN}✅ Codex-native prompts:    $codex_prompts${NC}"
     echo -e "   ${GREEN}✅ AGENTS.md generated${NC}"
     echo -e "   ${GREEN}✅ Native ~/.codex/skills/.system/ preserved${NC}"
+    echo -e "   ${GREEN}✅ Third-party prompts (BMad, etc.) preserved${NC}"
     echo ""
     echo -e "${YELLOW}ℹ️  MCP servers in ~/.codex/config.toml are untouched.${NC}"
     echo -e "${YELLOW}    To mirror Claude MCPs, edit config.toml manually under [mcp_servers.X].${NC}"

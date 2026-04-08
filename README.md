@@ -24,7 +24,7 @@ All workflows use an **orchestrator pattern**: the main thread keeps full contex
 
 Install skills, commands, knowledge and templates into `~/.claude/` so they're available in **every project**. Preserves your existing CLAUDE.md, settings.json, and mcp.json.
 
-**Codex CLI is mirrored automatically** — if `~/.codex/` exists, skills are symlinked into `~/.codex/skills/` and commands into `~/.codex/prompts/`, and an `AGENTS.md` is generated from your `CLAUDE.md`. Native Codex system skills (`.system/`) are preserved.
+**Codex CLI is mirrored automatically** — if `~/.codex/` exists, skills are symlinked into `~/.codex/skills/`, Codex-native workflow prompts are copied into `~/.codex/prompts/`, and an `AGENTS.md` is generated from your `CLAUDE.md`. Native Codex system skills (`.system/`) and third-party prompts (BMad, etc.) are preserved.
 
 ```bash
 # Install or update Claude + Codex (same command)
@@ -33,6 +33,17 @@ curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.
 # Claude only, skip Codex mirror
 curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- --global --no-codex
 ```
+
+**Codex-native slash commands** (v5.5.0+): the Codex side ships 5 workflow prompts that load shared `*-workflow` skills:
+
+| Command | Status | Notes |
+|---|---|---|
+| `/dev <task>` | ✅ Works in both Claude and Codex | Sequential Explore → Plan → Implement → Review ×3 |
+| `/discovery <idea>` | ✅ Works in both | Brainstorm → PRD → Architecture → Stories → GitHub |
+| `/ship` | ✅ Works in both | Non-interactive merge → tests → review → PR |
+| `/quick-fix "<problem>"` | ✅ Works in both | Small fixes, max 3 files / 50 lines |
+| `/status` | ✅ Works in both | Read-only project dashboard |
+| Other commands (`/refactor`, `/pr-review`, `/retro`, RALPH, etc.) | Claude Code only | Not yet adapted to Codex |
 
 Drift protection: a manifest at `~/.claude/.skillz-manifest` tracks skills/commands installed by Skillz. On each `--global` run, orphaned items (present in the previous manifest but no longer in the source) are removed automatically. User-added skills outside the manifest are never touched. Dead Codex symlinks are swept as well.
 

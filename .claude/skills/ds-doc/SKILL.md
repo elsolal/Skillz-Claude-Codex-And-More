@@ -13,7 +13,7 @@ allowed-tools:
   - mcp__plugin_figma_figma__get_design_context
   - mcp__plugin_figma_figma__get_variable_defs
   - mcp__plugin_figma_figma__search_design_system
-argument-hint: [--figma <url>] [--update]
+argument-hint: "[--figma <url>] [--update]"
 user-invocable: true
 ---
 

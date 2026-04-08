@@ -2,6 +2,64 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## v5.5.0 (2026-04-08)
+
+**Codex-Native Workflow Prompts (the Real Ones)**
+
+### Why
+v5.4.0 blindly symlinked `~/.claude/commands/*.md` into `~/.codex/prompts/`. This looked fine structurally but didn't actually work in Codex CLI for three reasons:
+1. Codex doesn't substitute `$ARGUMENTS` — it reads it as literal text (17/21 Claude commands use `$ARGUMENTS`)
+2. Codex lacks the Claude-specific tools that the commands invoke (`SendMessage`, `TaskCreate`, `Task` with `subagent_type`)
+3. The D-EPCT+R parallel subagent pattern (Code+Tests in parallel, Review ×3 in parallel) doesn't fit Codex's single-threaded execution model
+
+### New: shared `*-workflow` skills
+5 runtime-agnostic workflow skills added to `.claude/skills/`:
+- `dev-workflow` — Explore → Plan → Implement → Review ×3 (sequential) → Ship, with STOP CHECKPOINTs
+- `discovery-workflow` — Brainstorm → UX → PRD → UI → Architecture → Stories → GitHub
+- `ship-workflow` — merge main → tests → pre-landing review → CHANGELOG → commit → push → PR (non-interactive)
+- `quick-fix-workflow` — fast track for small bugs with max 3 files / 50 lines limit
+- `status-workflow` — read-only project dashboard
+
+These skills describe the workflows in single-threaded sequential form. The rigor of D-EPCT+R is preserved (stop checkpoints, 3-pass review) — only the execution pattern changes from parallel subagents to sequential in-context phases. They work in both Claude Code and Codex CLI.
+
+### New: Codex-native prompts in `.codex/prompts/`
+5 short BMad-style trigger prompts added to the repo at `.codex/prompts/`:
+- `dev.md` → loads `dev-workflow` skill
+- `discovery.md` → loads `discovery-workflow` skill
+- `ship.md` → loads `ship-workflow` skill
+- `quick-fix.md` → loads `quick-fix-workflow` skill
+- `status.md` → loads `status-workflow` skill
+
+Each prompt is ~10 lines, frontmatter-compliant with `disable-model-invocation: true`, and points the agent to the shared workflow skill. Pattern inspired by the BMad prompts shipped with Codex.
+
+### install.sh changes
+- **Removed**: the broken `~/.claude/commands → ~/.codex/prompts` symlink logic from v5.4.0
+- **Added**: copy of `.codex/prompts/*.md` from the repo source to `~/.codex/prompts/` (real files, not symlinks — survives repo removal)
+- **Preserved**: existing third-party prompts (BMad) are never overwritten — the copy only replaces symlinks or identical files
+- **Preserved**: 21 broken symlinks from v5.4.0 are swept automatically by the dead-link sweep added in v5.4.0
+
+### What works now in Codex
+| Command | Status |
+|---|---|
+| `/dev <task>` | ✅ Works via dev-workflow skill |
+| `/discovery <idea>` | ✅ Works via discovery-workflow skill |
+| `/ship` | ✅ Works via ship-workflow skill |
+| `/quick-fix "<problem>"` | ✅ Works via quick-fix-workflow skill |
+| `/status` | ✅ Works via status-workflow skill |
+| `/refactor`, `/pr-review`, `/retro`, etc. | ⏭️ Claude Code only (not yet adapted) |
+| `/auto-dev`, `/auto-discovery`, `/auto-loop` | ⏭️ Claude Code only (RALPH is Claude-specific) |
+
+### Maintenance note
+Claude commands (`~/.claude/commands/*.md`) and Codex prompts (`.codex/prompts/*.md`) are now **two separate sets** that both delegate to the same `*-workflow` skills for their procedural content. When you change the workflow, edit the skill once. When you change the trigger/invocation, edit the relevant command or prompt.
+
+### Files changed
+- New: `.claude/skills/dev-workflow/`, `discovery-workflow/`, `ship-workflow/`, `quick-fix-workflow/`, `status-workflow/`
+- New: `.codex/prompts/dev.md`, `discovery.md`, `ship.md`, `quick-fix.md`, `status.md`
+- Updated: `install.sh` — replaced command symlink block with Codex prompt copy block; updated summary output
+- Updated: `README.md`, `CHANGELOG.md`
+
+---
+
 ## v5.4.0 (2026-04-08)
 
 **Codex CLI Mirror + Manifest-based Drift Protection**
