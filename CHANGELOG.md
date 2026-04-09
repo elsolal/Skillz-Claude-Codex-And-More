@@ -2,6 +2,81 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## v5.6.0 (2026-04-08)
+
+**CLI Refactor: Subcommand Syntax + Uninstall Support**
+
+### Why
+Previous versions conflated everything under `--global` with opt-in/opt-out flags (`--no-codex`, `--update`). This was confusing: one flag did 3 things (install + update + Codex mirror), and there was no way to install Codex alone or to uninstall cleanly. The CLI needed to express action × target explicitly.
+
+### New subcommand interface
+
+```bash
+./install.sh <action> <target>
+
+Actions:
+  install     Fresh install (prompts if already installed)
+  update      Idempotent update (no prompt)
+  uninstall   Remove Skillz-managed items (preserves user-added ones)
+  help        Show help
+
+Targets:
+  claude      ~/.claude/ globally
+  codex       ~/.codex/ globally (requires Claude installed first)
+  all         Both
+  <path>      Per-project (Claude only)
+```
+
+Examples:
+```bash
+./install.sh install all            # Claude + Codex global
+./install.sh install claude         # Claude only
+./install.sh install codex          # Codex only (requires Claude)
+./install.sh install .              # Per-project in current dir
+./install.sh update claude          # Refresh Claude
+./install.sh uninstall codex        # Remove Codex, keep Claude
+./install.sh uninstall all          # Remove everything Skillz installed
+```
+
+### New: `install codex` / `update codex` (standalone Codex install)
+- Previously, the only way to set up Codex was via `--global` which also re-synced Claude every time
+- New behavior: `install codex` checks that `~/.claude/skills/` exists, then runs ONLY the Codex mirror block (skip Claude rsync, skip CLAUDE.md merge, skip manifest purge)
+- Internally: sets `CODEX_ONLY=true` which short-circuits the Claude-side section of the global install branch
+- Useful when you want to refresh your Codex setup without re-running the Claude install
+
+### New: `uninstall` subcommand
+Two new functions in `install.sh`:
+
+- **`uninstall_claude_global`** — reads `~/.claude/.skillz-manifest` and removes ONLY the skills/commands listed there. User-added skills outside the manifest are never touched. Deletes the manifest at the end. Preserves `CLAUDE.md`, `settings.json`, `mcp.json`, knowledge/, templates/, hooks/.
+- **`uninstall_codex_global`** — removes symlinks in `~/.codex/skills/` that point to `~/.claude/skills/` (Skillz-managed), removes the 5 Codex-native prompts (dev, discovery, ship, quick-fix, status). Preserves `.system/`, `config.toml`, `AGENTS.md`, and third-party prompts (BMad, etc.).
+
+Neither uninstall function removes anything it didn't install. Safe by design.
+
+### Backwards compatibility
+Legacy flags still work with a deprecation warning:
+
+- `--global` → maps to `install all`, prints warning suggesting the new syntax
+- `--global --no-codex` → maps to `install claude`
+- `--update` → maps to `update <path>`
+- `<path>` alone (no subcommand) → maps to `install <path>`
+
+### Safety change
+`./install.sh` with no arguments now shows help instead of defaulting to a per-project install in the current directory. This prevents accidental installs when the user runs the script without knowing the syntax.
+
+### Files changed
+- Updated: `install.sh` — new subcommand dispatcher (~200 lines added at top), uninstall functions, CODEX_ONLY guard in the global branch, updated header doc. Legacy flag parsing and all existing install logic preserved for backwards compatibility.
+- Updated: `README.md` — documented new subcommand syntax with examples
+- Updated: `CHANGELOG.md` — this entry
+
+### Test matrix verified
+- `./install.sh help` → shows help ✅
+- `./install.sh` (no args) → shows help (safer default) ✅
+- `./install.sh update all` → same as old `--global`, 48 skills + 5 Codex prompts synced ✅
+- `./install.sh update codex` → skips Claude sync, runs Codex mirror only ✅
+- Legacy `--global` still works with deprecation warning ✅
+
+---
+
 ## v5.5.0 (2026-04-08)
 
 **Codex-Native Workflow Prompts (the Real Ones)**

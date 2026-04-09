@@ -20,19 +20,42 @@ All workflows use an **orchestrator pattern**: the main thread keeps full contex
 
 ## Installation
 
-### Global (user-level — all projects)
+### Subcommand syntax (v5.6.0+)
 
-Install skills, commands, knowledge and templates into `~/.claude/` so they're available in **every project**. Preserves your existing CLAUDE.md, settings.json, and mcp.json.
-
-**Codex CLI is mirrored automatically** — if `~/.codex/` exists, skills are symlinked into `~/.codex/skills/`, Codex-native workflow prompts are copied into `~/.codex/prompts/`, and an `AGENTS.md` is generated from your `CLAUDE.md`. Native Codex system skills (`.system/`) and third-party prompts (BMad, etc.) are preserved.
+The installer uses a clear `<action> <target>` syntax:
 
 ```bash
-# Install or update Claude + Codex (same command)
-curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- --global
+./install.sh install all            # Claude + Codex global
+./install.sh install claude         # Claude global only
+./install.sh install codex          # Codex global only (requires Claude)
+./install.sh install .              # Per-project in current directory
+./install.sh install /path/to/proj  # Per-project in a specific path
 
-# Claude only, skip Codex mirror
-curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- --global --no-codex
+./install.sh update <target>        # Idempotent refresh (same target list)
+./install.sh uninstall <target>     # Remove Skillz-managed items (claude|codex|all)
+
+./install.sh help                   # Show full help
 ```
+
+**Codex is mirrored automatically** when you target `all`: skills are symlinked into `~/.codex/skills/`, Codex-native workflow prompts are copied into `~/.codex/prompts/`, and an `AGENTS.md` is generated from your `CLAUDE.md`. Native Codex system skills (`.system/`) and third-party prompts (BMad, etc.) are preserved.
+
+**Uninstall is safe by design**: it only removes what Skillz installed (tracked via `~/.claude/.skillz-manifest`). User-added skills, CLAUDE.md, settings.json, mcp.json, config.toml are all preserved.
+
+```bash
+# Via curl (most common)
+curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- install all
+curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- install claude
+curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- install .
+```
+
+### Legacy flags (deprecated, still work with a warning)
+
+| Old flag | New syntax |
+|---|---|
+| `--global` | `install all` |
+| `--global --no-codex` | `install claude` |
+| `--update` | `update <path>` |
+| `<path>` alone | `install <path>` |
 
 **Codex-native slash commands** (v5.5.0+): the Codex side ships 5 workflow prompts that load shared `*-workflow` skills:
 
