@@ -20,53 +20,61 @@ All workflows use an **orchestrator pattern**: the main thread keeps full contex
 
 ## Installation
 
-### Subcommand syntax (v5.6.0+)
-
-The installer uses a clear `<action> <target>` syntax:
+One command, copy-paste, done:
 
 ```bash
-./install.sh install all            # Claude + Codex global
-./install.sh install claude         # Claude global only
-./install.sh install codex          # Codex global only (requires Claude)
-./install.sh install .              # Per-project in current directory
-./install.sh install /path/to/proj  # Per-project in a specific path
-
-./install.sh update <target>        # Idempotent refresh (same target list)
-./install.sh uninstall <target>     # Remove Skillz-managed items (claude|codex|all)
-
-./install.sh help                   # Show full help
+curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- install all
 ```
 
-**Codex is mirrored automatically** when you target `all`: skills are symlinked into `~/.codex/skills/`, Codex-native workflow prompts are copied into `~/.codex/prompts/`, and an `AGENTS.md` is generated from your `CLAUDE.md`. Native Codex system skills (`.system/`) and third-party prompts (BMad, etc.) are preserved.
+This installs skills, commands, knowledge and templates into `~/.claude/` (for Claude Code) and `~/.codex/` (for Codex CLI). Works on Mac and Linux.
 
-**Uninstall is safe by design**: it only removes what Skillz installed (tracked via `~/.claude/.skillz-manifest`). User-added skills, CLAUDE.md, settings.json, mcp.json, config.toml are all preserved.
+To update later, run the same command again — your config (CLAUDE.md, settings.json, mcp.json) is always preserved.
+
+### Per-project install
+
+If you prefer installing into a single project instead of globally:
 
 ```bash
-# Via curl (most common)
-curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- install all
-curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- install claude
 curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- install .
 ```
 
-### Legacy flags (deprecated, still work with a warning)
+<details>
+<summary><strong>Advanced options</strong> (update, uninstall, Claude-only, Codex-only)</summary>
 
-| Old flag | New syntax |
+```bash
+# Install only Claude (skip Codex)
+./install.sh install claude
+
+# Install only Codex (requires Claude already installed)
+./install.sh install codex
+
+# Update an existing install
+./install.sh update all             # or: update claude, update codex
+
+# Uninstall (removes only Skillz-managed items, preserves your config)
+./install.sh uninstall codex        # Remove Codex mirror, keep Claude
+./install.sh uninstall claude       # Remove Claude skills/commands (keeps CLAUDE.md, settings)
+./install.sh uninstall all          # Remove everything Skillz installed
+
+# Show full help
+./install.sh help
+```
+
+</details>
+
+### Available slash commands
+
+These commands work in **both Claude Code and Codex CLI**:
+
+| Command | What it does |
 |---|---|
-| `--global` | `install all` |
-| `--global --no-codex` | `install claude` |
-| `--update` | `update <path>` |
-| `<path>` alone | `install <path>` |
+| `/dev <task>` | Feature development: Explore → Plan → Implement → Review ×3 → Ship |
+| `/discovery <idea>` | Planning: Brainstorm → PRD → Architecture → Stories → GitHub |
+| `/ship` | Ship: merge main → tests → review → CHANGELOG → PR |
+| `/quick-fix "<problem>"` | Quick bug fix (max 3 files / 50 lines) |
+| `/status` | Project dashboard (read-only) |
 
-**Codex-native slash commands** (v5.5.0+): the Codex side ships 5 workflow prompts that load shared `*-workflow` skills:
-
-| Command | Status | Notes |
-|---|---|---|
-| `/dev <task>` | ✅ Works in both Claude and Codex | Sequential Explore → Plan → Implement → Review ×3 |
-| `/discovery <idea>` | ✅ Works in both | Brainstorm → PRD → Architecture → Stories → GitHub |
-| `/ship` | ✅ Works in both | Non-interactive merge → tests → review → PR |
-| `/quick-fix "<problem>"` | ✅ Works in both | Small fixes, max 3 files / 50 lines |
-| `/status` | ✅ Works in both | Read-only project dashboard |
-| Other commands (`/refactor`, `/pr-review`, `/retro`, RALPH, etc.) | Claude Code only | Not yet adapted to Codex |
+Claude Code has [additional commands](/docs) (`/refactor`, `/pr-review`, `/retro`, RALPH mode, etc.) that are not yet available in Codex.
 
 Drift protection: a manifest at `~/.claude/.skillz-manifest` tracks skills/commands installed by Skillz. On each `--global` run, orphaned items (present in the previous manifest but no longer in the source) are removed automatically. User-added skills outside the manifest are never touched. Dead Codex symlinks are swept as well.
 
