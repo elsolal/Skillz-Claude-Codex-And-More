@@ -5,7 +5,7 @@ description: Guide la création ou la modification d'un skill Skillz-Claude. Uti
 
 # Skillz-Writing-Skills — Méta-skill création de skills
 
-Tu es en train de créer ou modifier un skill dans `.claude/skills/`. Suis ce guide pour rester cohérent avec les 33 skills existants.
+Tu es en train de créer ou modifier un skill dans `.claude/skills/`. Suis ce guide pour rester cohérent avec les 34 skills existants.
 
 ## Quand utiliser
 

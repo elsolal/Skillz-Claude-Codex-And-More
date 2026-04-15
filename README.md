@@ -20,38 +20,18 @@ All workflows use an **orchestrator pattern**: the main thread keeps full contex
 
 ## Installation
 
-Skillz-Claude supports three installation paths. Pick the one matching your setup.
+Skillz-Claude supports one reliable installer path plus optional provider-native entry points. Use the installer when you want the same commands and skills available across Claude Code, Codex, Gemini, OpenCode, and generic agents.
 
-### Provider-native (v5.7.0+, per provider)
-
-If your agent supports native plugins/extensions, use that first — no symlinks, cleanest upgrade path.
-
-| Provider | Command | Manifest used |
-|---|---|---|
-| Claude Code | `claude --plugin-dir /path/to/Skillz-Claude` | `.claude-plugin/plugin.json` |
-| Gemini CLI | `gemini --extension-dir /path/to/Skillz-Claude` | `gemini-extension.json` + `GEMINI.md` |
-| OpenCode | Drop repo into `.opencode/plugins/skillz-claude/` | `skills/` + `AGENTS.md` |
-
-```bash
-gh repo clone elsolal/Skillz-Claude-Codex-And-More
-# Claude Code
-claude --plugin-dir ./Skillz-Claude-Codex-And-More
-# Gemini CLI
-gemini --extension-dir ./Skillz-Claude-Codex-And-More
-```
-
-Reload skills with `/reload-plugins` (Claude Code) or restart your agent after manifest changes.
-
-### Universal fallback (works everywhere — this installer)
+### Recommended: universal installer
 
 Skillz-Claude can be installed globally for every project, or locally inside one project. Claude remains the source of truth because the shared skills and knowledge live in `.claude/`; other providers mirror that content in their own native folders.
 
-#### Recommended: install everything globally
+#### Install everything globally
 
 Use this when you want the workflows available everywhere:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- install all
+curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- install all
 ```
 
 This installs all supported global targets:
@@ -67,7 +47,7 @@ This installs all supported global targets:
 To update later:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- update all
+curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- update all
 ```
 
 Your provider config is preserved. For Claude this means `CLAUDE.md`, `settings.json`, and `mcp.json` are kept and only the managed workflow section is refreshed.
@@ -100,7 +80,7 @@ Why install Claude first? The non-Claude providers are mirrors. They intentional
 Use this when you want Skillz only inside the current repository:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- install .
+curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- install .
 ```
 
 This creates `.claude/` plus all provider compatibility folders in the project:
@@ -134,11 +114,33 @@ Update a project install:
 ./install.sh update . --providers codex,gemini
 ```
 
+### Provider-native preview
+
+Use these only when you explicitly want a provider package instead of the universal installer. Provider-native command discovery differs per tool, so this is not yet the canonical multi-provider setup.
+
+| Provider | Command | Scope |
+|---|---|---|
+| Claude Code | `claude --plugin-dir /path/to/Skillz-Claude-Codex-And-More` | Loads the Claude plugin package from `.claude-plugin/plugin.json`; plugin commands are namespaced by Claude Code. |
+| Gemini CLI | `gemini --extension-dir /path/to/Skillz-Claude-Codex-And-More/.gemini` | Loads Gemini-native TOML commands from `.gemini/commands/` plus `.gemini/GEMINI.md`. |
+| OpenCode | `./install.sh install opencode` or project `.opencode/` | No bundled JS/TS OpenCode plugin yet; use OpenCode skills/commands folders instead. |
+
+```bash
+gh repo clone elsolal/Skillz-Claude-Codex-And-More
+
+# Claude Code plugin package
+claude --plugin-dir ./Skillz-Claude-Codex-And-More
+
+# Gemini CLI native extension with TOML commands
+gemini --extension-dir ./Skillz-Claude-Codex-And-More/.gemini
+```
+
+Reload skills with `/reload-plugins` (Claude Code) or restart your agent after manifest changes.
+
 #### Which commands are available?
 
 Claude Code receives the full command set from `.claude/commands`.
 
-Portable commands are installed natively for Codex, Gemini, and OpenCode:
+Portable commands are installed for Codex, Gemini, and OpenCode through the universal installer:
 
 | Command | Claude | Codex | Gemini | OpenCode | What it does |
 |---|---:|---:|---:|---:|---|
@@ -200,7 +202,7 @@ Exemple de sortie quand tout est OK :
 ```
 ✅ .gemini/skills   → ~/.claude/skills (48 skills)
 ✅ .codex/skills/   real dir, 48 per-skill symlinks (Codex pattern)
-✅ .opencode/skills → ../.claude/skills (48 skills)
+✅ .config/opencode/skills → ~/.claude/skills (48 skills)
 ✅ .agents/skills/  real dir, 15 independent skills (own content)
 ✅ Manifest in sync
 ✅ All provider instruction files present
@@ -238,7 +240,7 @@ Référence complète : `.claude/knowledge/workflows/verification-matrix.md`.
 #### Manual Windows install
 
 ```powershell
-git clone https://github.com/elsolal/Skillz-Claude.git
+git clone https://github.com/elsolal/Skillz-Claude-Codex-And-More.git
 Copy-Item -Recurse -Force Skillz-Claude\.claude\ .\.claude\
 Copy-Item -Recurse -Force Skillz-Claude\.agents\ .\.agents\
 Copy-Item -Recurse -Force Skillz-Claude\.codex\ .\.codex\
@@ -387,7 +389,7 @@ Stop: `/cancel-ralph` | Resume: `/resume-ralph [session-id]`
 
 ---
 
-## Skills (33)
+## Skills (34)
 
 ### Planning Phase
 
@@ -472,14 +474,14 @@ Stop: `/cancel-ralph` | Resume: `/resume-ralph [session-id]`
 ```
 .claude/
 ├── CLAUDE.md                        # Project instructions
-├── commands/                        # 21 Claude slash commands
+├── commands/                        # 22 Claude slash commands
 │   ├── discovery.md                 # /discovery (orchestrator)
 │   ├── dev.md                       # /dev (orchestrator + subagents)
 │   ├── auto-discovery.md            # /auto-discovery (RALPH)
 │   ├── auto-dev.md                  # /auto-dev (RALPH)
 │   ├── ship.md, qa.md, ...          # Ship & QA commands
 │   └── ...
-├── skills/                          # 33 skills
+├── skills/                          # 34 skills
 │   ├── idea-brainstorm/
 │   ├── pm-prd/
 │   ├── architect/

@@ -7,23 +7,24 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 **Native Provider Packaging — Claude plugin + Gemini extension + AGENTS.md**
 
 ### Why
-Until now, Skillz-Claude was only distributable through `install.sh`. This required symlink surgery per provider (`~/.gemini/skills -> ~/.claude/skills`), which broke when target dirs already existed (see the Gemini symlink bug we caught). Native plugin/extension formats remove that friction entirely.
+Until now, Skillz-Claude was only distributable through `install.sh`. This required symlink setup per provider (`~/.gemini/skills -> ~/.claude/skills`, OpenCode skills folders, etc.), which broke when target dirs already existed. Native plugin/extension formats help for providers that support them, but `install.sh` remains the canonical path for full multi-provider setup.
 
 ### Added
-- `.claude-plugin/plugin.json` — native Claude Code plugin manifest at repo root. Enables `claude --plugin-dir ./Skillz-Claude` and marketplace distribution.
-- `gemini-extension.json` + `GEMINI.md` at repo root — native Gemini CLI extension. Enables `gemini --extension-dir ./Skillz-Claude` (no more `~/.gemini/skills` symlink headaches).
+- `.claude-plugin/plugin.json` — native Claude Code plugin manifest at repo root. Enables `claude --plugin-dir ./Skillz-Claude-Codex-And-More`; Claude Code namespaces plugin commands.
+- `.gemini/gemini-extension.json` + `.gemini/GEMINI.md` — native Gemini CLI extension. Enables `gemini --extension-dir ./Skillz-Claude-Codex-And-More/.gemini` with TOML commands from `.gemini/commands/`.
 - `AGENTS.md` at repo root — cross-agent context file (OpenCode, Aider, Codex CLI, generic). Canonical discovery point for any `AGENTS.md`-respecting tool.
-- Root-level symlinks `skills/`, `commands/`, `hooks/` → `.claude/*` — plugin/extension root expected by native manifests without duplicating content.
+- Root-level symlinks `skills/`, `commands/`, `hooks/` → `.claude/*` — Claude plugin root without duplicating content.
 
 ### Changed
-- `install.sh` rebadged as **"universal fallback"** (not legacy). Remains the canonical path for multi-provider global install + per-project install + environments where native plugins aren't available yet.
-- `README.md` restructured: provider-native install shown **first** (recommended per provider), universal `install.sh` shown **second** (works everywhere).
+- `install.sh` documented as the **recommended universal installer**. It remains the canonical path for multi-provider global install + per-project install.
+- `README.md` restructured: universal install shown first; provider-native modes documented as preview/optional where the provider format is mature enough.
+- `/skillz-doctor` OpenCode checks now target `~/.config/opencode` instead of legacy `~/.opencode`.
 
 ### Distribution
 The repo now supports three install paths simultaneously — users pick what matches their agent :
-1. **Provider-native** : `claude --plugin-dir` / `gemini --extension-dir` / OpenCode plugin dir
-2. **Universal** : `install.sh install all` (Claude + Codex + Gemini + OpenCode + agents)
-3. **Per-project** : `install.sh install .`
+1. **Universal** : `install.sh install all` (Claude + Codex + Gemini + OpenCode + agents)
+2. **Per-project** : `install.sh install .`
+3. **Provider-native preview** : `claude --plugin-dir` / `gemini --extension-dir .gemini`; OpenCode uses skills/commands folders, no bundled JS/TS plugin yet.
 
 No runtime dependency on external projects. All manifests hand-written for our structure.
 

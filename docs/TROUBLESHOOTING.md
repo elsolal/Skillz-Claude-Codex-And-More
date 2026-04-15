@@ -402,7 +402,7 @@ Si `/skillz-doctor` ne trouve rien, continue avec les sections ci-dessous.
 
 3. **Réinstaller** :
    ```
-   curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- .
+   curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- install .
    ```
 
 ---
@@ -452,7 +452,7 @@ ln -s ~/.claude/skills ~/.gemini/skills
 rm ~/.agents/skills/skills
 ```
 
-**Prévention:** v5.8.0+, préférer l'install natif par provider (`claude --plugin-dir`, `gemini --extension-dir`) plutôt que `install.sh` pour éviter les symlinks locaux.
+**Prévention:** utiliser `./install.sh update . --providers ...` pour recréer les symlinks locaux. Les modes natifs provider existent, mais ne remplacent pas encore l'installer multi-provider.
 
 ### `/auto-dev` refuse de démarrer
 
@@ -490,11 +490,11 @@ rm ~/.agents/skills/skills
 
 ### Extension Gemini ne charge pas GEMINI.md
 
-**Symptôme:** `gemini --extension-dir ./Skillz-Claude` ne lit pas le contexte.
+**Symptôme:** `gemini --extension-dir ./Skillz-Claude/.gemini` ne lit pas le contexte.
 
 **Checks:**
-1. `gemini-extension.json` existe au repo root et contient `"contextFileName": "GEMINI.md"` ?
-2. `GEMINI.md` existe au repo root (pas seulement dans `.gemini/`) ?
+1. `.gemini/gemini-extension.json` existe et contient `"contextFileName": "GEMINI.md"` ?
+2. `.gemini/GEMINI.md` existe ?
 3. Redémarrer Gemini CLI après changement de manifest
 
 ---
