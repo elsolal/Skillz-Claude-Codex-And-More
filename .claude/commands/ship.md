@@ -20,11 +20,17 @@ You are running the `/ship` workflow. This is a **non-interactive, fully automat
 
 ---
 
-## Step 1: Pre-flight
+## Step 1: Pre-flight (verification-before-completion gate)
+
+Référence : `.claude/knowledge/workflows/verification-matrix.md` (ligne `/ship`).
 
 1. Check current branch. If on `main`, **abort**: "You're on main. Ship from a feature branch."
 2. Run `git status` (never use `-uall`). Note uncommitted changes.
+   - **If working tree dirty (uncommitted changes) → ABORT.** Le ship requires tree clean.
 3. Run `git diff main...HEAD --stat` and `git log main..HEAD --oneline` to understand what's being shipped.
+4. Verify CHANGELOG.md will be modified (Step 5 will check).
+
+**Si une condition échoue → ABORT avec message clair.** Le ship ne progresse pas avec une matrice incomplète.
 
 ---
 

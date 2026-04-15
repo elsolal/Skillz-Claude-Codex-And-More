@@ -2,6 +2,33 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## v5.7.0 (2026-04-15)
+
+**Workflow Safety Gates — RALPH protection + verification matrix + skillz-doctor**
+
+### Why
+RALPH (`/auto-dev`, `/auto-discovery`) pouvait coder en autonome sans mandat clair, et aucun gate ne forçait la vérification avant de déclarer "DONE". Inspiré de `obra/superpowers` (sans dépendance runtime), on durcit les workflows critiques.
+
+### Added
+- `.claude/skills/skillz-writing-skills/` — méta-skill pour créer/modifier des skills cohérents avec D-EPCT+R/RALPH/FR (réécrit, pas importé d'obra)
+- `.claude/commands/skillz-doctor.md` — diagnostic install (symlinks providers, manifest drift, RALPH locks, spec frontmatter)
+- `.claude/knowledge/workflows/verification-matrix.md` — matrice par workflow (lint/types/tests + checks spécifiques)
+- `docs/planning/specs/` — convention `YYYY-MM-DD-<slug>-design.md` avec frontmatter `status: draft|approved` + `approved_by` (ralph rejeté)
+- `docs/planning/specs/2026-04-15-workflow-safety-gates-design.md` — première spec en dogfooding
+
+### Changed
+- `/auto-dev` : Phase 0 pre-flight gate. Refuse de coder sans issue GitHub OU spec `approved_by != ralph`. Override `--allow-no-spec` documenté pour prototypage.
+- `/auto-discovery` : produit en sortie une spec `status: draft, approved_by: ralph` (humain valide ensuite avant `/auto-dev`).
+- `/dev` : Phase 5.0 verification gate (lint + types + tests P0/P1) avant SHIP.
+- `/quick-fix` : verification minimale (lint + types) explicitée.
+- `/ship` : Step 1 abort si working tree dirty.
+- `/auto-dev` : Phase 5 verification + check log RALPH cohérent (pas de pattern d'erreur en boucle).
+
+### Inspiration
+Inspiré de `obra/superpowers` (skills `verification-before-completion`, `writing-skills`, `brainstorming`). Aucune dépendance runtime — tout réécrit pour notre vocabulaire.
+
+---
+
 ## v5.6.0 (2026-04-08)
 
 **CLI Refactor: Subcommand Syntax + Uninstall Support**

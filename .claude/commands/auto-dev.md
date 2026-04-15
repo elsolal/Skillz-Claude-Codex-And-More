@@ -33,6 +33,55 @@ description: Développe une feature GitHub en mode RALPH autonome avec multi-age
 | Completion promise | **"DEV COMPLETE"** |
 | Logs | `docs/ralph-logs/${CLAUDE_SESSION_ID}.md` |
 
+## Phase 0: PRE-FLIGHT GATE (obligatoire)
+
+**Avant toute exécution autonome, vérifier qu'on a un mandat clair.** RALPH ne code pas dans le vide.
+
+### Règle
+
+```
+SI $ARGUMENTS contient une issue GitHub (#NUM ou URL gh)
+  → vérifier l'existence : gh issue view <num>
+  → continuer
+SINON
+  → chercher une spec : Glob "docs/planning/specs/*-<slug>-design.md"
+  → SI trouvée :
+      → lire le frontmatter
+      → SI status: approved ET approved_by != ralph → continuer
+      → SINON : ARRÊTER, demander approbation humaine
+  → SINON : ARRÊTER
+```
+
+### Si le gate échoue (pas d'issue ni de spec approuvée)
+
+Refuser l'exécution avec ce message :
+
+```
+❌ Pre-flight gate échoué : pas de mandat clair pour /auto-dev
+
+RALPH refuse de coder en autonome sans :
+  - une issue GitHub valide (#NUM ou URL), OU
+  - une spec docs/planning/specs/<date>-<slug>-design.md avec :
+      status: approved
+      approved_by: <humain> (pas "ralph")
+
+Options :
+  1. /discovery <besoin>      → produit une spec à valider (recommandé)
+  2. /auto-discovery <besoin> → produit une spec status:draft (humain valide ensuite)
+  3. gh issue create          → crée une issue puis relance /auto-dev #NUM
+  4. /auto-dev --allow-no-spec → bypass (PROTOTYPAGE UNIQUEMENT, log RALPH le marque non-recommandé)
+```
+
+### Override `--allow-no-spec`
+
+Réservé au **prototypage rapide**. Le log RALPH `docs/ralph-logs/${CLAUDE_SESSION_ID}.md` doit explicitement contenir :
+
+```
+⚠️ Pre-flight gate bypassed via --allow-no-spec
+   Reason: <user-provided or "no reason given">
+   Risk: code produit sans validation préalable, à reviewer manuellement avant /ship
+```
+
 ## Exécution automatique
 
 ### Phase 1: EXPLORE (Subagent)
@@ -80,8 +129,22 @@ description: Développe une feature GitHub en mode RALPH autonome avec multi-age
 - Corriger automatiquement les issues 🔴 Critical (TOI, pas un subagent)
 - Relancer les tests après corrections
 
-### Phase 5: FINALIZE
-- Vérifier tous les tests passent
+### Phase 5: FINALIZE (verification-before-completion gate)
+
+Référence : `.claude/knowledge/workflows/verification-matrix.md` (ligne `/auto-dev`).
+
+Vérifs **obligatoires** avant de marquer "DEV COMPLETE" :
+
+| Check | Commande | Statut |
+|---|---|---|
+| Lint | `npm run lint` (ou équivalent stack) | ✅ |
+| Types | `npm run typecheck` | ✅ |
+| Tests P0/P1 | `npm test -- --filter=p0,p1` (ou équivalent) | ✅ |
+| Log RALPH cohérent | inspecter les 3 dernières itérations dans `docs/ralph-logs/${CLAUDE_SESSION_ID}.md` — pas de pattern d'erreur en boucle | ✅ |
+
+**Si une vérif échoue :** ne pas marquer COMPLETE, créer une nouvelle itération RALPH pour corriger. Si > 3 tentatives → STOP avec message clair pour l'utilisateur.
+
+Puis :
 - **Si FRONTEND + nouveaux composants créés :** lancer `/ds-doc --update` automatiquement
 - Créer un résumé des changements
 - Préparer pour PR
@@ -144,6 +207,7 @@ Le loop considère la feature "COMPLETE" quand :
 | `--max N` | Override max iterations (default: 50) |
 | `--timeout Xh` | Override timeout (default: 2h) |
 | `--verbose` | Mode debug avec logs détaillés |
+| `--allow-no-spec` | Bypass Phase 0 pre-flight gate (PROTOTYPAGE UNIQUEMENT) |
 
 ---
 

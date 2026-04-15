@@ -57,10 +57,20 @@ description: Fix rapide sans passer par tout le workflow EPCT+R. Pour les petits
 - Appliquer la correction
 - Vérifier lint/types
 
-### 3. Validation
+### 3. Validation (verification-before-completion)
+
+**Vérifs minimales `/quick-fix`** (référence : `.claude/knowledge/workflows/verification-matrix.md`) :
+
+- ✅ Lint OK
+- ✅ Types OK
+- ⚠️ Tests : optionnels selon contexte (typo doc → non, fix logique → oui)
+
 ```bash
-npm run lint && npm run typecheck && npm test
+npm run lint && npm run typecheck
+# + npm test si le fix touche du code applicatif
 ```
+
+**Si une vérif échoue → ne pas déclarer DONE.** Reporter l'erreur et corriger avant de proposer le commit.
 
 ---
 

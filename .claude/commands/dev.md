@@ -228,6 +228,20 @@ Quand les 3 subagents reviennent :
 
 ## Phase 5: SHIP
 
+### 5.0 Verification-before-completion (gate obligatoire)
+
+Avant de proposer `/ship`, vérifier la matrice (`.claude/knowledge/workflows/verification-matrix.md`) pour `/dev` :
+
+| Check | Commande | Statut |
+|---|---|---|
+| Lint | `npm run lint` (ou équivalent stack) | ✅ |
+| Types | `npm run typecheck` (ou `tsc --noEmit`) | ✅ |
+| Tests P0/P1 | `npm test` | ✅ |
+
+**Si une vérif échoue → ne pas proposer SHIP**, retourner en Phase 4 ou créer une issue de blocage.
+
+### 5.1 Suite SHIP
+
 1. Vérifier que tous les tests passent après corrections review
 2. **Si FRONTEND + nouveaux composants créés :**
    - Proposer `/ds-doc --update` pour mettre à jour la documentation design system

@@ -81,6 +81,27 @@ description: Lance le workflow de planning complet en mode RALPH autonome (Brain
 - Sauvegarder : `docs/stories/EPIC-{num}-{slug}/`
 - Référence : `.claude/skills/pm-stories/SKILL.md`
 
+### Phase 7.5: Spec design (sortie obligatoire)
+
+Produire une spec consolidée pour permettre `/auto-dev` ensuite :
+
+- Fichier : `docs/planning/specs/YYYY-MM-DD-{slug}-design.md`
+- Frontmatter **obligatoire** :
+  ```yaml
+  ---
+  title: <Titre du besoin>
+  status: draft           # ← TOUJOURS draft en sortie auto-discovery
+  approved_by: ralph      # ← interdit pour /auto-dev tant qu'humain n'a pas validé
+  approved_at: <ISO-8601>
+  slug: <slug>
+  related_pr: TBD
+  ---
+  ```
+- Contenu : synthèse du PRD + architecture + décisions clés (3-5 sections max)
+- Le statut `status: approved` doit être appliqué **par un humain**, jamais par RALPH
+
+Cette spec sert de gate à `/auto-dev` (Phase 0 pre-flight). Sans validation humaine de cette spec, `/auto-dev` refusera de démarrer.
+
 ### Phase 8: Publication GitHub (subagent)
 - Dispatcher un subagent via `SendMessage(run_in_background: true)` pour créer les issues
 - Prompt complet avec tous les titres, bodies, labels
