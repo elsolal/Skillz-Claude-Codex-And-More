@@ -4,12 +4,33 @@
 
 ---
 
+## 🩺 Premier réflexe : `/skillz-doctor`
+
+Avant de creuser un problème manuellement, lance le diagnostic automatique :
+
+```bash
+/skillz-doctor           # rapport complet (symlinks, manifest, specs, providers)
+/skillz-doctor --fix     # corrections sûres automatiques
+```
+
+Il couvre les 5 sources de panne les plus fréquentes :
+- **Symlinks providers cassés** (ex: `~/.gemini/skills/skills` nested broken — le bug historique)
+- **Manifest drift** (skill disparu sur disque mais encore au manifest)
+- **RALPH locks orphelins** (sessions > 24h sans completion)
+- **Spec frontmatter invalide** (`/auto-dev` refuse de démarrer)
+- **Provider files manquants** (`GEMINI.md`, `AGENTS.md` absents)
+
+Si `/skillz-doctor` ne trouve rien, continue avec les sections ci-dessous.
+
+---
+
 ## Table des matières
 
 1. [Phase Planning](#phase-planning)
 2. [Phase Développement](#phase-développement)
 3. [Mode RALPH](#mode-ralph)
 4. [Problèmes généraux](#problèmes-généraux)
+5. [Install / Symlinks / Providers](#install--symlinks--providers)
 
 ---
 
@@ -408,10 +429,81 @@
 
 ---
 
+## Install / Symlinks / Providers
+
+### Gemini/OpenCode/Agents ne voit pas mes skills après install
+
+**Symptôme:** Les skills sont dans `~/.claude/skills/` mais un provider les ignore.
+
+**Cause la plus fréquente:** Nested broken symlink `~/.X/skills/skills` créé quand `install.sh` a lancé `ln -sf ../.claude/skills ~/.X/skills` alors que `~/.X/skills` existait déjà comme dossier réel. Le lien finit créé **à l'intérieur** du dossier, avec un path relatif qui ne résout plus.
+
+**Fix rapide:**
+```bash
+/skillz-doctor --fix
+```
+
+**Fix manuel (si tu préfères inspecter d'abord):**
+```bash
+# Pour Gemini (single-symlink pattern)
+rm -rf ~/.gemini/skills
+ln -s ~/.claude/skills ~/.gemini/skills
+
+# Pour .agents (dossier réel indépendant — supprimer seulement le nested cassé)
+rm ~/.agents/skills/skills
+```
+
+**Prévention:** v5.8.0+, préférer l'install natif par provider (`claude --plugin-dir`, `gemini --extension-dir`) plutôt que `install.sh` pour éviter les symlinks locaux.
+
+### `/auto-dev` refuse de démarrer
+
+**Symptôme:** `Pre-flight gate échoué : pas de mandat clair pour /auto-dev`.
+
+**Cause:** Ce n'est pas un bug, c'est une safety gate v5.7.0+. RALPH refuse de coder en autonome sans mandat humain.
+
+**Solutions:**
+1. **Passer une issue GitHub:** `/auto-dev #123`
+2. **Approuver une spec:** dans `docs/planning/specs/<date>-<slug>-design.md`, mettre `status: approved` + `approved_by: <ton nom>` (pas "ralph")
+3. **Override pour prototypage:** `/auto-dev --allow-no-spec "description"` (loggé comme non-recommandé)
+
+### CHANGELOG pas modifié → `/ship` s'arrête
+
+**Symptôme:** `/ship` abort en Step 1.
+
+**Cause:** Verification-before-completion v5.7.0+ exige un CHANGELOG modifié pour `/ship`.
+
+**Fix:**
+```bash
+# Ajouter une entrée manuellement OU laisser /ship la générer
+/ship
+# En cas d'abort: éditer CHANGELOG.md puis relancer
+```
+
+### Plugin Claude ne se charge pas
+
+**Symptôme:** `claude --plugin-dir ./Skillz-Claude` ne montre pas les skills.
+
+**Checks:**
+1. `.claude-plugin/plugin.json` existe au repo root ? `cat .claude-plugin/plugin.json`
+2. Les symlinks `skills/`, `commands/` à la racine résolvent ? `ls -la skills`
+3. Version de Claude Code supporte les plugins ? Sinon mettre à jour : `claude --version`
+4. Namespace correct ? Les skills du plugin sont namespacés `/skillz-claude:nom-du-skill`
+
+### Extension Gemini ne charge pas GEMINI.md
+
+**Symptôme:** `gemini --extension-dir ./Skillz-Claude` ne lit pas le contexte.
+
+**Checks:**
+1. `gemini-extension.json` existe au repo root et contient `"contextFileName": "GEMINI.md"` ?
+2. `GEMINI.md` existe au repo root (pas seulement dans `.gemini/`) ?
+3. Redémarrer Gemini CLI après changement de manifest
+
+---
+
 ## Aide supplémentaire
 
 Si le problème persiste :
 
-1. **Vérifier les logs** : `docs/ralph-logs/`
-2. **Lire la doc** : `docs/GUIDE-COMPLET.md`
-3. **Ouvrir une issue** : https://github.com/elsolal/Skillz-Claude/issues
+1. **Lancer `/skillz-doctor`** : diagnostic automatique (première étape)
+2. **Vérifier les logs RALPH** : `docs/ralph-logs/`
+3. **Lire la doc** : `docs/GUIDE-COMPLET.md`
+4. **Ouvrir une issue** : https://github.com/elsolal/Skillz-Claude-Codex-And-More/issues

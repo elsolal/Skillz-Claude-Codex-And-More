@@ -178,6 +178,63 @@ Model choice does not change command discovery. Gemini CLI, OpenCode, and Codex 
 
 Drift protection: `~/.claude/.skillz-manifest` tracks skills and Claude commands installed by Skillz. During global updates, items that were previously managed by Skillz but no longer exist in the source are removed. User-added skills are not touched. Provider mirrors remove dead symlinks and preserve native config files.
 
+### Diagnostic install — `/skillz-doctor`
+
+Si quelque chose ne marche pas après install (ex: skills non découverts dans un provider), lance le diagnostic en 1 commande :
+
+```bash
+/skillz-doctor           # Rapport complet
+/skillz-doctor --fix     # Applique les corrections sûres (symlinks cassés)
+/skillz-doctor --scope symlinks   # Check un seul axe
+```
+
+Vérifie :
+- **Symlinks providers** (3 patterns valides : single symlink, per-skill symlinks à la Codex, dossier indépendant)
+- **Manifest drift** (skillz-manifest cohérent avec `~/.claude/skills/`)
+- **RALPH locks orphelins** (sessions > 24h sans completion marker)
+- **Spec frontmatter** (status/approved_by/approved_at valides)
+- **Provider files** (`GEMINI.md`, `AGENTS.md` présents et non vides)
+
+Exemple de sortie quand tout est OK :
+
+```
+✅ .gemini/skills   → ~/.claude/skills (48 skills)
+✅ .codex/skills/   real dir, 48 per-skill symlinks (Codex pattern)
+✅ .opencode/skills → ../.claude/skills (48 skills)
+✅ .agents/skills/  real dir, 15 independent skills (own content)
+✅ Manifest in sync
+✅ All provider instruction files present
+```
+
+### Safety gates (v5.7.0+)
+
+Skillz-Claude durcit les workflows autonomes pour éviter que RALPH code dans le vide.
+
+**`/auto-dev` exige un mandat** — soit :
+- Une **issue GitHub valide** (`/auto-dev #123`), OU
+- Une **spec approuvée par un humain** dans `docs/planning/specs/YYYY-MM-DD-<slug>-design.md` avec frontmatter :
+  ```yaml
+  ---
+  status: approved
+  approved_by: <ton nom>   # "ralph" est refusé par le gate
+  approved_at: 2026-04-15T10:00:00Z
+  ---
+  ```
+- Sans les deux : RALPH s'arrête avec un message proposant `/discovery`, `gh issue create`, ou l'override `--allow-no-spec` (prototypage uniquement, loggé comme non-recommandé).
+
+**`/auto-discovery` produit des specs en `status: draft`** — c'est à toi de passer à `approved` après revue. RALPH ne peut pas s'auto-approuver.
+
+**Verification-before-completion** — chaque workflow refuse de déclarer DONE tant que sa matrice n'est pas verte :
+
+| Workflow | Vérifs obligatoires |
+|---|---|
+| `/dev` | lint + types + tests P0/P1 |
+| `/quick-fix` | lint + types |
+| `/ship` | tout `/dev` + CHANGELOG + working tree clean |
+| `/auto-dev` | tout `/dev` + log RALPH cohérent (pas d'erreurs en boucle) |
+
+Référence complète : `.claude/knowledge/workflows/verification-matrix.md`.
+
 #### Manual Windows install
 
 ```powershell
