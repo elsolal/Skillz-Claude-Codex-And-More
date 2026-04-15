@@ -57,6 +57,7 @@ CYAN='\033[0;36m'
 MAGENTA='\033[0;35m'
 NC='\033[0m' # No Color
 
+WORKFLOW_VERSION="v5.8.0"
 REPO_URL="https://github.com/elsolal/Skillz-Claude-Codex-And-More.git"
 REPO_NAME="Skillz-Claude"
 
@@ -606,7 +607,11 @@ fi
 if [ "$GLOBAL_MODE" = true ]; then
     echo -e "${BLUE}"
     echo "╔═══════════════════════════════════════════════════════════════════════╗"
-    echo "║             D-EPCT+R Workflow v5.1 — Global Install                 ║"
+    if [ "$UPDATE_MODE" = true ]; then
+    echo "║             D-EPCT+R Workflow $WORKFLOW_VERSION — Global Update      ║"
+    else
+    echo "║             D-EPCT+R Workflow $WORKFLOW_VERSION — Global Install     ║"
+    fi
     echo "║                                                                       ║"
     echo "║   Target: ~/.claude/ (available in ALL your projects)                 ║"
     echo "║   CLAUDE.md: merges workflow section, keeps your content              ║"
@@ -761,7 +766,11 @@ if [ "$GLOBAL_MODE" = true ]; then
 
     echo ""
     echo -e "${GREEN}╔═══════════════════════════════════════════════════════════════════════╗"
+    if [ "$UPDATE_MODE" = true ]; then
+    echo -e "║                       ✅ Global Update Complete!                     ║"
+    else
     echo -e "║                       ✅ Global Install Complete!                    ║"
+    fi
     echo -e "╚═══════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo -e "   ${GREEN}✅ Skills:    $skills_count${NC}"
@@ -940,7 +949,8 @@ if [ "$GLOBAL_MODE" = true ]; then
     echo -e "${YELLOW}ℹ️  MCP servers in ~/.codex/config.toml are untouched.${NC}"
     echo -e "${YELLOW}    To mirror Claude MCPs, edit config.toml manually under [mcp_servers.X].${NC}"
     echo ""
-    echo -e "${CYAN}Codex will now see your skills & slash commands the same as Claude.${NC}"
+    echo -e "${CYAN}Codex will now see mirrored skills plus the 5 Codex-native prompts.${NC}"
+    echo -e "${CYAN}Portable prompts: /dev, /discovery, /ship, /quick-fix, /status.${NC}"
     echo ""
         fi
     fi
@@ -1154,15 +1164,15 @@ TARGET_DOCS="$TARGET_DIR/docs"
 echo -e "${BLUE}"
 echo "╔═══════════════════════════════════════════════════════════════════════╗"
 if [ "$UPDATE_MODE" = true ]; then
-echo "║             D-EPCT+R Workflow v5.1 Updater                            ║"
+echo "║             D-EPCT+R Workflow $WORKFLOW_VERSION Updater              ║"
 else
-echo "║             D-EPCT+R Workflow v5.1 Installer                          ║"
+echo "║             D-EPCT+R Workflow $WORKFLOW_VERSION Installer            ║"
 fi
 echo "║                                                                       ║"
-echo "║   SKILLS:       33 (Planning, Design, Dev, Security, Figma, Audio/Video)║"
-echo "║   COMMANDS:     21 (Manuel + RALPH + Ship/QA/Retro)                   ║"
+echo "║   SKILLS:       34 (Planning, Design, Dev, Security, Figma, Audio/Video)║"
+echo "║   COMMANDS:     22 (Manuel + RALPH + Ship/QA/Retro)                   ║"
 echo "║   TEMPLATES:    18 (CI/CD, Git Hooks, DevContainer, GitHub)           ║"
-echo "║   KNOWLEDGE:    54 fichiers (testing, workflows, security, figma)     ║"
+echo "║   KNOWLEDGE:    56 fichiers (testing, workflows, security, figma)     ║"
 echo "╚═══════════════════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
 
@@ -1245,7 +1255,7 @@ else
 fi
 
 if [ "$UPDATE_MODE" != true ] && [ "$MERGE_MODE" != true ]; then
-    echo -e "${BLUE}📦 Installing D-EPCT+R workflow v5.1 to $TARGET_DIR...${NC}"
+    echo -e "${BLUE}📦 Installing D-EPCT+R workflow $WORKFLOW_VERSION to $TARGET_DIR...${NC}"
 fi
 echo ""
 
