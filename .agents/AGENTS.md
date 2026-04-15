@@ -1,80 +1,27 @@
 # Agent Instructions
 
-> **Source of truth**: `.claude/CLAUDE.md`
->
-> This file provides compatibility for non-Claude AI tools.
-> All skills, knowledge, and workflows are defined in the `.claude/` directory.
+> Source of truth: `.claude/CLAUDE.md`
 
-## Quick Reference
+This folder provides a generic compatibility layer for agents that read `AGENTS.md` and local skill directories.
 
-### Available Skills (21)
+## Layout
 
-| Skill | Purpose |
-|-------|---------|
-| `idea-brainstorm` | Creative exploration with 61 techniques |
-| `pm-prd` | Product Requirements Document |
-| `architect` | Technical architecture |
-| `pm-stories` | Epics + User Stories |
-| `ux-designer` | UX design (personas, journeys) |
-| `ui-designer` | UI design (tokens, components, Figma import) |
-| `api-designer` | API design (OpenAPI) |
-| `database-designer` | Database schema (ERD) |
-| `figma-setup` | Configure Figma Code Connect |
-| `figma-to-code` | Generate code from Figma designs |
-| `figma-designer` | Create designs in Figma (NEW v4.0) |
-| `figma-design-system` | Design system management (NEW v4.0) |
-| `figma-design-code-sync` | Bidirectional design-code sync (NEW v4.0) |
-| `github-issue-reader` | Parse GitHub issues |
-| `code-implementer` | Write code (multi-agent worker) |
-| `test-runner` | Run tests (multi-agent worker) |
-| `code-reviewer` | Review code (3 passes, parallel-ready) |
-| `security-auditor` | Security audit (OWASP) |
-| `performance-auditor` | Performance audit |
-| `supabase-security` | Supabase security audit |
-| `multi-mind` | Multi-AI debate (6 agents) |
+- `skills` points to `../.claude/skills`
+- `knowledge` points to `../.claude/knowledge`
+- Provider-specific slash commands live in `.codex/`, `.gemini/`, and `.opencode/`
 
-### Workflows
+## Rules
 
-**Planning** (Discovery):
-```
-Brainstorm → PRD → Architecture → Stories → GitHub Issues
-```
+1. Read `.claude/CLAUDE.md` for the full project workflow.
+2. Before using any skill, open its `SKILL.md` and follow that file.
+3. Treat `.claude/` as the single source of truth. Do not duplicate skill logic in this folder.
 
-**Development** (Feature) — Multi-Agent v4.0:
-```
-Explore (native) → Plan (native) → Code+Tests (2 agents //) → Review ×3 (3 agents //)
-```
+## Core Workflows
 
-### Key Principles
-
-1. **Always read before edit** - Understand existing code first
-2. **Validate at each step** - Wait for user approval
-3. **Lint + Types** - Mandatory validation after code changes
-4. **3 review passes** - Correctness → Readability → Performance
-5. **Test everything** - No untested code
-
-### Accessing Skills
-
-Skills are in `./skills/` (symlinked to `.claude/skills/`).
-
-Each skill has a `SKILL.md` file with:
-- Activation checklist
-- Process steps
-- Output template
-- Validation criteria
-
-### Accessing Knowledge
-
-Knowledge files are in `./knowledge/` (symlinked to `.claude/knowledge/`).
-
-Categories:
-- `testing/` - 32 files (test patterns, fixtures, etc.)
-- `workflows/` - 10 files (templates)
-- `brainstorming/` - 1 file (61 techniques)
-- `multi-mind/` - 2 files (agent personalities)
-- `supabase-security/` - 7 files (audit, RLS, remediation)
-- `figma/` - 3 files (Code Connect, MCP tools, tokens mapping)
-
----
-
-**For complete instructions, see**: `.claude/CLAUDE.md`
+| Workflow | Source skill |
+|---|---|
+| Feature development | `dev-workflow` |
+| Discovery and planning | `discovery-workflow` |
+| Shipping | `ship-workflow` |
+| Quick fixes | `quick-fix-workflow` |
+| Project status | `status-workflow` |

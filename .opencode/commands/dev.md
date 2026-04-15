@@ -1,0 +1,11 @@
+---
+description: D-EPCT+R feature development workflow
+---
+
+IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL `.opencode/skills/dev-workflow/SKILL.md` if it exists, otherwise `.claude/skills/dev-workflow/SKILL.md`, READ its entire contents, and execute the workflow sequentially phase-by-phase, respecting every STOP CHECKPOINT before proceeding to the next phase.
+
+The user's task description is: $ARGUMENTS
+
+If the task looks like an issue reference (`#42`, `owner/repo#42`), fetch it with `gh issue view` as your first step of Phase 1. Otherwise treat the text as a direct feature description.
+
+Never skip the Explore phase. Never merge Plan and Implement. Always present findings at each STOP CHECKPOINT and wait for the user before proceeding.

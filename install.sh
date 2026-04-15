@@ -3,20 +3,23 @@
 # ============================================================
 # D-EPCT+R Workflow Installer
 # Install Skillz-Claude skills + RALPH Mode + Knowledge Files + Templates
-# into Claude Code (~/.claude/) and/or Codex CLI (~/.codex/).
+# into Claude Code, Codex CLI, Gemini CLI, OpenCode, and generic agents.
 #
 # USAGE (v5.6.0+ subcommand syntax — recommended):
 #
-#   ./install.sh install  claude|codex|all|<path>   — fresh install
-#   ./install.sh update   claude|codex|all|<path>   — update existing install
-#   ./install.sh uninstall claude|codex|all         — remove Skillz-managed items
+#   ./install.sh install  claude|codex|gemini|opencode|agents|all|<path>   — fresh install
+#   ./install.sh update   claude|codex|gemini|opencode|agents|all|<path>   — update existing install
+#   ./install.sh uninstall claude|codex|gemini|opencode|agents|all         — remove Skillz-managed items
 #   ./install.sh help                                — show full help
 #
 # Examples:
-#   ./install.sh install all           # Claude + Codex global
+#   ./install.sh install all           # All supported providers globally
 #   ./install.sh install claude        # Claude global only
 #   ./install.sh install codex         # Codex global only (Claude must exist)
+#   ./install.sh install gemini        # Gemini global only (Claude must exist)
+#   ./install.sh install opencode      # OpenCode global only (Claude must exist)
 #   ./install.sh install .             # Per-project install in current directory
+#   ./install.sh install . --providers codex,gemini
 #   ./install.sh update claude         # Refresh Claude from latest repo
 #   ./install.sh uninstall codex       # Remove Codex mirror, keep Claude
 #
@@ -65,17 +68,26 @@ ACTIONS:
 TARGETS:
   claude        ~/.claude/ globally (for Claude Code)
   codex         ~/.codex/ globally (for Codex CLI, requires Claude installed first)
-  all           Both Claude and Codex
-  <path>        Per-project install in the given directory (Claude only)
+  gemini        ~/.gemini/ globally (for Gemini CLI, requires Claude installed first)
+  opencode      ~/.config/opencode/ globally (for OpenCode, requires Claude installed first)
+  agents        ~/.agents/ globally (generic agents, requires Claude installed first)
+  all           Claude + Codex + Gemini + OpenCode + generic agents
+  <path>        Per-project install in the given directory
 
 EXAMPLES:
-  ./install.sh install all            # Claude + Codex global
+  ./install.sh install all            # All supported providers globally
   ./install.sh install claude         # Claude global only
   ./install.sh install codex          # Codex mirror only (Claude must exist)
+  ./install.sh install gemini         # Gemini mirror only (Claude must exist)
+  ./install.sh install opencode       # OpenCode mirror only (Claude must exist)
   ./install.sh install .              # Per-project install in current dir
+  ./install.sh install . --providers codex,gemini
   ./install.sh update claude          # Refresh Claude from latest repo
   ./install.sh uninstall codex        # Remove Codex mirror, keep Claude
   ./install.sh uninstall all          # Remove everything Skillz installed globally
+
+PROJECT OPTIONS:
+  --providers LIST                    # all | claude,codex,gemini,opencode,agents
 
 LEGACY FLAGS (deprecated, still work with a warning):
   --global              → install all
@@ -92,6 +104,42 @@ deprecation_warning() {
     echo -e "${YELLOW}⚠️  '$old' is deprecated. Use '$new' instead.${NC}" >&2
     echo -e "${YELLOW}   Continuing with legacy behavior for backwards compatibility.${NC}" >&2
     echo "" >&2
+}
+
+is_valid_provider() {
+    case "$1" in
+        claude|codex|gemini|opencode|agents|all) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+validate_provider_list() {
+    local list="$1"
+    [ -n "$list" ] || return 1
+    local normalized="${list//,/ }"
+    local provider
+    for provider in $normalized; do
+        is_valid_provider "$provider" || return 1
+    done
+    return 0
+}
+
+provider_list_contains() {
+    local list="$1"
+    local provider="$2"
+    [ "$list" = "all" ] && return 0
+    case ",$list," in
+        *",$provider,"*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+global_target_enabled() {
+    provider_list_contains "$GLOBAL_TARGETS" "$1"
+}
+
+project_provider_enabled() {
+    provider_list_contains "$PROJECT_PROVIDERS" "$1"
 }
 
 # Uninstall Claude globally — reads ~/.claude/.skillz-manifest and removes
@@ -201,6 +249,130 @@ uninstall_codex_global() {
     echo -e "${CYAN}ℹ️  ~/.codex/skills/.system/, config.toml, AGENTS.md, and third-party prompts (BMad) are untouched.${NC}"
 }
 
+uninstall_provider_symlinks() {
+    local skills_dir="$1"
+    local label="$2"
+    local removed=0
+    UNINSTALL_PROVIDER_LINKS_REMOVED=0
+
+    if [ -L "$skills_dir" ]; then
+        local target
+        target=$(readlink "$skills_dir")
+        case "$target" in
+            "$HOME/.claude/skills"|"$HOME/.claude/skills/"*|../.claude/skills)
+                rm -f "$skills_dir"
+                echo -e "   ${YELLOW}🗑️  $label skills symlink${NC}"
+                UNINSTALL_PROVIDER_LINKS_REMOVED=1
+                return 0
+                ;;
+        esac
+    fi
+
+    if [ -d "$skills_dir" ]; then
+        for link in "$skills_dir"/*; do
+            [ -L "$link" ] || continue
+            local target
+            target=$(readlink "$link")
+            case "$target" in
+                "$HOME/.claude/skills/"*|"$HOME/.claude/skills/"*/|../.claude/skills/*)
+                    rm -f "$link"
+                    echo -e "   ${YELLOW}🗑️  skill symlink: $(basename "$link")${NC}"
+                    removed=$((removed + 1))
+                    ;;
+            esac
+        done
+    fi
+
+    UNINSTALL_PROVIDER_LINKS_REMOVED=$removed
+}
+
+uninstall_gemini_global() {
+    echo -e "${BLUE}"
+    echo "╔═══════════════════════════════════════════════════════════════════════╗"
+    echo "║             Uninstall Gemini (Skillz-managed items)                   ║"
+    echo "║                                                                       ║"
+    echo "║   Removes: Skillz command files and skill symlinks                    ║"
+    echo "║   Preserves: GEMINI.md and user-added commands/skills                 ║"
+    echo "╚═══════════════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+
+    if [ ! -d ~/.gemini ]; then
+        echo -e "${YELLOW}ℹ️  ~/.gemini/ not found — nothing to uninstall.${NC}"
+        return 0
+    fi
+
+    uninstall_provider_symlinks "$HOME/.gemini/skills" "Gemini"
+    local removed_links="$UNINSTALL_PROVIDER_LINKS_REMOVED"
+
+    local removed_commands=0
+    for command in dev discovery ship quick-fix status; do
+        local f="$HOME/.gemini/commands/$command.toml"
+        if [ -f "$f" ] && [ ! -L "$f" ]; then
+            rm -f "$f"
+            echo -e "   ${YELLOW}🗑️  command: $command.toml${NC}"
+            removed_commands=$((removed_commands + 1))
+        fi
+    done
+
+    echo ""
+    echo -e "${GREEN}✅ Removed $removed_links skill symlink(s) and $removed_commands Gemini command(s)${NC}"
+    echo -e "${CYAN}ℹ️  ~/.gemini/GEMINI.md and user-added items are untouched.${NC}"
+}
+
+uninstall_opencode_global() {
+    echo -e "${BLUE}"
+    echo "╔═══════════════════════════════════════════════════════════════════════╗"
+    echo "║             Uninstall OpenCode (Skillz-managed items)                 ║"
+    echo "║                                                                       ║"
+    echo "║   Removes: Skillz command files and skill symlinks                    ║"
+    echo "║   Preserves: config, AGENTS.md, and user-added commands/skills        ║"
+    echo "╚═══════════════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+
+    local base="$HOME/.config/opencode"
+    if [ ! -d "$base" ]; then
+        echo -e "${YELLOW}ℹ️  ~/.config/opencode/ not found — nothing to uninstall.${NC}"
+        return 0
+    fi
+
+    uninstall_provider_symlinks "$base/skills" "OpenCode"
+    local removed_links="$UNINSTALL_PROVIDER_LINKS_REMOVED"
+
+    local removed_commands=0
+    for command in dev discovery ship quick-fix status; do
+        local f="$base/commands/$command.md"
+        if [ -f "$f" ] && [ ! -L "$f" ]; then
+            rm -f "$f"
+            echo -e "   ${YELLOW}🗑️  command: $command.md${NC}"
+            removed_commands=$((removed_commands + 1))
+        fi
+    done
+
+    echo ""
+    echo -e "${GREEN}✅ Removed $removed_links skill symlink(s) and $removed_commands OpenCode command(s)${NC}"
+    echo -e "${CYAN}ℹ️  ~/.config/opencode/AGENTS.md and user-added items are untouched.${NC}"
+}
+
+uninstall_agents_global() {
+    echo -e "${BLUE}"
+    echo "╔═══════════════════════════════════════════════════════════════════════╗"
+    echo "║             Uninstall generic agents (Skillz-managed items)           ║"
+    echo "╚═══════════════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+
+    if [ ! -d ~/.agents ]; then
+        echo -e "${YELLOW}ℹ️  ~/.agents/ not found — nothing to uninstall.${NC}"
+        return 0
+    fi
+
+    uninstall_provider_symlinks "$HOME/.agents/skills" "Agents"
+    local removed_links="$UNINSTALL_PROVIDER_LINKS_REMOVED"
+
+    echo ""
+    echo -e "${GREEN}✅ Removed $removed_links skill symlink(s)${NC}"
+    echo -e "${CYAN}ℹ️  ~/.agents/AGENTS.md and user-added items are untouched.${NC}"
+}
+
 # ============================================================
 # Argument parsing — subcommand dispatcher first, then legacy fallback
 # ============================================================
@@ -208,7 +380,8 @@ uninstall_codex_global() {
 UPDATE_MODE=false
 GLOBAL_MODE=false
 NO_CODEX=false
-CODEX_ONLY=false
+GLOBAL_TARGETS=""
+PROJECT_PROVIDERS="all"
 TARGET_DIR=""
 
 # No arguments at all → show help. This prevents accidental install
@@ -242,20 +415,38 @@ if [ $# -gt 0 ]; then
                             uninstall_codex_global
                             exit 0
                             ;;
+                        gemini)
+                            uninstall_gemini_global
+                            exit 0
+                            ;;
+                        opencode)
+                            uninstall_opencode_global
+                            exit 0
+                            ;;
+                        agents)
+                            uninstall_agents_global
+                            exit 0
+                            ;;
                         all)
                             uninstall_codex_global
+                            echo ""
+                            uninstall_gemini_global
+                            echo ""
+                            uninstall_opencode_global
+                            echo ""
+                            uninstall_agents_global
                             echo ""
                             uninstall_claude_global
                             exit 0
                             ;;
                         "")
-                            echo -e "${RED}❌ Error: 'uninstall' requires a target: claude | codex | all${NC}"
+                            echo -e "${RED}❌ Error: 'uninstall' requires a target: claude | codex | gemini | opencode | agents | all${NC}"
                             echo ""
                             show_usage
                             exit 1
                             ;;
                         *)
-                            echo -e "${RED}❌ Error: invalid uninstall target '$TARGET'. Valid: claude | codex | all${NC}"
+                            echo -e "${RED}❌ Error: invalid uninstall target '$TARGET'. Valid: claude | codex | gemini | opencode | agents | all${NC}"
                             exit 1
                             ;;
                     esac
@@ -270,6 +461,7 @@ if [ $# -gt 0 ]; then
                             GLOBAL_MODE=true
                             UPDATE_MODE=true
                             NO_CODEX=true
+                            GLOBAL_TARGETS="claude"
                             ;;
                         codex)
                             # Standalone Codex install: requires ~/.claude/ to exist already
@@ -282,15 +474,28 @@ if [ $# -gt 0 ]; then
                             GLOBAL_MODE=true
                             UPDATE_MODE=true
                             NO_CODEX=false
-                            CODEX_ONLY=true
+                            GLOBAL_TARGETS="codex"
+                            ;;
+                        gemini|opencode|agents)
+                            if [ ! -d ~/.claude/skills ]; then
+                                echo -e "${RED}❌ Error: ~/.claude/skills/ not found.${NC}"
+                                echo -e "${YELLOW}   $TARGET mirror requires Claude to be installed first.${NC}"
+                                echo -e "${YELLOW}   Run: ./install.sh install claude${NC}"
+                                exit 1
+                            fi
+                            GLOBAL_MODE=true
+                            UPDATE_MODE=true
+                            NO_CODEX=false
+                            GLOBAL_TARGETS="$TARGET"
                             ;;
                         all)
                             GLOBAL_MODE=true
                             UPDATE_MODE=true
                             NO_CODEX=false
+                            GLOBAL_TARGETS="all"
                             ;;
                         "")
-                            echo -e "${RED}❌ Error: '$ACTION' requires a target: claude | codex | all | <path>${NC}"
+                            echo -e "${RED}❌ Error: '$ACTION' requires a target: claude | codex | gemini | opencode | agents | all | <path>${NC}"
                             echo ""
                             show_usage
                             exit 1
@@ -300,6 +505,36 @@ if [ $# -gt 0 ]; then
                             TARGET_DIR="$TARGET"
                             ;;
                     esac
+
+                    EXTRA_ARGS=("${@:3}")
+                    extra_index=0
+                    while [ $extra_index -lt ${#EXTRA_ARGS[@]} ]; do
+                        extra_arg="${EXTRA_ARGS[$extra_index]}"
+                        case "$extra_arg" in
+                            --providers)
+                                extra_index=$((extra_index + 1))
+                                PROJECT_PROVIDERS="${EXTRA_ARGS[$extra_index]:-}"
+                                if ! validate_provider_list "$PROJECT_PROVIDERS"; then
+                                    echo -e "${RED}❌ Error: invalid --providers value '$PROJECT_PROVIDERS'.${NC}"
+                                    echo -e "${YELLOW}   Valid: all | claude,codex,gemini,opencode,agents${NC}"
+                                    exit 1
+                                fi
+                                ;;
+                            --help|-h)
+                                show_usage
+                                exit 0
+                                ;;
+                            "")
+                                ;;
+                            *)
+                                echo -e "${RED}❌ Error: unknown option '$extra_arg'${NC}"
+                                echo ""
+                                show_usage
+                                exit 1
+                                ;;
+                        esac
+                        extra_index=$((extra_index + 1))
+                    done
                     ;;
             esac
             ;;
@@ -347,6 +582,14 @@ if [ "$SUBCOMMAND_CONSUMED" = false ]; then
     fi
 fi
 
+if [ "$GLOBAL_MODE" = true ] && [ -z "$GLOBAL_TARGETS" ]; then
+    if [ "$NO_CODEX" = true ]; then
+        GLOBAL_TARGETS="claude"
+    else
+        GLOBAL_TARGETS="all"
+    fi
+fi
+
 # Global mode: install into ~/.claude/ (user-level, all projects)
 if [ "$GLOBAL_MODE" = true ]; then
     echo -e "${BLUE}"
@@ -384,10 +627,15 @@ if [ "$GLOBAL_MODE" = true ]; then
     # Ensure ~/.claude/ exists
     mkdir -p ~/.claude
 
-    # If CODEX_ONLY is set (e.g. via `install codex` subcommand), skip the entire
-    # Claude-side install and jump directly to the Codex mirror block below.
-    if [ "$CODEX_ONLY" = true ]; then
-        echo -e "${CYAN}ℹ️  Codex-only mode — skipping Claude sync, reusing existing ~/.claude/${NC}"
+    # Provider-only installs reuse ~/.claude as the single source of truth.
+    if ! global_target_enabled claude; then
+        if [ ! -d ~/.claude/skills ]; then
+            echo -e "${RED}❌ Error: ~/.claude/skills/ not found.${NC}"
+            echo -e "${YELLOW}   Provider mirrors require Claude to be installed first.${NC}"
+            echo -e "${YELLOW}   Run: ./install.sh install claude${NC}"
+            exit 1
+        fi
+        echo -e "${CYAN}ℹ️  Provider-only mode — skipping Claude sync, reusing existing ~/.claude/${NC}"
         echo ""
     else
 
@@ -519,33 +767,25 @@ if [ "$GLOBAL_MODE" = true ]; then
     echo -e "${CYAN}To update later: run the same command again.${NC}"
     echo ""
 
-    fi  # end of CODEX_ONLY skip guard
+    fi  # end of Claude sync guard
 
     # ====================================================================
     # Codex CLI install (symlinks ~/.claude/* into ~/.codex/*)
-    # Skip with --no-codex
     # ====================================================================
-    if [ "$NO_CODEX" = true ]; then
-        echo -e "${YELLOW}⏭️  Codex install skipped (--no-codex)${NC}"
-        echo ""
-        exit 0
-    fi
+    if global_target_enabled codex; then
+        if [ ! -d ~/.codex ]; then
+            echo -e "${YELLOW}ℹ️  ~/.codex/ not found — Codex CLI doesn't seem installed.${NC}"
+            echo -e "${YELLOW}    Skipping Codex install.${NC}"
+            echo ""
+        else
+            echo -e "${BLUE}╔═══════════════════════════════════════════════════════════════════════╗"
+            echo -e "║         Mirroring into ~/.codex/ (Codex CLI compatibility)            ║"
+            echo -e "║   Skills & prompts symlinked → single source of truth in ~/.claude    ║"
+            echo -e "╚═══════════════════════════════════════════════════════════════════════╝${NC}"
+            echo ""
 
-    if [ ! -d ~/.codex ]; then
-        echo -e "${YELLOW}ℹ️  ~/.codex/ not found — Codex CLI doesn't seem installed.${NC}"
-        echo -e "${YELLOW}    Skipping Codex install. Use --no-codex to silence this.${NC}"
-        echo ""
-        exit 0
-    fi
-
-    echo -e "${BLUE}╔═══════════════════════════════════════════════════════════════════════╗"
-    echo -e "║         Mirroring into ~/.codex/ (Codex CLI compatibility)            ║"
-    echo -e "║   Skills & prompts symlinked → single source of truth in ~/.claude    ║"
-    echo -e "╚═══════════════════════════════════════════════════════════════════════╝${NC}"
-    echo ""
-
-    mkdir -p ~/.codex/skills
-    mkdir -p ~/.codex/prompts
+            mkdir -p ~/.codex/skills
+            mkdir -p ~/.codex/prompts
 
     # 0. Sweep dead symlinks left over from previous runs (e.g. skills removed from
     #    ~/.claude/skills/). Only symlinks are touched — real dirs/files are left alone.
@@ -654,7 +894,7 @@ if [ "$GLOBAL_MODE" = true ]; then
             echo "# Agent Instructions"
             echo ""
             echo "<!-- Auto-generated from ~/.claude/CLAUDE.md by Skillz-Claude installer. -->"
-            echo "<!-- Edit ~/.claude/CLAUDE.md and re-run \`./install.sh --global\` to update. -->"
+            echo "<!-- Edit ~/.claude/CLAUDE.md and re-run \`./install.sh update codex\` to update. -->"
             echo ""
             tail -n +2 ~/.claude/CLAUDE.md
         } > "$TEMP_AGENTS"
@@ -690,6 +930,205 @@ if [ "$GLOBAL_MODE" = true ]; then
     echo ""
     echo -e "${CYAN}Codex will now see your skills & slash commands the same as Claude.${NC}"
     echo ""
+        fi
+    fi
+
+    # ====================================================================
+    # Gemini CLI install
+    # ====================================================================
+    if global_target_enabled gemini; then
+        echo -e "${BLUE}╔═══════════════════════════════════════════════════════════════════════╗"
+        echo -e "║         Mirroring into ~/.gemini/ (Gemini CLI compatibility)          ║"
+        echo -e "║   Skills, commands, and GEMINI.md generated from ~/.claude            ║"
+        echo -e "╚═══════════════════════════════════════════════════════════════════════╝${NC}"
+        echo ""
+
+        mkdir -p ~/.gemini
+        if [ -L "$HOME/.gemini/skills" ]; then
+            rm -f "$HOME/.gemini/skills"
+        fi
+        if [ -L "$HOME/.gemini/knowledge" ]; then
+            rm -f "$HOME/.gemini/knowledge"
+        fi
+        mkdir -p ~/.gemini/skills ~/.gemini/knowledge ~/.gemini/commands
+
+        gemini_skill_count=0
+        gemini_skill_skip_count=0
+        for skill_dir in ~/.claude/skills/*/; do
+            [ -d "$skill_dir" ] || continue
+            name=$(basename "$skill_dir")
+            target="$HOME/.gemini/skills/$name"
+            if [ -e "$target" ] && [ ! -L "$target" ]; then
+                echo -e "   ${YELLOW}⚠️  $name (skipped — exists as real dir, not symlink)${NC}"
+                gemini_skill_skip_count=$((gemini_skill_skip_count + 1))
+                continue
+            fi
+            ln -sfn "$skill_dir" "$target"
+            gemini_skill_count=$((gemini_skill_count + 1))
+        done
+
+        if [ -d ~/.claude/knowledge ]; then
+            ln -sfn "$HOME/.claude/knowledge" "$HOME/.gemini/knowledge/skillz"
+        fi
+
+        SOURCE_GEMINI_COMMANDS="$(dirname "$SOURCE_DIR")/.gemini/commands"
+        gemini_command_count=0
+        if [ -d "$SOURCE_GEMINI_COMMANDS" ]; then
+            for command_file in "$SOURCE_GEMINI_COMMANDS"/*.toml; do
+                [ -f "$command_file" ] || continue
+                cp "$command_file" "$HOME/.gemini/commands/"
+                gemini_command_count=$((gemini_command_count + 1))
+            done
+        fi
+
+        if [ -f ~/.claude/CLAUDE.md ]; then
+            TEMP_GEMINI=$(mktemp)
+            {
+                echo "# Gemini Instructions"
+                echo ""
+                echo "<!-- Auto-generated from ~/.claude/CLAUDE.md by Skillz-Claude installer. -->"
+                echo "<!-- Edit ~/.claude/CLAUDE.md and re-run \`./install.sh update gemini\` to update. -->"
+                echo ""
+                tail -n +2 ~/.claude/CLAUDE.md
+            } > "$TEMP_GEMINI"
+            mv "$TEMP_GEMINI" ~/.gemini/GEMINI.md
+        fi
+
+        echo -e "   ${GREEN}✅ Skills linked:       $gemini_skill_count${NC}"
+        echo -e "   ${GREEN}✅ Gemini commands:     $gemini_command_count${NC}"
+        echo -e "   ${GREEN}✅ GEMINI.md generated${NC}"
+        if [ "$gemini_skill_skip_count" -gt 0 ]; then
+            echo -e "   ${YELLOW}⚠️  $gemini_skill_skip_count skipped (real dirs — delete manually if you want them mirrored)${NC}"
+        fi
+        echo ""
+    fi
+
+    # ====================================================================
+    # OpenCode install
+    # ====================================================================
+    if global_target_enabled opencode; then
+        OPENCODE_HOME="$HOME/.config/opencode"
+        echo -e "${BLUE}╔═══════════════════════════════════════════════════════════════════════╗"
+        echo -e "║       Mirroring into ~/.config/opencode/ (OpenCode compatibility)     ║"
+        echo -e "║   Skills, commands, and AGENTS.md generated from ~/.claude            ║"
+        echo -e "╚═══════════════════════════════════════════════════════════════════════╝${NC}"
+        echo ""
+
+        mkdir -p "$OPENCODE_HOME"
+        if [ -L "$OPENCODE_HOME/skills" ]; then
+            rm -f "$OPENCODE_HOME/skills"
+        fi
+        if [ -L "$OPENCODE_HOME/knowledge" ]; then
+            rm -f "$OPENCODE_HOME/knowledge"
+        fi
+        mkdir -p "$OPENCODE_HOME/skills" "$OPENCODE_HOME/knowledge" "$OPENCODE_HOME/commands"
+
+        opencode_skill_count=0
+        opencode_skill_skip_count=0
+        for skill_dir in ~/.claude/skills/*/; do
+            [ -d "$skill_dir" ] || continue
+            name=$(basename "$skill_dir")
+            target="$OPENCODE_HOME/skills/$name"
+            if [ -e "$target" ] && [ ! -L "$target" ]; then
+                echo -e "   ${YELLOW}⚠️  $name (skipped — exists as real dir, not symlink)${NC}"
+                opencode_skill_skip_count=$((opencode_skill_skip_count + 1))
+                continue
+            fi
+            ln -sfn "$skill_dir" "$target"
+            opencode_skill_count=$((opencode_skill_count + 1))
+        done
+
+        if [ -d ~/.claude/knowledge ]; then
+            ln -sfn "$HOME/.claude/knowledge" "$OPENCODE_HOME/knowledge/skillz"
+        fi
+
+        SOURCE_OPENCODE_COMMANDS="$(dirname "$SOURCE_DIR")/.opencode/commands"
+        opencode_command_count=0
+        if [ -d "$SOURCE_OPENCODE_COMMANDS" ]; then
+            for command_file in "$SOURCE_OPENCODE_COMMANDS"/*.md; do
+                [ -f "$command_file" ] || continue
+                cp "$command_file" "$OPENCODE_HOME/commands/"
+                opencode_command_count=$((opencode_command_count + 1))
+            done
+        fi
+
+        if [ -f ~/.claude/CLAUDE.md ]; then
+            TEMP_OPENCODE=$(mktemp)
+            {
+                echo "# Agent Instructions"
+                echo ""
+                echo "<!-- Auto-generated from ~/.claude/CLAUDE.md by Skillz-Claude installer. -->"
+                echo "<!-- Edit ~/.claude/CLAUDE.md and re-run \`./install.sh update opencode\` to update. -->"
+                echo ""
+                tail -n +2 ~/.claude/CLAUDE.md
+            } > "$TEMP_OPENCODE"
+            mv "$TEMP_OPENCODE" "$OPENCODE_HOME/AGENTS.md"
+        fi
+
+        echo -e "   ${GREEN}✅ Skills linked:       $opencode_skill_count${NC}"
+        echo -e "   ${GREEN}✅ OpenCode commands:   $opencode_command_count${NC}"
+        echo -e "   ${GREEN}✅ AGENTS.md generated${NC}"
+        if [ "$opencode_skill_skip_count" -gt 0 ]; then
+            echo -e "   ${YELLOW}⚠️  $opencode_skill_skip_count skipped (real dirs — delete manually if you want them mirrored)${NC}"
+        fi
+        echo ""
+    fi
+
+    # ====================================================================
+    # Generic ~/.agents install
+    # ====================================================================
+    if global_target_enabled agents; then
+        echo -e "${BLUE}╔═══════════════════════════════════════════════════════════════════════╗"
+        echo -e "║          Mirroring into ~/.agents/ (generic agent compatibility)      ║"
+        echo -e "╚═══════════════════════════════════════════════════════════════════════╝${NC}"
+        echo ""
+
+        mkdir -p ~/.agents
+        if [ -L "$HOME/.agents/skills" ]; then
+            rm -f "$HOME/.agents/skills"
+        fi
+        mkdir -p ~/.agents/skills ~/.agents/knowledge
+
+        agents_skill_count=0
+        agents_skill_skip_count=0
+        for skill_dir in ~/.claude/skills/*/; do
+            [ -d "$skill_dir" ] || continue
+            name=$(basename "$skill_dir")
+            target="$HOME/.agents/skills/$name"
+            if [ -e "$target" ] && [ ! -L "$target" ]; then
+                echo -e "   ${YELLOW}⚠️  $name (skipped — exists as real dir, not symlink)${NC}"
+                agents_skill_skip_count=$((agents_skill_skip_count + 1))
+                continue
+            fi
+            ln -sfn "$skill_dir" "$target"
+            agents_skill_count=$((agents_skill_count + 1))
+        done
+
+        if [ -d ~/.claude/knowledge ]; then
+            ln -sfn "$HOME/.claude/knowledge" "$HOME/.agents/knowledge/skillz"
+        fi
+
+        if [ -f ~/.claude/CLAUDE.md ]; then
+            TEMP_AGENTS_GLOBAL=$(mktemp)
+            {
+                echo "# Agent Instructions"
+                echo ""
+                echo "<!-- Auto-generated from ~/.claude/CLAUDE.md by Skillz-Claude installer. -->"
+                echo "<!-- Edit ~/.claude/CLAUDE.md and re-run \`./install.sh update agents\` to update. -->"
+                echo ""
+                tail -n +2 ~/.claude/CLAUDE.md
+            } > "$TEMP_AGENTS_GLOBAL"
+            mv "$TEMP_AGENTS_GLOBAL" ~/.agents/AGENTS.md
+        fi
+
+        echo -e "   ${GREEN}✅ Skills linked:       $agents_skill_count${NC}"
+        echo -e "   ${GREEN}✅ AGENTS.md generated${NC}"
+        if [ "$agents_skill_skip_count" -gt 0 ]; then
+            echo -e "   ${YELLOW}⚠️  $agents_skill_skip_count skipped (real dirs — delete manually if you want them mirrored)${NC}"
+        fi
+        echo ""
+    fi
+
     exit 0
 fi
 
@@ -708,8 +1147,8 @@ else
 echo "║             D-EPCT+R Workflow v5.1 Installer                          ║"
 fi
 echo "║                                                                       ║"
-echo "║   SKILLS:       28 (Planning, Design, Dev, Security, Figma, Audio/Video)║"
-echo "║   COMMANDS:     20 (Manuel + RALPH + Ship/QA/Retro)                   ║"
+echo "║   SKILLS:       33 (Planning, Design, Dev, Security, Figma, Audio/Video)║"
+echo "║   COMMANDS:     21 (Manuel + RALPH + Ship/QA/Retro)                   ║"
 echo "║   TEMPLATES:    18 (CI/CD, Git Hooks, DevContainer, GitHub)           ║"
 echo "║   KNOWLEDGE:    54 fichiers (testing, workflows, security, figma)     ║"
 echo "╚═══════════════════════════════════════════════════════════════════════╝"
@@ -915,7 +1354,7 @@ if [ -d "$SOURCE_CLAUDE/knowledge" ]; then
 fi
 
 # Copy skills
-echo -e "${GREEN}📁 Installing skills (21)...${NC}"
+echo -e "${GREEN}📁 Installing skills (33)...${NC}"
 for skill_dir in "$SOURCE_CLAUDE/skills"/*; do
     if [ -d "$skill_dir" ]; then
         skill_name=$(basename "$skill_dir")
@@ -948,7 +1387,7 @@ for skill_dir in "$SOURCE_CLAUDE/skills"/*; do
 done
 
 # Copy commands
-echo -e "${GREEN}📁 Installing commands (20)...${NC}"
+echo -e "${GREEN}📁 Installing commands (21)...${NC}"
 for cmd_file in "$SOURCE_CLAUDE/commands"/*.md; do
     if [ -f "$cmd_file" ]; then
         cmd_name=$(basename "$cmd_file")
@@ -1109,8 +1548,19 @@ if [ -d "$SOURCE_CLAUDE/templates" ]; then
 fi
 
 # Create multi-agent compatibility layer (NEW v3.7)
-echo -e "${GREEN}📁 Installing multi-agent compatibility (.agents, .codex, .gemini, .opencode)...${NC}"
-for agent_dir in .agents .codex .gemini .opencode; do
+AGENT_DIRS=""
+project_provider_enabled agents && AGENT_DIRS="$AGENT_DIRS .agents"
+project_provider_enabled codex && AGENT_DIRS="$AGENT_DIRS .codex"
+project_provider_enabled gemini && AGENT_DIRS="$AGENT_DIRS .gemini"
+project_provider_enabled opencode && AGENT_DIRS="$AGENT_DIRS .opencode"
+
+if [ -n "$AGENT_DIRS" ]; then
+    echo -e "${GREEN}📁 Installing provider compatibility ($AGENT_DIRS )...${NC}"
+else
+    echo -e "${YELLOW}⏭️  Provider compatibility skipped (--providers claude)${NC}"
+fi
+
+for agent_dir in $AGENT_DIRS; do
     SOURCE_AGENT="$SOURCE_CLAUDE/../$agent_dir"
     TARGET_AGENT="$TARGET_DIR/$agent_dir"
 
@@ -1125,12 +1575,27 @@ for agent_dir in .agents .codex .gemini .opencode; do
             fi
         done
 
+        # Copy native provider command/prompt folders when present.
+        for subdir in prompts commands; do
+            if [ -d "$SOURCE_AGENT/$subdir" ]; then
+                if [ "$UPDATE_MODE" = true ]; then
+                    rm -rf "$TARGET_AGENT/$subdir"
+                fi
+                mkdir -p "$TARGET_AGENT/$subdir"
+                cp -R "$SOURCE_AGENT/$subdir/." "$TARGET_AGENT/$subdir/" 2>/dev/null || true
+            fi
+        done
+
         # Create symlinks to .claude/skills and .claude/knowledge
-        if [ ! -L "$TARGET_AGENT/skills" ]; then
-            ln -sf ../.claude/skills "$TARGET_AGENT/skills"
+        if [ -L "$TARGET_AGENT/skills" ] || [ ! -e "$TARGET_AGENT/skills" ]; then
+            ln -sfn ../.claude/skills "$TARGET_AGENT/skills"
+        else
+            echo -e "   ${YELLOW}⚠️  $agent_dir/skills exists as a real file/dir — symlink skipped${NC}"
         fi
-        if [ ! -L "$TARGET_AGENT/knowledge" ]; then
-            ln -sf ../.claude/knowledge "$TARGET_AGENT/knowledge"
+        if [ -L "$TARGET_AGENT/knowledge" ] || [ ! -e "$TARGET_AGENT/knowledge" ]; then
+            ln -sfn ../.claude/knowledge "$TARGET_AGENT/knowledge"
+        else
+            echo -e "   ${YELLOW}⚠️  $agent_dir/knowledge exists as a real file/dir — symlink skipped${NC}"
         fi
 
         if [ "$UPDATE_MODE" = true ]; then
@@ -1258,8 +1723,8 @@ echo -e "║                       ✅ Update Complete!                         
 echo -e "╚═══════════════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 echo -e "${CYAN}Updated components:${NC}"
-echo -e "   ${CYAN}🔄 Skills (21)${NC}"
-echo -e "   ${CYAN}🔄 Commands (20)${NC}"
+echo -e "   ${CYAN}🔄 Skills (33)${NC}"
+echo -e "   ${CYAN}🔄 Commands (21)${NC}"
 echo -e "   ${CYAN}🔄 Hooks${NC}"
 echo -e "   ${CYAN}🔄 Knowledge Base (54 files)${NC}"
 echo -e "   ${CYAN}🔄 Templates (18 files)${NC}"
@@ -1296,14 +1761,15 @@ echo "    simple-api/      API REST simple (mode LIGHT)"
 echo "    blog-nextjs/     Blog Next.js (mode FULL)"
 echo "    saas-dashboard/  Dashboard SaaS (mode RALPH)"
 echo ""
-echo -e "${BLUE}  🤖 Multi-Agent Compatibility:${NC}"
+echo -e "${BLUE}  🤖 Provider Compatibility:${NC}"
+echo "    Requested:        $PROJECT_PROVIDERS"
 echo "    .agents/         Generic fallback (AGENTS.md)"
 echo "    .codex/          OpenAI Codex CLI"
 echo "    .gemini/         Google Gemini CLI"
 echo "    .opencode/       OpenCode"
-echo "    → All symlinked to .claude/skills and .claude/knowledge"
+echo "    → Selected provider dirs symlink to .claude/skills and .claude/knowledge"
 echo ""
-echo -e "${BLUE}  Skills (28):${NC}"
+echo -e "${BLUE}  Skills (33):${NC}"
 echo "    Planning:  idea-brainstorm, pm-prd, architect, pm-stories,"
 echo "               api-designer, database-designer"
 echo "    Design:    ux-designer, ui-designer (auto-triggered)"
@@ -1376,5 +1842,5 @@ fi
 echo -e "${CYAN}Update:${NC}"
 echo ""
 echo "  # Pour mettre à jour vers la dernière version:"
-echo "  curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- . --update"
+echo "  curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- update . --providers $PROJECT_PROVIDERS"
 echo ""

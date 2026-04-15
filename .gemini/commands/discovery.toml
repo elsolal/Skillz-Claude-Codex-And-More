@@ -1,0 +1,8 @@
+description = "D-EPCT+R planning workflow"
+prompt = """
+IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL `.gemini/skills/discovery-workflow/SKILL.md` if it exists, otherwise `.claude/skills/discovery-workflow/SKILL.md`, READ its entire contents, and execute the workflow sequentially phase-by-phase, respecting every STOP CHECKPOINT before proceeding to the next phase.
+
+The user's idea, project description, or vague need is appended below this prompt by Gemini CLI. Start with Phase 1 (Listen & Detect Mode): listen without interrupting, ask only 2-3 clarifying questions if needed, then propose LIGHT or FULL mode.
+
+Never fork context to skill execution. The workflow skill is your reference, but YOU keep all the context across phases.
+"""

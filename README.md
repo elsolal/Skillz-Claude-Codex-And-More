@@ -20,75 +20,141 @@ All workflows use an **orchestrator pattern**: the main thread keeps full contex
 
 ## Installation
 
-One command, copy-paste, done:
+Skillz-Claude can be installed globally for every project, or locally inside one project. Claude remains the source of truth because the shared skills and knowledge live in `.claude/`; other providers mirror that content in their own native folders.
+
+### Recommended: install everything globally
+
+Use this when you want the workflows available everywhere:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- install all
 ```
 
-This installs skills, commands, knowledge and templates into `~/.claude/` (for Claude Code) and `~/.codex/` (for Codex CLI). Works on Mac and Linux.
+This installs all supported global targets:
 
-To update later, run the same command again — your config (CLAUDE.md, settings.json, mcp.json) is always preserved.
+| Provider | Installed into | What you get |
+|---|---|---|
+| Claude Code | `~/.claude/` | Full skills, all Claude slash commands, knowledge, templates |
+| OpenAI Codex CLI | `~/.codex/` | Skill symlinks, 5 Codex-native prompts, generated `AGENTS.md` |
+| Google Gemini CLI | `~/.gemini/` | Skill symlinks, 5 Gemini-native commands, generated `GEMINI.md` |
+| OpenCode | `~/.config/opencode/` | Skill symlinks, 5 OpenCode-native commands, generated `AGENTS.md` |
+| Generic agents | `~/.agents/` | Skill symlinks and generated `AGENTS.md` |
+
+To update later:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- update all
+```
+
+Your provider config is preserved. For Claude this means `CLAUDE.md`, `settings.json`, and `mcp.json` are kept and only the managed workflow section is refreshed.
+
+### Global install by provider
+
+Use these commands when you only want one environment:
+
+```bash
+# Claude Code only
+./install.sh install claude
+
+# Codex only, after Claude has been installed once
+./install.sh install codex
+
+# Gemini only, after Claude has been installed once
+./install.sh install gemini
+
+# OpenCode only, after Claude has been installed once
+./install.sh install opencode
+
+# Generic ~/.agents only, after Claude has been installed once
+./install.sh install agents
+```
+
+Why install Claude first? The non-Claude providers are mirrors. They intentionally point to the same `~/.claude/skills` and `~/.claude/knowledge` content so you do not maintain five diverging copies.
 
 ### Per-project install
 
-If you prefer installing into a single project instead of globally:
+Use this when you want Skillz only inside the current repository:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- install .
 ```
 
-<details>
-<summary><strong>Advanced options</strong> (update, uninstall, Claude-only, Codex-only)</summary>
+This creates `.claude/` plus all provider compatibility folders in the project:
+
+```text
+.claude/      # source of truth: skills, commands, knowledge, templates
+.codex/       # Codex prompts + symlinks to .claude
+.gemini/      # Gemini commands + symlinks to .claude
+.opencode/    # OpenCode commands + symlinks to .claude
+.agents/      # generic agent instructions + symlinks to .claude
+docs/         # planning, stories, RALPH logs, security reports
+```
+
+You can also install only the provider folders you need. `.claude/` is still installed as the local backing store:
 
 ```bash
-# Install only Claude (skip Codex)
-./install.sh install claude
+# Claude only
+./install.sh install . --providers claude
 
-# Install only Codex (requires Claude already installed)
-./install.sh install codex
+# Codex + Gemini only
+./install.sh install . --providers codex,gemini
 
-# Update an existing install
-./install.sh update all             # or: update claude, update codex
+# OpenCode only
+./install.sh install . --providers opencode
+```
 
-# Uninstall (removes only Skillz-managed items, preserves your config)
-./install.sh uninstall codex        # Remove Codex mirror, keep Claude
-./install.sh uninstall claude       # Remove Claude skills/commands (keeps CLAUDE.md, settings)
-./install.sh uninstall all          # Remove everything Skillz installed
+Update a project install:
+
+```bash
+./install.sh update . --providers all
+./install.sh update . --providers codex,gemini
+```
+
+### Which commands are available?
+
+Claude Code receives the full command set from `.claude/commands`.
+
+Portable commands are installed natively for Codex, Gemini, and OpenCode:
+
+| Command | Claude | Codex | Gemini | OpenCode | What it does |
+|---|---:|---:|---:|---:|---|
+| `/dev <task>` | Yes | Yes | Yes | Yes | Feature development: Explore → Plan → Implement → Review ×3 → Ship |
+| `/discovery <idea>` | Yes | Yes | Yes | Yes | Planning: Brainstorm → PRD → Architecture → Stories → GitHub |
+| `/ship` | Yes | Yes | Yes | Yes | Ship: merge main → tests → review → CHANGELOG → PR |
+| `/quick-fix "<problem>"` | Yes | Yes | Yes | Yes | Small bug fix (max 3 files / 50 lines) |
+| `/status` | Yes | Yes | Yes | Yes | Project dashboard (read-only) |
+| `/refactor`, `/pr-review`, `/retro`, RALPH commands, etc. | Yes | No | No | No | Claude-native commands that rely on Claude-specific workflow assumptions |
+
+Model choice does not change command discovery. Gemini CLI, OpenCode, and Codex discover commands from their own folders, independently of whether the selected model is Claude, Gemini, GPT, or another provider.
+
+### Update and uninstall
+
+```bash
+# Update global installs
+./install.sh update all
+./install.sh update claude
+./install.sh update codex
+./install.sh update gemini
+./install.sh update opencode
+./install.sh update agents
+
+# Remove only Skillz-managed items for one provider
+./install.sh uninstall claude
+./install.sh uninstall codex
+./install.sh uninstall gemini
+./install.sh uninstall opencode
+./install.sh uninstall agents
+
+# Remove all global Skillz-managed items
+./install.sh uninstall all
 
 # Show full help
 ./install.sh help
 ```
 
-</details>
+Drift protection: `~/.claude/.skillz-manifest` tracks skills and Claude commands installed by Skillz. During global updates, items that were previously managed by Skillz but no longer exist in the source are removed. User-added skills are not touched. Provider mirrors remove dead symlinks and preserve native config files.
 
-### Available slash commands
-
-These commands work in **both Claude Code and Codex CLI**:
-
-| Command | What it does |
-|---|---|
-| `/dev <task>` | Feature development: Explore → Plan → Implement → Review ×3 → Ship |
-| `/discovery <idea>` | Planning: Brainstorm → PRD → Architecture → Stories → GitHub |
-| `/ship` | Ship: merge main → tests → review → CHANGELOG → PR |
-| `/quick-fix "<problem>"` | Quick bug fix (max 3 files / 50 lines) |
-| `/status` | Project dashboard (read-only) |
-
-Claude Code has [additional commands](/docs) (`/refactor`, `/pr-review`, `/retro`, RALPH mode, etc.) that are not yet available in Codex.
-
-Drift protection: a manifest at `~/.claude/.skillz-manifest` tracks skills/commands installed by Skillz. On each `--global` run, orphaned items (present in the previous manifest but no longer in the source) are removed automatically. User-added skills outside the manifest are never touched. Dead Codex symlinks are swept as well.
-
-### Per-project (Mac / Linux)
-
-```bash
-# One-line install
-curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- .
-
-# Update (preserves CLAUDE.md, settings.json, mcp.json)
-curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- . --update
-```
-
-### Windows (PowerShell)
+### Manual Windows install
 
 ```powershell
 git clone https://github.com/elsolal/Skillz-Claude.git
@@ -99,14 +165,6 @@ Copy-Item -Recurse -Force Skillz-Claude\.gemini\ .\.gemini\
 Copy-Item -Recurse -Force Skillz-Claude\.opencode\ .\.opencode\
 New-Item -ItemType Directory -Force -Path docs\planning\brainstorms, docs\planning\ux, docs\planning\prd, docs\planning\ui, docs\planning\architecture, docs\stories, docs\ralph-logs, docs\debates, docs\security
 Remove-Item -Recurse -Force Skillz-Claude
-```
-
-### Claude Code only (without multi-agent dirs)
-
-```bash
-git clone --depth 1 https://github.com/elsolal/Skillz-Claude.git
-cp -r Skillz-Claude/.claude/ .claude/
-rm -rf Skillz-Claude
 ```
 
 ---
@@ -232,7 +290,7 @@ Merges main, runs tests, pre-landing review, generates changelog, creates PR.
 | `/ds-doc [--figma url]` | Document design system in CLAUDE.md (scan + Figma links) |
 | `/supabase-security <url>` | Full Supabase security audit |
 
-> Figma skills are now triggered automatically via descriptions — no slash commands needed. See [Skills](#skills-28) section.
+> Figma skills are now triggered automatically via descriptions — no slash commands needed. See [Skills](#skills-33) section.
 
 ### RALPH (autonomous mode)
 
@@ -248,7 +306,7 @@ Stop: `/cancel-ralph` | Resume: `/resume-ralph [session-id]`
 
 ---
 
-## Skills (28)
+## Skills (33)
 
 ### Planning Phase
 
@@ -333,14 +391,14 @@ Stop: `/cancel-ralph` | Resume: `/resume-ralph [session-id]`
 ```
 .claude/
 ├── CLAUDE.md                        # Project instructions
-├── commands/                        # 20 slash commands
+├── commands/                        # 21 Claude slash commands
 │   ├── discovery.md                 # /discovery (orchestrator)
 │   ├── dev.md                       # /dev (orchestrator + subagents)
 │   ├── auto-discovery.md            # /auto-discovery (RALPH)
 │   ├── auto-dev.md                  # /auto-dev (RALPH)
 │   ├── ship.md, qa.md, ...          # Ship & QA commands
 │   └── ...
-├── skills/                          # 28 skills
+├── skills/                          # 33 skills
 │   ├── idea-brainstorm/
 │   ├── pm-prd/
 │   ├── architect/
@@ -417,7 +475,7 @@ Progressive loading based on complexity:
 
 ## Multi-Agent Compatibility
 
-Works with Claude Code, OpenAI Codex, Google Gemini CLI, and OpenCode. The `.agents/`, `.codex/`, `.gemini/`, `.opencode/` directories are symlinks to `.claude/` — single source of truth.
+Works with Claude Code, OpenAI Codex CLI, Google Gemini CLI, OpenCode, and generic agents. The `.agents/`, `.codex/`, `.gemini/`, and `.opencode/` directories mirror `.claude/` as the single source of truth, while provider-native command files live in each provider folder.
 
 ---
 

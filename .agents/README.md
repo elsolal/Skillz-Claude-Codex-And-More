@@ -12,7 +12,8 @@ Ce dossier permet aux différents outils IA (Codex, Gemini, OpenCode, etc.) d'ac
     │
     ├── skills/       → symlink vers .claude/skills/
     ├── knowledge/    → symlink vers .claude/knowledge/
-    └── AGENTS.md     → Instructions (référence CLAUDE.md)
+    ├── commands/     → commandes natives si supportées par le provider
+    └── AGENTS.md     → instructions (référence CLAUDE.md)
 ```
 
 ## Source de vérité
@@ -21,9 +22,9 @@ Toutes les configurations sont dans **`.claude/`** :
 
 | Dossier | Contenu |
 |---------|---------|
-| `.claude/skills/` | 20 skills (brainstorm, PRD, architecture, Figma, etc.) |
+| `.claude/skills/` | 33 skills (brainstorm, PRD, architecture, Figma, etc.) |
 | `.claude/knowledge/` | 54 fichiers knowledge (testing, workflows, security, Figma) |
-| `.claude/commands/` | 16 commandes (discovery, feature, etc.) |
+| `.claude/commands/` | 21 commandes Claude (discovery, dev, ship, etc.) |
 | `.claude/CLAUDE.md` | Instructions principales |
 
 ## Utilisation
@@ -38,19 +39,19 @@ Lit automatiquement `.claude/CLAUDE.md`
 ```bash
 codex
 ```
-Lit `.codex/AGENTS.md` qui référence `.claude/CLAUDE.md`
+Lit `.codex/AGENTS.md` et les prompts dans `.codex/prompts/`
 
 ### Gemini CLI
 ```bash
 gemini
 ```
-Lit `.gemini/GEMINI.md` qui référence `.claude/CLAUDE.md`
+Lit `.gemini/GEMINI.md` et les commandes dans `.gemini/commands/`
 
 ### OpenCode
 ```bash
 opencode
 ```
-Lit `.opencode/AGENTS.md` qui référence `.claude/CLAUDE.md`
+Lit `.opencode/AGENTS.md` et les commandes dans `.opencode/commands/`
 
 ## Ajouter un nouvel outil
 
@@ -61,6 +62,7 @@ Lit `.opencode/AGENTS.md` qui référence `.claude/CLAUDE.md`
    ln -sf ../.claude/knowledge .newtool/knowledge
    ```
 3. Créer le fichier d'instructions (AGENTS.md, CONFIG.md, etc.)
+4. Ajouter un dossier `commands/` ou `prompts/` si l'outil supporte les slash commands natives.
 
 ## Maintenance
 
