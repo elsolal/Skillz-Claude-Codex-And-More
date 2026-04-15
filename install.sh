@@ -1,9 +1,21 @@
 #!/bin/bash
 
 # ============================================================
-# D-EPCT+R Workflow Installer
+# D-EPCT+R Workflow Installer — Universal fallback (all providers)
 # Install Skillz-Claude skills + RALPH Mode + Knowledge Files + Templates
 # into Claude Code, Codex CLI, Gemini CLI, OpenCode, and generic agents.
+#
+# INSTALLATION PATHS (pick one) :
+#
+#   1. Provider-native (recommended per provider — v5.7.0+) :
+#      Claude Code  → claude --plugin-dir ./Skillz-Claude       (.claude-plugin/plugin.json)
+#      Gemini CLI   → gemini --extension-dir ./Skillz-Claude    (gemini-extension.json + GEMINI.md)
+#      OpenCode     → drop in .opencode/plugins/skillz-claude/  (skills/ + AGENTS.md)
+#      Codex CLI    → install.sh mirrors ~/.claude/ → ~/.codex/ (no native plugin format yet)
+#
+#   2. Universal fallback (this script — works everywhere) :
+#      ./install.sh install all       # ~/.claude/ + ~/.codex/ + ~/.gemini/ + ~/.opencode/ + ~/.agents/
+#      ./install.sh install .         # per-project, any provider
 #
 # USAGE (v5.6.0+ subcommand syntax — recommended):
 #

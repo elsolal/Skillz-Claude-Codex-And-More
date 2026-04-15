@@ -1,0 +1,21 @@
+{
+  "name": "skillz-claude",
+  "description": "D-EPCT+R workflow for Claude Code: Explore → Plan → Implement → Review → Ship. 34 skills (discovery, dev, Figma, audio/video, security), 22 slash commands (/dev, /ship, /qa, /auto-dev RALPH mode), multi-agent parallel review, spec-driven workflow gates. FR-first.",
+  "version": "5.7.0",
+  "author": {
+    "name": "elsolal",
+    "url": "https://github.com/elsolal"
+  },
+  "homepage": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
+  "repository": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
+  "license": "MIT",
+  "keywords": [
+    "workflow",
+    "d-epct-r",
+    "ralph",
+    "figma",
+    "discovery",
+    "multi-agent",
+    "french"
+  ]
+}

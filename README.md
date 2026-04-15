@@ -20,9 +20,33 @@ All workflows use an **orchestrator pattern**: the main thread keeps full contex
 
 ## Installation
 
+Skillz-Claude supports three installation paths. Pick the one matching your setup.
+
+### Provider-native (v5.7.0+, per provider)
+
+If your agent supports native plugins/extensions, use that first — no symlinks, cleanest upgrade path.
+
+| Provider | Command | Manifest used |
+|---|---|---|
+| Claude Code | `claude --plugin-dir /path/to/Skillz-Claude` | `.claude-plugin/plugin.json` |
+| Gemini CLI | `gemini --extension-dir /path/to/Skillz-Claude` | `gemini-extension.json` + `GEMINI.md` |
+| OpenCode | Drop repo into `.opencode/plugins/skillz-claude/` | `skills/` + `AGENTS.md` |
+
+```bash
+gh repo clone elsolal/Skillz-Claude-Codex-And-More
+# Claude Code
+claude --plugin-dir ./Skillz-Claude-Codex-And-More
+# Gemini CLI
+gemini --extension-dir ./Skillz-Claude-Codex-And-More
+```
+
+Reload skills with `/reload-plugins` (Claude Code) or restart your agent after manifest changes.
+
+### Universal fallback (works everywhere — this installer)
+
 Skillz-Claude can be installed globally for every project, or locally inside one project. Claude remains the source of truth because the shared skills and knowledge live in `.claude/`; other providers mirror that content in their own native folders.
 
-### Recommended: install everything globally
+#### Recommended: install everything globally
 
 Use this when you want the workflows available everywhere:
 
@@ -48,7 +72,7 @@ curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.
 
 Your provider config is preserved. For Claude this means `CLAUDE.md`, `settings.json`, and `mcp.json` are kept and only the managed workflow section is refreshed.
 
-### Global install by provider
+#### Global install by provider
 
 Use these commands when you only want one environment:
 
@@ -71,7 +95,7 @@ Use these commands when you only want one environment:
 
 Why install Claude first? The non-Claude providers are mirrors. They intentionally point to the same `~/.claude/skills` and `~/.claude/knowledge` content so you do not maintain five diverging copies.
 
-### Per-project install
+#### Per-project install
 
 Use this when you want Skillz only inside the current repository:
 
@@ -110,7 +134,7 @@ Update a project install:
 ./install.sh update . --providers codex,gemini
 ```
 
-### Which commands are available?
+#### Which commands are available?
 
 Claude Code receives the full command set from `.claude/commands`.
 
@@ -127,7 +151,7 @@ Portable commands are installed natively for Codex, Gemini, and OpenCode:
 
 Model choice does not change command discovery. Gemini CLI, OpenCode, and Codex discover commands from their own folders, independently of whether the selected model is Claude, Gemini, GPT, or another provider.
 
-### Update and uninstall
+#### Update and uninstall
 
 ```bash
 # Update global installs
@@ -154,7 +178,7 @@ Model choice does not change command discovery. Gemini CLI, OpenCode, and Codex 
 
 Drift protection: `~/.claude/.skillz-manifest` tracks skills and Claude commands installed by Skillz. During global updates, items that were previously managed by Skillz but no longer exist in the source are removed. User-added skills are not touched. Provider mirrors remove dead symlinks and preserve native config files.
 
-### Manual Windows install
+#### Manual Windows install
 
 ```powershell
 git clone https://github.com/elsolal/Skillz-Claude.git

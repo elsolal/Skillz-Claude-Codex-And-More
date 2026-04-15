@@ -2,6 +2,33 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## v5.8.0 (2026-04-15)
+
+**Native Provider Packaging — Claude plugin + Gemini extension + AGENTS.md**
+
+### Why
+Until now, Skillz-Claude was only distributable through `install.sh`. This required symlink surgery per provider (`~/.gemini/skills -> ~/.claude/skills`), which broke when target dirs already existed (see the Gemini symlink bug we caught). Native plugin/extension formats remove that friction entirely.
+
+### Added
+- `.claude-plugin/plugin.json` — native Claude Code plugin manifest at repo root. Enables `claude --plugin-dir ./Skillz-Claude` and marketplace distribution.
+- `gemini-extension.json` + `GEMINI.md` at repo root — native Gemini CLI extension. Enables `gemini --extension-dir ./Skillz-Claude` (no more `~/.gemini/skills` symlink headaches).
+- `AGENTS.md` at repo root — cross-agent context file (OpenCode, Aider, Codex CLI, generic). Canonical discovery point for any `AGENTS.md`-respecting tool.
+- Root-level symlinks `skills/`, `commands/`, `hooks/` → `.claude/*` — plugin/extension root expected by native manifests without duplicating content.
+
+### Changed
+- `install.sh` rebadged as **"universal fallback"** (not legacy). Remains the canonical path for multi-provider global install + per-project install + environments where native plugins aren't available yet.
+- `README.md` restructured: provider-native install shown **first** (recommended per provider), universal `install.sh` shown **second** (works everywhere).
+
+### Distribution
+The repo now supports three install paths simultaneously — users pick what matches their agent :
+1. **Provider-native** : `claude --plugin-dir` / `gemini --extension-dir` / OpenCode plugin dir
+2. **Universal** : `install.sh install all` (Claude + Codex + Gemini + OpenCode + agents)
+3. **Per-project** : `install.sh install .`
+
+No runtime dependency on external projects. All manifests hand-written for our structure.
+
+---
+
 ## v5.7.0 (2026-04-15)
 
 **Workflow Safety Gates — RALPH protection + verification matrix + skillz-doctor**
