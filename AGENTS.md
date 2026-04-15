@@ -13,7 +13,7 @@ D-EPCT+R workflow (Explore → Plan → Implement → Review → Ship) + 34 skil
 - `skills/` → symlink vers `.claude/skills/` (34 skills, format SKILL.md)
 - `commands/` → symlink vers `.claude/commands/` (22 slash commands, format Markdown)
 - `.claude-plugin/plugin.json` → manifest Claude Code plugin
-- `gemini-extension.json` + `GEMINI.md` → extension Gemini CLI
+- `.gemini/gemini-extension.json` + `.gemini/GEMINI.md` → extension Gemini CLI native
 - `AGENTS.md` → ce fichier (OpenCode + fallback générique)
 - `.claude/` → source de vérité + installation standalone via `install.sh`
 
@@ -39,11 +39,11 @@ Voir `.claude/CLAUDE.md` pour la liste complète (22 commandes).
 
 ## Installation
 
-### Option 1 — Agent-native (recommandé selon ton agent)
+### Option 1 — Agent-native (preview selon ton agent)
 
-- **Claude Code** : `claude --plugin-dir .` (utilise `.claude-plugin/plugin.json`)
-- **Gemini CLI** : `gemini --extension-dir .` (utilise `gemini-extension.json`)
-- **OpenCode** : place le repo à `.opencode/plugins/skillz-claude/` et OpenCode discovera les skills via `skills/`
+- **Claude Code** : `claude --plugin-dir .` (utilise `.claude-plugin/plugin.json`, commandes namespacées par Claude Code)
+- **Gemini CLI** : `gemini --extension-dir .gemini` (utilise `.gemini/gemini-extension.json` + commandes TOML)
+- **OpenCode** : pas de plugin JS/TS packagé ici ; utiliser `./install.sh install opencode` ou les dossiers `.opencode/skills` + `.opencode/commands`
 
 ### Option 2 — Install universel (tous providers)
 
@@ -51,4 +51,4 @@ Voir `.claude/CLAUDE.md` pour la liste complète (22 commandes).
 curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- install all
 ```
 
-Installe dans `~/.claude/`, `~/.codex/`, et mirror vers `~/.gemini/`, `~/.opencode/` via symlinks.
+Installe dans `~/.claude/`, `~/.codex/`, `~/.gemini/`, `~/.config/opencode/`, et `~/.agents/` via dossiers provider dédiés.

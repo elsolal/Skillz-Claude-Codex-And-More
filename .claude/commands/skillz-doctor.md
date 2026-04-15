@@ -1,5 +1,5 @@
 ---
-description: Diagnostic complet de l'install Skillz-Claude. Vérifie symlinks providers (~/.gemini, ~/.codex, ~/.opencode, ~/.agents), drift du manifest, locks RALPH orphelins, frontmatter des specs, fichiers provider présents. Usage: /skillz-doctor [--fix]
+description: Diagnostic complet de l'install Skillz-Claude. Vérifie symlinks providers (~/.gemini, ~/.codex, ~/.config/opencode, ~/.agents), drift du manifest, locks RALPH orphelins, frontmatter des specs, fichiers provider présents. Usage: /skillz-doctor [--fix]
 ---
 
 # Skillz-Doctor — Health Check Install
@@ -13,7 +13,7 @@ description: Diagnostic complet de l'install Skillz-Claude. Vérifie symlinks pr
 │                       SKILLZ-DOCTOR                                      │
 ├──────────────────────────────────────────────────────────────────────────┤
 │                                                                          │
-│  Health checks  → Symlinks       (.gemini, .codex, .opencode, .agents)  │
+│  Health checks  → Symlinks       (.gemini, .codex, opencode, .agents)   │
 │                 → Manifest drift (skillz-manifest vs ~/.claude/skills/) │
 │                 → RALPH locks    (sessions orphelines > 24h)            │
 │                 → Spec frontmatter (status/approved_by valides)        │
@@ -39,7 +39,7 @@ description: Diagnostic complet de l'install Skillz-Claude. Vérifie symlinks pr
 
 ### 1. Symlinks providers
 
-Pour chaque provider (`.gemini`, `.codex`, `.opencode`, `.agents`) qui existe sous `~/` :
+Pour chaque provider (`~/.gemini`, `~/.codex`, `~/.config/opencode`, `~/.agents`) :
 
 **Patterns valides** :
 - **Single-symlink** : `~/.gemini/skills -> ~/.claude/skills` (tout le dossier est un lien)
@@ -49,8 +49,26 @@ Pour chaque provider (`.gemini`, `.codex`, `.opencode`, `.agents`) qui existe so
 **Pattern cassé** : `~/.X/skills/skills -> ../.claude/skills` — nested broken symlink causé par `ln -sf` dans un dossier existant.
 
 ```bash
-for provider in .gemini .codex .opencode .agents; do
-  dir="$HOME/$provider"
+for provider in gemini codex opencode agents; do
+  case "$provider" in
+    gemini)
+      label=".gemini"
+      dir="$HOME/.gemini"
+      ;;
+    codex)
+      label=".codex"
+      dir="$HOME/.codex"
+      ;;
+    opencode)
+      label=".config/opencode"
+      dir="$HOME/.config/opencode"
+      ;;
+    agents)
+      label=".agents"
+      dir="$HOME/.agents"
+      ;;
+  esac
+
   [ -d "$dir" ] || continue
 
   link="$dir/skills"
@@ -60,9 +78,9 @@ for provider in .gemini .codex .opencode .agents; do
     target=$(readlink "$link")
     if [ -e "$link" ]; then
       count=$(ls "$link" 2>/dev/null | wc -l | tr -d ' ')
-      echo "OK   | $provider/skills → $target ($count skills)"
+      echo "OK   | $label/skills → $target ($count skills)"
     else
-      echo "FAIL | $provider/skills → $target (BROKEN)"
+      echo "FAIL | $label/skills → $target (BROKEN)"
       echo "       FIX: rm -rf $link && ln -s $HOME/.claude/skills $link"
     fi
 
@@ -70,7 +88,7 @@ for provider in .gemini .codex .opencode .agents; do
   elif [ -d "$link" ]; then
     # 2a. Nested broken symlink (the bug we want to catch)
     if [ -L "$link/skills" ] && [ ! -e "$link/skills" ]; then
-      echo "FAIL | $provider/skills/skills → $(readlink $link/skills) (BROKEN nested)"
+      echo "FAIL | $label/skills/skills → $(readlink $link/skills) (BROKEN nested)"
       echo "       FIX: rm $link/skills  (keep $link/ for independent content)"
     else
       # 2b. Per-skill symlinks pattern (Codex-style) — count valid symlinks
@@ -78,25 +96,25 @@ for provider in .gemini .codex .opencode .agents; do
       real_count=$(find "$link" -maxdepth 1 -type d -not -name "$(basename $link)" -not -name ".*" 2>/dev/null | wc -l | tr -d ' ')
       total=$((sym_count + real_count))
       if [ "$sym_count" -gt 5 ]; then
-        echo "OK   | $provider/skills/ real dir, $sym_count per-skill symlinks (Codex pattern)"
+        echo "OK   | $label/skills/ real dir, $sym_count per-skill symlinks (Codex pattern)"
       elif [ "$real_count" -gt 0 ]; then
-        echo "OK   | $provider/skills/ real dir, $real_count independent skills (own content)"
+        echo "OK   | $label/skills/ real dir, $real_count independent skills (own content)"
       else
-        echo "WARN | $provider/skills/ real dir, empty or unclear pattern"
+        echo "WARN | $label/skills/ real dir, empty or unclear pattern"
       fi
     fi
 
   # Case 3: missing entirely
   else
-    echo "WARN | $provider/skills missing entirely"
+    echo "WARN | $label/skills missing entirely"
   fi
 
   # Knowledge check (same pattern, simpler)
   link="$dir/knowledge"
   if [ -L "$link" ] && [ -e "$link" ]; then
-    echo "OK   | $provider/knowledge → $(readlink $link)"
+    echo "OK   | $label/knowledge → $(readlink $link)"
   elif [ -L "$link" ]; then
-    echo "FAIL | $provider/knowledge BROKEN"
+    echo "FAIL | $label/knowledge BROKEN"
   fi
 done
 ```
@@ -133,20 +151,22 @@ missing=$(comm -13 <(echo "$present_skills") <(echo "$manifest_skills"))
 
 ```bash
 logs_dir="docs/ralph-logs"
-[ -d "$logs_dir" ] || { echo "OK   | No ralph-logs/ — pas d'historique"; return; }
+if [ ! -d "$logs_dir" ]; then
+  echo "OK   | No ralph-logs/ — pas d'historique"
+else
+  # Sessions sans completion marker, modifiées il y a > 24h
+  for log in "$logs_dir"/*.md; do
+    [ -f "$log" ] || continue
+    last_mod=$(stat -f %m "$log" 2>/dev/null || stat -c %Y "$log")
+    age_hours=$(( ($(date +%s) - last_mod) / 3600 ))
 
-# Sessions sans completion marker, modifiées il y a > 24h
-for log in "$logs_dir"/*.md; do
-  [ -f "$log" ] || continue
-  last_mod=$(stat -f %m "$log" 2>/dev/null || stat -c %Y "$log")
-  age_hours=$(( ($(date +%s) - last_mod) / 3600 ))
-
-  if [ $age_hours -gt 24 ]; then
-    if ! grep -q "COMPLETE\|CANCELLED\|TIMEOUT" "$log"; then
-      echo "WARN | $log : session orpheline ($age_hours h, no completion marker)"
+    if [ $age_hours -gt 24 ]; then
+      if ! grep -q "COMPLETE\|CANCELLED\|TIMEOUT" "$log"; then
+        echo "WARN | $log : session orpheline ($age_hours h, no completion marker)"
+      fi
     fi
-  fi
-done
+  done
+fi
 ```
 
 **Si `--fix`** : déplacer les logs orphelins > 7j vers `docs/ralph-logs/.archive/`.
@@ -155,31 +175,33 @@ done
 
 ```bash
 specs_dir="docs/planning/specs"
-[ -d "$specs_dir" ] || { echo "OK   | No specs/ dir yet"; return; }
+if [ ! -d "$specs_dir" ]; then
+  echo "OK   | No specs/ dir yet"
+else
+  for spec in "$specs_dir"/*.md; do
+    [ -f "$spec" ] || continue
 
-for spec in "$specs_dir"/*.md; do
-  [ -f "$spec" ] || continue
-
-  # Check frontmatter présent
-  if ! head -1 "$spec" | grep -q '^---$'; then
-    echo "FAIL | $spec : no frontmatter"
-    continue
-  fi
-
-  # Champs obligatoires
-  for field in title status approved_by approved_at slug; do
-    if ! grep -q "^$field:" "$spec"; then
-      echo "WARN | $spec : missing field '$field'"
+    # Check frontmatter présent
+    if ! head -1 "$spec" | grep -q '^---$'; then
+      echo "FAIL | $spec : no frontmatter"
+      continue
     fi
-  done
 
-  # Status valide
-  status=$(grep '^status:' "$spec" | cut -d: -f2 | xargs)
-  case "$status" in
-    draft|approved) ;;
-    *) echo "FAIL | $spec : invalid status '$status' (expected: draft|approved)" ;;
-  esac
-done
+    # Champs obligatoires
+    for field in title status approved_by approved_at slug; do
+      if ! grep -q "^$field:" "$spec"; then
+        echo "WARN | $spec : missing field '$field'"
+      fi
+    done
+
+    # Status valide
+    status=$(grep '^status:' "$spec" | cut -d: -f2 | xargs)
+    case "$status" in
+      draft|approved) ;;
+      *) echo "FAIL | $spec : invalid status '$status' (expected: draft|approved)" ;;
+    esac
+  done
+fi
 ```
 
 **Si `--fix`** : ne PAS modifier les frontmatter automatiquement (risque d'auto-approbation par RALPH). Proposer le diff à l'utilisateur.
@@ -192,7 +214,7 @@ Vérifier que chaque provider a son fichier d'instructions :
 |---|---|---|
 | `~/.codex/` | `AGENTS.md` | présent et non vide |
 | `~/.gemini/` | `GEMINI.md` | présent et non vide |
-| `~/.opencode/` | `AGENTS.md` | présent et non vide |
+| `~/.config/opencode/` | `AGENTS.md` | présent et non vide |
 | `~/.agents/` | `AGENTS.md` | présent et non vide |
 
 Si manquant : `WARN | Provider $X exists but no instruction file`.
@@ -210,7 +232,7 @@ Si manquant : `WARN | Provider $X exists but no instruction file`.
 SYMLINKS
 ──────────────────────────────────────────────────────────────────
 ✅ .codex/skills      → /Users/aymeric/.claude/skills (47 skills)
-✅ .opencode/skills   → ../.claude/skills
+✅ .config/opencode/skills → /Users/aymeric/.claude/skills
 ❌ .gemini/skills     → real dir with broken nested symlink
    FIX: rm -rf ~/.gemini/skills && ln -s ~/.claude/skills ~/.gemini/skills
 ✅ .agents/skills     → real dir (intentional, contains find-skills)

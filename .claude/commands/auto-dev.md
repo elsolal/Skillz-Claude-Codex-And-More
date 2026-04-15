@@ -44,10 +44,13 @@ SI $ARGUMENTS contient une issue GitHub (#NUM ou URL gh)
   → vérifier l'existence : gh issue view <num>
   → continuer
 SINON
-  → chercher une spec : Glob "docs/planning/specs/*-<slug>-design.md"
-  → SI trouvée :
+  → chercher une spec dans docs/planning/specs/
+      - si $ARGUMENTS contient un chemin .md : lire cette spec
+      - sinon : lister les specs approved qui matchent le slug/texte de $ARGUMENTS
+      - si une seule spec approved existe et aucun slug n'est fourni : demander confirmation avant de continuer
+  → SI spec trouvée :
       → lire le frontmatter
-      → SI status: approved ET approved_by != ralph → continuer
+      → SI status: approved ET approved_by != ralph ET approved_at non vide/null → continuer
       → SINON : ARRÊTER, demander approbation humaine
   → SINON : ARRÊTER
 ```
@@ -64,6 +67,7 @@ RALPH refuse de coder en autonome sans :
   - une spec docs/planning/specs/<date>-<slug>-design.md avec :
       status: approved
       approved_by: <humain> (pas "ralph")
+      approved_at: <date ISO-8601>
 
 Options :
   1. /discovery <besoin>      → produit une spec à valider (recommandé)

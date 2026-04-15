@@ -14,7 +14,7 @@ related_pr: TBD
 Deux dettes structurelles repérées en comparant Skillz-Claude à `obra/superpowers` :
 
 1. **RALPH peut dériver** — `/auto-dev` et `/auto-discovery` n'ont pas de gate dur. Une boucle autonome qui code sans spec ni issue valide produit du code "à côté" du besoin.
-2. **Pas de norme pour ajouter des skills** — 33 skills aujourd'hui, on en ajoute régulièrement, aucun garde-fou qualité.
+2. **Pas de norme pour ajouter des skills** — 34 skills aujourd'hui, on en ajoute régulièrement, aucun garde-fou qualité.
 
 ## Non-goals
 

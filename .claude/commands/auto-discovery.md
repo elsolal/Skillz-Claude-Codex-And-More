@@ -92,7 +92,8 @@ Produire une spec consolidée pour permettre `/auto-dev` ensuite :
   title: <Titre du besoin>
   status: draft           # ← TOUJOURS draft en sortie auto-discovery
   approved_by: ralph      # ← interdit pour /auto-dev tant qu'humain n'a pas validé
-  approved_at: <ISO-8601>
+  approved_at: null       # ← rempli uniquement par l'humain qui approuve
+  created_at: <ISO-8601>
   slug: <slug>
   related_pr: TBD
   ---

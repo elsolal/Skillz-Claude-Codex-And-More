@@ -22,9 +22,9 @@ Toutes les configurations sont dans **`.claude/`** :
 
 | Dossier | Contenu |
 |---------|---------|
-| `.claude/skills/` | 33 skills (brainstorm, PRD, architecture, Figma, etc.) |
-| `.claude/knowledge/` | 54 fichiers knowledge (testing, workflows, security, Figma) |
-| `.claude/commands/` | 21 commandes Claude (discovery, dev, ship, etc.) |
+| `.claude/skills/` | 34 skills (brainstorm, PRD, architecture, Figma, etc.) |
+| `.claude/knowledge/` | 56 fichiers knowledge (testing, workflows, security, Figma) |
+| `.claude/commands/` | 22 commandes Claude (discovery, dev, ship, etc.) |
 | `.claude/CLAUDE.md` | Instructions principales |
 
 ## Utilisation

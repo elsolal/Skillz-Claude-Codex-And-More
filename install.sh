@@ -7,15 +7,15 @@
 #
 # INSTALLATION PATHS (pick one) :
 #
-#   1. Provider-native (recommended per provider — v5.7.0+) :
-#      Claude Code  → claude --plugin-dir ./Skillz-Claude       (.claude-plugin/plugin.json)
-#      Gemini CLI   → gemini --extension-dir ./Skillz-Claude    (gemini-extension.json + GEMINI.md)
-#      OpenCode     → drop in .opencode/plugins/skillz-claude/  (skills/ + AGENTS.md)
-#      Codex CLI    → install.sh mirrors ~/.claude/ → ~/.codex/ (no native plugin format yet)
-#
-#   2. Universal fallback (this script — works everywhere) :
-#      ./install.sh install all       # ~/.claude/ + ~/.codex/ + ~/.gemini/ + ~/.opencode/ + ~/.agents/
+#   1. Universal installer (recommended, works everywhere) :
+#      ./install.sh install all       # ~/.claude/ + ~/.codex/ + ~/.gemini/ + ~/.config/opencode/ + ~/.agents/
 #      ./install.sh install .         # per-project, any provider
+#
+#   2. Provider-native preview (provider-specific behavior) :
+#      Claude Code  → claude --plugin-dir ./Skillz-Claude-Codex-And-More       (.claude-plugin/plugin.json)
+#      Gemini CLI   → gemini --extension-dir ./Skillz-Claude-Codex-And-More/.gemini
+#      OpenCode     → use ./install.sh install opencode (no bundled JS/TS plugin yet)
+#      Codex CLI    → install.sh mirrors ~/.claude/ → ~/.codex/ (no native plugin format yet)
 #
 # USAGE (v5.6.0+ subcommand syntax — recommended):
 #
@@ -36,8 +36,8 @@
 #   ./install.sh uninstall codex       # Remove Codex mirror, keep Claude
 #
 #   # Via curl (no clone)
-#   curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- install all
-#   curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- install .
+#   curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- install all
+#   curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- install .
 #
 # LEGACY FLAGS (deprecated, still work with a warning):
 #   --global              → equivalent to "install all"
@@ -57,7 +57,7 @@ CYAN='\033[0;36m'
 MAGENTA='\033[0;35m'
 NC='\033[0m' # No Color
 
-REPO_URL="https://github.com/elsolal/Skillz-Claude.git"
+REPO_URL="https://github.com/elsolal/Skillz-Claude-Codex-And-More.git"
 REPO_NAME="Skillz-Claude"
 
 # ============================================================
@@ -106,7 +106,7 @@ LEGACY FLAGS (deprecated, still work with a warning):
   --global --no-codex   → install claude
   --update              → update <current dir>
 
-For full docs: https://github.com/elsolal/Skillz-Claude
+For full docs: https://github.com/elsolal/Skillz-Claude-Codex-And-More
 EOF
 }
 
@@ -1286,7 +1286,7 @@ echo -e "   ${GREEN}✅ docs/debates/${NC}"
 echo -e "   ${GREEN}✅ docs/security/${NC}"
 
 # Copy knowledge base (always update in UPDATE_MODE)
-echo -e "${GREEN}📚 Installing Knowledge Base (54 files)...${NC}"
+echo -e "${GREEN}📚 Installing Knowledge Base (56 files)...${NC}"
 if [ -d "$SOURCE_CLAUDE/knowledge" ]; then
     # Copy testing knowledge (32 files)
     if [ -d "$SOURCE_CLAUDE/knowledge/testing" ]; then
@@ -1735,10 +1735,10 @@ echo -e "║                       ✅ Update Complete!                         
 echo -e "╚═══════════════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 echo -e "${CYAN}Updated components:${NC}"
-echo -e "   ${CYAN}🔄 Skills (33)${NC}"
-echo -e "   ${CYAN}🔄 Commands (21)${NC}"
+echo -e "   ${CYAN}🔄 Skills (34)${NC}"
+echo -e "   ${CYAN}🔄 Commands (22)${NC}"
 echo -e "   ${CYAN}🔄 Hooks${NC}"
-echo -e "   ${CYAN}🔄 Knowledge Base (54 files)${NC}"
+echo -e "   ${CYAN}🔄 Knowledge Base (56 files)${NC}"
 echo -e "   ${CYAN}🔄 Templates (18 files)${NC}"
 echo -e "   ${CYAN}🔄 Examples (3 projects)${NC}"
 echo -e "   ${CYAN}🔄 Multi-agent compatibility (4 layers)${NC}"
@@ -1754,7 +1754,7 @@ echo -e "╚══════════════════════�
 echo ""
 echo -e "${CYAN}Installed components:${NC}"
 echo ""
-echo -e "${BLUE}  📚 Knowledge Base (54 files):${NC}"
+echo -e "${BLUE}  📚 Knowledge Base (56 files):${NC}"
 echo "    testing/           32 files (test levels, priorities, factories, fixtures...)"
 echo "    workflows/         10 files (PRD, architecture, stories, UX, UI templates...)"
 echo "    brainstorming/      1 file  (61 techniques en 10 catégories)"
@@ -1781,7 +1781,7 @@ echo "    .gemini/         Google Gemini CLI"
 echo "    .opencode/       OpenCode"
 echo "    → Selected provider dirs symlink to .claude/skills and .claude/knowledge"
 echo ""
-echo -e "${BLUE}  Skills (33):${NC}"
+echo -e "${BLUE}  Skills (34):${NC}"
 echo "    Planning:  idea-brainstorm, pm-prd, architect, pm-stories,"
 echo "               api-designer, database-designer"
 echo "    Design:    ux-designer, ui-designer (auto-triggered)"
@@ -1854,5 +1854,5 @@ fi
 echo -e "${CYAN}Update:${NC}"
 echo ""
 echo "  # Pour mettre à jour vers la dernière version:"
-echo "  curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude/main/install.sh | bash -s -- update . --providers $PROJECT_PROVIDERS"
+echo "  curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- update . --providers $PROJECT_PROVIDERS"
 echo ""
