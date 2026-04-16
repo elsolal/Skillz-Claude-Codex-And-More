@@ -2,39 +2,70 @@
 
 > Skills Claude Code pour un workflow de développement structuré — du brainstorm au déploiement.
 
-## What It Does
-
-An orchestrator-based workflow that guides you through the full development lifecycle:
+An orchestrator-based workflow that guides you through the full development lifecycle across Claude Code, Codex, Gemini, OpenCode, and generic agents.
 
 ```
 /discovery → /dev → /ship
 ```
 
-- **Discovery** — Brainstorm, PRD, Architecture, Stories, GitHub Issues
-- **Dev** — Explore, Plan, Code+Tests (parallel), Review ×3 (parallel)
-- **Ship** — Merge, Tests, Review, Changelog, PR
+---
 
-All workflows use an **orchestrator pattern**: the main thread keeps full context across all phases. Only mechanical work (code, tests, reviews, issue creation) is dispatched to parallel subagents.
+## Features
+
+- **Orchestrator pattern** — the main thread keeps full context across all phases. Only mechanical work (code, tests, reviews, issue creation) is dispatched to parallel subagents.
+- **Three-command workflow** — `/discovery` for planning, `/dev` for implementation, `/ship` for delivery.
+- **Autonomous mode (RALPH)** — `/auto-discovery`, `/auto-dev`, `/auto-loop` run the same workflows without validation stops, with safety gates to prevent runaway execution.
+- **Multi-provider** — one source of truth in `.claude/`, mirrored into Codex, Gemini, OpenCode, and generic agent folders.
+- **34 skills** — planning (PRD, architecture, stories), design (UX, UI, Figma integration), development (code, tests, review, security, performance), audio/video (ElevenLabs, Remotion).
+- **48 knowledge files** — testing frameworks, workflow templates, brainstorming techniques, Supabase security.
+- **Multi-Mind debate** — 6 AI agents (Claude, GPT, Gemini, DeepSeek, GLM, Kimi) validate PRDs and code through 5 iterative rounds.
 
 ---
 
 ## Installation
 
-Skillz-Claude supports one reliable installer path plus optional provider-native entry points. Use the installer when you want the same commands and skills available across Claude Code, Codex, Gemini, OpenCode, and generic agents.
-
-### Recommended: universal installer
-
-Skillz-Claude can be installed globally for every project, or locally inside one project. Claude remains the source of truth because the shared skills and knowledge live in `.claude/`; other providers mirror that content in their own native folders.
-
-#### Install everything globally
-
-Use this when you want the workflows available everywhere:
+### Global (everywhere)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- install all
 ```
 
-This installs all supported global targets:
+Installs into `~/.claude/`, `~/.codex/`, `~/.gemini/`, `~/.config/opencode/`, and `~/.agents/`. Claude is the source of truth; the others mirror it.
+
+### Per-project
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- install .
+```
+
+Creates `.claude/`, `.codex/`, `.gemini/`, `.opencode/`, `.agents/`, and `docs/` inside the current repository.
+
+### Update
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- update all
+```
+
+Your provider config (`CLAUDE.md`, `settings.json`, `mcp.json`) is preserved — only the managed workflow section is refreshed.
+
+<details>
+<summary><strong>Install one provider at a time</strong></summary>
+
+Claude must be installed first since the other providers mirror it.
+
+```bash
+# Global
+./install.sh install claude
+./install.sh install codex      # after Claude
+./install.sh install gemini     # after Claude
+./install.sh install opencode   # after Claude
+./install.sh install agents     # after Claude
+
+# Per-project — picks the providers you want
+./install.sh install . --providers claude
+./install.sh install . --providers codex,gemini
+./install.sh install . --providers opencode
+```
 
 | Provider | Installed into | What you get |
 |---|---|---|
@@ -44,119 +75,13 @@ This installs all supported global targets:
 | OpenCode | `~/.config/opencode/` | Skill symlinks, 5 OpenCode-native commands, generated `AGENTS.md` |
 | Generic agents | `~/.agents/` | Skill symlinks and generated `AGENTS.md` |
 
-To update later:
+</details>
+
+<details>
+<summary><strong>Update and uninstall</strong></summary>
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- update all
-```
-
-Your provider config is preserved. For Claude this means `CLAUDE.md`, `settings.json`, and `mcp.json` are kept and only the managed workflow section is refreshed.
-
-#### Global install by provider
-
-Use these commands when you only want one environment:
-
-```bash
-# Claude Code only
-./install.sh install claude
-
-# Codex only, after Claude has been installed once
-./install.sh install codex
-
-# Gemini only, after Claude has been installed once
-./install.sh install gemini
-
-# OpenCode only, after Claude has been installed once
-./install.sh install opencode
-
-# Generic ~/.agents only, after Claude has been installed once
-./install.sh install agents
-```
-
-Why install Claude first? The non-Claude providers are mirrors. They intentionally point to the same `~/.claude/skills` and `~/.claude/knowledge` content so you do not maintain five diverging copies.
-
-#### Per-project install
-
-Use this when you want Skillz only inside the current repository:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- install .
-```
-
-This creates `.claude/` plus all provider compatibility folders in the project:
-
-```text
-.claude/      # source of truth: skills, commands, knowledge, templates
-.codex/       # Codex prompts + symlinks to .claude
-.gemini/      # Gemini commands + symlinks to .claude
-.opencode/    # OpenCode commands + symlinks to .claude
-.agents/      # generic agent instructions + symlinks to .claude
-docs/         # planning, stories, RALPH logs, security reports
-```
-
-You can also install only the provider folders you need. `.claude/` is still installed as the local backing store:
-
-```bash
-# Claude only
-./install.sh install . --providers claude
-
-# Codex + Gemini only
-./install.sh install . --providers codex,gemini
-
-# OpenCode only
-./install.sh install . --providers opencode
-```
-
-Update a project install:
-
-```bash
-./install.sh update . --providers all
-./install.sh update . --providers codex,gemini
-```
-
-### Provider-native preview
-
-Use these only when you explicitly want a provider package instead of the universal installer. Provider-native command discovery differs per tool, so this is not yet the canonical multi-provider setup.
-
-| Provider | Command | Scope |
-|---|---|---|
-| Claude Code | `claude --plugin-dir /path/to/Skillz-Claude-Codex-And-More` | Loads the Claude plugin package from `.claude-plugin/plugin.json`; plugin commands are namespaced by Claude Code. |
-| Gemini CLI | `gemini --extension-dir /path/to/Skillz-Claude-Codex-And-More/.gemini` | Loads Gemini-native TOML commands from `.gemini/commands/` plus `.gemini/GEMINI.md`. |
-| OpenCode | `./install.sh install opencode` or project `.opencode/` | No bundled JS/TS OpenCode plugin yet; use OpenCode skills/commands folders instead. |
-
-```bash
-gh repo clone elsolal/Skillz-Claude-Codex-And-More
-
-# Claude Code plugin package
-claude --plugin-dir ./Skillz-Claude-Codex-And-More
-
-# Gemini CLI native extension with TOML commands
-gemini --extension-dir ./Skillz-Claude-Codex-And-More/.gemini
-```
-
-Reload skills with `/reload-plugins` (Claude Code) or restart your agent after manifest changes.
-
-#### Which commands are available?
-
-Claude Code receives the full command set from `.claude/commands`.
-
-Portable commands are installed for Codex, Gemini, and OpenCode through the universal installer:
-
-| Command | Claude | Codex | Gemini | OpenCode | What it does |
-|---|---:|---:|---:|---:|---|
-| `/dev <task>` | Yes | Yes | Yes | Yes | Feature development: Explore → Plan → Implement → Review ×3 → Ship |
-| `/discovery <idea>` | Yes | Yes | Yes | Yes | Planning: Brainstorm → PRD → Architecture → Stories → GitHub |
-| `/ship` | Yes | Yes | Yes | Yes | Ship: merge main → tests → review → CHANGELOG → PR |
-| `/quick-fix "<problem>"` | Yes | Yes | Yes | Yes | Small bug fix (max 3 files / 50 lines) |
-| `/status` | Yes | Yes | Yes | Yes | Project dashboard (read-only) |
-| `/refactor`, `/pr-review`, `/retro`, RALPH commands, etc. | Yes | No | No | No | Claude-native commands that rely on Claude-specific workflow assumptions |
-
-Model choice does not change command discovery. Gemini CLI, OpenCode, and Codex discover commands from their own folders, independently of whether the selected model is Claude, Gemini, GPT, or another provider.
-
-#### Update and uninstall
-
-```bash
-# Update global installs
+# Update
 ./install.sh update all
 ./install.sh update claude
 ./install.sh update codex
@@ -164,80 +89,55 @@ Model choice does not change command discovery. Gemini CLI, OpenCode, and Codex 
 ./install.sh update opencode
 ./install.sh update agents
 
-# Remove only Skillz-managed items for one provider
+# Uninstall (keeps user-added content)
+./install.sh uninstall all
 ./install.sh uninstall claude
 ./install.sh uninstall codex
 ./install.sh uninstall gemini
 ./install.sh uninstall opencode
 ./install.sh uninstall agents
 
-# Remove all global Skillz-managed items
-./install.sh uninstall all
+# Per-project update
+./install.sh update . --providers all
+./install.sh update . --providers codex,gemini
 
-# Show full help
+# Help
 ./install.sh help
 ```
 
-Drift protection: `~/.claude/.skillz-manifest` tracks skills and Claude commands installed by Skillz. During global updates, items that were previously managed by Skillz but no longer exist in the source are removed. User-added skills are not touched. Provider mirrors remove dead symlinks and preserve native config files.
+Drift protection: `~/.claude/.skillz-manifest` tracks skills and Claude commands installed by Skillz. During updates, items previously managed by Skillz but no longer in the source are removed. User-added skills are not touched.
 
-### Diagnostic install — `/skillz-doctor`
+</details>
 
-Si quelque chose ne marche pas après install (ex: skills non découverts dans un provider), lance le diagnostic en 1 commande :
+<details>
+<summary><strong>Provider-native packages (Claude plugin, Gemini extension)</strong></summary>
+
+Use these only when you explicitly want a provider package instead of the universal installer.
+
+| Provider | Command | Scope |
+|---|---|---|
+| Claude Code | `claude --plugin-dir /path/to/Skillz-Claude-Codex-And-More` | Loads the plugin from `.claude-plugin/plugin.json`. |
+| Gemini CLI | `gemini --extension-dir /path/to/Skillz-Claude-Codex-And-More/.gemini` | Loads Gemini-native TOML commands plus `.gemini/GEMINI.md`. |
+| OpenCode | `./install.sh install opencode` | No bundled JS/TS plugin yet — use the universal installer. |
 
 ```bash
-/skillz-doctor           # Rapport complet
-/skillz-doctor --fix     # Applique les corrections sûres (symlinks cassés)
-/skillz-doctor --scope symlinks   # Check un seul axe
+gh repo clone elsolal/Skillz-Claude-Codex-And-More
+
+# Claude Code plugin
+claude --plugin-dir ./Skillz-Claude-Codex-And-More
+
+# Gemini CLI extension
+gemini --extension-dir ./Skillz-Claude-Codex-And-More/.gemini
 ```
 
-Vérifie :
-- **Symlinks providers** (3 patterns valides : single symlink, per-skill symlinks à la Codex, dossier indépendant)
-- **Manifest drift** (skillz-manifest cohérent avec `~/.claude/skills/`)
-- **RALPH locks orphelins** (sessions > 24h sans completion marker)
-- **Spec frontmatter** (status/approved_by/approved_at valides)
-- **Provider files** (`GEMINI.md`, `AGENTS.md` présents et non vides)
+Reload skills with `/reload-plugins` (Claude Code) or restart your agent after manifest changes.
 
-Exemple de sortie quand tout est OK :
+</details>
 
-```
-✅ .gemini/skills   → ~/.claude/skills (48 skills)
-✅ .codex/skills/   real dir, 48 per-skill symlinks (Codex pattern)
-✅ .config/opencode/skills → ~/.claude/skills (48 skills)
-✅ .agents/skills/  real dir, 15 independent skills (own content)
-✅ Manifest in sync
-✅ All provider instruction files present
-```
+Diagnostic: `/skillz-doctor` (v5.8.0+) and autonomous safety gates (v5.7.0+) are documented in [CHANGELOG.md](./CHANGELOG.md).
 
-### Safety gates (v5.7.0+)
-
-Skillz-Claude durcit les workflows autonomes pour éviter que RALPH code dans le vide.
-
-**`/auto-dev` exige un mandat** — soit :
-- Une **issue GitHub valide** (`/auto-dev #123`), OU
-- Une **spec approuvée par un humain** dans `docs/planning/specs/YYYY-MM-DD-<slug>-design.md` avec frontmatter :
-  ```yaml
-  ---
-  status: approved
-  approved_by: <ton nom>   # "ralph" est refusé par le gate
-  approved_at: 2026-04-15T10:00:00Z
-  ---
-  ```
-- Sans les deux : RALPH s'arrête avec un message proposant `/discovery`, `gh issue create`, ou l'override `--allow-no-spec` (prototypage uniquement, loggé comme non-recommandé).
-
-**`/auto-discovery` produit des specs en `status: draft`** — c'est à toi de passer à `approved` après revue. RALPH ne peut pas s'auto-approuver.
-
-**Verification-before-completion** — chaque workflow refuse de déclarer DONE tant que sa matrice n'est pas verte :
-
-| Workflow | Vérifs obligatoires |
-|---|---|
-| `/dev` | lint + types + tests P0/P1 |
-| `/quick-fix` | lint + types |
-| `/ship` | tout `/dev` + CHANGELOG + working tree clean |
-| `/auto-dev` | tout `/dev` + log RALPH cohérent (pas d'erreurs en boucle) |
-
-Référence complète : `.claude/knowledge/workflows/verification-matrix.md`.
-
-#### Manual Windows install
+<details>
+<summary><strong>Manual Windows install</strong></summary>
 
 ```powershell
 git clone https://github.com/elsolal/Skillz-Claude-Codex-And-More.git
@@ -250,18 +150,20 @@ New-Item -ItemType Directory -Force -Path docs\planning\brainstorms, docs\planni
 Remove-Item -Recurse -Force Skillz-Claude
 ```
 
+</details>
+
 ---
 
 ## Quick Start
 
-### 1. New idea → Full planning
+### 1. New idea → full planning
 
 ```
 /discovery
 > "I want to build a personal expense tracker with categories and budget alerts"
 ```
 
-The orchestrator will guide you through Brainstorm → PRD → Architecture → Stories → GitHub Issues, keeping full context across all phases. You validate at each checkpoint.
+The orchestrator guides you through Brainstorm → PRD → Architecture → Stories → GitHub Issues. You validate at each checkpoint.
 
 ### 2. Implement an existing issue
 
@@ -290,7 +192,73 @@ Merges main, runs tests, pre-landing review, generates changelog, creates PR.
 
 ---
 
+## Commands
+
+| Category | Command | Description |
+|---|---|---|
+| **Planning** | `/discovery` | Full planning with validation at each step |
+| | `/auto-discovery "idea"` | Autonomous planning (RALPH) |
+| **Dev** | `/dev [issue]` | Multi-agent implementation with validation |
+| | `/auto-dev #123` | Autonomous implementation (RALPH) |
+| | `/quick-fix "desc"` | Fix without full workflow |
+| | `/refactor <file>` | Targeted refactor with 3-pass review |
+| **Ship & QA** | `/ship [branch]` | Merge → tests → review → changelog → PR |
+| | `/qa [url]` | Systematic QA + health score |
+| | `/plan-review <doc>` | CEO/Founder review (Expansion/Hold/Reduction) |
+| | `/retro [--since 7d]` | Engineering retrospective |
+| **Utilities** | `/status` | Project state (docs, issues, RALPH) |
+| | `/pr-review #123` | Review a PR (3 parallel agents) |
+| | `/docs [type]` | Generate docs (readme\|api\|guide\|all) |
+| | `/changelog [version]` | Generate CHANGELOG.md |
+| | `/metrics` | Metrics dashboard |
+| | `/init [template]` | Scaffold (next\|express\|api\|cli\|lib) |
+| **Design** | `/ds-doc [--figma url]` | Document design system in CLAUDE.md |
+| | `/supabase-security <url>` | Full Supabase security audit |
+
+> Figma skills are auto-triggered via descriptions — no slash commands needed.
+
+<details>
+<summary><strong>RALPH autonomous commands (limits and overrides)</strong></summary>
+
+| Command | Max Iter | Timeout | Completion Promise |
+|---|---|---|---|
+| `/auto-loop "prompt"` | 20 | 1h | `DONE` |
+| `/auto-discovery "idea"` | 30 | 1h | `DISCOVERY COMPLETE` |
+| `/auto-dev #123` | 50 | 2h | `DEV COMPLETE` |
+
+Options: `--max N`, `--timeout Xh`, `--verbose`
+Stop: `/cancel-ralph` — Resume: `/resume-ralph [session-id]`
+
+</details>
+
+<details>
+<summary><strong>Command availability per provider</strong></summary>
+
+Claude Code receives the full command set. Codex, Gemini, and OpenCode receive the portable subset:
+
+| Command | Claude | Codex | Gemini | OpenCode |
+|---|---:|---:|---:|---:|
+| `/dev <task>` | Yes | Yes | Yes | Yes |
+| `/discovery <idea>` | Yes | Yes | Yes | Yes |
+| `/ship` | Yes | Yes | Yes | Yes |
+| `/quick-fix "<problem>"` | Yes | Yes | Yes | Yes |
+| `/status` | Yes | Yes | Yes | Yes |
+| `/refactor`, `/pr-review`, `/retro`, RALPH commands, etc. | Yes | No | No | No |
+
+Model choice does not change command discovery — each CLI discovers commands from its own folder.
+
+</details>
+
+---
+
 ## Architecture
+
+The orchestrator (main thread) keeps ALL context. It never forks to isolated skills for planning. Only execution (code, tests, reviews, issue creation) is dispatched to subagents via `SendMessage`.
+
+**Frontend-aware:** after Explore, the workflow auto-detects frontend work (Figma URLs, `.tsx` files, `components/CLAUDE.md`) and prioritizes component reuse, token usage, and Figma mapping. After implementation, it proposes `/ds-doc --update` to keep design system documentation in sync.
+
+<details>
+<summary><strong>Full workflow diagram</strong></summary>
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -322,79 +290,52 @@ Merges main, runs tests, pre-landing review, generates changelog, creates PR.
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Key principle:** The orchestrator (main thread) keeps ALL context. It never forks to isolated skills for planning. Only execution (code, tests, reviews, issue creation) is dispatched to subagents via `SendMessage`.
+</details>
 
-**Frontend-aware:** After the Explore phase, the workflow auto-detects frontend work (Figma URLs, `.tsx` files, `components/CLAUDE.md`). When detected, the plan prioritizes component reuse, token usage, and Figma mapping. After implementation, it proposes `/ds-doc --update` to keep the design system documentation in sync.
+<details>
+<summary><strong>Checkpoints and gates</strong></summary>
 
----
+**Planning (orchestrator keeps context)**
 
-## Commands Reference
+| Checkpoint | Phase | Gate |
+|---|---|---|
+| Brainstorm | Discovery | Direction validated |
+| UX Design | Discovery (optional) | Personas and journeys validated |
+| PRD | Discovery | Scope defined |
+| UI Design | Discovery (optional) | Tokens and components validated |
+| Architecture | Discovery | Stack approved |
+| **Readiness** | Stories | **Score ≥ 13/15** |
 
-### Planning
+**Development (orchestrator + subagents)**
 
-| Command | Description |
-|---------|-------------|
-| `/discovery` | Full planning workflow with validation at each step |
-| `/auto-discovery "idea"` | Autonomous planning (RALPH mode) |
+| Checkpoint | Phase | Gate |
+|---|---|---|
+| Explore | Subagent | Architecture understood |
+| Plan | Orchestrator | Steps approved |
+| Code+Tests | 2 parallel subagents | **Lint + Types pass** |
+| Review | 3 parallel subagents | **3 passes OK** |
 
-### Development
-
-| Command | Description |
-|---------|-------------|
-| `/dev [issue]` | Multi-agent implementation with validation |
-| `/auto-dev #123` | Autonomous implementation (RALPH mode) |
-| `/quick-fix "desc"` | Quick fix without full workflow |
-| `/refactor <file>` | Targeted refactoring with 3-pass review |
-
-### Ship & QA
-
-| Command | Description |
-|---------|-------------|
-| `/ship [branch]` | Merge → tests → review → changelog → PR |
-| `/qa [url]` | Systematic QA testing + health score |
-| `/plan-review <doc>` | CEO/Founder review (Expansion/Hold/Reduction) |
-| `/retro [--since 7d]` | Engineering retrospective |
-
-### Utilities
-
-| Command | Description |
-|---------|-------------|
-| `/status` | Project state (docs, issues, RALPH) |
-| `/pr-review #123` | Review a GitHub PR (3 parallel agents) |
-| `/docs [type]` | Generate documentation (readme\|api\|guide\|all) |
-| `/changelog [version]` | Generate CHANGELOG.md |
-| `/metrics` | Project metrics dashboard |
-| `/init [template]` | Project scaffolding (next\|express\|api\|cli\|lib) |
-
-### Design System & Figma
-
-| Command | Description |
-|---------|-------------|
-| `/ds-doc [--figma url]` | Document design system in CLAUDE.md (scan + Figma links) |
-| `/supabase-security <url>` | Full Supabase security audit |
-
-> Figma skills are now triggered automatically via descriptions — no slash commands needed. See [Skills](#skills-33) section.
-
-### RALPH (autonomous mode)
-
-| Command | Max Iter | Timeout | Completion Promise |
-|---------|----------|---------|-------------------|
-| `/auto-loop "prompt"` | 20 | 1h | "DONE" |
-| `/auto-discovery "idea"` | 30 | 1h | "DISCOVERY COMPLETE" |
-| `/auto-dev #123` | 50 | 2h | "DEV COMPLETE" |
-
-Options: `--max N`, `--timeout Xh`, `--verbose`
-
-Stop: `/cancel-ralph` | Resume: `/resume-ralph [session-id]`
+</details>
 
 ---
 
 ## Skills (34)
 
-### Planning Phase
+Six groups, all auto-triggered from skill descriptions.
+
+- **Planning** — `idea-brainstorm`, `pm-prd`, `architect`, `pm-stories`, `api-designer`, `database-designer`
+- **Design** — `ux-designer`, `ui-designer`, `ds-doc`
+- **Figma integration (8)** — `figma-use`, `figma-implement-design`, `figma-generate-design`, `figma-generate-library`, `figma-code-connect`, `figma-create-design-system-rules`, `figma-create-new-file`, `figma-design-code-sync`
+- **Audio & Video** — `elevenlabs`, `remotion`
+- **Development** — `github-issue-reader`, `code-implementer`, `test-runner`, `code-reviewer`, `security-auditor`, `performance-auditor`, `supabase-security`, `multi-mind`
+
+<details>
+<summary><strong>Full skills breakdown with key features</strong></summary>
+
+**Planning**
 
 | Skill | Role | Key Features |
-|-------|------|-------------|
+|---|---|---|
 | `idea-brainstorm` | Creative exploration | 61 techniques, 10 categories, anti-bias protocol |
 | `pm-prd` | Product Requirements | FULL/LIGHT auto-detection, templates |
 | `architect` | Technical architecture | Stack, structure, data model, APIs |
@@ -402,38 +343,38 @@ Stop: `/cancel-ralph` | Resume: `/resume-ralph [session-id]`
 | `api-designer` | API design | OpenAPI 3.1, REST/GraphQL, versioning |
 | `database-designer` | Database design | ERD, migrations, indexes, Prisma/Drizzle |
 
-### Design Phase (optional, auto-triggered)
+**Design (optional, auto-triggered)**
 
 | Skill | Role | Key Features |
-|-------|------|-------------|
+|---|---|---|
 | `ux-designer` | User experience | Personas, user journeys, wireframes |
 | `ui-designer` | Design system | Tokens, components, Figma import |
 | `ds-doc` | DS documenter | Scan project → CLAUDE.md + components/CLAUDE.md with Figma links |
 
-### Figma Integration (8 skills — official from figma/mcp-server-guide)
+**Figma (from figma/mcp-server-guide)**
 
 | Skill | Role | Key Features |
-|-------|------|-------------|
-| `figma-use` | **Mandatory prereq** | Plugin API rules, gotchas, pre-flight checklist — load before every `use_figma` call |
+|---|---|---|
+| `figma-use` | **Mandatory prereq** | Plugin API rules, gotchas, pre-flight checklist |
 | `figma-implement-design` | Figma → Code | 7-step workflow: design context → screenshot → assets → translate → validate |
 | `figma-generate-design` | Code → Figma | Build screens from design system components, variables, styles |
-| `figma-generate-library` | Build DS in Figma | Multi-phase: tokens → file structure → components → QA (20-100+ use_figma calls) |
+| `figma-generate-library` | Build DS in Figma | Multi-phase: tokens → file structure → components → QA |
 | `figma-code-connect` | Code Connect | Parserless .figma.js templates mapping Figma components to code |
 | `figma-create-design-system-rules` | DS rules | Generate CLAUDE.md/AGENTS.md rules for Figma-to-code workflows |
 | `figma-create-new-file` | Create files | Create new Figma design or FigJam files via MCP |
 | `figma-design-code-sync` | Bidirectional sync | Detect drift between Figma components and code counterparts |
 
-### Audio & Video Pipeline
+**Audio & Video**
 
 | Skill | Role | Key Features |
-|-------|------|-------------|
-| `elevenlabs` | Voice AI | TTS (70+ languages, 22+ voices), music generation, sound effects, batch pipeline |
+|---|---|---|
+| `elevenlabs` | Voice AI | TTS (70+ languages, 22+ voices), music generation, SFX, batch pipeline |
 | `remotion` | React video | 40 rule files, animations, captions, transitions, ElevenLabs→Remotion voiceover pipeline |
 
-### Development Phase
+**Development**
 
 | Skill | Role | Key Features |
-|-------|------|-------------|
+|---|---|---|
 | `github-issue-reader` | Issue reading | Categorization, ambiguity classification |
 | `code-implementer` | Implementation | Lint/types mandatory, agent worker |
 | `test-runner` | Tests | P0-P3 risk-based, 9 knowledge refs |
@@ -443,11 +384,13 @@ Stop: `/cancel-ralph` | Resume: `/resume-ralph [session-id]`
 | `supabase-security` | Supabase audit | RLS, buckets, auth, CVSS scoring |
 | `multi-mind` | Multi-agent debate | 6 AIs, 5 iterative rounds |
 
+</details>
+
 ---
 
 ## Multi-Mind Debate
 
-6 AI agents debate to validate PRDs and code:
+6 AI agents debate to validate PRDs and code through 5 rounds: Critique → Frictions → Debate → Convergence → Consensus.
 
 ```bash
 /multi-mind prd docs/PRD/PRD-Feature.md    # Validate a PRD
@@ -455,7 +398,7 @@ Stop: `/cancel-ralph` | Resume: `/resume-ralph [session-id]`
 ```
 
 | Agent | Provider | Role | Cost |
-|-------|----------|------|------|
+|---|---|---|---|
 | Claude | Anthropic | Prudent Architect | Included |
 | GPT | OpenAI | Perfectionist | Paid |
 | Gemini | Google | UX Innovator | Paid |
@@ -463,13 +406,16 @@ Stop: `/cancel-ralph` | Resume: `/resume-ralph [session-id]`
 | GLM | Zhipu AI | Frontend Craftsman | Free |
 | Kimi | Moonshot | Product Thinker | Free |
 
-**Setup:** Create `.env.local` with API keys (see `.env.example`). Minimum 3 agents for a valid debate.
-
-**5 Rounds:** Critique → Frictions → Debate → Convergence → Consensus
+Setup: create `.env.local` with API keys (see `.env.example`). Minimum 3 agents for a valid debate.
 
 ---
 
-## Project Structure
+## Multi-Agent Compatibility
+
+Works with Claude Code, OpenAI Codex CLI, Google Gemini CLI, OpenCode, and generic agents. `.agents/`, `.codex/`, `.gemini/`, and `.opencode/` mirror `.claude/` as the single source of truth, while provider-native command files live in each provider folder.
+
+<details>
+<summary><strong>Project structure</strong></summary>
 
 ```
 .claude/
@@ -489,9 +435,9 @@ Stop: `/cancel-ralph` | Resume: `/resume-ralph [session-id]`
 │   ├── code-implementer/            # Agent worker
 │   ├── test-runner/                 # Agent worker
 │   ├── code-reviewer/               # Parallel-ready
-│   ├── figma-*/                     # Figma integration (8 skills from figma/mcp-server-guide)
-│   ├── elevenlabs/                  # TTS, music, SFX (3 references)
-│   ├── remotion/                    # React video (40 rules + 3 assets)
+│   ├── figma-*/                     # Figma integration (8 skills)
+│   ├── elevenlabs/                  # TTS, music, SFX
+│   ├── remotion/                    # React video
 │   ├── ds-doc/                      # Design system documenter
 │   └── ...
 ├── knowledge/                       # 48 files
@@ -516,49 +462,22 @@ docs/                                # Generated output
 .agents/, .codex/, .gemini/, .opencode/  # Multi-agent compatibility (symlinks)
 ```
 
----
+</details>
 
-## Knowledge System
+<details>
+<summary><strong>Knowledge system</strong></summary>
 
 Progressive loading based on complexity:
 
 | Level | When | Example |
-|-------|------|---------|
+|---|---|---|
 | **core** | Always | `test-levels-framework.md` |
 | **advanced** | If complex | `fixture-architecture.md` |
 | **debugging** | If problem | `test-healing-patterns.md` |
 
-48 files across testing (32), workflows (10), brainstorming (1), multi-mind (2), supabase-security (7). Figma references are now bundled inside skills.
+48 files across testing (32), workflows (10), brainstorming (1), multi-mind (2), supabase-security (7). Figma references are bundled inside skills.
 
----
-
-## Checkpoints
-
-### Planning (orchestrator keeps context)
-
-| Checkpoint | Phase | Gate |
-|------------|-------|------|
-| Brainstorm | Discovery | Direction validated |
-| UX Design | Discovery (optional) | Personas and journeys validated |
-| PRD | Discovery | Scope defined |
-| UI Design | Discovery (optional) | Tokens and components validated |
-| Architecture | Discovery | Stack approved |
-| **Readiness** | Stories | **Score >= 13/15** |
-
-### Development (orchestrator + subagents)
-
-| Checkpoint | Phase | Gate |
-|------------|-------|------|
-| Explore | Subagent | Architecture understood |
-| Plan | Orchestrator | Steps approved |
-| Code+Tests | 2 parallel subagents | **Lint + Types pass** |
-| Review | 3 parallel subagents | **3 passes OK** |
-
----
-
-## Multi-Agent Compatibility
-
-Works with Claude Code, OpenAI Codex CLI, Google Gemini CLI, OpenCode, and generic agents. The `.agents/`, `.codex/`, `.gemini/`, and `.opencode/` directories mirror `.claude/` as the single source of truth, while provider-native command files live in each provider folder.
+</details>
 
 ---
 
