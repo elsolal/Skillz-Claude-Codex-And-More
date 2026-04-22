@@ -309,6 +309,18 @@ Après validation du PRD, évaluer si une phase UX/UI est nécessaire :
 | Mots-clés UI ("boutons", "formulaires"...) | [Oui/Non] | +1 |
 | **Total UI** | **[X]/6** | Seuil: 3 |
 
+### Direction visuelle (taste dials)
+
+Si Score UI ≥ 3, capturer dès le PRD les 3 dials qui orienteront l'implémentation frontend (utilisés par les `taste-skills`) :
+
+| Dial | 1-3 | 4-6 | 7-10 |
+|------|-----|-----|------|
+| **DESIGN_VARIANCE** | Clean / centré / symétrique | Modéré, équilibré | Asymétrique, modern, artsy |
+| **MOTION_INTENSITY** | Hover simples seulement | Transitions soignées | Magnetic, scroll-triggered, GSAP |
+| **VISUAL_DENSITY** | Luxe spacieux, beaucoup de whitespace | Standard | Dense (dashboards, data) |
+
+Ajouter au PRD une section **`Style direction`** avec les 3 valeurs + le `taste-skill` recommandé (`taste-skill` par défaut, `soft-skill` / `minimalist-skill` / `brutalist-skill` si direction tranchée). Cf. `taste-router` pour aide à la décision.
+
 ---
 
 **Recommandation :**

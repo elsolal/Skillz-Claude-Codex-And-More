@@ -164,6 +164,40 @@ Si tokens validés, passer directement à l'étape 3 (Composants UI).
 
 ---
 
+### 0.5. Direction visuelle (taste-skills)
+
+Avant d'attaquer les tokens, choisir une **direction visuelle**. Les 9 `taste-skills` intégrés couvrent les directions premium les plus courantes et bloquent les défauts génériques de l'AI ("slop").
+
+```markdown
+🎨 **Direction visuelle**
+
+Quel style pour ce projet ?
+
+| Direction | Skill à invoquer | Quand l'utiliser |
+|-----------|------------------|------------------|
+| Premium all-rounder | `taste-skill` | Default safe — UI premium sans direction narrow |
+| Soft / haut de gamme | `soft-skill` | Calm, expensive-looking, smooth motion, beaucoup de whitespace |
+| Minimaliste éditorial | `minimalist-skill` | Type Notion / Linear, palette restreinte, structure crisp |
+| Brutaliste industriel | `brutalist-skill` | Swiss type, contraste fort, raw structure (BETA) |
+| GPT/Codex strict | `gpt-tasteskill` | Si l'implémentation est faite par GPT/Codex (anti-slop renforcé) |
+| Image-first | `images-taste-skill` | Générer des refs visuelles d'abord, puis coder pour matcher |
+| Redesign existant | `redesign-skill` | Le projet existe déjà — audit + amélioration |
+| Google Stitch | `stitch-skill` | Workflow Stitch (génère un `DESIGN.md` semantic) |
+
+**3 dials à régler** (1-10) — utilisés par `taste-skill` :
+- **DESIGN_VARIANCE** — 1=symétrique parfait | 10=chaos artsy
+- **MOTION_INTENSITY** — 1=statique | 10=cinématique GSAP scroll-triggered
+- **VISUAL_DENSITY** — 1=spacieux luxe | 10=dashboard dense
+
+**Suggestion** : si tu hésites, invoque `taste-router` qui te recommande le skill + les dials selon ton brief.
+```
+
+**⏸️ STOP** - Choix de la direction (peut être skippé si déjà défini en UX ou PRD)
+
+Une fois choisi, **invoquer le skill correspondant** pour les phases 3-4 (composants & patterns) — il porte les règles anti-slop précises (typo metrics, ban des défauts génériques, motion specs).
+
+---
+
 ### 1. Analyse du contexte
 
 ```markdown

@@ -17,6 +17,7 @@ This skill provides a structured workflow for translating Figma designs into pro
 - If the user asks to build or update a full-page screen in Figma from code or a description, switch to [figma-generate-design](../figma-generate-design/SKILL.md).
 - If the user asks only for Code Connect mappings, switch to [figma-code-connect](../figma-code-connect/SKILL.md).
 - If the user asks to author reusable agent rules (`CLAUDE.md`/`AGENTS.md`), switch to [figma-create-design-system-rules](../figma-create-design-system-rules/SKILL.md).
+- For premium visual direction beyond the Figma tokens (anti-slop typography metrics, motion specs, density rules), invoke a `taste-skill` (default `taste-skill`, or `soft-skill` / `minimalist-skill` / `brutalist-skill`) **before** implementation. For wide-scope deliveries (>10 components), also invoke `output-skill` to enforce complete generation and ban placeholder patterns.
 
 ## Prerequisites
 

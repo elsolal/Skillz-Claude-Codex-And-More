@@ -2,6 +2,47 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## v5.9.0 (2026-04-22)
+
+**Taste Skills — Anti-slop frontend direction (9 skills + router)**
+
+### Why
+Les skills Skillz couvraient bien le **planning** UI/UX (`ui-designer`, `ux-designer`, `ds-doc`, `figma-*`) et l'**implémentation** (`figma-implement-design`, `code-implementer`), mais rien ne portait la **discipline visuelle** au moment où le code est généré : pas de garde-fou contre les défauts génériques de l'AI (6-line wraps, gapless bento grids absents, motion plate, palette safe, etc.). Les `taste-skills` de [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) comblent ce trou avec des règles métriques précises.
+
+### Added
+- **9 taste-skills** intégrés depuis `github.com/Leonxlnx/taste-skill` (cf. `.claude/skills/ATTRIBUTION.md`) :
+  - `taste-skill` — Default premium all-rounder (3 dials : DESIGN_VARIANCE, MOTION_INTENSITY, VISUAL_DENSITY)
+  - `gpt-tasteskill` — Variante stricte pour GPT/Codex (anti-slop renforcé, GSAP)
+  - `soft-skill` — Calm, expensive, smooth spring motion
+  - `minimalist-skill` — Type Notion/Linear, palette warm monochrome
+  - `brutalist-skill` (BETA) — Swiss typography, raw mechanical
+  - `images-taste-skill` — Image-first workflow (génère → analyse → code)
+  - `redesign-skill` — Audit + upgrade UI existante
+  - `output-skill` — Force la complétion, ban des placeholders
+  - `stitch-skill` — Workflow Google Stitch (génère un `DESIGN.md` semantic)
+- **`taste-router`** — Méta-skill Skillz original qui recommande le bon taste-skill + valeurs des 3 dials selon le brief produit.
+- **`.claude/skills/ATTRIBUTION.md`** — Crédit upstream + procédure de mise à jour manuelle.
+
+### Changed
+- `ui-designer` — Nouvelle phase **0.5 Direction visuelle** qui propose les 9 taste-skills + 3 dials avant les tokens.
+- `pm-prd` — Section **Direction visuelle (taste dials)** dans la phase d'évaluation UX/UI : capture les 3 dials dès le PRD.
+- `figma-implement-design` — Skill Boundaries enrichies : recommande d'invoquer un `taste-skill` avant l'implémentation, et `output-skill` quand le scope dépasse 10 composants.
+- `CLAUDE.md` — Routes `taste-router` ajoutées dans le tableau "Quel workflow utiliser ?", et liste des 9 skills documentée dans la section Design System.
+
+### How to use
+Les 3 dials (1-10) :
+- **DESIGN_VARIANCE** — 1=symétrique parfait | 10=chaos artsy
+- **MOTION_INTENSITY** — 1=statique | 10=cinématique GSAP
+- **VISUAL_DENSITY** — 1=spacieux luxe | 10=dashboard dense
+
+Demander à `taste-router` ce que tu devrais utiliser, ou invoquer directement le skill (depuis n'importe quel agent — Claude, Codex, Gemini, OpenCode).
+
+### Notes
+- Les 9 skills upstream sont des copies au format `SKILL.md` standard — tracked dans Skillz, partagés sur tous les providers via `install.sh`.
+- Pour pull les changements upstream : `cd /tmp && git clone --depth 1 https://github.com/Leonxlnx/taste-skill.git`, puis `diff -r` et copie sélective.
+
+---
+
 ## v5.8.0 (2026-04-15)
 
 **Native Provider Packaging — Claude plugin + Gemini extension + AGENTS.md**

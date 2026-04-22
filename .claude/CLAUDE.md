@@ -30,6 +30,7 @@ Utilisateur dit...                    → Workflow
 "documente le design system"          → /ds-doc
 "crée/audite le design system"        → skill figma-design-system
 "le composant est différent en prod"  → skill figma-design-code-sync
+"quel style frontend / anti-slop"     → skill taste-router (puis taste-skill / soft-skill / etc.)
 ```
 
 ### Discovery (planning — orchestrateur)
@@ -93,6 +94,18 @@ Logger chaque itération dans `docs/ralph-logs/`.
 # figma-designer            # Claude crée des designs dans Figma
 # figma-design-system       # Gestion DS (tokens, audit, code→Figma)
 # figma-design-code-sync    # Sync bidirectionnelle composants
+
+# Frontend taste (anti-slop, premium UI) :
+# taste-router              # Choisit le bon taste-skill + dials selon le brief
+# taste-skill               # Default all-rounder premium frontend
+# soft-skill                # Calm, expensive, smooth motion
+# minimalist-skill          # Notion/Linear éditorial
+# brutalist-skill           # Swiss type, raw, mechanical (BETA)
+# gpt-tasteskill            # Variante stricte pour GPT/Codex
+# images-taste-skill        # Image-first workflow (génère→analyse→code)
+# redesign-skill            # Audit + upgrade UI existante
+# output-skill              # Anti-flemme, force complétion
+# stitch-skill              # Workflow Google Stitch (DESIGN.md)
 
 # Sécurité
 /supabase-security <url>    # Audit Supabase
