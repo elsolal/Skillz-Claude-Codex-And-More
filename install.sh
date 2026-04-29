@@ -396,6 +396,7 @@ NO_CODEX=false
 GLOBAL_TARGETS=""
 PROJECT_PROVIDERS="all"
 TARGET_DIR=""
+WIKI_MODE="auto"  # auto | on | off — controls Obsidian llm-wiki bootstrap prompt
 
 # No arguments at all → show help. This prevents accidental install
 # into the current directory when user just runs `./install.sh`.
@@ -533,6 +534,12 @@ if [ $# -gt 0 ]; then
                                     exit 1
                                 fi
                                 ;;
+                            --with-wiki)
+                                WIKI_MODE="on"
+                                ;;
+                            --no-wiki)
+                                WIKI_MODE="off"
+                                ;;
                             --help|-h)
                                 show_usage
                                 exit 0
@@ -570,6 +577,12 @@ if [ "$SUBCOMMAND_CONSUMED" = false ]; then
                 ;;
             --no-codex)
                 NO_CODEX=true
+                ;;
+            --with-wiki)
+                WIKI_MODE="on"
+                ;;
+            --no-wiki)
+                WIKI_MODE="off"
                 ;;
             --help|-h)
                 show_usage
@@ -1737,6 +1750,53 @@ touch "$TARGET_DOCS/stories/.gitkeep"
 touch "$TARGET_DOCS/ralph-logs/.gitkeep"
 touch "$TARGET_DOCS/debates/.gitkeep"
 touch "$TARGET_DOCS/security/.gitkeep"
+
+# ============================================================
+# Optional: bootstrap Obsidian llm-wiki vault
+# ============================================================
+maybe_setup_wiki() {
+    local script
+    if [ -n "${REPO_ROOT:-}" ] && [ -f "$REPO_ROOT/scripts/setup-wiki.sh" ]; then
+        script="$REPO_ROOT/scripts/setup-wiki.sh"
+    elif [ -f "$(dirname "$0")/scripts/setup-wiki.sh" ]; then
+        script="$(dirname "$0")/scripts/setup-wiki.sh"
+    else
+        return 0
+    fi
+
+    [ "$WIKI_MODE" = "off" ] && return 0
+
+    echo ""
+    echo -e "${CYAN}🧠 Obsidian LLM Wiki (optional second-brain)${NC}"
+
+    if grep -q "BEGIN:llm-wiki-config" "$HOME/.claude/CLAUDE.md" 2>/dev/null; then
+        echo -e "   ${GREEN}✅ Already configured — skipping (run 'bash $script --verify' to health-check).${NC}"
+        return 0
+    fi
+
+    if [ "$WIKI_MODE" = "on" ]; then
+        bash "$script" --non-interactive || true
+        return 0
+    fi
+
+    if [ ! -t 0 ]; then
+        echo -e "   ${YELLOW}Skipped (non-interactive shell). Run 'bash $script' later or pass --with-wiki.${NC}"
+        return 0
+    fi
+
+    printf "   ${YELLOW}Setup the Obsidian wiki vault now? [y/N]: ${NC}"
+    read -r answer
+    case "$answer" in
+        [Yy]*)
+            bash "$script" || true
+            ;;
+        *)
+            echo -e "   ${BLUE}Skipped. Run 'bash $script' anytime, or use --with-wiki on next install.${NC}"
+            ;;
+    esac
+}
+
+maybe_setup_wiki
 
 echo ""
 if [ "$UPDATE_MODE" = true ]; then

@@ -1,3 +1,19 @@
+<!-- PROJECT-MEMORY-START -->
+## Local Project Memory
+
+Before non-trivial work in this project, read the local memory pointer if it exists:
+
+```text
+.claude/project-memory.md
+```
+
+This file is the local pointer to durable project memory: related wiki page, long-term vault, QMD collection, and session-capture guidance. Read it first, then inspect the current codebase; the codebase remains the immediate source of truth.
+
+At the end of useful sessions, capture durable decisions, conventions, solved problems, validation commands, and next steps with `/wiki-capture-session <project>`, then ingest the generated source with `/wiki-ingest raw/session-notes/<filename>.md`.
+
+Do not store secrets, credentials, full logs, stack traces, or raw transcripts in memory.
+<!-- PROJECT-MEMORY-END -->
+
 <!-- PROJECT-RULES-START -->
 # Project Rules
 
