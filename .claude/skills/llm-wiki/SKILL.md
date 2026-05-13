@@ -86,6 +86,7 @@ python scripts/init_vault.py --path ~/vaults/research --topic "LLM interpretabil
 | `/wiki-query <question>` | Search wiki, synthesize answer, offer to file back |
 | `/wiki-lint` | Run health check — contradictions, orphans, stale claims, gaps |
 | `/wiki-log` | Show recent log entries (uses unix tools on `log.md`) |
+| `/wiki-capture-session [topic]` | Capture durable session notes into `raw/session-notes/` for later ingest |
 
 ## Sub-agents (this plugin ships)
 

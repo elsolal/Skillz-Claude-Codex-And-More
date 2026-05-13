@@ -71,7 +71,7 @@ Claude must be installed first since the other providers mirror it.
 | Provider | Installed into | What you get |
 |---|---|---|
 | Claude Code | `~/.claude/` | Full skills, all Claude slash commands, knowledge, templates |
-| OpenAI Codex CLI | `~/.codex/` | Skill symlinks, 5 Codex-native prompts, generated `AGENTS.md` |
+| OpenAI Codex CLI | `~/.codex/` | Skill symlinks, 5 Codex-native prompts, generated wiki `source-command-*` skills, generated `AGENTS.md` |
 | Google Gemini CLI | `~/.gemini/` | Skill symlinks, 5 Gemini-native commands, generated `GEMINI.md` |
 | OpenCode | `~/.config/opencode/` | Skill symlinks, 5 OpenCode-native commands, generated `AGENTS.md` |
 | Generic agents | `~/.agents/` | Skill symlinks and generated `AGENTS.md` |
@@ -205,6 +205,8 @@ After bootstrap:
 /wiki-log                    Show recent log entries (decisions, ingests).
 /wiki-capture-session [topic] Capture durable notes from the current chat into raw/ for later /wiki-ingest.
 ```
+
+Codex note: Codex does not reliably consume Claude slash command files directly. `install/update codex` generates Codex-only skills like `source-command-wiki-capture-session` in `~/.codex/skills/`, so natural triggers such as `/wiki-capture-session` or "capture cette session dans le wiki" load the right workflow after restarting Codex. OpenCode keeps using its native command folder.
 
 ### Manual / advanced flags
 

@@ -15,7 +15,7 @@ Most LLM+docs workflows are RAG: retrieve fragments at query time, synthesize fr
 |---|---|
 | **SKILL.md** | Master skill doc — architecture, workflows, iron rules, cross-tool compat. Has `context: fork` so other skills can chain into it. |
 | **3 sub-agents** | `wiki-ingestor`, `wiki-librarian`, `wiki-linter` |
-| **5 slash commands** | `/wiki-init`, `/wiki-ingest`, `/wiki-query`, `/wiki-lint`, `/wiki-log` |
+| **6 slash commands** | `/wiki-init`, `/wiki-ingest`, `/wiki-query`, `/wiki-lint`, `/wiki-log`, `/wiki-capture-session` |
 | **8 Python tools** | Standard library only: `init_vault`, `ingest_source`, `update_index`, `append_log`, `wiki_search` (BM25), `lint_wiki`, `graph_analyzer`, `export_marp` |
 | **8 reference docs** | Schema, page formats, ingest/query/lint workflows, Obsidian setup, cross-tool setup, Memex principles |
 | **Vault templates** | `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, `index.md`, `log.md`, plus 5 page templates (entity, concept, source, comparison, synthesis) |
@@ -101,7 +101,7 @@ The wiki and RAG aren't opposites — RAG can sit on top of the wiki once you ou
 
 ## Status
 
-**v1.0.0** — initial release. SKILL + 3 agents + 5 commands + 8 scripts + 8 references + full vault templates + example vault.
+**v1.0.0** — initial release. SKILL + 3 agents + 6 commands + 8 scripts + 8 references + full vault templates + example vault.
 
 ## License
 

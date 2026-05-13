@@ -454,6 +454,22 @@ rm ~/.agents/skills/skills
 
 **Prévention:** utiliser `./install.sh update . --providers ...` pour recréer les symlinks locaux. Les modes natifs provider existent, mais ne remplacent pas encore l'installer multi-provider.
 
+### Codex ne voit pas `/wiki-capture-session` ou un autre `/wiki-*`
+
+**Symptôme:** La commande existe dans `~/.claude/commands/`, mais Codex ne charge pas le workflow correspondant.
+
+**Cause:** Codex ne consomme pas directement les commandes Claude. L'installer génère donc des skills Codex-only `source-command-wiki-*` dans `~/.codex/skills/`.
+
+**Fix:**
+```bash
+./install.sh update codex
+ls ~/.codex/skills/source-command-wiki-capture-session/SKILL.md
+```
+
+Redémarre ensuite la session Codex : les skills sont chargés au démarrage.
+
+OpenCode n'est pas concerné par ce fallback ; il garde ses commandes natives dans `~/.config/opencode/commands/`.
+
 ### `/auto-dev` refuse de démarrer
 
 **Symptôme:** `Pre-flight gate échoué : pas de mandat clair pour /auto-dev`.
