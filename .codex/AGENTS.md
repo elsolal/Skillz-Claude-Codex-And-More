@@ -6,7 +6,7 @@ This folder provides project-local compatibility for OpenAI Codex CLI.
 
 ## Layout
 
-- `skills` points to `../.claude/skills`
+- `skills/` contains links to `../.claude/skills` plus Codex-only generated `source-command-*` skills when installed through `install.sh`
 - `knowledge` points to `../.claude/knowledge`
 - `prompts/` contains Codex-native slash command prompts
 
@@ -27,3 +27,7 @@ These Codex prompts load the shared workflow skills:
 | `/ship` | `ship-workflow` |
 | `/quick-fix` | `quick-fix-workflow` |
 | `/status` | `status-workflow` |
+
+## Wiki Source Commands
+
+For `wiki-*` commands, Codex uses generated skills named `source-command-wiki-*` instead of Claude command files. Re-run `./install.sh update codex` and restart Codex after adding a new wiki command.

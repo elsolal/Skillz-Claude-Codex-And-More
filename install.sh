@@ -155,6 +155,158 @@ project_provider_enabled() {
     provider_list_contains "$PROJECT_PROVIDERS" "$1"
 }
 
+SOURCE_COMMAND_MARKER="Auto-generated source-command skill by Skillz-Claude installer."
+
+command_description_from_file() {
+    local command_file="$1"
+    awk '
+        BEGIN { in_fm=0 }
+        NR == 1 && $0 == "---" { in_fm=1; next }
+        in_fm && $0 == "---" { exit }
+        in_fm && /^description:[[:space:]]*/ {
+            sub(/^description:[[:space:]]*/, "")
+            gsub(/^"|"$/, "")
+            print
+            exit
+        }
+    ' "$command_file"
+}
+
+strip_frontmatter_from_file() {
+    local command_file="$1"
+    awk '
+        NR == 1 && $0 == "---" { in_fm=1; next }
+        in_fm && $0 == "---" { in_fm=0; next }
+        !in_fm { print }
+    ' "$command_file"
+}
+
+write_codex_source_command_skill() {
+    local command_file="$1"
+    local target_skills_dir="$2"
+    local command_name
+    command_name="$(basename "$command_file" .md)"
+    local skill_name="source-command-$command_name"
+    local skill_dir="$target_skills_dir/$skill_name"
+    local skill_file="$skill_dir/SKILL.md"
+    local description
+    description="$(command_description_from_file "$command_file")"
+    if [ -z "$description" ]; then
+        description="Run the migrated source command $command_name. Usage /$command_name"
+    fi
+    local safe_description="${description//\\/\\\\}"
+    safe_description="${safe_description//\"/\\\"}"
+
+    if [ -e "$skill_dir" ] && [ ! -d "$skill_dir" ]; then
+        echo -e "   ${YELLOW}⚠️  $skill_name (skipped — path exists and is not a directory)${NC}"
+        CODEX_SOURCE_COMMAND_SKILLS_SKIPPED=$((CODEX_SOURCE_COMMAND_SKILLS_SKIPPED + 1))
+        return 0
+    fi
+
+    if [ -f "$skill_file" ] && ! grep -q "$SOURCE_COMMAND_MARKER" "$skill_file" 2>/dev/null; then
+        echo -e "   ${YELLOW}⚠️  $skill_name (skipped — existing user-managed skill)${NC}"
+        CODEX_SOURCE_COMMAND_SKILLS_SKIPPED=$((CODEX_SOURCE_COMMAND_SKILLS_SKIPPED + 1))
+        return 0
+    fi
+
+    mkdir -p "$skill_dir"
+    {
+        echo "---"
+        echo "name: \"$skill_name\""
+        echo "description: \"$safe_description\""
+        echo "---"
+        echo ""
+        echo "<!-- $SOURCE_COMMAND_MARKER -->"
+        echo "<!-- Source: $command_file -->"
+        echo ""
+        echo "# $skill_name"
+        echo ""
+        echo "Use this skill when the user invokes \`/$command_name\` or asks to run the migrated source command \`$command_name\`."
+        echo ""
+        echo "## Arguments"
+        echo ""
+        echo "Use the rest of the user's message as command arguments. In Codex, do not rely on Claude-only \`\$ARGUMENTS\` interpolation."
+        echo ""
+        echo "## Codex Adaptation"
+        echo ""
+        echo "Follow the command rules below. If the source command mentions Claude-only tools or sub-agents, adapt the workflow to the available Codex tools and ask only where the command explicitly requires human confirmation."
+        echo ""
+        echo "## Command Template"
+        echo ""
+        strip_frontmatter_from_file "$command_file"
+    } > "$skill_file"
+
+    CODEX_SOURCE_COMMAND_SKILLS_INSTALLED=$((CODEX_SOURCE_COMMAND_SKILLS_INSTALLED + 1))
+}
+
+install_codex_source_command_skills() {
+    local source_claude_dir="$1"
+    local target_skills_dir="$2"
+    CODEX_SOURCE_COMMAND_SKILLS_INSTALLED=0
+    CODEX_SOURCE_COMMAND_SKILLS_SKIPPED=0
+
+    if [ -L "$target_skills_dir" ]; then
+        echo -e "${YELLOW}⚠️  $target_skills_dir is a symlink — skipping Codex source-command skills to avoid writing through it.${NC}"
+        return 0
+    fi
+    [ -d "$target_skills_dir" ] || mkdir -p "$target_skills_dir"
+
+    local command_files=()
+    local command_file
+    local seen_command_names=""
+    local command_name
+    for command_file in "$source_claude_dir/skills/llm-wiki/commands"/wiki-*.md; do
+        [ -f "$command_file" ] || continue
+        command_name="$(basename "$command_file" .md)"
+        case " $seen_command_names " in *" $command_name "*) continue ;; esac
+        seen_command_names="$seen_command_names $command_name"
+        command_files+=("$command_file")
+    done
+    for command_file in \
+        "$source_claude_dir/commands/wiki-bootstrap.md" \
+        "$source_claude_dir/commands/wiki-capture-session.md"
+    do
+        [ -f "$command_file" ] || continue
+        command_name="$(basename "$command_file" .md)"
+        case " $seen_command_names " in *" $command_name "*) continue ;; esac
+        seen_command_names="$seen_command_names $command_name"
+        command_files+=("$command_file")
+    done
+
+    if [ ${#command_files[@]} -eq 0 ]; then
+        echo -e "${YELLOW}ℹ️  No wiki command templates found — skipping Codex source-command skills${NC}"
+        return 0
+    fi
+
+    echo -e "${CYAN}📚 Generating Codex source-command wiki skills...${NC}"
+    for command_file in "${command_files[@]}"; do
+        write_codex_source_command_skill "$command_file" "$target_skills_dir"
+    done
+
+    echo -e "   ${GREEN}✅ $CODEX_SOURCE_COMMAND_SKILLS_INSTALLED source-command wiki skill(s) generated${NC}"
+    if [ "$CODEX_SOURCE_COMMAND_SKILLS_SKIPPED" -gt 0 ]; then
+        echo -e "   ${YELLOW}⚠️  $CODEX_SOURCE_COMMAND_SKILLS_SKIPPED skipped (existing user-managed items)${NC}"
+    fi
+}
+
+remove_codex_source_command_skills() {
+    local target_skills_dir="$1"
+    CODEX_SOURCE_COMMAND_SKILLS_REMOVED=0
+    [ -L "$target_skills_dir" ] && return 0
+    [ -d "$target_skills_dir" ] || return 0
+
+    local skill_dir
+    for skill_dir in "$target_skills_dir"/source-command-*; do
+        [ -d "$skill_dir" ] || continue
+        local skill_file="$skill_dir/SKILL.md"
+        if [ -f "$skill_file" ] && grep -q "$SOURCE_COMMAND_MARKER" "$skill_file" 2>/dev/null; then
+            rm -rf "$skill_dir"
+            echo -e "   ${YELLOW}🗑️  source-command skill: $(basename "$skill_dir")${NC}"
+            CODEX_SOURCE_COMMAND_SKILLS_REMOVED=$((CODEX_SOURCE_COMMAND_SKILLS_REMOVED + 1))
+        fi
+    done
+}
+
 # Uninstall Claude globally — reads ~/.claude/.skillz-manifest and removes
 # ONLY the skills/commands listed there. User-added items are preserved.
 # Never touches CLAUDE.md, settings.json, mcp.json, knowledge/, templates/.
@@ -257,8 +409,12 @@ uninstall_codex_global() {
         fi
     done
 
+    # 3. Remove generated Codex source-command skills managed by Skillz.
+    remove_codex_source_command_skills "$HOME/.codex/skills"
+    local removed_source_commands="$CODEX_SOURCE_COMMAND_SKILLS_REMOVED"
+
     echo ""
-    echo -e "${GREEN}✅ Removed $removed_links skill symlink(s) and $removed_prompts Codex prompt(s)${NC}"
+    echo -e "${GREEN}✅ Removed $removed_links skill symlink(s), $removed_prompts Codex prompt(s), and $removed_source_commands source-command skill(s)${NC}"
     echo -e "${CYAN}ℹ️  ~/.codex/skills/.system/, config.toml, AGENTS.md, and third-party prompts (BMad) are untouched.${NC}"
 }
 
@@ -396,6 +552,7 @@ NO_CODEX=false
 GLOBAL_TARGETS=""
 PROJECT_PROVIDERS="all"
 TARGET_DIR=""
+WIKI_MODE="auto"  # auto | on | off — controls Obsidian llm-wiki bootstrap prompt
 
 # No arguments at all → show help. This prevents accidental install
 # into the current directory when user just runs `./install.sh`.
@@ -533,6 +690,12 @@ if [ $# -gt 0 ]; then
                                     exit 1
                                 fi
                                 ;;
+                            --with-wiki)
+                                WIKI_MODE="on"
+                                ;;
+                            --no-wiki)
+                                WIKI_MODE="off"
+                                ;;
                             --help|-h)
                                 show_usage
                                 exit 0
@@ -570,6 +733,12 @@ if [ "$SUBCOMMAND_CONSUMED" = false ]; then
                 ;;
             --no-codex)
                 NO_CODEX=true
+                ;;
+            --with-wiki)
+                WIKI_MODE="on"
+                ;;
+            --no-wiki)
+                WIKI_MODE="off"
                 ;;
             --help|-h)
                 show_usage
@@ -805,6 +974,15 @@ if [ "$GLOBAL_MODE" = true ]; then
             echo -e "╚═══════════════════════════════════════════════════════════════════════╝${NC}"
             echo ""
 
+            if [ -L "$HOME/.codex/skills" ]; then
+                codex_skills_target=$(readlink "$HOME/.codex/skills")
+                case "$codex_skills_target" in
+                    "$HOME/.claude/skills"|"$HOME/.claude/skills/"*|../.claude/skills)
+                        rm -f "$HOME/.codex/skills"
+                        echo -e "${CYAN}🔄 Replacing Codex single skills symlink with real directory for Codex-only source-command skills${NC}"
+                        ;;
+                esac
+            fi
             mkdir -p ~/.codex/skills
             mkdir -p ~/.codex/prompts
 
@@ -865,7 +1043,13 @@ if [ "$GLOBAL_MODE" = true ]; then
         echo -e "   ${YELLOW}⚠️  $skill_skip_count skipped (real dirs — delete manually if you want them mirrored)${NC}"
     fi
 
-    # 2. Copy Codex-native prompts from source .codex/prompts/ → ~/.codex/prompts/
+    # 2. Generate Codex-only source-command skills for Claude commands that do
+    #    not have reliable Codex-native slash prompt support. Keep this scoped
+    #    to Codex; OpenCode and Gemini keep their provider-native commands.
+    install_codex_source_command_skills "$HOME/.claude" "$HOME/.codex/skills"
+    codex_source_command_skills="$CODEX_SOURCE_COMMAND_SKILLS_INSTALLED"
+
+    # 3. Copy Codex-native prompts from source .codex/prompts/ → ~/.codex/prompts/
     #
     # IMPORTANT: we do NOT symlink ~/.claude/commands → ~/.codex/prompts anymore.
     # Claude commands use $ARGUMENTS and Claude-specific tools (SendMessage,
@@ -907,7 +1091,7 @@ if [ "$GLOBAL_MODE" = true ]; then
         echo -e "${YELLOW}ℹ️  No .codex/prompts/ in source — skipping Codex prompts${NC}"
     fi
 
-    # 3. Generate ~/.codex/AGENTS.md from ~/.claude/CLAUDE.md (replace H1, add header)
+    # 4. Generate ~/.codex/AGENTS.md from ~/.claude/CLAUDE.md (replace H1, add header)
     if [ -f ~/.claude/CLAUDE.md ]; then
         echo -e "${CYAN}📝 Generating ~/.codex/AGENTS.md from ~/.claude/CLAUDE.md...${NC}"
         TEMP_AGENTS=$(mktemp)
@@ -942,6 +1126,7 @@ if [ "$GLOBAL_MODE" = true ]; then
     echo ""
     echo -e "   ${GREEN}✅ Skills (symlinks):       $codex_skills${NC}"
     echo -e "   ${GREEN}✅ Codex-native prompts:    $codex_prompts${NC}"
+    echo -e "   ${GREEN}✅ Wiki source commands:    $codex_source_command_skills${NC}"
     echo -e "   ${GREEN}✅ AGENTS.md generated${NC}"
     echo -e "   ${GREEN}✅ Native ~/.codex/skills/.system/ preserved${NC}"
     echo -e "   ${GREEN}✅ Third-party prompts (BMad, etc.) preserved${NC}"
@@ -949,8 +1134,9 @@ if [ "$GLOBAL_MODE" = true ]; then
     echo -e "${YELLOW}ℹ️  MCP servers in ~/.codex/config.toml are untouched.${NC}"
     echo -e "${YELLOW}    To mirror Claude MCPs, edit config.toml manually under [mcp_servers.X].${NC}"
     echo ""
-    echo -e "${CYAN}Codex will now see mirrored skills plus the 5 Codex-native prompts.${NC}"
+    echo -e "${CYAN}Codex will now see mirrored skills, wiki source-command skills, and the 5 Codex-native prompts.${NC}"
     echo -e "${CYAN}Portable prompts: /dev, /discovery, /ship, /quick-fix, /status.${NC}"
+    echo -e "${CYAN}Wiki source commands: /wiki-bootstrap, /wiki-init, /wiki-ingest, /wiki-query, /wiki-lint, /wiki-log, /wiki-capture-session.${NC}"
     echo ""
         fi
     fi
@@ -1608,12 +1794,31 @@ for agent_dir in $AGENT_DIRS; do
             fi
         done
 
-        # Create symlinks to .claude/skills and .claude/knowledge
-        if [ -L "$TARGET_AGENT/skills" ] || [ ! -e "$TARGET_AGENT/skills" ]; then
+        # Create skill links. Codex uses a real skills directory so it can also
+        # hold Codex-only generated source-command skills; other providers keep
+        # the lightweight single symlink to .claude/skills.
+        if [ "$agent_dir" = ".codex" ]; then
+            if [ -L "$TARGET_AGENT/skills" ]; then
+                rm -f "$TARGET_AGENT/skills"
+            fi
+            mkdir -p "$TARGET_AGENT/skills"
+            for skill_dir in "$TARGET_CLAUDE/skills"/*/; do
+                [ -d "$skill_dir" ] || continue
+                skill_name=$(basename "$skill_dir")
+                target_skill="$TARGET_AGENT/skills/$skill_name"
+                if [ -e "$target_skill" ] && [ ! -L "$target_skill" ]; then
+                    echo -e "   ${YELLOW}⚠️  $agent_dir/skills/$skill_name exists as a real dir — skill link skipped${NC}"
+                    continue
+                fi
+                ln -sfn "../../.claude/skills/$skill_name" "$target_skill"
+            done
+            install_codex_source_command_skills "$TARGET_CLAUDE" "$TARGET_AGENT/skills"
+        elif [ -L "$TARGET_AGENT/skills" ] || [ ! -e "$TARGET_AGENT/skills" ]; then
             ln -sfn ../.claude/skills "$TARGET_AGENT/skills"
         else
             echo -e "   ${YELLOW}⚠️  $agent_dir/skills exists as a real file/dir — symlink skipped${NC}"
         fi
+
         if [ -L "$TARGET_AGENT/knowledge" ] || [ ! -e "$TARGET_AGENT/knowledge" ]; then
             ln -sfn ../.claude/knowledge "$TARGET_AGENT/knowledge"
         else
@@ -1737,6 +1942,53 @@ touch "$TARGET_DOCS/stories/.gitkeep"
 touch "$TARGET_DOCS/ralph-logs/.gitkeep"
 touch "$TARGET_DOCS/debates/.gitkeep"
 touch "$TARGET_DOCS/security/.gitkeep"
+
+# ============================================================
+# Optional: bootstrap Obsidian llm-wiki vault
+# ============================================================
+maybe_setup_wiki() {
+    local script
+    if [ -n "${REPO_ROOT:-}" ] && [ -f "$REPO_ROOT/scripts/setup-wiki.sh" ]; then
+        script="$REPO_ROOT/scripts/setup-wiki.sh"
+    elif [ -f "$(dirname "$0")/scripts/setup-wiki.sh" ]; then
+        script="$(dirname "$0")/scripts/setup-wiki.sh"
+    else
+        return 0
+    fi
+
+    [ "$WIKI_MODE" = "off" ] && return 0
+
+    echo ""
+    echo -e "${CYAN}🧠 Obsidian LLM Wiki (optional second-brain)${NC}"
+
+    if grep -q "BEGIN:llm-wiki-config" "$HOME/.claude/CLAUDE.md" 2>/dev/null; then
+        echo -e "   ${GREEN}✅ Already configured — skipping (run 'bash $script --verify' to health-check).${NC}"
+        return 0
+    fi
+
+    if [ "$WIKI_MODE" = "on" ]; then
+        bash "$script" --non-interactive || true
+        return 0
+    fi
+
+    if [ ! -t 0 ]; then
+        echo -e "   ${YELLOW}Skipped (non-interactive shell). Run 'bash $script' later or pass --with-wiki.${NC}"
+        return 0
+    fi
+
+    printf "   ${YELLOW}Setup the Obsidian wiki vault now? [y/N]: ${NC}"
+    read -r answer
+    case "$answer" in
+        [Yy]*)
+            bash "$script" || true
+            ;;
+        *)
+            echo -e "   ${BLUE}Skipped. Run 'bash $script' anytime, or use --with-wiki on next install.${NC}"
+            ;;
+    esac
+}
+
+maybe_setup_wiki
 
 echo ""
 if [ "$UPDATE_MODE" = true ]; then

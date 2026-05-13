@@ -10,7 +10,7 @@ Ce dossier permet aux différents outils IA (Codex, Gemini, OpenCode, etc.) d'ac
 .gemini/          # Google Gemini CLI
 .opencode/        # OpenCode
     │
-    ├── skills/       → symlink vers .claude/skills/
+    ├── skills/       → symlink vers .claude/skills/ ou dossier provider avec symlinks par skill
     ├── knowledge/    → symlink vers .claude/knowledge/
     ├── commands/     → commandes natives si supportées par le provider
     └── AGENTS.md     → instructions (référence CLAUDE.md)
@@ -39,7 +39,7 @@ Lit automatiquement `.claude/CLAUDE.md`
 ```bash
 codex
 ```
-Lit `.codex/AGENTS.md` et les prompts dans `.codex/prompts/`
+Lit `.codex/AGENTS.md`, les prompts dans `.codex/prompts/`, et les skills Codex-only `source-command-*` générés pour les commandes wiki.
 
 ### Gemini CLI
 ```bash

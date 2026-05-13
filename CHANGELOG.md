@@ -2,6 +2,32 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## v5.11.0 (2026-05-13)
+
+**Codex wiki source-command bridge**
+
+### Why
+Claude slash commands are not a reliable command-discovery surface for Codex. The wiki workflows existed as Claude commands, but Codex needed provider-native skill triggers so `/wiki-capture-session` and natural-language requests like "capture cette session dans le wiki" load the right workflow after a restart.
+
+### Added
+- `install.sh` now generates Codex-only `source-command-wiki-*` skills in `~/.codex/skills/` during `install/update codex`.
+- Generated wiki source-command skills cover `/wiki-bootstrap`, `/wiki-init`, `/wiki-ingest`, `/wiki-query`, `/wiki-lint`, `/wiki-log`, and `/wiki-capture-session`.
+- `wiki-capture-session.md` is now also documented inside the `llm-wiki` bundle command folder.
+
+### Changed
+- Codex provider installs now use a real `skills/` directory with per-skill symlinks plus generated `source-command-*` skills.
+- OpenCode remains unchanged and keeps using its native command folder.
+- README, Codex AGENTS, generic agents README, and troubleshooting docs now explain the Codex source-command fallback.
+
+### Validation
+- `bash -n install.sh`
+- `git diff --check`
+- Global install/update tested in a temporary `HOME`.
+- Per-project `--providers codex` install tested in a temporary project.
+- Codex uninstall tested to remove generated source-command skills.
+
+---
+
 ## v5.10.0 (2026-04-22)
 
 **Design discipline layer — taste-critic + a11y-enforcer + ai-native-ui + copy paire**

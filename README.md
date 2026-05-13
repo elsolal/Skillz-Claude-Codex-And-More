@@ -19,6 +19,7 @@ An orchestrator-based workflow that guides you through the full development life
 - **34 skills** — planning (PRD, architecture, stories), design (UX, UI, Figma integration), development (code, tests, review, security, performance), audio/video (ElevenLabs, Remotion).
 - **48 knowledge files** — testing frameworks, workflow templates, brainstorming techniques, Supabase security.
 - **Multi-Mind debate** — 6 AI agents (Claude, GPT, Gemini, DeepSeek, GLM, Kimi) validate PRDs and code through 5 iterative rounds.
+- **Obsidian LLM Wiki** — optional second-brain memory that compounds across sessions. One-command bootstrap with `bash install.sh install all --with-wiki` or the `/wiki-bootstrap` slash command. See [the dedicated section below](#obsidian-llm-wiki--second-brain-memory).
 
 ---
 
@@ -70,7 +71,7 @@ Claude must be installed first since the other providers mirror it.
 | Provider | Installed into | What you get |
 |---|---|---|
 | Claude Code | `~/.claude/` | Full skills, all Claude slash commands, knowledge, templates |
-| OpenAI Codex CLI | `~/.codex/` | Skill symlinks, 5 Codex-native prompts, generated `AGENTS.md` |
+| OpenAI Codex CLI | `~/.codex/` | Skill symlinks, 5 Codex-native prompts, generated wiki `source-command-*` skills, generated `AGENTS.md` |
 | Google Gemini CLI | `~/.gemini/` | Skill symlinks, 5 Gemini-native commands, generated `GEMINI.md` |
 | OpenCode | `~/.config/opencode/` | Skill symlinks, 5 OpenCode-native commands, generated `AGENTS.md` |
 | Generic agents | `~/.agents/` | Skill symlinks and generated `AGENTS.md` |
@@ -151,6 +152,76 @@ Remove-Item -Recurse -Force Skillz-Claude
 ```
 
 </details>
+
+---
+
+## Obsidian LLM Wiki — second-brain memory
+
+A persistent, interlinked knowledge base that grows across sessions, inspired by [Karpathy's LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Sources are read once, integrated into a shared Obsidian vault, kept up to date by the agent. The agent reads `wiki/index.md` first, drills into pages, and synthesizes answers — instead of re-deriving everything via RAG on every query.
+
+> **Built on top of [`alirezarezvani/claude-skills`](https://github.com/alirezarezvani/claude-skills) (MIT) — see [`skills/ATTRIBUTION.md`](./skills/ATTRIBUTION.md).**
+
+### One-command install
+
+```bash
+bash install.sh install all --with-wiki
+```
+
+This runs the standard install **and** bootstraps the wiki: it asks for the vault path, creates the structure, patches `~/.claude/CLAUDE.md`, checks `qmd`, and runs a health check. Skip the bootstrap with `--no-wiki`. Re-run anytime with `bash scripts/setup-wiki.sh` (idempotent).
+
+### Prerequisites
+
+| Tool | Required | Install | Why |
+|------|----------|---------|-----|
+| **Obsidian** | Yes | [obsidian.md/download](https://obsidian.md/download) (free) | Editor for the vault. Open the chosen folder as a vault inside Obsidian after bootstrap. |
+| **Python 3.9+** | Yes | already required by Skillz-Claude | Powers `init_vault.py`, `lint_wiki.py`, `wiki_search.py`. Stdlib only — no pip install. |
+| **`qmd` CLI** | Recommended | `brew install tobi/tap/qmd` (macOS) or see [tobi/qmd](https://github.com/tobi/qmd) | Local vector search across the vault for when the index alone is not enough. The setup script warns but does not block if absent. |
+
+### What the bootstrap does
+
+1. **Detects an existing vault** — parses `~/.claude/CLAUDE.md` for a previous `Vault memoire :` line. Reuses it if found.
+2. **Creates the vault** at the chosen path (default `~/Documents/Obsidian-<git-user>/Wiki`) with the three-layer structure (`raw/`, `wiki/{entities,concepts,sources,comparisons,synthesis}`, `index.md`, `log.md`).
+3. **Patches `~/.claude/CLAUDE.md`** with an idempotent `<!-- BEGIN:llm-wiki-config --> … <!-- END:llm-wiki-config -->` block so every new Claude session knows where the vault lives and how to use it.
+4. **Verifies the `qmd` binary** is on your PATH (warns if not).
+5. **Optionally builds the `qmd` index** for the vault (`--with-qmd` to force, prompted in interactive mode).
+6. **Smoke-tests** the vault with `lint_wiki.py` (orphans, broken links, frontmatter, log gap).
+
+### Open the vault in Obsidian
+
+After bootstrap:
+
+1. Launch Obsidian.
+2. Click **Open folder as vault** and pick the path printed by the script (default: `~/Documents/Obsidian-<your-name>/Wiki`).
+3. The vault is now your second brain — but most of the time you will not edit it manually. Use the slash commands below.
+
+### Commands available after install
+
+```
+/wiki-bootstrap              Re-run or repair the install (interactive).
+/wiki-init <path> --topic …  Create a brand new empty vault (no CLAUDE.md patching).
+/wiki-ingest <file>          Ingest a source from raw/ into the wiki, update cross-references.
+/wiki-query "<question>"     Ask the wiki — agent drills into 3-10 pages and answers with [[wikilinks]].
+/wiki-lint                   Health check: orphans, broken links, stale pages, log gap.
+/wiki-log                    Show recent log entries (decisions, ingests).
+/wiki-capture-session [topic] Capture durable notes from the current chat into raw/ for later /wiki-ingest.
+```
+
+Codex note: Codex does not reliably consume Claude slash command files directly. `install/update codex` generates Codex-only skills like `source-command-wiki-capture-session` in `~/.codex/skills/`, so natural triggers such as `/wiki-capture-session` or "capture cette session dans le wiki" load the right workflow after restarting Codex. OpenCode keeps using its native command folder.
+
+### Manual / advanced flags
+
+```bash
+bash scripts/setup-wiki.sh                       # interactive
+bash scripts/setup-wiki.sh --vault ~/path        # explicit vault path
+bash scripts/setup-wiki.sh --verify              # health check only, no writes
+bash scripts/setup-wiki.sh --with-qmd            # rebuild the qmd index
+bash scripts/setup-wiki.sh --no-qmd              # skip qmd entirely
+bash scripts/setup-wiki.sh --non-interactive     # CI mode, fails if config missing
+```
+
+### What never goes in the wiki
+
+Secrets, tokens, credentials, full logs, raw transcripts, stack traces. The wiki is for durable knowledge — decisions, conventions, sources, syntheses. The codebase remains the immediate source of truth.
 
 ---
 
