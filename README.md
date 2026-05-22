@@ -16,7 +16,7 @@ An orchestrator-based workflow that guides you through the full development life
 - **Three-command workflow** — `/discovery` for planning, `/dev` for implementation, `/ship` for delivery.
 - **Autonomous mode (RALPH)** — `/auto-discovery`, `/auto-dev`, `/auto-loop` run the same workflows without validation stops, with safety gates to prevent runaway execution.
 - **Multi-provider** — one source of truth in `.claude/`, mirrored into Codex, Gemini, OpenCode, and generic agent folders.
-- **34 skills** — planning (PRD, architecture, stories), design (UX, UI, Figma integration), development (code, tests, review, security, performance), audio/video (ElevenLabs, Remotion).
+- **50+ skills** — planning (PRD, architecture, stories), critical thinking (Rodin), design (UX, UI, Figma integration), development (code, tests, review, security, performance), audio/video (ElevenLabs, Remotion).
 - **48 knowledge files** — testing frameworks, workflow templates, brainstorming techniques, Supabase security.
 - **Multi-Mind debate** — 6 AI agents (Claude, GPT, Gemini, DeepSeek, GLM, Kimi) validate PRDs and code through 5 iterative rounds.
 - **Obsidian LLM Wiki** — optional second-brain memory that compounds across sessions. One-command bootstrap with `bash install.sh install all --with-wiki` or the `/wiki-bootstrap` slash command. See [the dedicated section below](#obsidian-llm-wiki--second-brain-memory).
@@ -71,9 +71,9 @@ Claude must be installed first since the other providers mirror it.
 | Provider | Installed into | What you get |
 |---|---|---|
 | Claude Code | `~/.claude/` | Full skills, all Claude slash commands, knowledge, templates |
-| OpenAI Codex CLI | `~/.codex/` | Skill symlinks, 5 Codex-native prompts, generated wiki `source-command-*` skills, generated `AGENTS.md` |
-| Google Gemini CLI | `~/.gemini/` | Skill symlinks, 5 Gemini-native commands, generated `GEMINI.md` |
-| OpenCode | `~/.config/opencode/` | Skill symlinks, 5 OpenCode-native commands, generated `AGENTS.md` |
+| OpenAI Codex CLI | `~/.codex/` | Skill symlinks, Codex-native prompts, generated wiki `source-command-*` skills, generated `AGENTS.md` |
+| Google Gemini CLI | `~/.gemini/` | Skill symlinks, Gemini-native commands, generated `GEMINI.md` |
+| OpenCode | `~/.config/opencode/` | Skill symlinks, OpenCode-native commands, generated `AGENTS.md` |
 | Generic agents | `~/.agents/` | Skill symlinks and generated `AGENTS.md` |
 
 </details>
@@ -276,6 +276,7 @@ Merges main, runs tests, pre-landing review, generates changelog, creates PR.
 | **Ship & QA** | `/ship [branch]` | Merge → tests → review → changelog → PR |
 | | `/qa [url]` | Systematic QA + health score |
 | | `/plan-review <doc>` | CEO/Founder review (Expansion/Hold/Reduction) |
+| | `/rodin <text|path|url>` | Socratic anti-echo challenge |
 | | `/retro [--since 7d]` | Engineering retrospective |
 | **Utilities** | `/status` | Project state (docs, issues, RALPH) |
 | | `/pr-review #123` | Review a PR (3 parallel agents) |
@@ -314,11 +315,37 @@ Claude Code receives the full command set. Codex, Gemini, and OpenCode receive t
 | `/ship` | Yes | Yes | Yes | Yes |
 | `/quick-fix "<problem>"` | Yes | Yes | Yes | Yes |
 | `/status` | Yes | Yes | Yes | Yes |
+| `/rodin <text|path|url>` | Yes | Yes | Yes | Yes |
 | `/refactor`, `/pr-review`, `/retro`, RALPH commands, etc. | Yes | No | No | No |
 
 Model choice does not change command discovery — each CLI discovers commands from its own folder.
 
 </details>
+
+---
+
+## Rodin Socratic Challenge
+
+Rodin is the lightweight anti-echo pass for plans, PRDs, architecture choices, product strategy, and agent reasoning. It is read-only by design: it challenges the decision before implementation instead of editing files or replacing `/dev`, `/plan-review`, or `multi-mind`.
+
+> **Inspired by Benjamin Debon's [`rodin.md`](https://gist.github.com/bdebon/e22d0b728abc5f393227440907b334cf) anti-echo prompt — adapted into a Skillz-Claude read-only agent workflow. See [`skills/ATTRIBUTION.md`](./skills/ATTRIBUTION.md).**
+
+```bash
+/rodin "On devrait ajouter ce nouveau workflow parce que..."
+/rodin docs/planning/specs/2026-05-22-feature-design.md
+/rodin https://example.com/strategy-note.md
+```
+
+Rodin outputs a structured review:
+
+- **These testee** — the real claim or decision being made.
+- **Steelman** — the strongest charitable version of the position.
+- **Points classes** — `JUSTE`, `CONTESTABLE`, `SIMPLIFICATION`, `ANGLE MORT`, or `FAUX` where it matters.
+- **Objections fortes** — the objections that would actually change the decision.
+- **Tests de realite** — concrete checks before committing to the plan.
+- **Verdict** — hold, modify, reject, or suspend pending evidence.
+
+Use Rodin when the risk is bad reasoning. Use `/plan-review` when you need founder-mode scope arbitration, `code-reviewer` when reviewing code, and `multi-mind` when a critical decision deserves a heavier multi-agent debate.
 
 ---
 
@@ -390,7 +417,7 @@ The orchestrator (main thread) keeps ALL context. It never forks to isolated ski
 
 ---
 
-## Skills (34)
+## Skills
 
 Six groups, all auto-triggered from skill descriptions.
 
@@ -398,7 +425,8 @@ Six groups, all auto-triggered from skill descriptions.
 - **Design** — `ux-designer`, `ui-designer`, `ds-doc`
 - **Figma integration (8)** — `figma-use`, `figma-implement-design`, `figma-generate-design`, `figma-generate-library`, `figma-code-connect`, `figma-create-design-system-rules`, `figma-create-new-file`, `figma-design-code-sync`
 - **Audio & Video** — `elevenlabs`, `remotion`
-- **Development** — `github-issue-reader`, `code-implementer`, `test-runner`, `code-reviewer`, `security-auditor`, `performance-auditor`, `supabase-security`, `multi-mind`
+- **Critical thinking** — `rodin`, `multi-mind`
+- **Development** — `github-issue-reader`, `code-implementer`, `test-runner`, `code-reviewer`, `security-auditor`, `performance-auditor`, `supabase-security`
 
 <details>
 <summary><strong>Full skills breakdown with key features</strong></summary>
@@ -442,6 +470,13 @@ Six groups, all auto-triggered from skill descriptions.
 | `elevenlabs` | Voice AI | TTS (70+ languages, 22+ voices), music generation, SFX, batch pipeline |
 | `remotion` | React video | 40 rule files, animations, captions, transitions, ElevenLabs→Remotion voiceover pipeline |
 
+**Critical Thinking**
+
+| Skill | Role | Key Features |
+|---|---|---|
+| `rodin` | Socratic challenger | Anti-echo review, steelman, claim classification, blind spots, reality tests |
+| `multi-mind` | Multi-agent debate | 6 AIs, 5 iterative rounds |
+
 **Development**
 
 | Skill | Role | Key Features |
@@ -453,7 +488,6 @@ Six groups, all auto-triggered from skill descriptions.
 | `security-auditor` | Security audit | OWASP Top 10, CVE, secrets |
 | `performance-auditor` | Performance audit | Core Web Vitals, Lighthouse, bundle |
 | `supabase-security` | Supabase audit | RLS, buckets, auth, CVSS scoring |
-| `multi-mind` | Multi-agent debate | 6 AIs, 5 iterative rounds |
 
 </details>
 
@@ -491,14 +525,14 @@ Works with Claude Code, OpenAI Codex CLI, Google Gemini CLI, OpenCode, and gener
 ```
 .claude/
 ├── CLAUDE.md                        # Project instructions
-├── commands/                        # 22 Claude slash commands
+├── commands/                        # Claude slash commands
 │   ├── discovery.md                 # /discovery (orchestrator)
 │   ├── dev.md                       # /dev (orchestrator + subagents)
 │   ├── auto-discovery.md            # /auto-discovery (RALPH)
 │   ├── auto-dev.md                  # /auto-dev (RALPH)
 │   ├── ship.md, qa.md, ...          # Ship & QA commands
 │   └── ...
-├── skills/                          # 34 skills
+├── skills/                          # Shared skills
 │   ├── idea-brainstorm/
 │   ├── pm-prd/
 │   ├── architect/
@@ -506,6 +540,7 @@ Works with Claude Code, OpenAI Codex CLI, Google Gemini CLI, OpenCode, and gener
 │   ├── code-implementer/            # Agent worker
 │   ├── test-runner/                 # Agent worker
 │   ├── code-reviewer/               # Parallel-ready
+│   ├── rodin/                       # Socratic anti-echo challenger
 │   ├── figma-*/                     # Figma integration (8 skills)
 │   ├── elevenlabs/                  # TTS, music, SFX
 │   ├── remotion/                    # React video
@@ -564,6 +599,7 @@ You are free to use, copy, and adapt this workflow for your own projects.
 
 - **[BMAD-METHOD](https://github.com/bmadcode/BMAD-METHOD)** — 32 knowledge files + agent structure
 - **[RALPH Protocol](https://ghuntley.com/ralph/)** — Autonomous loop mode
+- **[Benjamin Debon's Rodin prompt](https://gist.github.com/bdebon/e22d0b728abc5f393227440907b334cf)** — anti-echo Socratic challenge posture adapted as the `rodin` skill
 
 ---
 

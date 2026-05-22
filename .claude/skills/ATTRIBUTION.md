@@ -67,6 +67,22 @@ diff -r /tmp/claude-skills/engineering/llm-wiki/ skills/llm-wiki/ | head
 
 `scripts/setup-wiki.sh` — smart bootstrap that creates/configures the Obsidian vault, patches `~/.claude/CLAUDE.md`, verifies the `qmd` CLI, and runs a smoke test. Invoked by `install.sh` and by the `/wiki-bootstrap` slash command.
 
+## Rodin (bdebon/rodin.md)
+
+The `rodin/` skill and `/rodin` command are a Skillz-Claude adaptation inspired by Benjamin Debon's public Rodin prompt:
+
+| Asset | Source |
+|-------|--------|
+| `skills/rodin/SKILL.md` | Original Skillz-Claude skill inspired by `bdebon/rodin.md` |
+| `commands/rodin.md` | Skillz-Claude command wrapper |
+
+**Source** : https://gist.github.com/bdebon/e22d0b728abc5f393227440907b334cf
+**Author** : Benjamin Debon ([@bdebon](https://github.com/bdebon))
+
+### Adaptation notes
+
+The source prompt is a broad French "anti-chambre d'echo" interlocutor. Skillz-Claude keeps the useful reasoning protocol (anti-complaisance, steelman, claim classification, angles morts, tests de realite) and adapts it into a read-only agent workflow for challenging plans, PRDs, architecture decisions, strategies, and agent reasoning.
+
 ## QMD (tobi/qmd)
 
 The `qmd/` skill is vendored to give the agent a CLI for searching markdown vaults. The CLI itself (`qmd`) is **not** vendored — it must be installed separately by the user (`brew install tobi/tap/qmd` on macOS, or see upstream for other platforms). The skill teaches the agent how to call the binary, build collections, and index vaults.
