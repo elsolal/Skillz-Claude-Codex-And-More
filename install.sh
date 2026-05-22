@@ -360,7 +360,7 @@ uninstall_claude_global() {
 }
 
 # Uninstall Codex globally — removes symlinks in ~/.codex/skills/ that point to
-# ~/.claude/skills/ (Skillz-managed), removes the 5 Codex-native prompts, and
+# ~/.claude/skills/ (Skillz-managed), removes Skillz Codex-native prompts, and
 # preserves .system/, config.toml, AGENTS.md, and third-party prompts (BMad).
 uninstall_codex_global() {
     echo -e "${BLUE}"
@@ -398,9 +398,9 @@ uninstall_codex_global() {
         done
     fi
 
-    # 2. Remove Codex-native prompts managed by Skillz (dev, discovery, ship, quick-fix, status)
+    # 2. Remove Codex-native prompts managed by Skillz.
     local removed_prompts=0
-    for prompt in dev discovery ship quick-fix status; do
+    for prompt in dev discovery ship quick-fix status rodin; do
         local f="$HOME/.codex/prompts/$prompt.md"
         if [ -f "$f" ] && [ ! -L "$f" ]; then
             rm -f "$f"
@@ -474,7 +474,7 @@ uninstall_gemini_global() {
     local removed_links="$UNINSTALL_PROVIDER_LINKS_REMOVED"
 
     local removed_commands=0
-    for command in dev discovery ship quick-fix status; do
+    for command in dev discovery ship quick-fix status rodin; do
         local f="$HOME/.gemini/commands/$command.toml"
         if [ -f "$f" ] && [ ! -L "$f" ]; then
             rm -f "$f"
@@ -508,7 +508,7 @@ uninstall_opencode_global() {
     local removed_links="$UNINSTALL_PROVIDER_LINKS_REMOVED"
 
     local removed_commands=0
-    for command in dev discovery ship quick-fix status; do
+    for command in dev discovery ship quick-fix status rodin; do
         local f="$base/commands/$command.md"
         if [ -f "$f" ] && [ ! -L "$f" ]; then
             rm -f "$f"
@@ -1134,8 +1134,8 @@ if [ "$GLOBAL_MODE" = true ]; then
     echo -e "${YELLOW}ℹ️  MCP servers in ~/.codex/config.toml are untouched.${NC}"
     echo -e "${YELLOW}    To mirror Claude MCPs, edit config.toml manually under [mcp_servers.X].${NC}"
     echo ""
-    echo -e "${CYAN}Codex will now see mirrored skills, wiki source-command skills, and the 5 Codex-native prompts.${NC}"
-    echo -e "${CYAN}Portable prompts: /dev, /discovery, /ship, /quick-fix, /status.${NC}"
+    echo -e "${CYAN}Codex will now see mirrored skills, wiki source-command skills, and the portable Codex-native prompts.${NC}"
+    echo -e "${CYAN}Portable prompts: /dev, /discovery, /ship, /quick-fix, /status, /rodin.${NC}"
     echo -e "${CYAN}Wiki source commands: /wiki-bootstrap, /wiki-init, /wiki-ingest, /wiki-query, /wiki-lint, /wiki-log, /wiki-capture-session.${NC}"
     echo ""
         fi
@@ -1355,8 +1355,8 @@ else
 echo "║             D-EPCT+R Workflow $WORKFLOW_VERSION Installer            ║"
 fi
 echo "║                                                                       ║"
-echo "║   SKILLS:       34 (Planning, Design, Dev, Security, Figma, Audio/Video)║"
-echo "║   COMMANDS:     22 (Manuel + RALPH + Ship/QA/Retro)                   ║"
+echo "║   SKILLS:       50+ (Planning, Design, Dev, Security, Rodin, Figma)    ║"
+echo "║   COMMANDS:     30+ (Manuel + RALPH + Rodin + Ship/QA/Retro)          ║"
 echo "║   TEMPLATES:    18 (CI/CD, Git Hooks, DevContainer, GitHub)           ║"
 echo "║   KNOWLEDGE:    56 fichiers (testing, workflows, security, figma)     ║"
 echo "╚═══════════════════════════════════════════════════════════════════════╝"
@@ -1562,7 +1562,8 @@ if [ -d "$SOURCE_CLAUDE/knowledge" ]; then
 fi
 
 # Copy skills
-echo -e "${GREEN}📁 Installing skills (33)...${NC}"
+skills_total=$(find "$SOURCE_CLAUDE/skills" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+echo -e "${GREEN}📁 Installing skills ($skills_total)...${NC}"
 for skill_dir in "$SOURCE_CLAUDE/skills"/*; do
     if [ -d "$skill_dir" ]; then
         skill_name=$(basename "$skill_dir")
@@ -1595,7 +1596,8 @@ for skill_dir in "$SOURCE_CLAUDE/skills"/*; do
 done
 
 # Copy commands
-echo -e "${GREEN}📁 Installing commands (21)...${NC}"
+commands_total=$(find "$SOURCE_CLAUDE/commands" -mindepth 1 -maxdepth 1 -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
+echo -e "${GREEN}📁 Installing commands ($commands_total)...${NC}"
 for cmd_file in "$SOURCE_CLAUDE/commands"/*.md; do
     if [ -f "$cmd_file" ]; then
         cmd_name=$(basename "$cmd_file")
@@ -1997,8 +1999,8 @@ echo -e "║                       ✅ Update Complete!                         
 echo -e "╚═══════════════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 echo -e "${CYAN}Updated components:${NC}"
-echo -e "   ${CYAN}🔄 Skills (34)${NC}"
-echo -e "   ${CYAN}🔄 Commands (22)${NC}"
+echo -e "   ${CYAN}🔄 Skills ($skills_total)${NC}"
+echo -e "   ${CYAN}🔄 Commands ($commands_total)${NC}"
 echo -e "   ${CYAN}🔄 Hooks${NC}"
 echo -e "   ${CYAN}🔄 Knowledge Base (56 files)${NC}"
 echo -e "   ${CYAN}🔄 Templates (18 files)${NC}"
@@ -2043,9 +2045,10 @@ echo "    .gemini/         Google Gemini CLI"
 echo "    .opencode/       OpenCode"
 echo "    → Selected provider dirs symlink to .claude/skills and .claude/knowledge"
 echo ""
-echo -e "${BLUE}  Skills (34):${NC}"
+echo -e "${BLUE}  Skills ($skills_total):${NC}"
 echo "    Planning:  idea-brainstorm, pm-prd, architect, pm-stories,"
 echo "               api-designer, database-designer"
+echo "    Reasoning: rodin (challenge socratique anti-complaisance)"
 echo "    Design:    ux-designer, ui-designer (auto-triggered)"
 echo "    Figma:     figma-use, figma-code-connect, figma-generate-design,"
 echo "               figma-generate-library, figma-implement-design,"
@@ -2073,6 +2076,7 @@ echo -e "${BLUE}  Commands - Ship & QA:${NC}"
 echo "    /ship                Ship workflow automatisé"
 echo "    /qa                  QA testing + health score"
 echo "    /plan-review         Review CEO/Founder"
+echo "    /rodin               Challenge socratique anti-complaisance"
 echo "    /retro               Rétrospective engineering"
 echo ""
 echo -e "${BLUE}  Commands - Utilitaires:${NC}"

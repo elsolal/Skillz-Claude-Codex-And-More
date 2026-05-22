@@ -36,6 +36,7 @@ Utilisateur dit...                    → Workflow
 "refactorise ce fichier"              → /refactor <file>
 "review cette PR"                     → /pr-review #123
 "review mon plan/PRD"                 → /plan-review <doc>
+"challenge ce raisonnement / plan"    → /rodin <texte|doc|url> (ou skill rodin)
 "ship cette branche"                  → /ship [branch]
 "teste cette app"                     → /qa [url]
 "retro de la session"                 → /retro [--since 7d]
@@ -97,6 +98,7 @@ Logger chaque itération dans `docs/ralph-logs/`.
 /ship [branch]              # Ship: merge → tests → review → changelog → PR
 /qa [url]                   # QA systématique: health score, screenshots, rapport
 /plan-review <doc>          # Review CEO/Founder: challenge prémisses, 3 modes
+/rodin <texte|doc|url>      # Challenge socratique anti-complaisance
 /retro [--since 7d]         # Rétrospective: sessions, streaks, tendances
 
 # Utilitaires

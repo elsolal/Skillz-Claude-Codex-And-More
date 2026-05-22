@@ -27,3 +27,4 @@ These OpenCode commands load the shared workflow skills:
 | `/ship` | `ship-workflow` |
 | `/quick-fix` | `quick-fix-workflow` |
 | `/status` | `status-workflow` |
+| `/rodin` | `rodin` |

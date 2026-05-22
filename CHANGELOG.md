@@ -2,6 +2,39 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## v5.12.0 (2026-05-22)
+
+**Rodin — Socratic anti-echo challenge layer**
+
+### Why
+Skillz-Claude already had structured planning, code review, multi-agent debate, and founder-style `/plan-review`. What was missing was a lightweight, read-only reasoning pass that can challenge an idea, plan, PRD, architecture choice, strategy, or agent answer before execution without launching a full workflow.
+
+Rodin fills that gap: a short critical-thinking layer inspired by Benjamin Debon's public Rodin prompt, adapted for agent work instead of permanent roleplay.
+
+### Added
+- **`rodin` skill** — Socratic anti-complacency workflow for testing reasoning quality: thesis framing, steelman, claim classification, strong objections, blind spots, reality tests, and verdict.
+- **`/rodin` Claude command** — direct challenge pass for text, local docs, URLs, or the latest visible reasoning in the conversation.
+- **Portable provider triggers**:
+  - `.codex/prompts/rodin.md`
+  - `.gemini/commands/rodin.toml`
+  - `.opencode/commands/rodin.md`
+- `agents/openai.yaml` metadata for the Rodin skill.
+
+### Changed
+- README now documents Rodin in the feature list, commands table, provider availability matrix, skills inventory, and a dedicated usage section.
+- `.claude/CLAUDE.md` now routes "challenge ce raisonnement / plan" style requests to `/rodin`.
+- Provider compatibility docs (`.codex/AGENTS.md`, `.gemini/GEMINI.md`, `.opencode/AGENTS.md`, `.agents/README.md`) list `/rodin`.
+- `install.sh` now installs, displays, and uninstalls the Rodin portable prompt/command alongside existing portable commands.
+- `.claude/skills/ATTRIBUTION.md` credits the public Rodin inspiration and documents the adaptation boundary.
+
+### Validation
+- `python3 /Users/aymeric/.codex/skills/.system/skill-creator/scripts/quick_validate.py .claude/skills/rodin`
+- `bash -n install.sh`
+- Gemini command parsed with Python `tomllib`
+- `git diff --check`
+
+---
+
 ## v5.11.0 (2026-05-13)
 
 **Codex wiki source-command bridge**
