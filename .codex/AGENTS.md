@@ -25,6 +25,7 @@ These Codex prompts load the shared workflow skills:
 | `/dev` | `dev-workflow` |
 | `/discovery` | `discovery-workflow` |
 | `/ship` | `ship-workflow` |
+| `/qa` | `web-navigator` + Claude `/qa` workflow |
 | `/quick-fix` | `quick-fix-workflow` |
 | `/status` | `status-workflow` |
 | `/rodin` | `rodin` |
@@ -32,6 +33,12 @@ These Codex prompts load the shared workflow skills:
 | `/design-audit-squad` | `design-audit` |
 | `/seo-geo-audit` | `seo-geo-audit` |
 | `/seo-geo-squad` | `seo-geo-audit` |
+
+## Shared Runtime Skills
+
+| Skill | Usage |
+|---|---|
+| `web-navigator` | Natural browser navigation, extraction and runtime evidence via Playwright CLI, Browser/MCP or WebFetch fallback |
 
 ## Wiki Source Commands
 

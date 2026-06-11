@@ -18,6 +18,7 @@ An orchestrator-based workflow that guides you through the full development life
 - **Multi-provider** — one source of truth in `.claude/`, mirrored into Codex, Gemini, OpenCode, and generic agent folders.
 - **Design audit loop** — `/design-audit` gates UI/design-system work with tokens, components, stories/docs, a11y, taste, Figma/code drift, AI governance, and optional Lyse evidence; `/design-audit-squad` runs the full 12-agent Lyse Design Squad.
 - **SEO/GEO audit workflow** — `/seo-geo-audit` audits technical SEO, content, SERP intent, authority, local SEO, llms.txt and AI visibility; `/seo-geo-squad` runs the full 11-agent Roso SEO Squad.
+- **Web navigation layer** — `web-navigator` lets agents browse, inspect, extract and source information from real sites using Playwright CLI, Browser/MCP or WebFetch fallbacks.
 - **50+ skills** — planning (PRD, architecture, stories), critical thinking (Rodin), design (UX, UI, Figma integration), development (code, tests, review, security, performance), audio/video (ElevenLabs, Remotion).
 - **48 knowledge files** — testing frameworks, workflow templates, brainstorming techniques, Supabase security.
 - **Multi-Mind debate** — 6 AI agents (Claude, GPT, Gemini, DeepSeek, GLM, Kimi) validate PRDs and code through 5 iterative rounds.
@@ -138,6 +139,18 @@ Reload skills with `/reload-plugins` (Claude Code) or restart your agent after m
 </details>
 
 Diagnostic: `/skillz-doctor` (v5.8.0+) and autonomous safety gates (v5.7.0+) are documented in [CHANGELOG.md](./CHANGELOG.md).
+
+### Optional: Playwright CLI for agent navigation
+
+Playwright automates real browsers. Installing `@playwright/cli` gives AI agents a terminal-driven way to open a product or public site, click through flows, fill forms, inspect console/network errors, resize viewports, capture screenshots and extract grounded information. Skillz-Claude routes this through `web-navigator`, then QA, SEO/GEO, design and test skills consume the same evidence.
+
+```bash
+npm install -g @playwright/cli@latest
+playwright-cli install --skills
+playwright-cli --help
+```
+
+Use it with `web-navigator`, `/qa`, `seo-geo-audit`, `test-runner` and `design-audit` when you want runtime evidence from a local, preview, staging or production URL. `playwright-cli install --skills` installs the companion skills for Claude by default; use `playwright-cli install --skills=agents` for generic agent skills.
 
 <details>
 <summary><strong>Manual Windows install</strong></summary>
@@ -319,6 +332,7 @@ Claude Code receives the full command set. Codex, Gemini, and OpenCode receive t
 | `/dev <task>` | Yes | Yes | Yes | Yes |
 | `/discovery <idea>` | Yes | Yes | Yes | Yes |
 | `/ship` | Yes | Yes | Yes | Yes |
+| `/qa [url]` | Yes | Yes | Yes | Yes |
 | `/quick-fix "<problem>"` | Yes | Yes | Yes | Yes |
 | `/status` | Yes | Yes | Yes | Yes |
 | `/rodin <text|path|url>` | Yes | Yes | Yes | Yes |
@@ -433,6 +447,7 @@ Capability groups, all auto-triggered from skill descriptions.
 
 - **Planning** — `idea-brainstorm`, `pm-prd`, `architect`, `pm-stories`, `api-designer`, `database-designer`
 - **Design** — `ux-designer`, `ui-designer`, `ds-doc`, `design-audit`
+- **Web navigation** — `web-navigator`
 - **SEO/GEO** — `seo-geo-audit`
 - **Figma integration (8)** — `figma-use`, `figma-implement-design`, `figma-generate-design`, `figma-generate-library`, `figma-code-connect`, `figma-create-design-system-rules`, `figma-create-new-file`, `figma-design-code-sync`
 - **Audio & Video** — `elevenlabs`, `remotion`
@@ -460,6 +475,12 @@ Capability groups, all auto-triggered from skill descriptions.
 | `ux-designer` | User experience | Personas, user journeys, wireframes |
 | `ui-designer` | Design system | Tokens, components, Figma import |
 | `design-audit` | UI/DS audit | Tokens, components, stories/docs, a11y, taste, Figma/code drift, AI governance, Lyse references and 12-agent squad |
+
+**Web Navigation**
+
+| Skill | Role | Key Features |
+|---|---|---|
+| `web-navigator` | Web navigation | Playwright CLI, Browser/MCP and WebFetch fallback; pages visited, screenshots/snapshots, console/network and Confirmé/Déduit/Non vérifié evidence |
 
 **SEO/GEO**
 
@@ -557,6 +578,7 @@ Works with Claude Code, OpenAI Codex CLI, Google Gemini CLI, OpenCode, and gener
 │   ├── pm-stories/
 │   ├── code-implementer/            # Agent worker
 │   ├── test-runner/                 # Agent worker
+│   ├── web-navigator/               # Browser navigation + evidence layer
 │   ├── code-reviewer/               # Parallel-ready
 │   ├── rodin/                       # Socratic anti-echo challenger
 │   ├── figma-*/                     # Figma integration (8 skills)

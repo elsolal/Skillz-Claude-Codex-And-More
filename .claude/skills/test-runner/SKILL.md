@@ -1,6 +1,6 @@
 ---
 name: test-runner
-description: Écrit et exécute les tests pour valider l'implémentation. Priorités P0-P3, risk-based. Utilisé comme agent worker depuis /dev ou en standalone.
+description: Écrit et exécute les tests pour valider l'implémentation. Priorités P0-P3, risk-based, avec web-navigator/Playwright CLI pour explorer les apps web runtime avant E2E. Utilisé depuis /dev ou standalone.
 model: opus
 context: fork
 allowed-tools:
@@ -55,6 +55,20 @@ Test Architect qui conçoit et exécute une stratégie de test risk-based.
 
 ---
 
+## Navigation runtime avant E2E
+
+Quand le scope inclut une app web runtime, charger `web-navigator` avant d'ecrire les E2E. Ce skill pilote la navigation via Playwright CLI, Browser/MCP ou fallback web, puis restitue les preuves: ouverture d'URL, clics, formulaires, screenshots, console, reseau, storage et locators.
+
+Installation recommandee sur la machine de l'agent:
+
+```bash
+npm install -g @playwright/cli@latest
+playwright-cli install --skills
+playwright-cli --help
+```
+
+Utiliser `web-navigator` pour explorer et capturer les preuves; convertir ensuite les flows critiques en tests Playwright versionnes et determinants.
+
 ## Priorités P0-P3
 
 | Priorité | Critères | Coverage cible |
@@ -72,6 +86,7 @@ Test Architect qui conçoit et exécute une stratégie de test risk-based.
 - Détecter le framework de test (Jest, Vitest, Pytest, etc.)
 - Classifier chaque fonctionnalité par priorité P0-P3
 - Choisir le bon niveau : Unit / Integration / E2E / Component
+- Si UI web runtime, utiliser `web-navigator` pour confirmer le flow, extraire les locators et capturer console/reseau avant d'ecrire l'E2E
 
 ### 2. Écrire les tests
 

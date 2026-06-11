@@ -19,6 +19,7 @@ Skill portable d'audit SEO + GEO (Generative Engine Optimization) basé sur la R
 ## Quand NE PAS utiliser
 
 - Audit marketing purement conversion/copy sans recherche organique: utiliser `landing-copy`.
+- Navigation/analyse web generale sans scoring SEO/GEO: utiliser `web-navigator`.
 - QA technique d'une app sans enjeu SEO: utiliser `/qa`.
 - Audit design-system/UI: utiliser `design-audit`.
 - Suivi quotidien de positions/ranking tracking: recommander GSC, Ahrefs, Semrush ou outil dédié; ce skill fait un audit ponctuel.
@@ -41,7 +42,7 @@ Si l'URL ou le type business manque, poser 1 à 3 questions maximum. Sinon avanc
 Les fichiers SEO_Squad originaux parlent souvent de Claude Pro, Claude in Chrome et Claude Projects. En runtime Skillz-Claude:
 
 - Claude Code peut suivre ces indications directement quand les capacités existent.
-- Codex remplace Claude in Chrome par les outils disponibles: browser local, Playwright, Web Search, WebFetch, connecteurs MCP ou captures/collages utilisateur.
+- Codex remplace Claude in Chrome par les outils disponibles via `web-navigator`: browser local, Playwright CLI, Web Search, WebFetch, connecteurs MCP ou captures/collages utilisateur.
 - Gemini et OpenCode lisent les mêmes prompts via leurs dossiers provider après installation.
 - Si une capacité n'existe pas dans le runtime courant, ne pas simuler le résultat: marquer `Non vérifié` et proposer le check manuel.
 - Ne jamais modifier le site audité pendant l'audit. La sortie peut créer des livrables d'audit uniquement si l'utilisateur a demandé un rapport ou si le contexte autorise l'écriture.

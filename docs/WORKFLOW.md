@@ -308,6 +308,29 @@ claude
 3. **Subagent Tests** : écrit les tests P0-P3 risk-based
 4. L'orchestrateur vérifie les résultats au retour
 
+Pour les apps web, le subagent Tests peut charger `web-navigator`, qui utilise Playwright CLI comme runtime recommande avant de coder les E2E:
+
+```bash
+npm install -g @playwright/cli@latest
+playwright-cli install --skills
+playwright-cli --help
+```
+
+Playwright pilote un vrai navigateur. Dans Skillz-Claude, `web-navigator` l'utilise surtout pour produire des preuves agentiques reutilisables: pages visitees, screenshots, snapshot DOM, console, reseau, responsive, locators, extraction d'informations et reproduction utilisateur. Les flows critiques sont ensuite convertis en tests Playwright versionnes.
+
+#### 🌐 WEB NAVIGATION (si URL/site a analyser)
+
+**Objectif** : permettre aux agents de naviguer sur un site reel avant de conclure.
+
+`web-navigator` est le skill transverse pour les demandes du type "analyse ce site", "recupere les infos", "compare ces concurrents", "inspecte ce tunnel" ou "observe cette page". Il choisit le runtime disponible:
+
+1. Playwright CLI si `playwright-cli --help` fonctionne.
+2. Browser/MCP ou navigateur integre.
+3. WebFetch/WebSearch pour contenu public statique.
+4. Capture, export HTML ou contenu colle par l'utilisateur.
+
+Le livrable standardise les preuves avec `Confirmé / Déduit / Non vérifié`, puis les skills metier consomment ce rapport: `/qa`, `seo-geo-audit`, `design-audit`, `test-runner`, `taste-critic`.
+
 #### 🔍 REVIEW ×3 (3 subagents parallèles)
 
 **Objectif** : Valider le code avec 3 reviews spécialisées en parallèle.
