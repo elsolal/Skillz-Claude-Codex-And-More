@@ -1,0 +1,10 @@
+---
+description: 'Orchestration complète Roso SEO Squad: 11 agents SEO/GEO, règles communes, livrables et rapport final'
+disable-model-invocation: true
+---
+
+IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL `~/.codex/skills/seo-geo-audit/SKILL.md` if it exists, otherwise `.claude/skills/seo-geo-audit/SKILL.md`, READ its entire contents, then run the SEO/GEO workflow in `--squad` mode for the provided URL, domain, brand, competitors, content path, or latest visible SEO/GEO context.
+
+You MUST load the complete Roso SEO Squad reference pack when available: `references/seo-squad/README.md`, `00_REGLES_COMMUNES.md`, `01_MASTER_ORCHESTRATOR.md`, `Outils_Verification_Externes.md`, all `references/seo-squad/agents/*.md`, and the templates under `references/seo-squad/templates/`.
+
+Preserve each agent prompt as authoritative. Execute the 11-agent order from the master orchestrator, adapt Claude-in-Chrome instructions to the current Codex runtime capabilities, classify every factual claim as Confirmé, Déduit, or Non vérifié, double-check negative claims, and do not modify the audited site or project code. Create `audit-livrables/<client>/` deliverables only when the user asked for files or the context clearly allows audit output files; otherwise output the deliverables inline.

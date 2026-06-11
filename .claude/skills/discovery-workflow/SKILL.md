@@ -120,9 +120,11 @@ Score criteria (1 point each, trigger if ≥ 3):
 2. Create main UI components list.
 3. Establish visual guidelines.
 4. Document interaction patterns.
-5. Save to `docs/planning/ui/UI-{slug}.md`.
+5. Define design-audit gates for delivery: tokens, components, a11y, taste, Figma/code drift, and AI surface if relevant.
+6. If the product is a public site, landing, media, e-commerce, or indexable content surface, define `seo-geo-audit` goals: keywords, SERP, content, schema, llms.txt, AI visibility, GSC KPIs.
+7. Save to `docs/planning/ui/UI-{slug}.md`.
 
-Reference: `.claude/skills/ui-designer/SKILL.md`.
+Reference: `.claude/skills/ui-designer/SKILL.md`, `.claude/skills/design-audit/SKILL.md`, `.claude/skills/seo-geo-audit/SKILL.md`.
 
 **STOP CHECKPOINT 5** — UI validated.
 

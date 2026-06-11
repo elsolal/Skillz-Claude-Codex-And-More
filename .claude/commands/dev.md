@@ -69,6 +69,18 @@ Afficher dans la synthèse :
 
 **Si `components/CLAUDE.md` existe :** le lire pour connaître les composants et tokens disponibles — le plan devra prioriser la réutilisation.
 
+**Si FRONTEND détecté :** charger le skill `design-audit` et préparer un audit rapide de la surface (`/design-audit <path|url|figma> --quick`) comme preuve de cadrage. Le rapport alimente le plan; les P0/P1 deviennent des contraintes de livraison.
+
+### Phase 1.6: SEO/GEO DETECTION (automatique, pas de stop)
+
+Après l'explore, détecter si la feature touche une surface publique indexable :
+
+- fichiers `robots.txt`, `sitemap.*`, `llms.txt`, `metadata`, `schema`, `json-ld`, `.mdx`, blog, landing, homepage, pages service, routes marketing;
+- keywords issue : "SEO", "GEO", "référencement", "mots-clés", "SERP", "Google", "AI visibility", "ChatGPT", "Perplexity", "llms.txt";
+- changements de title, meta description, H1, contenu éditorial, FAQ, canonical, structured data.
+
+**Si SEO/GEO détecté :** charger `seo-geo-audit` et préparer un audit rapide (`/seo-geo-audit <url|path> --quick`) comme preuve de cadrage. Les P0/P1 deviennent des contraintes de livraison.
+
 ---
 
 ## Phase 2: PLAN (orchestrateur = TOI)
@@ -88,8 +100,13 @@ Tu as tout le contexte de la Phase 1. Avec ce contexte :
    - Quels composants existants réutiliser (depuis `components/CLAUDE.md`)
    - Quels tokens/variables CSS utiliser (jamais de valeurs hardcodées)
    - Si design Figma fourni : mapper les éléments Figma → composants code
+   - Quels findings `design-audit` P0/P1 doivent être corrigés ou explicitement exclus du scope
    - Si nouveaux composants créés : noter pour `/ds-doc --update` en Phase 5
-5. Préparer les prompts des subagents de Phase 3 (chaque prompt doit être COMPLET et AUTONOME)
+5. **Si SEO/GEO :** ajouter au plan :
+   - Quels fichiers publics/meta/schema/contenus sont impactés
+   - Quels findings `seo-geo-audit` P0/P1 doivent être corrigés
+   - Quels éléments devront rester `Non vérifié` si aucune URL preview ou donnée GSC n'est disponible
+6. Préparer les prompts des subagents de Phase 3 (chaque prompt doit être COMPLET et AUTONOME)
 
 **STOP CHECKPOINT 2** — Validation du plan avant implémentation.
 
@@ -222,7 +239,25 @@ Quand les 3 subagents reviennent :
 2. **Corriger** les issues 🔴 Critical (toi-même, pas un subagent — tu as le contexte)
 3. **Relancer les tests** après corrections
 
-**STOP CHECKPOINT 4** — Présenter le résumé review consolidé. Validation.
+### Phase 4.5: DESIGN AUDIT (si FRONTEND)
+
+Après les 3 reviews classiques, lancer `design-audit --ship-gate` sur la surface modifiée:
+
+- Input prioritaire : preview URL si disponible, sinon chemins UI modifiés, sinon Figma + diff code.
+- Réutiliser le rapport initial de Phase 1.5 pour comparer avant/après.
+- P0 = correction obligatoire avant Phase 5.
+- P1 = correction obligatoire en mode ship-gate, sauf justification explicite dans le résumé.
+- P2/P3 = documenter comme polish ou dette.
+
+**STOP CHECKPOINT 4** — Présenter le résumé review consolidé + verdict design-audit. Validation.
+
+### Phase 4.6: SEO/GEO AUDIT (si SEO/GEO)
+
+Après les reviews classiques, lancer `seo-geo-audit --ship-gate` sur la page publique, preview URL ou fichiers modifiés:
+
+- P0 = correction obligatoire avant Phase 5.
+- P1 = correction obligatoire ou risque explicitement accepté.
+- `Non vérifié` doit rester visible dans le résumé, jamais transformé en fait.
 
 ---
 
@@ -244,9 +279,11 @@ Avant de proposer `/ship`, vérifier la matrice (`.claude/knowledge/workflows/ve
 
 1. Vérifier que tous les tests passent après corrections review
 2. **Si FRONTEND + nouveaux composants créés :**
+   - Vérifier que `design-audit --ship-gate` n'a plus de P0/P1 bloquant
    - Proposer `/ds-doc --update` pour mettre à jour la documentation design system
    - Mentionner les composants à lier dans Figma si pas encore liés
-3. Proposer : **[S] /ship** (merge main, tests, review, changelog, PR) | **[D] /ds-doc --update puis ship** | **[C] Commit seulement** | **[R] Réviser encore**
+3. **Si SEO/GEO :** vérifier que `seo-geo-audit --ship-gate` n'a plus de P0 bloquant et que les P1 sont corrigés ou explicitement acceptés.
+4. Proposer : **[S] /ship** (merge main, tests, review, changelog, PR) | **[D] /ds-doc --update puis ship** | **[C] Commit seulement** | **[R] Réviser encore**
 4. Si l'utilisateur choisit [S] ou [D], lancer le workflow correspondant
 
 ---

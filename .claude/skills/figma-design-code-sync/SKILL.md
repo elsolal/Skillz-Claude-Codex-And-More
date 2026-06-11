@@ -32,8 +32,11 @@ Maintains alignment between Figma design system components and their code counte
 | `figma-to-code` | Figma → Code | Converting a full screen to code |
 | `figma-designer` | Claude → Figma | Creating new screens/prototypes in Figma |
 | `figma-design-system` | Code → Figma | Managing tokens, auditing DS, pushing code changes to Figma |
+| `design-audit` | Code/Figma → verdict | Auditing tokens/components/drift across a broader UI surface |
 
 This skill handles the **mapping layer** between the two worlds. The others handle creation in one direction.
+
+If `design-audit` has already flagged Figma/code drift, start from that report and focus only on the affected components, variants and tokens.
 
 ## Quick Reference
 

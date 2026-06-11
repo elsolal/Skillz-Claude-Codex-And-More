@@ -1,6 +1,6 @@
 ---
 name: ship-workflow
-description: Automated ship workflow that takes a feature branch from "done" to "PR opened" in a single non-interactive pass. Loaded by /ship slash command in both Claude Code and Codex CLI. Use when the user has finished implementing a feature and wants to merge main, run tests, pre-landing review, CHANGELOG, commit, push, and create a PR in one go. Non-interactive by default — only stops for real blockers (merge conflicts, test failures, critical review findings).
+description: Automated ship workflow that takes a feature branch from "done" to "PR opened" in a single non-interactive pass. Loaded by /ship slash command in both Claude Code and Codex CLI. Use when the user has finished implementing a feature and wants to merge main, run tests, design/SEO ship-gates when relevant, pre-landing review, CHANGELOG, commit, push, and create a PR in one go.
 ---
 
 # Ship Workflow — Release Engineer Mode
@@ -16,7 +16,7 @@ This skill describes the automated release pipeline executed by the `/ship` comm
 ## Core Principles
 
 1. **Non-interactive by default** — the user said `/ship`, which means DO IT. Don't ask for confirmation on version bumps, commit messages, or CHANGELOG content.
-2. **Only stop for real blockers** — merge conflicts that can't auto-resolve, test failures, critical review findings.
+2. **Only stop for real blockers** — merge conflicts that can't auto-resolve, test failures, critical review findings, frontend design-audit P0/P1, public-page seo-geo-audit P0/P1.
 3. **Never force-push** — regular `git push` only. Never `--force`.
 4. **Never skip hooks** — no `--no-verify`, no `--no-gpg-sign` unless explicitly requested.
 5. **Bisectable commits** — each commit should be independently valid (no broken imports between commits).
@@ -67,7 +67,7 @@ Capture output to `/tmp/ship_tests.txt` for possible debugging.
 
 ## Step 4 — Pre-Landing Review
 
-Do a two-pass review of the diff (`git diff origin/main`) to catch structural issues that tests don't catch.
+Do a two-pass review of the diff (`git diff origin/main`) to catch structural issues that tests don't catch, plus design and SEO/GEO ship-gates when relevant.
 
 ### Pass 1 — CRITICAL (blocks `/ship`)
 
@@ -85,12 +85,34 @@ Do a two-pass review of the diff (`git diff origin/main`) to catch structural is
 - Test gaps (missing negative paths)
 - Performance (N+1 queries, O(n²) hot loops, missing indexes)
 
+### Pass 3 — DESIGN AUDIT (frontend only)
+
+If the diff touches `.tsx`, `.jsx`, `.vue`, `.svelte`, `.html`, `.css`, `.scss`, Tailwind, Figma mapping, tokens, or components:
+
+1. Load `design-audit`.
+2. Run the read-only ship gate against the preview URL if available, otherwise the changed UI paths.
+3. Treat P0 as blocking.
+4. Treat P1 as blocking unless the PR body documents an explicit accepted risk.
+5. Put P2/P3 in the PR body as follow-up polish.
+
+### Pass 4 — SEO/GEO AUDIT (public/indexable surface only)
+
+If the diff touches public landing pages, homepage, blog/docs/content, `metadata`, title/meta/H1, canonical, schema/JSON-LD, `robots.txt`, `sitemap.*`, `llms.txt`, or SEO copy:
+
+1. Load `seo-geo-audit`.
+2. Run the read-only ship gate against the preview URL if available, otherwise the changed paths.
+3. Treat P0 as blocking.
+4. Treat P1 as blocking unless the PR body documents an explicit accepted risk.
+5. Keep `Non vérifié` items visible in the PR body.
+
 **Output all findings.**
 
 - **If CRITICAL issues found**: for each one, ask the user with options:
   - (A) Fix now → apply the fix
   - (B) Acknowledge and ship → note in PR body
   - (C) False positive → skip
+- **If design-audit P0/P1 found**: stop, show the finding, and require a fix or explicit accepted risk for P1 only.
+- **If seo-geo-audit P0/P1 found**: stop, show the finding, and require a fix or explicit accepted risk for P1 only.
 - **If only informational**: note them in the PR body and continue automatically.
 - **If no issues**: output "Pre-Landing Review: No issues found." and continue.
 
@@ -164,5 +186,5 @@ EOF
 
 - **Never skip tests**. If tests fail, stop immediately.
 - **Never force-push**. Regular `git push` only.
-- **Never ask for confirmation** except for CRITICAL review findings or merge conflicts.
+- **Never ask for confirmation** except for CRITICAL review findings, merge conflicts, frontend design-audit P1 risk acknowledgement, or seo-geo-audit P1 risk acknowledgement.
 - **The goal**: the user says `/ship`, the next thing they see is the PR URL.

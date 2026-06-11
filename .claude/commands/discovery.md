@@ -117,9 +117,11 @@ Knowledge : `.claude/knowledge/workflows/prd-template.md`, `domain-complexity.cs
 2. Créer les composants UI principaux
 3. Établir les guidelines visuelles
 4. Documenter les patterns d'interaction
-5. Sauvegarder dans `docs/planning/ui/UI-{slug}.md`
+5. Définir les gates `design-audit` pour la livraison: tokens, composants, a11y, taste, drift Figma/code, surface IA si pertinent
+6. Si le produit est un site public, landing, média, e-commerce ou contenu indexable, définir les objectifs `seo-geo-audit`: mots-clés, SERP, contenu, schema, llms.txt, visibilité IA, KPIs GSC
+7. Sauvegarder dans `docs/planning/ui/UI-{slug}.md`
 
-Référence process détaillé : `.claude/skills/ui-designer/SKILL.md`
+Référence process détaillé : `.claude/skills/ui-designer/SKILL.md` + `.claude/skills/design-audit/SKILL.md` + `.claude/skills/seo-geo-audit/SKILL.md`
 
 **STOP CHECKPOINT 5** — UI validée.
 

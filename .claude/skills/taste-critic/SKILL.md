@@ -53,6 +53,8 @@ Miroir des 9 `taste-skills` : ils disent **comment générer du bon goût**, ce 
 
 Si pas de style attendu, demander ou inférer depuis un PRD/UI doc existant via `Glob: docs/planning/{prd,ui}/*.md`.
 
+Si un rapport `design-audit` existe dans la session ou le repo, le réutiliser pour tokens/components/Figma/a11y et concentrer `taste-critic` sur le jugement visuel. Sinon, noter `Design audit: not run` sans bloquer l'audit.
+
 ### 2. Audit en 8 catégories
 
 Pour chaque catégorie, scorer 0-10 et lister les violations concrètes :
@@ -205,9 +207,10 @@ Pour chaque catégorie, scorer 0-10 et lister les violations concrètes :
 
 | Workflow | Insertion point |
 |----------|-----------------|
-| `/pr-review` | 4e passe (après Correctness/Readability/Perf) — flag P0 = blocking |
+| `/pr-review` | 5e passe (après Design Audit) — flag P0 = blocking |
 | `/qa` | Ajout au health score (catégorie "Visual Quality") |
 | `/ship` | Gate optionnel : si Grade D/F détecté → confirm explicit |
+| `design-audit` | Sous-rapport qualitatif pour l'axe Taste |
 | Standalone | `taste-critic <url-or-path>` |
 
 ## Output Validation

@@ -39,6 +39,8 @@ Audit accessibilité systématique. Pas un nice-to-have — gate de compliance +
 | Path code (`src/`, `app/`, `components/`) | `Glob` + `Read` + check statique des patterns |
 | Composant unique (`Button.tsx`) | `Read` + check ciblé |
 
+Si un rapport `design-audit` existe, reprendre ses findings P0/P1 a11y comme point de départ puis approfondir avec WCAG 2.2 AA. Si aucun rapport n'existe, l'audit reste autonome.
+
 ## Process
 
 ### 1. Inventaire
@@ -190,9 +192,10 @@ Violations triviales qu'on peut fix en batch :
 
 | Workflow | Insertion |
 |----------|-----------|
-| `/pr-review` | 5e passe (après design via taste-critic) — P0 = blocking |
+| `/pr-review` | 6e passe (après design-audit et taste-critic) — P0 = blocking |
 | `/qa` | Catégorie "Accessibility" du health score |
 | `/ship` | Gate STRICT : Grade D/F → confirm explicit avec la justification |
+| `design-audit` | Sous-rapport approfondi pour l'axe A11y |
 | `ui-designer` | Auto-trigger sur tokens couleurs (vérifier contraste) |
 | `figma-implement-design` | Auto-trigger après implementation |
 | Standalone | `a11y-enforcer <url-or-path>` |

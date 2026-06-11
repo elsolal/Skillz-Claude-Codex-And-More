@@ -83,6 +83,43 @@ The `rodin/` skill and `/rodin` command are a Skillz-Claude adaptation inspired 
 
 The source prompt is a broad French "anti-chambre d'echo" interlocutor. Skillz-Claude keeps the useful reasoning protocol (anti-complaisance, steelman, claim classification, angles morts, tests de realite) and adapts it into a read-only agent workflow for challenging plans, PRDs, architecture decisions, strategies, and agent reasoning.
 
+## Lyse Labs (lyse-labs/lyse)
+
+The `design-audit/` skill and `/design-audit` command are Skillz-Claude originals inspired by Lyse Labs' approach to static design-system and AI-surface auditing.
+
+| Asset | Source |
+|-------|--------|
+| `skills/design-audit/SKILL.md` | Original Skillz-Claude workflow inspired by Lyse concepts |
+| `skills/design-audit/references/lyse/` | Skillz-Claude integration notes based on upstream docs/rule inventory |
+| `skills/design-audit/references/lyse-squad/` | Skillz-Claude original 12-agent workflow based on Lyse audit axes |
+| `skills/design-audit/scripts/run-lyse-audit.sh` | Skillz-Claude wrapper around the external npm CLI |
+| `commands/design-audit.md` | Skillz-Claude command wrapper |
+| `commands/design-audit-squad.md` | Full 12-agent squad command wrapper |
+
+**Upstream** : https://github.com/lyse-labs/lyse
+**Package** : `@lyse-labs/lyse`
+**License note** : Lyse source code is not vendored here. The skill may call the upstream CLI as an optional external audit signal when the user's environment supports it. Skillz-Claude includes original integration notes and does not copy Lyse implementation files.
+
+### Adaptation notes
+
+Lyse's useful concepts are adapted into the Skillz-Claude loop as rewritten audit axes: tokens, components, stories/docs, accessibility, design taste, Figma/code drift, AI surface and AI governance. The upstream CLI remains optional evidence; the Skillz-Claude verdict comes from the combined workflow and existing skills.
+
+## Roso SEO Squad (local Aymeric workflow)
+
+The `seo-geo-audit/` skill packages the local SEO/GEO audit workflow from `/Users/aymeric/Documents/PROJETS/DEV/SEO_Squad` into the Skillz-Claude provider structure.
+
+| Asset | Source |
+|-------|--------|
+| `skills/seo-geo-audit/SKILL.md` | Skillz-Claude portable entrypoint |
+| `skills/seo-geo-audit/references/seo-squad-framework.md` | Skillz-Claude compact reference |
+| `skills/seo-geo-audit/references/seo-squad/` | Full local SEO_Squad pack: rules, master orchestrator, 11 agent prompts, templates |
+| `commands/seo-geo-audit.md` | Compact or targeted audit command |
+| `commands/seo-geo-squad.md` | Full 11-agent squad orchestration command |
+
+### Adaptation notes
+
+The full SEO_Squad files are vendored as authoritative references so Codex, Claude Code, Gemini, OpenCode and generic agents can run the same workflow without relying on the external local folder. Claude-specific instructions such as Claude in Chrome are adapted at runtime to the available provider tools: browser, WebFetch, WebSearch, Playwright, MCP connectors, screenshots or user-provided exports.
+
 ## QMD (tobi/qmd)
 
 The `qmd/` skill is vendored to give the agent a CLI for searching markdown vaults. The CLI itself (`qmd`) is **not** vendored — it must be installed separately by the user (`brew install tobi/tap/qmd` on macOS, or see upstream for other platforms). The skill teaches the agent how to call the binary, build collections, and index vaults.

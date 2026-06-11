@@ -239,6 +239,16 @@ claude
 │   └─ Pass 3: Performance (optimisation)                             │
 │       └─ Optimisations → Validation                                 │
 │                                                                      │
+│   🎨 DESIGN AUDIT (si UI/frontend)                                   │
+│   ├─ Tokens + composants + a11y + taste                             │
+│   ├─ Drift Figma/code + surface IA                                  │
+│   └─ /design-audit-squad pour l'audit complet 12 agents             │
+│                                                                      │
+│   📈 SEO/GEO AUDIT (si site public / contenu indexable)              │
+│   ├─ Technique + contenu + SERP + autorité                           │
+│   ├─ llms.txt + visibilité IA + preuves                              │
+│   └─ /seo-geo-squad pour l'audit complet 11 agents                   │
+│                                                                      │
 │   ✅ TERMINÉ                                                         │
 │                                                                      │
 └──────────────────────────────────────────────────────────────────────┘
@@ -312,6 +322,57 @@ claude
 | **#1 Correctness** | Le code fait ce qu'il doit ? | Bugs ? Cas limites ? Sécurité ? |
 | **#2 Readability** | Le code est maintenable ? | Nommage ? Structure ? DRY ? |
 | **#3 Performance** | Le code est optimal ? | Complexité ? Memory ? Scale ? |
+
+#### 🎨 DESIGN AUDIT (si UI/frontend)
+
+**Objectif** : fermer la boucle design avant livraison.
+
+Quand une feature touche `.tsx`, `.jsx`, `.vue`, `.css`, des composants, tokens, Figma ou une UI IA, l'orchestrateur ajoute `design-audit`:
+
+Utilise `/design-audit-squad` quand il faut un audit complet façon Lyse Design Squad: règles communes, orchestrateur, 12 agents, livrables intermédiaires, score statique Lyse optionnel, taste runtime, drift Figma/code et ship-gate final.
+
+1. **Apres Explore** : audit rapide pour transformer les P0/P1 en contraintes de plan.
+2. **Apres Review ×3** : `design-audit --ship-gate` sur la preview ou les chemins UI modifies.
+3. **Dans `/qa`** : le health score inclut une categorie `Design system`.
+4. **Dans `/ship`** : P0 bloque; P1 bloque sauf risque explicitement accepte.
+
+| Axe | Controle |
+|-----|----------|
+| Tokens | Couleurs, spacing, radius, motion via variables/tokens |
+| Components | Reutilisation DS, variants stricts, imports canoniques |
+| A11y | Labels, alt, roles, keyboard, focus, contrastes |
+| Taste | Hierarchie, densite, typo, motion, copy, responsive |
+| Figma/code | Props, variants, tokens et etats synchronises |
+| AI surface | Marker IA, disclaimer, explainability, feedback, human control |
+
+En mode squad complet, le skill lit les prompts stockés dans `.claude/skills/design-audit/references/lyse-squad/` et conserve les règles dédiées de chaque agent.
+
+#### 📈 SEO/GEO AUDIT (si site public / contenu indexable)
+
+**Objectif** : auditer la capacité d'un site à être trouvé dans Google et cité par les moteurs IA.
+
+Utilise `/seo-geo-audit` quand la feature touche une page publique, une landing, un site vitrine, une page service, du contenu éditorial, `robots.txt`, `sitemap.xml`, `schema`, `llms.txt`, les meta tags ou la stratégie de visibilité.
+
+Utilise `/seo-geo-squad` quand il faut reprendre le workflow complet Roso SEO Squad: règles communes, master orchestrator, 11 agents, livrables intermédiaires, rapport fusionné et double livrable final client-facing.
+
+Le workflow produit:
+
+1. Un diagnostic SEO/GEO avec preuves `Confirmé / Déduit / Non vérifié`.
+2. Des scores par axe: technique, on-page, contenu, keywords, autorité, local, visibilité IA.
+3. Une grille GEO de prompts conversationnels si le sujet s'y prête.
+4. Une roadmap 7j / 30j / 90j.
+5. Des tâches transformables en `/dev`.
+
+En mode squad complet, le skill lit les prompts originaux stockés dans `.claude/skills/seo-geo-audit/references/seo-squad/` et conserve les règles dédiées de chaque agent.
+
+| Axe | Controle |
+|-----|----------|
+| Technique | HTTP, indexabilité, robots, sitemap, canonical, schema, Core Web Vitals |
+| On-page | title, meta, H1, structure Hn, CTA, preuves, FAQ |
+| Keywords | intentions, SERP dominante, cannibalisation, pages cibles |
+| Content GEO | réponse directe, sources, stats, FAQ, contenus citables IA |
+| Autorité/local | avis, GBP, NAP, mentions, backlinks connus, réseaux sociaux |
+| Visibilité IA | llms.txt, prompts Claude/Google AIO/ChatGPT/Perplexity/Gemini, sources citées |
 
 ---
 

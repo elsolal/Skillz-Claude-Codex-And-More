@@ -232,6 +232,17 @@ Types d'erreurs et recovery attendu :
 - ✅ Préserver le contexte (pas reset la conversation après erreur)
 - ✅ Logs/diagnostics accessible pour debug
 
+## 9. AI Governance Surface
+
+À vérifier dans `design-audit` pour toute UI IA:
+
+- AI marker visible quand une action ou réponse est générée par IA.
+- Disclaimer bref quand la sortie peut être incertaine, sensible ou non déterministe.
+- Explainability accessible: sources, citations, tool calls, ou résumé d'action selon le contexte.
+- Feedback loop: thumbs, report, edit, regenerate, dismiss ou équivalent.
+- Human control: stop, undo, permission gate, retry ciblé, fallback déterministe.
+- Product value gate: l'IA résout un besoin réel; sinon proposer une interaction déterministe plus simple.
+
 ## Anti-patterns à éviter
 
 - ❌ Chat infini sans persistance / sans branching
@@ -263,6 +274,7 @@ Types d'erreurs et recovery attendu :
 | Permission gates with memory | [Y/N] | ... |
 | Streaming with interrupt | [Y/N] | ... |
 | Typed error recovery | [Y/N] | ... |
+| AI governance surface | [Y/N] | ... |
 ```
 
 ### 2. Spec write (si projet nouveau)
@@ -286,6 +298,7 @@ Pour chaque pattern, fournir :
 | `figma-generate-design` | Loader ce skill pour mocker chat / composer |
 | `figma-implement-design` | Reference pour les states |
 | `taste-critic` | Compléter avec audit visual |
+| `design-audit` | Gate UI IA: AI marker, disclaimer, explainability, feedback, human control |
 
 ## Output Validation
 
@@ -302,4 +315,5 @@ Pour chaque pattern, fournir :
 | Permission gates avec memory | ✅/❌ | ✅/❌ |
 | Streaming avec interrupt | ✅/❌ | ✅/❌ |
 | Error recovery typé | ✅/❌ | ✅/❌ |
+| AI governance surface | ✅/❌ | ✅/❌ |
 ```

@@ -16,6 +16,8 @@ An orchestrator-based workflow that guides you through the full development life
 - **Three-command workflow** — `/discovery` for planning, `/dev` for implementation, `/ship` for delivery.
 - **Autonomous mode (RALPH)** — `/auto-discovery`, `/auto-dev`, `/auto-loop` run the same workflows without validation stops, with safety gates to prevent runaway execution.
 - **Multi-provider** — one source of truth in `.claude/`, mirrored into Codex, Gemini, OpenCode, and generic agent folders.
+- **Design audit loop** — `/design-audit` gates UI/design-system work with tokens, components, stories/docs, a11y, taste, Figma/code drift, AI governance, and optional Lyse evidence; `/design-audit-squad` runs the full 12-agent Lyse Design Squad.
+- **SEO/GEO audit workflow** — `/seo-geo-audit` audits technical SEO, content, SERP intent, authority, local SEO, llms.txt and AI visibility; `/seo-geo-squad` runs the full 11-agent Roso SEO Squad.
 - **50+ skills** — planning (PRD, architecture, stories), critical thinking (Rodin), design (UX, UI, Figma integration), development (code, tests, review, security, performance), audio/video (ElevenLabs, Remotion).
 - **48 knowledge files** — testing frameworks, workflow templates, brainstorming techniques, Supabase security.
 - **Multi-Mind debate** — 6 AI agents (Claude, GPT, Gemini, DeepSeek, GLM, Kimi) validate PRDs and code through 5 iterative rounds.
@@ -275,11 +277,15 @@ Merges main, runs tests, pre-landing review, generates changelog, creates PR.
 | | `/refactor <file>` | Targeted refactor with 3-pass review |
 | **Ship & QA** | `/ship [branch]` | Merge → tests → review → changelog → PR |
 | | `/qa [url]` | Systematic QA + health score |
+| | `/design-audit <target>` | UI/DS audit + ship-gate design evidence |
+| | `/design-audit-squad <target>` | Full 12-agent Lyse Design Squad audit |
+| | `/seo-geo-audit <target>` | SEO/GEO audit + AI visibility roadmap |
+| | `/seo-geo-squad <target>` | Full 11-agent Roso SEO Squad audit |
 | | `/plan-review <doc>` | CEO/Founder review (Expansion/Hold/Reduction) |
 | | `/rodin <text|path|url>` | Socratic anti-echo challenge |
 | | `/retro [--since 7d]` | Engineering retrospective |
 | **Utilities** | `/status` | Project state (docs, issues, RALPH) |
-| | `/pr-review #123` | Review a PR (3 parallel agents) |
+| | `/pr-review #123` | Review a PR (3 core passes + UI/SEO gates when relevant) |
 | | `/docs [type]` | Generate docs (readme\|api\|guide\|all) |
 | | `/changelog [version]` | Generate CHANGELOG.md |
 | | `/metrics` | Metrics dashboard |
@@ -316,6 +322,10 @@ Claude Code receives the full command set. Codex, Gemini, and OpenCode receive t
 | `/quick-fix "<problem>"` | Yes | Yes | Yes | Yes |
 | `/status` | Yes | Yes | Yes | Yes |
 | `/rodin <text|path|url>` | Yes | Yes | Yes | Yes |
+| `/design-audit <target>` | Yes | Yes | Yes | Yes |
+| `/design-audit-squad <target>` | Yes | Yes | Yes | Yes |
+| `/seo-geo-audit <target>` | Yes | Yes | Yes | Yes |
+| `/seo-geo-squad <target>` | Yes | Yes | Yes | Yes |
 | `/refactor`, `/pr-review`, `/retro`, RALPH commands, etc. | Yes | No | No | No |
 
 Model choice does not change command discovery — each CLI discovers commands from its own folder.
@@ -419,10 +429,11 @@ The orchestrator (main thread) keeps ALL context. It never forks to isolated ski
 
 ## Skills
 
-Six groups, all auto-triggered from skill descriptions.
+Capability groups, all auto-triggered from skill descriptions.
 
 - **Planning** — `idea-brainstorm`, `pm-prd`, `architect`, `pm-stories`, `api-designer`, `database-designer`
-- **Design** — `ux-designer`, `ui-designer`, `ds-doc`
+- **Design** — `ux-designer`, `ui-designer`, `ds-doc`, `design-audit`
+- **SEO/GEO** — `seo-geo-audit`
 - **Figma integration (8)** — `figma-use`, `figma-implement-design`, `figma-generate-design`, `figma-generate-library`, `figma-code-connect`, `figma-create-design-system-rules`, `figma-create-new-file`, `figma-design-code-sync`
 - **Audio & Video** — `elevenlabs`, `remotion`
 - **Critical thinking** — `rodin`, `multi-mind`
@@ -448,6 +459,13 @@ Six groups, all auto-triggered from skill descriptions.
 |---|---|---|
 | `ux-designer` | User experience | Personas, user journeys, wireframes |
 | `ui-designer` | Design system | Tokens, components, Figma import |
+| `design-audit` | UI/DS audit | Tokens, components, stories/docs, a11y, taste, Figma/code drift, AI governance, Lyse references and 12-agent squad |
+
+**SEO/GEO**
+
+| Skill | Role | Key Features |
+|---|---|---|
+| `seo-geo-audit` | SEO/GEO audit | Technical SEO, content, SERP intent, authority, local SEO, llms.txt, AI visibility, full Roso SEO Squad references |
 | `ds-doc` | DS documenter | Scan project → CLAUDE.md + components/CLAUDE.md with Figma links |
 
 **Figma (from figma/mcp-server-guide)**
@@ -545,6 +563,8 @@ Works with Claude Code, OpenAI Codex CLI, Google Gemini CLI, OpenCode, and gener
 │   ├── elevenlabs/                  # TTS, music, SFX
 │   ├── remotion/                    # React video
 │   ├── ds-doc/                      # Design system documenter
+│   ├── design-audit/                # UI/DS ship-gate audit + Lyse references
+│   ├── seo-geo-audit/               # SEO/GEO + AI visibility audit + Roso SEO Squad references
 │   └── ...
 ├── knowledge/                       # 48 files
 │   ├── testing/                     # 32 files (levels, priorities, fixtures...)

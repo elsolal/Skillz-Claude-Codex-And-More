@@ -2,6 +2,126 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## v5.14.0 (2026-06-09)
+
+**SEO/GEO Audit Workflow — Roso SEO Squad packaged for Skillz-Claude**
+
+### Why
+Skillz-Claude couvrait le planning, le design, la QA, le code, la sécurité et la performance, mais il n'avait pas de workflow dédié pour auditer la visibilité organique d'un site: SEO technique, contenu, SERP, autorité, local SEO, `llms.txt` et visibilité IA.
+
+Le dossier local `/Users/aymeric/Documents/PROJETS/DEV/SEO_Squad` contient un framework Roso SEO Squad beaucoup plus complet: 11 agents, règles anti-hallucination, triple statut `Confirmé / Déduit / Non vérifié`, double-vérification des affirmations négatives, grille GEO et roadmap client-facing.
+
+Cette release package le workflow dans Skillz-Claude: une entrée compacte pour les audits rapides, une commande squad complète pour les 11 agents, et le pack SEO_Squad complet stocké dans les références du skill.
+
+### Added
+- **`seo-geo-audit` skill** — audit ponctuel SEO/GEO avec 9 axes: stratégie, homepage/on-page, technique, keywords/intent, concurrents, content SEO/GEO, autorité/local, visibilité IA, cohérence finale.
+- **Référence progressive** — `seo-geo-audit/references/seo-squad-framework.md` résume la séquence Roso, les checks déterministes, la grille GEO et les critères ship-gate.
+- **Pack complet Roso SEO Squad** — `seo-geo-audit/references/seo-squad/` contient règles communes, master orchestrator, 11 prompts agents et templates.
+- **`/seo-geo-audit` Claude command** — audit read-only sur URL, domaine, marque, concurrents ou page publique, avec modes `--quick`, `--full`, `--geo-only`, `--technical`, `--content`, `--ship-gate`.
+- **`/seo-geo-squad` Claude command** — orchestration complète 11 agents avec livrables intermédiaires, rapport fusionné et double livrable final.
+- **Portable provider triggers**:
+  - `.codex/prompts/seo-geo-audit.md`
+  - `.codex/prompts/seo-geo-squad.md`
+  - `.gemini/commands/seo-geo-audit.toml`
+  - `.gemini/commands/seo-geo-squad.toml`
+  - `.opencode/commands/seo-geo-audit.md`
+  - `.opencode/commands/seo-geo-squad.md`
+- `agents/openai.yaml` metadata pour le skill.
+- Spec durable: `docs/planning/specs/2026-06-09-seo-geo-audit-workflow-design.md`.
+
+### Changed
+- `.claude/CLAUDE.md` route les demandes "audit SEO/GEO", "visibilité IA", `llms.txt`, SERP, GSC, schema et contenu vers `/seo-geo-audit`; les audits complets vont vers `/seo-geo-squad`.
+- README, provider docs, plugin manifest et `install.sh` listent `/seo-geo-audit` et `/seo-geo-squad`.
+- `docs/WORKFLOW.md` documente la nouvelle phase SEO/GEO pour les sites publics et contenus indexables.
+
+### Workflow
+```
+Input URL / domaine / marque
+  -> configuration + sources disponibles
+  -> brief site avec preuves
+  -> audit 9 axes SEO/GEO ou orchestration complète 11 agents
+  -> triple statut Confirmé / Déduit / Non vérifié
+  -> double-check des affirmations négatives
+  -> grille visibilité IA si applicable
+  -> roadmap 7j / 30j / 90j
+  -> tickets /dev ou vérifications manuelles
+```
+
+### Validation
+- `git diff --check`
+- `bash -n install.sh`
+- YAML frontmatter parse pour `seo-geo-audit/SKILL.md` et `agents/openai.yaml`
+- Gemini command sanity check
+- trailing whitespace scan sur les nouveaux fichiers `seo-geo-audit`
+
+---
+
+## v5.13.0 (2026-06-09)
+
+**Design Audit Loop — Lyse-inspired UI/DS ship gate**
+
+### Why
+Skillz-Claude avait déjà les briques de design quality : `taste-critic` pour le jugement visuel, `a11y-enforcer` pour WCAG, `figma-design-code-sync` pour le drift, `ds-doc` pour la documentation, et `ai-native-ui` pour les interfaces IA.
+
+Le manque était une **boucle transversale** capable de collecter les preuves design-system avant le plan, de transformer les findings P0/P1 en contraintes de livraison, puis de bloquer `/ship` quand une surface frontend reste incohérente.
+
+L'analyse de `lyse-labs/lyse` a servi d'inspiration pour les audits statiques orientés tokens, composants, accessibilite, stories, agent-surface et AI governance. Lyse reste un outil externe optionnel: aucun code Lyse n'est vendore dans Skillz-Claude, mais des références d'intégration et un helper CLI read-only sont maintenant inclus.
+
+### Added
+- **`design-audit` skill** — audit transversal UI/DS/agent-surface en 6 axes: tokens, components, a11y, taste, Figma/code drift, AI surface & governance.
+- **Références Lyse** — `design-audit/references/lyse/` documente l'usage CLI/MCP, le catalogue des 28 règles inspectées et le mapping Health Score → P0/P1/P2/P3.
+- **Lyse Design Squad** — `design-audit/references/lyse-squad/` ajoute règles communes, master orchestrator et 12 prompts agents dédiés.
+- **Helper Lyse read-only** — `design-audit/scripts/run-lyse-audit.sh` lance `@lyse-labs/lyse@0.2.0-alpha.1` en JSON statique, sans prompt ni télémétrie.
+- **`/design-audit` Claude command** — audit read-only sur URL, path local, Figma URL ou screenshot, avec modes `--quick`, `--full`, `--ship-gate`.
+- **`/design-audit-squad` Claude command** — orchestration complète 12 agents avec livrables intermédiaires, verdict ship-gate et roadmap.
+- **Portable provider triggers**:
+  - `.codex/prompts/design-audit.md`
+  - `.codex/prompts/design-audit-squad.md`
+  - `.gemini/commands/design-audit.toml`
+  - `.gemini/commands/design-audit-squad.toml`
+  - `.opencode/commands/design-audit.md`
+  - `.opencode/commands/design-audit-squad.md`
+- `agents/openai.yaml` metadata pour le skill.
+- Spec durable: `docs/planning/specs/2026-06-09-design-audit-loop-design.md`.
+
+### Changed
+- **`/dev`** — detecte le frontend, prepare un audit rapide apres Explore, injecte les P0/P1 dans le plan, puis relance `design-audit --ship-gate` apres review.
+- **`/qa`** — ajoute une phase Design Audit et une categorie `Design system` dans le health score.
+- **`/ship` + `ship-workflow`** — bloquent les surfaces frontend avec P0/P1 en mode ship-gate.
+- **`/pr-review`** — passe de 3 core passes a 6 passes quand l'UI est touchee: Design Audit, Taste, A11y.
+- **`/discovery` + `discovery-workflow`** — la phase UI Design definit maintenant les gates `design-audit` attendus avant livraison.
+- **`ds-doc`** — documente aussi la surface agent-readable (`AGENTS.md`, `components/CLAUDE.md`, manifests, MCP).
+- **`taste-critic`**, **`a11y-enforcer`**, **`figma-design-code-sync`**, **`ai-native-ui`** — savent consommer ou completer un rapport `design-audit`.
+- **`skillz-writing-skills`** — rappelle la progressive disclosure et la lisibilite agent-readable des skills.
+- Provider docs, README, plugin manifest et `install.sh` listent `/design-audit`.
+- Provider docs, README, plugin manifest et `install.sh` listent aussi `/design-audit-squad`.
+- Les commandes portables chargent maintenant les références Lyse en `--full`, `--ship-gate`, sur `.lyse.yaml`, ou quand Lyse est mentionné.
+
+### Workflow
+```
+Discovery UI
+  -> gates design-audit definis dans UI spec
+  -> /dev Explore detecte frontend
+  -> design-audit --quick
+  -> Plan integre P0/P1
+  -> Implement + tests
+  -> Review core x3
+  -> design-audit --ship-gate
+  -> design-audit-squad si audit complet 12 agents
+  -> /qa ajoute Design system au score
+  -> /ship bloque P0/P1 frontend
+```
+
+### Validation
+- `git diff --check`
+- `bash -n install.sh`
+- YAML frontmatter parse pour `design-audit/SKILL.md` et `agents/openai.yaml`
+- Gemini command sanity check
+- shell syntax check pour `run-lyse-audit.sh`
+- trailing whitespace scan sur les nouveaux fichiers `design-audit`
+
+---
+
 ## v5.12.0 (2026-05-22)
 
 **Rodin — Socratic anti-echo challenge layer**

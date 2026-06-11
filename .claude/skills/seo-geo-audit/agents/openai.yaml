@@ -1,0 +1,4 @@
+interface:
+  display_name: "SEO/GEO Audit"
+  short_description: "Audit SEO, GEO, visibilité IA et squad 11 agents"
+  default_prompt: "Utilise seo-geo-audit pour auditer ce site avec preuves Confirmé/Déduit/Non vérifié, scores SEO/GEO, visibilité IA et roadmap 7/30/90. Si je demande le mode squad ou complet, charge references/seo-squad/ et exécute les 11 agents dans l'ordre du master orchestrator."

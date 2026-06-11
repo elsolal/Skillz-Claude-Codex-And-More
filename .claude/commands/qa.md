@@ -56,6 +56,14 @@ At each page:
 6. **Console** — JS errors after interactions
 7. **Responsive** — check mobile viewport if relevant
 
+### Phase 4.5: Design Audit
+
+If the app has a frontend/design-system surface, load `design-audit` and run a quick read-only audit against the URL or relevant repo path. Fold P0/P1 findings into the QA report with evidence; use `taste-critic` and `a11y-enforcer` for deeper follow-up when needed.
+
+### Phase 4.6: SEO/GEO Audit
+
+If the target is a public/indexable site, landing, homepage, blog, docs, content page, or marketing route, load `seo-geo-audit` and run `--quick` against the URL. Report SEO/GEO findings separately from the QA health score unless the user explicitly asks to include them in the score.
+
 ### Phase 5: Document Issues
 For each issue:
 - Screenshot before/after
@@ -67,11 +75,12 @@ For each issue:
 
 | Category | Weight |
 |----------|--------|
-| Console errors | 15% |
+| Console errors | 10% |
 | Broken links | 10% |
 | Visual | 10% |
+| Design system | 10% |
 | Functional | 20% |
-| UX | 15% |
+| UX | 10% |
 | Performance | 10% |
 | Content | 5% |
 | Accessibility | 15% |
