@@ -1,6 +1,6 @@
 {
   "name": "skillz-claude",
-  "description": "D-EPCT+R workflow for Claude Code: Explore → Plan → Implement → Review → Ship. 50+ skills (planning, dev, Figma, audio/video, security, Rodin critical thinking), 30+ slash commands (/dev, /rodin, /ship, /qa, /auto-dev RALPH mode), multi-agent parallel review, spec-driven workflow gates. FR-first.",
+  "description": "D-EPCT+R workflow for Claude Code: Explore → Plan → Implement → Review → Ship. 50+ skills (planning, dev, Figma, design-audit, seo-geo-audit, audio/video, security, Rodin critical thinking), 30+ slash commands (/dev, /design-audit, /design-audit-squad, /seo-geo-audit, /seo-geo-squad, /rodin, /ship, /qa, /auto-dev RALPH mode), multi-agent parallel review, spec-driven workflow gates. FR-first.",
   "version": "5.7.0",
   "author": {
     "name": "elsolal",

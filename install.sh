@@ -400,7 +400,7 @@ uninstall_codex_global() {
 
     # 2. Remove Codex-native prompts managed by Skillz.
     local removed_prompts=0
-    for prompt in dev discovery ship quick-fix status rodin; do
+    for prompt in dev discovery ship quick-fix status rodin design-audit design-audit-squad seo-geo-audit seo-geo-squad; do
         local f="$HOME/.codex/prompts/$prompt.md"
         if [ -f "$f" ] && [ ! -L "$f" ]; then
             rm -f "$f"
@@ -474,7 +474,7 @@ uninstall_gemini_global() {
     local removed_links="$UNINSTALL_PROVIDER_LINKS_REMOVED"
 
     local removed_commands=0
-    for command in dev discovery ship quick-fix status rodin; do
+    for command in dev discovery ship quick-fix status rodin design-audit design-audit-squad seo-geo-audit seo-geo-squad; do
         local f="$HOME/.gemini/commands/$command.toml"
         if [ -f "$f" ] && [ ! -L "$f" ]; then
             rm -f "$f"
@@ -508,7 +508,7 @@ uninstall_opencode_global() {
     local removed_links="$UNINSTALL_PROVIDER_LINKS_REMOVED"
 
     local removed_commands=0
-    for command in dev discovery ship quick-fix status rodin; do
+    for command in dev discovery ship quick-fix status rodin design-audit design-audit-squad seo-geo-audit seo-geo-squad; do
         local f="$base/commands/$command.md"
         if [ -f "$f" ] && [ ! -L "$f" ]; then
             rm -f "$f"
@@ -1135,7 +1135,7 @@ if [ "$GLOBAL_MODE" = true ]; then
     echo -e "${YELLOW}    To mirror Claude MCPs, edit config.toml manually under [mcp_servers.X].${NC}"
     echo ""
     echo -e "${CYAN}Codex will now see mirrored skills, wiki source-command skills, and the portable Codex-native prompts.${NC}"
-    echo -e "${CYAN}Portable prompts: /dev, /discovery, /ship, /quick-fix, /status, /rodin.${NC}"
+    echo -e "${CYAN}Portable prompts: /dev, /discovery, /ship, /quick-fix, /status, /rodin, /design-audit, /design-audit-squad, /seo-geo-audit, /seo-geo-squad.${NC}"
     echo -e "${CYAN}Wiki source commands: /wiki-bootstrap, /wiki-init, /wiki-ingest, /wiki-query, /wiki-lint, /wiki-log, /wiki-capture-session.${NC}"
     echo ""
         fi
@@ -2049,7 +2049,8 @@ echo -e "${BLUE}  Skills ($skills_total):${NC}"
 echo "    Planning:  idea-brainstorm, pm-prd, architect, pm-stories,"
 echo "               api-designer, database-designer"
 echo "    Reasoning: rodin (challenge socratique anti-complaisance)"
-echo "    Design:    ux-designer, ui-designer (auto-triggered)"
+echo "    Design:    ux-designer, ui-designer, design-audit (+ /design-audit-squad)"
+echo "    SEO/GEO:   seo-geo-audit (+ /seo-geo-squad command)"
 echo "    Figma:     figma-use, figma-code-connect, figma-generate-design,"
 echo "               figma-generate-library, figma-implement-design,"
 echo "               figma-create-design-system-rules, figma-create-new-file,"
@@ -2075,13 +2076,17 @@ echo ""
 echo -e "${BLUE}  Commands - Ship & QA:${NC}"
 echo "    /ship                Ship workflow automatisé"
 echo "    /qa                  QA testing + health score"
+echo "    /design-audit        Audit UI/DS + ship-gate design"
+echo "    /design-audit-squad  Audit complet UI/DS 12 agents"
+echo "    /seo-geo-audit       Audit SEO/GEO + visibilité IA"
+echo "    /seo-geo-squad       Audit complet SEO/GEO 11 agents"
 echo "    /plan-review         Review CEO/Founder"
 echo "    /rodin               Challenge socratique anti-complaisance"
 echo "    /retro               Rétrospective engineering"
 echo ""
 echo -e "${BLUE}  Commands - Utilitaires:${NC}"
 echo "    /status              État du projet"
-echo "    /pr-review #123      Review PR (3 passes)"
+echo "    /pr-review #123      Review PR (3 core passes + UI/SEO gates)"
 echo "    /quick-fix           Fix rapide"
 echo "    /refactor            Refactoring ciblé"
 echo "    /docs                Génère documentation"

@@ -1,0 +1,10 @@
+---
+description: 'Orchestration complète Lyse Design Squad: 12 agents UI/DS/agent-surface, Lyse, taste, a11y, Figma/code et ship-gate'
+disable-model-invocation: true
+---
+
+IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL `~/.codex/skills/design-audit/SKILL.md` if it exists, otherwise `.claude/skills/design-audit/SKILL.md`, READ its entire contents, then run the Design Audit workflow in `--squad` mode for the provided URL, local path, Figma link, screenshot, repo, or latest visible UI/design context.
+
+You MUST load the Lyse integration references when available: `references/lyse/README.md`, `cli-runtime.md`, `rule-catalog.md`, and `result-mapping.md`. You MUST also load the complete Lyse Design Squad pack: `references/lyse-squad/00_REGLES_COMMUNES.md`, `01_MASTER_ORCHESTRATOR.md`, and all `references/lyse-squad/agents/*.md`.
+
+Preserve each agent prompt as authoritative. Execute the 12-agent order from the master orchestrator. This is a READ-ONLY audit pass: do not modify files, commit, push, run destructive commands, or run `lyse fix`. If Lyse can run safely, use the skill helper script as optional static evidence; otherwise report `Lyse: skipped`. Output the full squad report with agent findings, consolidated verdict, ship gate, roadmap, and Non vérifié.

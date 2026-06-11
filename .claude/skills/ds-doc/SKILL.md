@@ -70,6 +70,8 @@ Scanner dans cet ordre, **en parallèle** quand possible :
 | `src/styles/globals.css` ou `app/globals.css` | `Glob` + `Read` — CSS variables (--primary, --radius, etc.) |
 | `components.json` | `Read` — config shadcn (style, rsc, aliases) |
 | `figma.config.json` | `Read` — Code Connect existant (optionnel) |
+| `AGENTS.md` / `CLAUDE.md` | `Read` — surface agent-readable et règles DS exposées aux agents |
+| `.mcp.json` / `.lyse.yaml` | `Read` — signaux optionnels d'audit statique et MCP |
 
 ### 1.2 Composants UI (base)
 
@@ -172,6 +174,17 @@ TOUJOURS réutiliser avant d'en créer un nouveau.
 - TOUJOURS vérifier la responsive de chaque nouveau composant
 - Typo : font-sans pour l'UI, font-mono pour code/IDs/timestamps
 - Dark mode : supporté via `className="dark"` sur `<html>`
+
+### Agent-readable surface
+
+| Fichier | Usage |
+|---------|-------|
+| `AGENTS.md` / `CLAUDE.md` | Règles rapides de réutilisation composants/tokens |
+| `components/CLAUDE.md` | Référence détaillée chargée uniquement dans le scope UI |
+| `components.json` | Convention composants si shadcn/Radix |
+| `.mcp.json` | Outils design/runtime utiles aux agents |
+
+Règle: si un agent doit réutiliser un composant ou token, l'information doit être trouvable en moins de 2 lectures de fichier.
 ```
 
 ---
@@ -370,6 +383,7 @@ Créer (ou mettre à jour) le fichier `src/components/CLAUDE.md` (ou `components
 - **Composants UI** : [X] composants (shadcn)
 - **Composants métier** : [X] composants
 - **Figma** : [X] composants liés / [X] sans lien
+- **Agent-readable** : [OK / gaps] (`AGENTS.md`, `components/CLAUDE.md`, MCP, manifests)
 - **Patterns** : [X] patterns documentés
 - **Manquants** : [X] composants dans Figma mais pas dans le code
 
@@ -405,4 +419,5 @@ Quand lancé avec `--update` :
 - ✅ Toujours demander l'URL Figma AVANT de scanner
 - ✅ Toujours afficher un résumé des changements avant d'écrire
 - ✅ Toujours proposer `/figma-setup` si des composants n'ont pas de lien Figma
+- ✅ Si des gaps agent-readable sont détectés, proposer `/design-audit --full` pour prioriser les corrections UI/DS/agent-surface
 - ✅ Rester concis — tables > prose. Claude doit scanner vite

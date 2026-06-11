@@ -1,5 +1,5 @@
 ---
-description: Review une Pull Request GitHub avec 3 subagents parallèles (Correctness, Readability, Performance). Usage: /pr-review #123 ou URL.
+description: Review une Pull Request GitHub avec 3 passes core, plus gates design/a11y si UI et SEO/GEO si surface publique. Usage: /pr-review #123 ou URL.
 ---
 
 # PR Review (Multi-Agent)
@@ -14,18 +14,25 @@ description: Review une Pull Request GitHub avec 3 subagents parallèles (Correc
 
 ---
 
-## Détection scope UI (pour passes 4 & 5)
+## Détection scope UI (pour passes 4-6)
 
 Avant de dispatcher : grep le diff pour détecter du UI/frontend changé :
 - Patterns : `*.tsx`, `*.jsx`, `*.vue`, `*.svelte`, `*.html`, `*.css`, `*.scss`, `*styled*`, `tailwind`, `figma`
-- Si UI détecté → activer passes 4 (Design / taste-critic) et 5 (A11y / a11y-enforcer)
-- Sinon → skip ces 2 passes (3 passes classiques uniquement)
+- Si UI détecté → activer passes 4 (Design Audit), 5 (Design / taste-critic) et 6 (A11y / a11y-enforcer)
+- Sinon → skip ces 3 passes (3 passes classiques uniquement)
+
+## Détection scope SEO/GEO (pour pass 7)
+
+Avant de dispatcher : grep le diff pour détecter une surface publique indexable :
+- Patterns : `robots.txt`, `sitemap.*`, `llms.txt`, `metadata`, `schema`, `json-ld`, `.mdx`, blog, docs, landing, homepage, pages service, title/meta/H1/canonical/FAQ
+- Si SEO/GEO détecté → activer pass 7 (`seo-geo-audit`)
+- Sinon → skip cette passe
 
 ---
 
-## Review parallèle (3 ou 5 subagents)
+## Review parallèle (3 core + passes optionnelles)
 
-Dispatcher **3 subagents (ou 5 si UI)** en parallèle via `SendMessage` dans un seul message :
+Dispatcher **3 subagents core**, puis ajouter les subagents UI et/ou SEO/GEO si les détections ci-dessus sont positives :
 
 ### Subagent 1 : Correctness
 ```
@@ -88,7 +95,30 @@ Output : table Type | Impact | Effort | Suggestion
 Knowledge: .claude/knowledge/testing/nfr-criteria.md"
 ```
 
-### Subagent 4 : Design Quality (uniquement si UI changé)
+### Subagent 4 : Design Audit (uniquement si UI changé)
+```
+SendMessage(run_in_background: true)
+Prompt: "Tu es design-audit. Audit transversal de cette PR.
+
+Diff frontend fourni : [diff filtré aux fichiers UI]
+Preview URL / Figma / paths : [si disponibles]
+
+**Invoquer le skill `design-audit`** et appliquer les axes :
+Tokens, Components, A11y, Taste, Figma/code drift, AI surface & governance.
+
+Pour chaque finding :
+- Localisation précise (file:line ou surface)
+- Axe
+- Sévérité P0-P3
+- Fix concret
+- Si Lyse est utile et disponible, l'utiliser comme preuve statique optionnelle
+
+Output : rapport Design Audit.
+
+P0 = blocking. P1 = blocking en ship-gate sauf justification explicite."
+```
+
+### Subagent 5 : Design Quality (uniquement si UI changé)
 ```
 SendMessage(run_in_background: true)
 Prompt: "Tu es taste-critic. Audit anti-slop de cette PR.
@@ -111,7 +141,7 @@ Si aucune violation P0+P1 → Approve côté goût.
 Si P0 détecté → Block + suggérer redesign-skill pour fix."
 ```
 
-### Subagent 5 : Accessibility (uniquement si UI changé)
+### Subagent 6 : Accessibility (uniquement si UI changé)
 ```
 SendMessage(run_in_background: true)
 Prompt: "Tu es a11y-enforcer. Audit WCAG 2.2 AA de cette PR.
@@ -130,6 +160,29 @@ Pour chaque violation :
 Output : rapport selon le format a11y-enforcer, séparant auto-fixables vs manual.
 
 P0 = blocking pour /ship (compliance EAA EU 2025 + ADA US)."
+```
+
+### Subagent 7 : SEO/GEO Audit (uniquement si surface publique indexable changée)
+```
+SendMessage(run_in_background: true)
+Prompt: "Tu es seo-geo-audit. Audit SEO/GEO de cette PR.
+
+Diff public/SEO fourni : [diff filtré aux fichiers publics/meta/schema/content]
+Preview URL / paths : [si disponibles]
+
+**Invoquer le skill `seo-geo-audit`** et appliquer les axes :
+Technique, On-page, Keywords/intent, Content SEO/GEO, Autorité/local, Visibilité IA, Cohérence.
+
+Pour chaque finding :
+- Localisation précise
+- Sévérité P0-P3
+- Statut de preuve : Confirmé / Déduit / Non vérifié
+- Fix concret
+- Double-check obligatoire avant toute affirmation négative
+
+Output : rapport SEO/GEO Audit.
+
+P0 = blocking. P1 = blocking en ship-gate sauf justification explicite."
 ```
 
 ---
@@ -158,19 +211,29 @@ Après les 3 subagents, produire le rapport consolidé :
 | Type | Impact | Effort | Suggestion |
 |------|--------|--------|------------|
 
-### Pass 4: Design Quality (si UI)
+### Pass 4: Design Audit (si UI)
+| Sévérité | Axe | Fichier | Issue | Fix |
+|----------|-----|---------|-------|-----|
+**Verdict** : [Ship-ready | Fix P0/P1 first | Needs design loop]
+
+### Pass 5: Design Quality (si UI)
 | Sévérité | Catégorie | Fichier | Violation | Fix | Règle |
 |----------|-----------|---------|-----------|-----|-------|
 **Grade global** : [A/B/C/D/F]
 
-### Pass 5: Accessibility (si UI)
+### Pass 6: Accessibility (si UI)
 | Sévérité | WCAG | Fichier | Qui impacté | Fix |
 |----------|------|---------|-------------|-----|
 **Compliance score** : [X]% — Grade [A/B/C/D/F]
 
+### Pass SEO/GEO: SEO/GEO Audit (si public/indexable)
+| Sévérité | Axe | Fichier | Statut preuve | Issue | Fix |
+|----------|-----|---------|---------------|-------|-----|
+**Verdict** : [Ship-ready | Fix P0/P1 first | Needs SEO/GEO loop]
+
 ### Verdict
 [Commentaire global et recommandation]
-[Si Pass 4 ou 5 = Grade D/F → bloquant pour /ship]
+[Si Pass 4 bloque, Pass 5/6 = Grade D/F, ou Pass SEO/GEO bloque → bloquant pour /ship]
 ```
 
 ---

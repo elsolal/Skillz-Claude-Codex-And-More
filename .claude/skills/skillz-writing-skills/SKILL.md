@@ -98,6 +98,7 @@ description: ...
 - **Phases** : Explore → Plan → Implement → Review → Ship (référencer les phases si applicable)
 - **Pas de jargon LLM** : éviter "I will analyze", "let me think", "as an AI". Écrire en mode procédural.
 - **Pas d'over-engineering** : KISS. Un skill = un objectif clair. Si tu décris 5 sous-skills, c'est 5 skills séparés.
+- **Agent-readable** : description concise, commandes claires, sections scannables. Si un skill devient long, déplacer les détails en `references/` plutôt que tout charger par défaut; ne pas appliquer de seuil mécanique sans juger le contexte.
 
 ### 6. Tester le skill
 
@@ -137,6 +138,7 @@ Un fichier `.claude/skills/<nom>/SKILL.md` :
 | Importer du texte d'un skill upstream sans réécrire | Risque licence + incohérence vocabulaire | Réécrire avec nos termes (D-EPCT+R, RALPH, etc.) |
 | Pas d'exemple concret | Skill abstrait, peu utilisable | Ajouter au moins 1 exemple end-to-end |
 | Pas de "Quand NE PAS utiliser" | Skill sur-déclenché | Lister explicitement les cas adjacents avec leur skill correct |
+| Skill massif sans progressive disclosure | Les agents chargent trop de contexte inutile | Garder le workflow coeur dans `SKILL.md`, mettre les matrices/exemples en `references/` |
 
 ## Référence
 

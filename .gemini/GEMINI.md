@@ -28,3 +28,7 @@ These Gemini commands load the shared workflow skills:
 | `/quick-fix` | `quick-fix-workflow` |
 | `/status` | `status-workflow` |
 | `/rodin` | `rodin` |
+| `/design-audit` | `design-audit` |
+| `/design-audit-squad` | `design-audit` |
+| `/seo-geo-audit` | `seo-geo-audit` |
+| `/seo-geo-squad` | `seo-geo-audit` |

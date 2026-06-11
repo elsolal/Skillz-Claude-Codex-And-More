@@ -39,6 +39,10 @@ Utilisateur dit...                    → Workflow
 "challenge ce raisonnement / plan"    → /rodin <texte|doc|url> (ou skill rodin)
 "ship cette branche"                  → /ship [branch]
 "teste cette app"                     → /qa [url]
+"audite ce design / cette UI / DS"    → /design-audit <url|path|figma> [--quick|--full|--ship-gate]
+"audit design complet squad Lyse"     → /design-audit-squad <url|path|figma> [--step-by-step|--all-at-once]
+"audite le SEO / GEO d'un site"       → /seo-geo-audit <url|domaine> [--quick|--full|--geo-only]
+"audit SEO/GEO complet squad"         → /seo-geo-squad <url|domaine> [--step-by-step|--all-at-once]
 "retro de la session"                 → /retro [--since 7d]
 "génère la doc"                       → /docs [type]
 "crée un nouveau projet"              → /init [template]
@@ -97,13 +101,17 @@ Logger chaque itération dans `docs/ralph-logs/`.
 # Ship & QA
 /ship [branch]              # Ship: merge → tests → review → changelog → PR
 /qa [url]                   # QA systématique: health score, screenshots, rapport
+/design-audit <target>      # Audit UI/DS: tokens, composants, a11y, taste, Figma/code, IA
+/design-audit-squad <target> # Orchestration complète UI/DS: 12 agents Lyse Design Squad
+/seo-geo-audit <target>     # Audit SEO/GEO: technique, contenu, SERP, autorité, visibilité IA
+/seo-geo-squad <target>     # Orchestration complète SEO/GEO: 11 agents Roso SEO Squad
 /plan-review <doc>          # Review CEO/Founder: challenge prémisses, 3 modes
 /rodin <texte|doc|url>      # Challenge socratique anti-complaisance
 /retro [--since 7d]         # Rétrospective: sessions, streaks, tendances
 
 # Utilitaires
 /status                     # État du projet
-/pr-review #123             # Review PR (3 agents parallèles)
+/pr-review #123             # Review PR (3 agents core + gates UI/SEO si besoin)
 /docs [type]                # Documentation (readme|api|guide|all)
 /changelog [version]        # CHANGELOG.md
 /metrics                    # Dashboard métriques
@@ -131,11 +139,15 @@ Logger chaque itération dans `docs/ralph-logs/`.
 # stitch-skill              # Workflow Google Stitch (DESIGN.md)
 
 # Design audit & enforcement (gates de qualité) :
-# taste-critic              # Miroir des taste-skills : détecte le slop (P0-P3) — branche /pr-review pass 4
-# a11y-enforcer             # WCAG 2.2 AA — branche /pr-review pass 5, gate /ship si Grade D/F
+# design-audit              # Gate transversal UI/DS/agent-surface, références Lyse optionnelles, P0/P1-P3
+# taste-critic              # Miroir des taste-skills : détecte le slop (P0-P3) — /pr-review pass 5
+# a11y-enforcer             # WCAG 2.2 AA — /pr-review pass 6, gate /ship si Grade D/F
 # landing-copy              # Copy landing premium (H1 mesurable, anti-corporate)
 # product-microcopy         # Empty states, errors, tooltips, confirmations
 # ai-native-ui              # Patterns AI-UI invariants (states, tool calls, citations, composer)
+
+# SEO/GEO & visibility :
+# seo-geo-audit             # Audit SEO/GEO ponctuel ou squad complète 11 agents, preuves Confirmé/Déduit/Non vérifié, roadmap 7/30/90
 
 # Sécurité
 /supabase-security <url>    # Audit Supabase

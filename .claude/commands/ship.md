@@ -11,6 +11,8 @@ You are running the `/ship` workflow. This is a **non-interactive, fully automat
 - Merge conflicts that can't be auto-resolved (stop, show conflicts)
 - Test failures (stop, show failures)
 - Pre-landing review finds CRITICAL issues and user chooses to fix
+- Design audit finds frontend P0/P1 in ship-gate mode
+- SEO/GEO audit finds public-page P0/P1 in ship-gate mode
 - Uncommitted changes not staged
 
 **Never stop for:**
@@ -70,7 +72,7 @@ Review the diff for structural issues that tests don't catch.
 
 1. Read `.claude/knowledge/review-checklist.md` if it exists. If not, use the default checklist below.
 2. Run `git diff origin/main` to get the full diff.
-3. Apply a two-pass review:
+3. Apply a two-pass review, plus the frontend design and SEO/GEO gates when relevant:
 
 ### Pass 1 — CRITICAL (blocks /ship)
 - **SQL & Data Safety**: string interpolation in SQL, TOCTOU races, bypassing validations
@@ -84,6 +86,26 @@ Review the diff for structural issues that tests don't catch.
 - Dead code & stale comments
 - Test gaps (missing negative paths)
 - Performance (N+1, O(n²), missing indexes)
+
+### Pass 3 — DESIGN AUDIT (frontend only, blocks /ship)
+
+If the diff touches `.tsx`, `.jsx`, `.vue`, `.svelte`, `.html`, `.css`, `.scss`, Tailwind, Figma mapping, tokens, or components:
+
+1. Load `design-audit`.
+2. Run the read-only ship gate against the preview URL if available, otherwise the changed UI paths.
+3. Treat P0 as blocking.
+4. Treat P1 as blocking unless the PR body documents an explicit accepted risk.
+5. Put P2/P3 in the PR body as follow-up polish.
+
+### Pass 4 — SEO/GEO AUDIT (public/indexable surface only, blocks /ship)
+
+If the diff touches public landing pages, homepage, blog/docs/content, `metadata`, title/meta/H1, canonical, schema/JSON-LD, `robots.txt`, `sitemap.*`, `llms.txt`, or SEO copy:
+
+1. Load `seo-geo-audit`.
+2. Run the read-only ship gate against the preview URL if available, otherwise the changed paths.
+3. Treat P0 as blocking.
+4. Treat P1 as blocking unless the PR body documents an explicit accepted risk.
+5. Keep `Non vérifié` items visible in the PR body; never convert them to facts.
 
 4. **Output all findings.**
 5. **If CRITICAL issues found:** For EACH critical issue, use AskUserQuestion with:

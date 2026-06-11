@@ -44,8 +44,11 @@ This skill describes the full feature-development workflow enforced by the `/dev
    - Check if `components/CLAUDE.md` or `components/AGENTS.md` exists → read it for components inventory
    - Check if `components.json` exists (shadcn) → note the convention
    - If a Figma URL is in the issue body → note it, fetch the design context if possible
+   - Load `design-audit` and run a quick read-only audit on the target path/Figma/preview when available; P0/P1 findings become planning constraints
 
-4. Produce an EXPLORE synthesis with these sections:
+4. If the task touches public SEO/GEO surfaces (homepage, landing, blog, `.mdx`, `metadata`, `schema`, `robots.txt`, `sitemap.*`, `llms.txt`, title/meta/H1/canonical/FAQ), load `seo-geo-audit` and run a quick read-only audit when a URL/path is available; P0/P1 findings become planning constraints.
+
+5. Produce an EXPLORE synthesis with these sections:
    - **Requirements** (from issue or description)
    - **Files to modify/create** (absolute paths + purpose)
    - **Patterns to follow** (reference to existing similar code)
@@ -73,7 +76,13 @@ This skill describes the full feature-development workflow enforced by the `/dev
    - Which existing components to reuse (reference `components/CLAUDE.md` inventory)
    - Which CSS tokens/variables to use (never hardcoded hex/spacing)
    - If Figma provided: map Figma elements → code components
+   - Which `design-audit` P0/P1 findings must be fixed before ship
    - If new components created: note that the design system doc will need updating
+
+4. If SEO/GEO work is detected, add to the plan:
+   - Which public pages/meta/schema/content files are impacted
+   - Which `seo-geo-audit` P0/P1 findings must be fixed before ship
+   - Which facts remain `Non vérifié` without preview URL, GSC or external checks
 
 **STOP CHECKPOINT 2** — Present the plan. Wait for user validation before implementing.
 
@@ -164,7 +173,9 @@ After all 3 passes:
 
 1. **Consolidate** the 3 reports into one summary
 2. **Fix CRITICAL issues immediately** — you have the context, don't defer
-3. **Re-run tests** after fixes
+3. If frontend work was detected, run `design-audit --ship-gate` against the changed surface; fix P0 and P1 unless explicitly deferred by the user
+4. If SEO/GEO work was detected, run `seo-geo-audit --ship-gate` against the changed public surface; fix P0 and P1 unless explicitly accepted by the user
+5. **Re-run tests** after fixes
 
 **STOP CHECKPOINT 4** — Present consolidated review + fixes applied. Wait for user validation before ship.
 
@@ -202,3 +213,5 @@ When useful, load these for deeper guidance:
 - Error handling: `.claude/knowledge/testing/error-handling.md`
 - Frontend components: `components/CLAUDE.md` or `components/AGENTS.md` if present
 - Design system: the `ds-doc` skill for documenting new components
+- Design audit gate: the `design-audit` skill for tokens, components, a11y, taste, Figma/code drift, and AI surface evidence
+- SEO/GEO audit gate: the `seo-geo-audit` skill for public pages, content, metadata, schema, llms.txt, SERP and AI visibility evidence
