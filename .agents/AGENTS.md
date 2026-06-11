@@ -39,5 +39,7 @@ This folder provides a generic compatibility layer for agents that read `AGENTS.
 | Feature development | `dev-workflow` |
 | Discovery and planning | `discovery-workflow` |
 | Shipping | `ship-workflow` |
+| QA web | `web-navigator` + Claude `/qa` workflow |
+| Web navigation and extraction | `web-navigator` |
 | Quick fixes | `quick-fix-workflow` |
 | Project status | `status-workflow` |

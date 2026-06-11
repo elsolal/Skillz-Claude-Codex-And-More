@@ -1,6 +1,6 @@
 ---
 name: design-audit
-description: Audit une UI ou design system via tokens, composants, stories/docs, a11y, taste, Figma, IA et Lyse. Utiliser avant /qa, /ship, /dev frontend, pour une boucle design, ou pour lancer une squad multi-agents via /design-audit-squad.
+description: Audit une UI ou design system via tokens, composants, stories/docs, a11y, taste, Figma, IA, preuves runtime web-navigator/Playwright CLI et Lyse. Utiliser avant /qa, /ship, /dev frontend, boucle design ou /design-audit-squad.
 ---
 
 # Design Audit
@@ -29,7 +29,7 @@ Audit transversal pour verifier qu'une interface, un design system ou un flow fr
 
 | Input | Usage |
 |---|---|
-| URL locale/prod | Audit runtime + screenshots + console si outils navigateur disponibles |
+| URL locale/prod | Audit runtime + screenshots + console/reseau via `web-navigator` |
 | Chemin repo | Audit statique des fichiers UI, tokens, composants, docs agent |
 | Figma URL | Drift design/code + tokens + variants |
 | Screenshot | Audit visuel qualitatif, sans preuve statique complète |
@@ -86,6 +86,18 @@ Si Lyse est disponible et que le repo est frontend/DS/agent-surface, lancer un a
 ```
 
 Si Node < 22, Lyse absent, ou le repo n'est pas compatible, continuer en audit statique manuel et noter `Lyse: skipped`.
+
+Si une URL est fournie, charger `web-navigator` pour collecter les preuves runtime non destructives. Si Playwright CLI est disponible:
+
+```bash
+playwright-cli open <url>
+playwright-cli snapshot
+playwright-cli screenshot
+playwright-cli console
+playwright-cli requests
+```
+
+Playwright CLI est optionnel mais recommande par `web-navigator` pour les audits par agents IA: il donne des preuves reproductibles sur l'UI reelle sans transformer l'audit en suite de tests E2E.
 
 En mode `--squad`, suivre `references/lyse-squad/01_MASTER_ORCHESTRATOR.md`, produire les 12 livrables agents, puis consolider le rapport final.
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Web Navigator"
+  short_description: "Navigation web, extraction et preuves runtime"
+  default_prompt: "Utilise web-navigator pour explorer ce site ou cette URL avec Playwright CLI si disponible, collecter pages visitees, screenshots/snapshots, console/reseau et informations sourcees. Classe les observations en Confirmé, Déduit ou Non vérifié, puis restitue les limites et prochaines vérifications."

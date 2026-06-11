@@ -2,6 +2,25 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## v5.14.1 (2026-06-11)
+
+**Web Navigator + Playwright CLI guidance for agent runtime evidence**
+
+### Added
+- New `web-navigator` skill for natural browser navigation, information extraction and sourced site analysis.
+- `web-navigator` supports Playwright CLI first, then Browser/MCP, WebFetch/WebSearch or user-provided captures as fallbacks.
+- Evidence model uses `Confirmé / Déduit / Non vérifié` so QA, SEO/GEO, design and research workflows can share the same grounded observations.
+- `/qa` now routes browser evidence through `web-navigator`: screenshots, DOM snapshots, console, network, responsive checks and locator discovery.
+- Portable `/qa` commands added for Codex, Gemini and OpenCode.
+- `test-runner` now uses `web-navigator` before writing E2E tests, then converts critical flows into deterministic Playwright tests.
+- `design-audit`, `seo-geo-audit` and `taste-critic` now reference `web-navigator` for URL-based runtime evidence.
+
+### Docs
+- README documents `npm install -g @playwright/cli@latest`, `playwright-cli install --skills`, and `playwright-cli --help`.
+- `docs/WORKFLOW.md` explains why Playwright matters for QA, product testing and site analysis by AI agents.
+
+---
+
 ## v5.14.0 (2026-06-09)
 
 **SEO/GEO Audit Workflow — Roso SEO Squad packaged for Skillz-Claude**

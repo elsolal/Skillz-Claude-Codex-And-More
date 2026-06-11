@@ -39,6 +39,7 @@ Utilisateur dit...                    → Workflow
 "challenge ce raisonnement / plan"    → /rodin <texte|doc|url> (ou skill rodin)
 "ship cette branche"                  → /ship [branch]
 "teste cette app"                     → /qa [url]
+"analyse ce site / récupère infos"    → skill web-navigator
 "audite ce design / cette UI / DS"    → /design-audit <url|path|figma> [--quick|--full|--ship-gate]
 "audit design complet squad Lyse"     → /design-audit-squad <url|path|figma> [--step-by-step|--all-at-once]
 "audite le SEO / GEO d'un site"       → /seo-geo-audit <url|domaine> [--quick|--full|--geo-only]
@@ -148,6 +149,10 @@ Logger chaque itération dans `docs/ralph-logs/`.
 
 # SEO/GEO & visibility :
 # seo-geo-audit             # Audit SEO/GEO ponctuel ou squad complète 11 agents, preuves Confirmé/Déduit/Non vérifié, roadmap 7/30/90
+
+# QA runtime agentique :
+# web-navigator             # Navigation/analyse web, extraction sourcée, preuves runtime
+# playwright-cli            # Runtime recommandé: npm install -g @playwright/cli@latest && playwright-cli install --skills
 
 # Sécurité
 /supabase-security <url>    # Audit Supabase

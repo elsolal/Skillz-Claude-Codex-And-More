@@ -33,8 +33,26 @@ Run full mode, then diff against baseline. Which issues fixed? Which new? Score 
 1. Create output dir: `.gstack/qa-reports/`
 2. Start timer
 
+### Phase 1.5: Runtime driver
+Load `web-navigator` for browser navigation and evidence collection. Prefer Playwright CLI when available:
+
+```bash
+playwright-cli --help
+```
+
+If missing, recommend the optional install:
+
+```bash
+npm install -g @playwright/cli@latest
+playwright-cli install --skills
+```
+
+`playwright-cli install --skills` targets Claude by default; use `playwright-cli install --skills=agents` for generic agent skills.
+
+Use `web-navigator` for `open`, `snapshot`, `screenshot`, `console`, `requests`, `resize`, `click`, `fill`, locator discovery and evidence status. It helps agents test a product like a real user and capture verifiable QA evidence without writing a full E2E suite first.
+
 ### Phase 2: Authenticate (if needed)
-Use Playwright MCP or claude-in-chrome to log in if credentials provided.
+Use `web-navigator` with Playwright CLI, Playwright MCP or claude-in-chrome to log in if credentials are provided. Use a test account when possible and never save auth state inside the repo.
 
 ### Phase 3: Orient
 ```
@@ -135,6 +153,7 @@ Save baseline to `.gstack/qa-reports/baseline.json` for regression mode.
 4. **Test like a user.** Use realistic data.
 5. **Depth over breadth.** 5-10 well-documented issues > 20 vague descriptions.
 6. **Check console after every interaction.**
+7. **Keep browser state out of git.** Store temporary Playwright auth/session files in `/tmp` or another ignored path.
 
 ---
 

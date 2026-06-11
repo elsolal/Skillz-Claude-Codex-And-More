@@ -120,6 +120,23 @@ The `seo-geo-audit/` skill packages the local SEO/GEO audit workflow from `/User
 
 The full SEO_Squad files are vendored as authoritative references so Codex, Claude Code, Gemini, OpenCode and generic agents can run the same workflow without relying on the external local folder. Claude-specific instructions such as Claude in Chrome are adapted at runtime to the available provider tools: browser, WebFetch, WebSearch, Playwright, MCP connectors, screenshots or user-provided exports.
 
+## Playwright CLI (Microsoft)
+
+The `web-navigator/` skill is a Skillz-Claude original orchestration layer that uses `@playwright/cli` as its preferred browser runtime when available. The upstream CLI and its official companion skill are not vendored here; users install them separately.
+
+| Asset | Source |
+|-------|--------|
+| `skills/web-navigator/SKILL.md` | Skillz-Claude original browser navigation and evidence workflow |
+| `skills/web-navigator/references/playwright-cli.md` | Integration notes for the external `@playwright/cli` package |
+
+**Upstream** : https://github.com/microsoft/playwright-cli
+**Package** : `@playwright/cli`
+**License** : Apache-2.0
+
+### Adaptation notes
+
+Skillz-Claude keeps Playwright CLI as an external runtime and does not copy its implementation. The local workflow adds product-analysis rules on top: safe navigation, no destructive actions by default, evidence status `Confirmé / Déduit / Non vérifié`, and integration with `/qa`, `seo-geo-audit`, `design-audit`, `test-runner` and `taste-critic`.
+
 ## QMD (tobi/qmd)
 
 The `qmd/` skill is vendored to give the agent a CLI for searching markdown vaults. The CLI itself (`qmd`) is **not** vendored — it must be installed separately by the user (`brew install tobi/tap/qmd` on macOS, or see upstream for other platforms). The skill teaches the agent how to call the binary, build collections, and index vaults.

@@ -34,7 +34,7 @@ Miroir des 9 `taste-skills` : ils disent **comment générer du bon goût**, ce 
 
 | Input | Action |
 |-------|--------|
-| URL `https://...` | `WebFetch` + screenshot via Playwright/Chrome MCP si dispo |
+| URL `https://...` | Charger `web-navigator` pour screenshot/snapshot via Playwright CLI, Browser/MCP ou fallback WebFetch |
 | Path code (`src/`, `app/`, `components/`) | `Glob` + `Read` les fichiers UI (.tsx, .jsx, .vue, .svelte, .html, .css) |
 | Path screenshot (`.png`, `.jpg`, `.webp`) | `Read` direct (multimodal) |
 | Sélection Figma (si MCP connecté) | `get_design_context` via figma MCP |
