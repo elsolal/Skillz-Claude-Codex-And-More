@@ -2,6 +2,32 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## v5.14.2 (2026-06-16)
+
+**Obsidian LLM Wiki + QMD MCP hardening**
+
+### Added
+- QMD MCP defaults for Claude Code, Codex and OpenCode:
+  - `.mcp.json` and `.claude/mcp.json` use `qmd mcp`.
+  - `.codex/config.toml` defines `[mcp_servers.qmd]`.
+  - `.opencode/opencode.json` defines a local enabled `qmd` MCP.
+- `install.sh` now ensures QMD MCP entries without removing existing MCP servers.
+- Project installs also create provider-specific QMD MCP config files.
+- `raw/session-notes/` is initialized as the only raw-layer write exception for `/wiki-capture-session`.
+
+### Changed
+- QMD docs now follow upstream `@tobilu/qmd` install guidance, including Node 22+ for npm installs, and `collection add` / `context add` / `update` / `embed`.
+- `/wiki-bootstrap` and setup docs now refresh a named QMD collection instead of referencing the removed `qmd index` flow.
+- QMD MCP examples use the plural `collections` parameter to avoid silently unscoped searches.
+- `llm-wiki` and `qmd` skill frontmatter is simplified for Codex skill validation.
+- Obsidian vault `.gitignore` now excludes `.obsidian/` app state by default.
+
+### Validation
+- `bash -n install.sh`
+- `bash -n scripts/setup-wiki.sh`
+- QMD collection health via `qmd status`
+- Skill frontmatter validation for `llm-wiki`, `qmd`, and generated Codex wiki source-command skills
+
 ## v5.14.1 (2026-06-11)
 
 **Web Navigator + Playwright CLI guidance for agent runtime evidence**

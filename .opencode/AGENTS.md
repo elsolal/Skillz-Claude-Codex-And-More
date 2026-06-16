@@ -16,6 +16,25 @@ This folder provides project-local compatibility for OpenCode.
 2. Before using any skill, open its `SKILL.md` and follow that file.
 3. Treat `.claude/` as the single source of truth. Do not duplicate skill logic in this folder.
 
+## MCP
+
+OpenCode MCP servers live in `~/.config/opencode/opencode.json` for global installs and `.opencode/opencode.json` for project templates.
+Skillz-Claude ensures:
+
+```json
+{
+  "mcp": {
+    "qmd": {
+      "type": "local",
+      "command": ["qmd", "mcp"],
+      "enabled": true
+    }
+  }
+}
+```
+
+Use `qmd` when `wiki/index.md` is not enough to find project memory.
+
 ## Portable Commands
 
 These OpenCode commands load the shared workflow skills:

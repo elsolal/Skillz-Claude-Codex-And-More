@@ -61,11 +61,11 @@ Codex reads `AGENTS.md` automatically. Then:
 ```bash
 cd <vault>
 codex
-> ingest raw/paper.pdf into the wiki
-> query: what does the paper say about X?
+> /wiki-ingest raw/paper.pdf
+> /wiki-query what does the paper say about X?
 ```
 
-Codex doesn't have slash commands, but the schema file teaches it the ingest/query/lint workflow, so natural-language triggers work.
+Skillz-Claude generates Codex-only `source-command-wiki-*` skills so wiki slash-style triggers load the right workflow after `./install.sh update codex`.
 
 ### Cursor
 
@@ -103,6 +103,47 @@ alias wiki-index='python ~/.claude/skills/llm-wiki/scripts/update_index.py --vau
 alias wiki-search='python ~/.claude/skills/llm-wiki/scripts/wiki_search.py --vault .'
 ```
 
-## MCP exposure (future)
+## QMD MCP exposure
 
-The wiki can be exposed as an MCP tool so any MCP-capable client (Claude Desktop, Claude Code, etc.) can query it. See `engineering/mcp-design` in this repo for the pattern. A future version of this plugin will ship an `mcp/` directory with a reference MCP server.
+QMD exposes the wiki as a local MCP server. Use it when `wiki/index.md` is not enough and you need lexical, vector, or hybrid retrieval across the vault.
+
+Claude Code:
+
+```json
+{
+  "mcpServers": {
+    "qmd": { "command": "qmd", "args": ["mcp"] }
+  }
+}
+```
+
+For user-scope Claude Code setup:
+
+```bash
+claude mcp add --transport stdio --scope user qmd -- qmd mcp
+```
+
+Codex:
+
+```toml
+[mcp_servers.qmd]
+command = "qmd"
+args = ["mcp"]
+```
+
+OpenCode:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "qmd": {
+      "type": "local",
+      "command": ["qmd", "mcp"],
+      "enabled": true
+    }
+  }
+}
+```
+
+After changing MCP config, restart the client.

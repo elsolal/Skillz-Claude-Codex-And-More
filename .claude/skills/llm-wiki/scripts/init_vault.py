@@ -30,6 +30,7 @@ ASSETS_DIR = PLUGIN_DIR / "assets"
 VAULT_DIRS = [
     "raw",
     "raw/assets",
+    "raw/session-notes",
     "wiki",
     "wiki/entities",
     "wiki/concepts",
@@ -136,7 +137,14 @@ def init_vault(vault_path, topic, tool, force, as_json=False):
     # .gitignore — exclude Obsidian workspace files
     gitignore = vault_path / ".gitignore"
     gitignore.write_text(
-        "\n".join([".obsidian/workspace*", ".obsidian/cache", ".DS_Store", ""]),
+        "\n".join(
+            [
+                "# Obsidian app state is local to each collaborator.",
+                ".obsidian/",
+                ".DS_Store",
+                "",
+            ]
+        ),
         encoding="utf-8",
     )
 

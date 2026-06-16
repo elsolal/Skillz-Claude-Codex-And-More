@@ -139,7 +139,7 @@ Skillz-Claude keeps Playwright CLI as an external runtime and does not copy its 
 
 ## QMD (tobi/qmd)
 
-The `qmd/` skill is vendored to give the agent a CLI for searching markdown vaults. The CLI itself (`qmd`) is **not** vendored — it must be installed separately by the user (`brew install tobi/tap/qmd` on macOS, or see upstream for other platforms). The skill teaches the agent how to call the binary, build collections, and index vaults.
+The `qmd/` skill is vendored to give the agent a CLI for searching markdown vaults. The CLI itself (`qmd`) is **not** vendored — it must be installed separately by the user (`npm install -g @tobilu/qmd` or `bun install -g @tobilu/qmd`; see upstream for details). The skill teaches the agent how to call the binary, build collections, refresh embeddings, and expose the local MCP server.
 
 | Asset | Source path |
 |-------|-------------|

@@ -70,7 +70,7 @@ git add .
 git commit -m "init wiki"
 
 # After every session:
-git add wiki/ log.md index.md
+git add wiki/index.md wiki/log.md wiki/entities wiki/concepts wiki/sources wiki/comparisons wiki/synthesis
 git commit -m "ingest: <source>"
 ```
 

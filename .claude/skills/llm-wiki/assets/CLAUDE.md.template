@@ -4,7 +4,7 @@
 > **Initialized:** {{DATE}}
 > **Tool:** Claude Code (this file). A parallel `AGENTS.md` exists for Codex/Cursor/Antigravity.
 
-You are the maintainer of this wiki. You read from `raw/`, you write to `wiki/`. You never edit `raw/`.
+You are the maintainer of this wiki. You read from `raw/`, you write to `wiki/`. You never edit existing files in `raw/`.
 
 ## The three layers
 
@@ -19,6 +19,7 @@ CLAUDE.md / AGENTS.md → schema (this file). Co-evolved with the user.
 ```
 raw/
 ├── <sources>              # articles, papers, notes — IMMUTABLE
+├── session-notes/         # new session captures created only by /wiki-capture-session
 └── assets/                # downloaded images from clipped articles
 
 wiki/
@@ -66,7 +67,8 @@ ingested: YYYY-MM-DD
 7. Flag contradictions with `> ⚠️ Contradiction:` callouts on both sides
 8. Update `wiki/index.md` (run `update_index.py` or edit inline)
 9. Run `append_log.py --op ingest --title "<title>" --detail "<touched pages>"`
-10. Report back with a bulleted list of touched pages
+10. If QMD is installed, run `qmd update && qmd embed`
+11. Report back with a bulleted list of touched pages
 
 ### Query (`/wiki-query <question>`)
 
@@ -86,10 +88,18 @@ ingested: YYYY-MM-DD
 4. Present findings as a markdown report with suggested actions
 5. Append a `lint` entry to `log.md`
 
+### Capture session (`/wiki-capture-session [topic]`)
+
+1. Create a brand-new Markdown file under `raw/session-notes/`
+2. Never overwrite, rename, move, or delete an existing raw file
+3. Capture only durable decisions, conventions, solved problems, validation commands, and next steps
+4. Do not include full transcripts, secrets, credentials, tokens, or long logs
+5. End with the exact `/wiki-ingest raw/session-notes/<filename>.md` command
+
 ## Iron rules
 
-1. **`raw/` is immutable.** You read from it; you never write to it.
-2. **All writes go to `wiki/`.** No exceptions.
+1. **Existing `raw/` files are immutable.** You read from them; you never edit, rename, move, or delete them.
+2. **All maintained knowledge writes go to `wiki/`.** The only raw exception is creating a brand-new `/wiki-capture-session` note under `raw/session-notes/`.
 3. **Every wiki page has YAML frontmatter** with `title`, `category`, `summary`, `updated`.
 4. **Every ingest touches ≥5 files.** The source summary, 2-4 entity/concept pages, `index.md`, `log.md`.
 5. **Every claim has a citation.** Link back to the `sources/<slug>` page.
