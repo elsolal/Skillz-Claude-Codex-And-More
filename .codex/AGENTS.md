@@ -16,6 +16,19 @@ This folder provides project-local compatibility for OpenAI Codex CLI.
 2. Before using any skill, open its `SKILL.md` and follow that file.
 3. Treat `.claude/` as the single source of truth. Do not duplicate skill logic in this folder.
 
+## MCP
+
+Codex MCP servers live in `~/.codex/config.toml` for global installs and `.codex/config.toml` for project templates.
+Skillz-Claude ensures:
+
+```toml
+[mcp_servers.qmd]
+command = "qmd"
+args = ["mcp"]
+```
+
+Use `qmd` when `wiki/index.md` is not enough to find project memory.
+
 ## Portable Commands
 
 These Codex prompts load the shared workflow skills:

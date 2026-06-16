@@ -3,14 +3,17 @@
 ## Install
 
 ```bash
-npm install -g @tobilu/qmd
-qmd collection add ~/path/to/markdown --name myknowledge
+npm install -g @tobilu/qmd  # requires Node 22+
+# or: bun install -g @tobilu/qmd
+qmd collection add ~/path/to/markdown --name myknowledge --mask "**/*.md"
+qmd context add qmd://myknowledge "Project memory, documentation, and durable knowledge"
+qmd update
 qmd embed
 ```
 
 ## Configure MCP Client
 
-**Claude Code** (`~/.claude/settings.json`):
+**Claude Code** (`~/.claude/mcp.json` or project `.mcp.json`):
 ```json
 {
   "mcpServers": {
@@ -19,21 +22,28 @@ qmd embed
 }
 ```
 
-**Claude Desktop** (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-```json
-{
-  "mcpServers": {
-    "qmd": { "command": "qmd", "args": ["mcp"] }
-  }
-}
+Claude Code user scope can also be configured with:
+
+```bash
+claude mcp add --transport stdio --scope user qmd -- qmd mcp
 ```
 
-**OpenClaw** (`~/.openclaw/openclaw.json`):
+**Codex** (`~/.codex/config.toml`):
+```toml
+[mcp_servers.qmd]
+command = "qmd"
+args = ["mcp"]
+```
+
+**OpenCode** (`~/.config/opencode/opencode.json`):
 ```json
 {
+  "$schema": "https://opencode.ai/config.json",
   "mcp": {
-    "servers": {
-      "qmd": { "command": "qmd", "args": ["mcp"] }
+    "qmd": {
+      "type": "local",
+      "command": ["qmd", "mcp"],
+      "enabled": true
     }
   }
 }
@@ -49,7 +59,7 @@ qmd mcp stop                # Stop daemon
 
 ## Tools
 
-### structured_search
+### query
 
 Search with pre-expanded queries.
 
@@ -61,7 +71,7 @@ Search with pre-expanded queries.
     { "type": "hyde", "query": "hypothetical answer passage..." }
   ],
   "limit": 10,
-  "collection": "optional",
+  "collections": ["optional-collection"],
   "minScore": 0.0
 }
 ```
@@ -78,8 +88,9 @@ Retrieve document by path or `#docid`.
 
 | Param | Type | Description |
 |-------|------|-------------|
-| `path` | string | File path or `#docid` |
-| `full` | bool? | Return full content |
+| `file` | string | File path, `#docid`, or `path:from:count` |
+| `fromLine` | number? | Start line, 1-indexed |
+| `maxLines` | number? | Limit returned lines |
 | `lineNumbers` | bool? | Add line numbers |
 
 ### multi_get
@@ -90,6 +101,7 @@ Retrieve multiple documents.
 |-------|------|-------------|
 | `pattern` | string | Glob or comma-separated list |
 | `maxBytes` | number? | Skip large files (default 10KB) |
+| `maxLines` | number? | Limit lines per file |
 
 ### status
 
@@ -98,5 +110,5 @@ Index health and collections. No params.
 ## Troubleshooting
 
 - **Not starting**: `which qmd`, `qmd mcp` manually
-- **No results**: `qmd collection list`, `qmd embed`
+- **No results**: `qmd collection list`, `qmd update`, `qmd embed`
 - **Slow first search**: Normal, models loading (~3GB)

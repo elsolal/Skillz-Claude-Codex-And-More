@@ -1,12 +1,7 @@
 ---
 name: qmd
-description: Search markdown knowledge bases, notes, and documentation using QMD. Use when users ask to search notes, find documents, or look up information.
+description: Search local markdown knowledge bases, Obsidian vaults, notes, documentation, and project memory using QMD collections, lexical search, vector search, query expansion, document retrieval, and the QMD MCP server. Use when users ask to search notes, find documents, query a vault, refresh embeddings, inspect QMD status, or look up information in local markdown.
 license: MIT
-compatibility: Requires qmd CLI or MCP server. Install via `npm install -g @tobilu/qmd`.
-metadata:
-  author: tobi
-  version: "2.0.0"
-allowed-tools: Bash(qmd:*), mcp__qmd__*
 ---
 
 # QMD - Quick Markdown Search
@@ -114,6 +109,47 @@ Omit to search all collections.
 | `multi_get` | Retrieve multiple by glob/list |
 | `status` | Collections and health |
 
+## MCP Client Config
+
+Claude Code:
+
+```json
+{
+  "mcpServers": {
+    "qmd": { "command": "qmd", "args": ["mcp"] }
+  }
+}
+```
+
+User-scope Claude Code alternative:
+
+```bash
+claude mcp add --transport stdio --scope user qmd -- qmd mcp
+```
+
+Codex:
+
+```toml
+[mcp_servers.qmd]
+command = "qmd"
+args = ["mcp"]
+```
+
+OpenCode:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "qmd": {
+      "type": "local",
+      "command": ["qmd", "mcp"],
+      "enabled": true
+    }
+  }
+}
+```
+
 ## CLI
 
 ```bash
@@ -125,6 +161,11 @@ qmd search "keywords"             # BM25 only (no LLM)
 qmd get "#abc123"                 # By docid
 qmd multi-get "journals/2026-*.md" -l 40  # Batch pull snippets by glob
 qmd multi-get notes/foo.md,notes/bar.md   # Comma-separated list, preserves order
+qmd collection add ~/notes --name notes --mask "**/*.md"
+qmd context add qmd://notes "Personal notes and project memory"
+qmd update                         # Re-index all collections
+qmd embed                          # Generate or refresh vector embeddings
+qmd status                         # Show collections, files, vectors
 ```
 
 ## HTTP API
@@ -138,7 +179,10 @@ curl -X POST http://localhost:8181/query \
 ## Setup
 
 ```bash
-npm install -g @tobilu/qmd
-qmd collection add ~/notes --name notes
+npm install -g @tobilu/qmd  # requires Node 22+
+# or: bun install -g @tobilu/qmd
+qmd collection add ~/notes --name notes --mask "**/*.md"
+qmd context add qmd://notes "Personal notes and project memory"
+qmd update
 qmd embed
 ```

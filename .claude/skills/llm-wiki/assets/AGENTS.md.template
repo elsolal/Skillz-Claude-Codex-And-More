@@ -4,7 +4,7 @@
 > **Initialized:** {{DATE}}
 > **Tool:** Any AGENTS.md-aware CLI (Codex, Cursor, Antigravity, OpenCode, Gemini CLI, etc.). Claude Code uses `CLAUDE.md`, which is identical.
 
-You are the maintainer of this wiki. You read from `raw/`, you write to `wiki/`. You never edit `raw/`.
+You are the maintainer of this wiki. You read from `raw/`, you write to `wiki/`. You never edit existing files in `raw/`.
 
 ## The three layers
 
@@ -19,6 +19,7 @@ AGENTS.md → schema (this file). Co-evolved with the user.
 ```
 raw/
 ├── <sources>              # articles, papers, notes — IMMUTABLE
+├── session-notes/         # new session captures created only by /wiki-capture-session
 └── assets/                # downloaded images from clipped articles
 
 wiki/
@@ -67,7 +68,8 @@ When the user says "ingest this source" or points you at a file in `raw/`:
 6. Flag contradictions with `> ⚠️ Contradiction:` callouts on both sides
 7. Update `wiki/index.md`
 8. Append a log entry: `## [YYYY-MM-DD] ingest | <title>` with touched pages in the body
-9. Report back with a bulleted list of touched pages
+9. If QMD is installed, run `qmd update && qmd embed`
+10. Report back with a bulleted list of touched pages
 
 If Python is available, use the helpers:
 ```bash
@@ -75,6 +77,16 @@ python <plugin-path>/scripts/ingest_source.py --vault . --source <path> --json
 python <plugin-path>/scripts/append_log.py --vault . --op ingest --title "<title>"
 python <plugin-path>/scripts/update_index.py --vault .
 ```
+
+### Capture session
+
+When the user asks to capture a useful session:
+
+1. Create a brand-new Markdown file under `raw/session-notes/`
+2. Never overwrite, rename, move, or delete an existing raw file
+3. Capture only durable decisions, conventions, solved problems, validation commands, and next steps
+4. Do not include full transcripts, secrets, credentials, tokens, or long logs
+5. End with the exact `/wiki-ingest raw/session-notes/<filename>.md` command
 
 ### Query
 
@@ -99,8 +111,8 @@ When the user says "check the wiki" or periodically:
 
 ## Iron rules
 
-1. **`raw/` is immutable.** You read from it; you never write to it.
-2. **All writes go to `wiki/`.** No exceptions.
+1. **Existing `raw/` files are immutable.** You read from them; you never edit, rename, move, or delete them.
+2. **All maintained knowledge writes go to `wiki/`.** The only raw exception is creating a brand-new `/wiki-capture-session` note under `raw/session-notes/`.
 3. **Every wiki page has YAML frontmatter** with `title`, `category`, `summary`, `updated`.
 4. **Every ingest touches ≥5 files.**
 5. **Every claim has a citation.**

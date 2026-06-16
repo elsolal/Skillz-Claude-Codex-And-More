@@ -9,7 +9,8 @@
 #   scripts/setup-wiki.sh                       # interactive
 #   scripts/setup-wiki.sh --vault PATH          # explicit path, interactive confirm
 #   scripts/setup-wiki.sh --non-interactive     # never prompt; fail if config missing
-#   scripts/setup-wiki.sh --with-qmd            # also build the qmd index
+#   scripts/setup-wiki.sh --with-qmd            # also build/update the qmd collection
+#   scripts/setup-wiki.sh --qmd-collection NAME # explicit qmd collection name
 #   scripts/setup-wiki.sh --no-qmd              # skip qmd entirely
 #   scripts/setup-wiki.sh --verify              # only run health checks, no writes
 #   scripts/setup-wiki.sh --help
@@ -34,6 +35,7 @@ prompt() { printf '%s?%s %s ' "$CYAN" "$NC" "$*"; }
 VAULT_ARG=""
 INTERACTIVE=1
 QMD_MODE="auto"          # auto | on | off
+QMD_COLLECTION_ARG=""
 VERIFY_ONLY=0
 SKIP_CLAUDE_MD=0
 
@@ -44,6 +46,8 @@ while [[ $# -gt 0 ]]; do
         --non-interactive|-y) INTERACTIVE=0; shift;;
         --with-qmd) QMD_MODE="on"; shift;;
         --no-qmd) QMD_MODE="off"; shift;;
+        --qmd-collection) QMD_COLLECTION_ARG="${2:-}"; shift 2;;
+        --qmd-collection=*) QMD_COLLECTION_ARG="${1#*=}"; shift;;
         --verify) VERIFY_ONLY=1; shift;;
         --skip-claude-md) SKIP_CLAUDE_MD=1; shift;;
         --help|-h)
@@ -108,6 +112,25 @@ fi
 # Expand ~
 VAULT_PATH="${VAULT_PATH/#\~/$HOME}"
 
+slugify() {
+    local value="$1"
+    value=$(printf '%s' "$value" | tr '[:upper:]' '[:lower:]')
+    value=$(printf '%s' "$value" | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')
+    printf '%s' "${value:-wiki}"
+}
+
+default_qmd_collection() {
+    local base
+    base=$(basename "$VAULT_PATH")
+    base=$(slugify "$base")
+    case "$base" in
+        *-wiki|wiki) printf '%s' "$base" ;;
+        *) printf '%s-wiki' "$base" ;;
+    esac
+}
+
+QMD_COLLECTION="${QMD_COLLECTION_ARG:-$(default_qmd_collection)}"
+
 # ---------- bootstrap vault ----------
 INIT_SCRIPT="$HOME/.claude/skills/llm-wiki/scripts/init_vault.py"
 
@@ -142,10 +165,13 @@ bootstrap_vault() {
     fi
 
     mkdir -p "$VAULT_PATH/raw/assets" \
-             "$VAULT_PATH/wiki/entities" \
-             "$VAULT_PATH/wiki/concepts" \
-             "$VAULT_PATH/wiki/sources" \
-             "$VAULT_PATH/wiki/synthesis"
+	         "$VAULT_PATH/raw/session-notes" \
+	         "$VAULT_PATH/wiki/entities" \
+	         "$VAULT_PATH/wiki/concepts" \
+	         "$VAULT_PATH/wiki/sources" \
+	         "$VAULT_PATH/wiki/comparisons" \
+	         "$VAULT_PATH/wiki/synthesis"
+    mkdir -p "$VAULT_PATH/wiki/.templates"
     : > "$VAULT_PATH/wiki/index.md"
     : > "$VAULT_PATH/wiki/log.md"
     ok "Minimal vault layout created. Run /wiki-init from inside Claude to enrich it."
@@ -164,11 +190,12 @@ $WIKI_BLOCK_BEGIN
 ## Obsidian LLM Wiki Memory
 
 - Vault memoire : \`$VAULT_PATH\`
+- QMD collection : \`$QMD_COLLECTION\`
 - Source de verite : skill \`llm-wiki\` + commands \`/wiki-init\`, \`/wiki-ingest\`, \`/wiki-query\`, \`/wiki-lint\`, \`/wiki-log\`, \`/wiki-capture-session\`.
 - Pour interroger la memoire, lire d'abord \`wiki/index.md\`, puis les pages pertinentes ; utiliser \`qmd\` si l'index ne suffit plus.
 - Quand un projet existe sous le repertoire de travail, lire son pointeur local avant tout travail non trivial : \`.claude/project-memory.md\` (Claude Code) ou \`.agents/project-memory.md\` (autres agents).
 - Tableau de bord projets : \`wiki/synthesis/dev-projects-overview.md\`.
-- Pour sauvegarder une session utile, utiliser \`/wiki-capture-session\` puis \`/wiki-ingest\`.
+- Pour sauvegarder une session utile, \`/wiki-capture-session\` peut creer un nouveau fichier dans \`raw/session-notes/\`, puis utiliser \`/wiki-ingest\`.
 - Le codebase reste la source de verite immediate ; le vault sert aux decisions historiques, sources, concepts, syntheses et conventions durables.
 - Ne jamais stocker secrets, tokens, credentials, logs complets ou transcripts bruts dans le vault.
 $WIKI_BLOCK_END
@@ -204,31 +231,61 @@ check_qmd() {
         return 0
     fi
     warn "qmd not on PATH. Install with:"
-    printf '    brew install tobi/tap/qmd            # macOS\n'
-    printf '    cargo install qmd                    # other\n'
+    printf '    npm install -g @tobilu/qmd           # requires Node 22+\n'
+    printf '    bun install -g @tobilu/qmd           # Bun alternative\n'
     printf '    See https://github.com/tobi/qmd\n'
     return 1
 }
 
-build_qmd_index() {
+build_qmd_collection() {
     case "$QMD_MODE" in
-        off) log "qmd index skipped (--no-qmd)."; return;;
+        off) log "qmd collection update skipped (--no-qmd)."; return;;
         auto)
-            ask_yn "Build qmd index of the vault now ?" "Y" || { log "qmd index deferred."; return; };;
+            ask_yn "Build/update qmd collection '$QMD_COLLECTION' now ?" "Y" || { log "qmd collection update deferred."; return; };;
         on) ;; # fallthrough
     esac
 
     if ! command -v qmd >/dev/null 2>&1; then
-        warn "Cannot build qmd index — binary not installed."
+        warn "Cannot build qmd collection — binary not installed."
         return
     fi
 
-    log "Indexing vault with qmd …"
-    if (cd "$VAULT_PATH" && qmd index . 2>&1 | tail -10); then
-        ok "qmd index built."
-    else
-        warn "qmd index returned non-zero. Inspect output above."
+    local wiki_path="$VAULT_PATH/wiki"
+    if [[ ! -d "$wiki_path" ]]; then
+        warn "Cannot build qmd collection — wiki directory missing: $wiki_path"
+        return
     fi
+
+    log "Preparing qmd collection '$QMD_COLLECTION' for $wiki_path …"
+    if qmd collection list 2>/dev/null | grep -Fq "$QMD_COLLECTION ("; then
+        ok "qmd collection already exists: $QMD_COLLECTION"
+    else
+        if qmd collection add "$wiki_path" --name "$QMD_COLLECTION" --mask "**/*.md" 2>&1 | tail -10; then
+            ok "qmd collection added: $QMD_COLLECTION"
+        else
+            warn "qmd collection add returned non-zero. Inspect output above."
+            return
+        fi
+    fi
+
+    log "Adding qmd collection context …"
+    qmd context add "qmd://$QMD_COLLECTION" "Obsidian LLM Wiki memory for durable project knowledge, sources, decisions, concepts, and synthesis pages." >/dev/null 2>&1 || true
+
+    log "Updating qmd lexical index …"
+    if qmd update 2>&1 | tail -10; then
+        ok "qmd lexical index updated."
+    else
+        warn "qmd update returned non-zero. Inspect output above."
+    fi
+
+    log "Embedding qmd collection chunks …"
+    if qmd embed 2>&1 | tail -10; then
+        ok "qmd embeddings refreshed."
+    else
+        warn "qmd embed returned non-zero. Verify with 'qmd status' before treating it as failed."
+    fi
+
+    qmd status 2>/dev/null | tail -20 || true
 }
 
 # ---------- smoke test ----------
@@ -249,11 +306,13 @@ run_smoke_test() {
 
 # ---------- main ----------
 log "Vault path: $VAULT_PATH"
+log "QMD collection: $QMD_COLLECTION"
 
 if [[ $VERIFY_ONLY -eq 1 ]]; then
     log "Running in --verify mode (no writes)."
     [[ -d "$VAULT_PATH/wiki" ]] || { err "Vault missing or incomplete: $VAULT_PATH"; exit 4; }
     check_qmd || true
+    qmd status 2>/dev/null | tail -20 || true
     run_smoke_test
     exit 0
 fi
@@ -261,11 +320,12 @@ fi
 bootstrap_vault
 patch_claude_md
 check_qmd || true
-build_qmd_index
+build_qmd_collection
 run_smoke_test
 
 ok "Wiki bootstrap complete."
 echo
 log "Next steps:"
 echo "  • Open the vault in Obsidian: open '$VAULT_PATH'"
+echo "  • Query with qmd when needed: qmd search \"query\" -c '$QMD_COLLECTION'"
 echo "  • From Claude Code, run /wiki-query to test, /wiki-ingest to add a source."

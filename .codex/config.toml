@@ -1,0 +1,6 @@
+# Skillz-Claude provider MCP defaults.
+# Global Codex installs merge this block into ~/.codex/config.toml.
+
+[mcp_servers.qmd]
+command = "qmd"
+args = ["mcp"]

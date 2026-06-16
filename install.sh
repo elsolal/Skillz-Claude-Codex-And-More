@@ -169,7 +169,16 @@ command_description_from_file() {
             print
             exit
         }
-    ' "$command_file"
+	' "$command_file"
+}
+
+sanitize_skill_description() {
+    local description="$1"
+    description="${description//\\/\\\\}"
+    description="${description//\"/\\\"}"
+    description="${description//</}"
+    description="${description//>/}"
+    printf '%s' "$description"
 }
 
 strip_frontmatter_from_file() {
@@ -194,8 +203,8 @@ write_codex_source_command_skill() {
     if [ -z "$description" ]; then
         description="Run the migrated source command $command_name. Usage /$command_name"
     fi
-    local safe_description="${description//\\/\\\\}"
-    safe_description="${safe_description//\"/\\\"}"
+    local safe_description
+    safe_description="$(sanitize_skill_description "$description")"
 
     if [ -e "$skill_dir" ] && [ ! -d "$skill_dir" ]; then
         echo -e "   ${YELLOW}⚠️  $skill_name (skipped — path exists and is not a directory)${NC}"
@@ -305,6 +314,164 @@ remove_codex_source_command_skills() {
             CODEX_SOURCE_COMMAND_SKILLS_REMOVED=$((CODEX_SOURCE_COMMAND_SKILLS_REMOVED + 1))
         fi
     done
+}
+
+ensure_claude_qmd_mcp() {
+    local target="$1"
+    mkdir -p "$(dirname "$target")"
+
+    if [ ! -f "$target" ]; then
+        cat > "$target" <<'EOF'
+{
+  "mcpServers": {
+    "qmd": {
+      "command": "qmd",
+      "args": ["mcp"]
+    }
+  }
+}
+EOF
+        echo -e "   ${GREEN}✅ qmd MCP added to $target${NC}"
+        return 0
+    fi
+
+    if grep -q '"qmd"' "$target" 2>/dev/null; then
+        echo -e "   ${GREEN}✅ qmd MCP already present in $target${NC}"
+        return 0
+    fi
+
+    if command -v python3 >/dev/null 2>&1; then
+        if python3 - "$target" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8") or "{}")
+if not isinstance(data, dict):
+    data = {}
+servers = data.get("mcpServers")
+if not isinstance(servers, dict):
+    servers = {}
+data["mcpServers"] = servers
+servers["qmd"] = {"command": "qmd", "args": ["mcp"]}
+path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+PY
+        then
+            echo -e "   ${GREEN}✅ qmd MCP merged into $target${NC}"
+            return 0
+        fi
+    fi
+
+    local sidecar
+    sidecar="$(dirname "$target")/mcp.skillz-qmd.json"
+    cat > "$sidecar" <<'EOF'
+{
+  "mcpServers": {
+    "qmd": {
+      "command": "qmd",
+      "args": ["mcp"]
+    }
+  }
+}
+EOF
+    echo -e "   ${YELLOW}⚠️  Could not edit $target; wrote $sidecar for manual merge${NC}"
+}
+
+ensure_codex_qmd_mcp() {
+    local target="$1"
+    mkdir -p "$(dirname "$target")"
+
+    if [ ! -f "$target" ]; then
+        cat > "$target" <<'EOF'
+[mcp_servers.qmd]
+command = "qmd"
+args = ["mcp"]
+EOF
+        echo -e "   ${GREEN}✅ qmd MCP added to $target${NC}"
+        return 0
+    fi
+
+    if grep -q '^\[mcp_servers\.qmd\]' "$target" 2>/dev/null; then
+        echo -e "   ${GREEN}✅ qmd MCP already present in $target${NC}"
+        return 0
+    fi
+
+    {
+        printf '\n'
+        printf '# Skillz-Claude QMD memory MCP\n'
+        printf '[mcp_servers.qmd]\n'
+        printf 'command = "qmd"\n'
+        printf 'args = ["mcp"]\n'
+    } >> "$target"
+    echo -e "   ${GREEN}✅ qmd MCP appended to $target${NC}"
+}
+
+ensure_opencode_qmd_mcp() {
+    local target="$1"
+    mkdir -p "$(dirname "$target")"
+
+    if [ ! -f "$target" ]; then
+        cat > "$target" <<'EOF'
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "qmd": {
+      "type": "local",
+      "command": ["qmd", "mcp"],
+      "enabled": true
+    }
+  }
+}
+EOF
+        echo -e "   ${GREEN}✅ qmd MCP added to $target${NC}"
+        return 0
+    fi
+
+    if grep -q '"qmd"' "$target" 2>/dev/null; then
+        echo -e "   ${GREEN}✅ qmd MCP already present in $target${NC}"
+        return 0
+    fi
+
+    if command -v python3 >/dev/null 2>&1; then
+        if python3 - "$target" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8") or "{}")
+if not isinstance(data, dict):
+    data = {}
+data.setdefault("$schema", "https://opencode.ai/config.json")
+mcp = data.get("mcp")
+if not isinstance(mcp, dict):
+    mcp = {}
+data["mcp"] = mcp
+mcp["qmd"] = {"type": "local", "command": ["qmd", "mcp"], "enabled": True}
+path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+PY
+        then
+            echo -e "   ${GREEN}✅ qmd MCP merged into $target${NC}"
+            return 0
+        fi
+    fi
+
+    local sidecar
+    sidecar="$(dirname "$target")/opencode.skillz-qmd.json"
+    cat > "$sidecar" <<'EOF'
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "qmd": {
+      "type": "local",
+      "command": ["qmd", "mcp"],
+      "enabled": true
+    }
+  }
+}
+EOF
+    echo -e "   ${YELLOW}⚠️  Could not edit $target; wrote $sidecar for manual merge${NC}"
 }
 
 # Uninstall Claude globally — reads ~/.claude/.skillz-manifest and removes
@@ -784,7 +951,7 @@ if [ "$GLOBAL_MODE" = true ]; then
     echo "║                                                                       ║"
     echo "║   Target: ~/.claude/ (available in ALL your projects)                 ║"
     echo "║   CLAUDE.md: merges workflow section, keeps your content              ║"
-    echo "║   Preserves: settings.json, mcp.json                                 ║"
+    echo "║   Preserves: settings.json, existing MCPs; ensures qmd MCP            ║"
     echo "╚═══════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 
@@ -833,7 +1000,7 @@ if [ "$GLOBAL_MODE" = true ]; then
     # ------------------------------------------------------------
     MANIFEST_FILE="$HOME/.claude/.skillz-manifest"
     # Build set of currently-managed items from the source
-    NEW_SKILLS=$(find "$SOURCE_DIR/skills" -mindepth 1 -maxdepth 1 -type d 2>/dev/null \
+    NEW_SKILLS=$(find "$SOURCE_DIR/skills" -mindepth 1 -maxdepth 1 -type d ! -name 'source-command-*' 2>/dev/null \
         | xargs -n1 basename 2>/dev/null | sort)
     NEW_COMMANDS=$(find "$SOURCE_DIR/commands" -mindepth 1 -maxdepth 1 -name '*.md' 2>/dev/null \
         | xargs -n1 basename 2>/dev/null | sort)
@@ -884,6 +1051,7 @@ if [ "$GLOBAL_MODE" = true ]; then
         --exclude='CLAUDE.md' \
         --exclude='settings.json' \
         --exclude='mcp.json' \
+        --exclude='skills/source-command-*' \
         --exclude='.skillz-manifest' \
         "$SOURCE_DIR/" ~/.claude/
 
@@ -928,6 +1096,9 @@ if [ "$GLOBAL_MODE" = true ]; then
         echo -e "   ${GREEN}✅ CLAUDE.md created${NC}"
     fi
 
+    echo -e "${CYAN}🔌 Ensuring qmd MCP for Claude Code...${NC}"
+    ensure_claude_qmd_mcp "$HOME/.claude/mcp.json"
+
     # Count what was installed
     skills_count=$(ls -1d ~/.claude/skills/*/SKILL.md 2>/dev/null | wc -l | tr -d ' ')
     commands_count=$(ls -1 ~/.claude/commands/*.md 2>/dev/null | wc -l | tr -d ' ')
@@ -951,7 +1122,7 @@ if [ "$GLOBAL_MODE" = true ]; then
     echo -e "${GREEN}Preserved (your config):${NC}"
     echo -e "   ${GREEN}✅ ~/.claude/CLAUDE.md (your content kept, workflow updated)${NC}"
     echo -e "   ${GREEN}✅ ~/.claude/settings.json${NC}"
-    echo -e "   ${GREEN}✅ ~/.claude/mcp.json${NC}"
+    echo -e "   ${GREEN}✅ ~/.claude/mcp.json (qmd MCP ensured)${NC}"
     echo ""
     echo -e "${CYAN}These skills & commands are now available in ALL your projects.${NC}"
     echo -e "${CYAN}To update later: run the same command again.${NC}"
@@ -1107,6 +1278,9 @@ if [ "$GLOBAL_MODE" = true ]; then
         echo -e "   ${GREEN}✅ ~/.codex/AGENTS.md${NC}"
     fi
 
+    echo -e "${CYAN}🔌 Ensuring qmd MCP for Codex...${NC}"
+    ensure_codex_qmd_mcp "$HOME/.codex/config.toml"
+
     # Codex install summary
     codex_skills=$(find ~/.codex/skills -mindepth 1 -maxdepth 1 -type l 2>/dev/null | wc -l | tr -d ' ')
     # Count only the Codex-native prompts we manage (those present in source)
@@ -1131,8 +1305,7 @@ if [ "$GLOBAL_MODE" = true ]; then
     echo -e "   ${GREEN}✅ Native ~/.codex/skills/.system/ preserved${NC}"
     echo -e "   ${GREEN}✅ Third-party prompts (BMad, etc.) preserved${NC}"
     echo ""
-    echo -e "${YELLOW}ℹ️  MCP servers in ~/.codex/config.toml are untouched.${NC}"
-    echo -e "${YELLOW}    To mirror Claude MCPs, edit config.toml manually under [mcp_servers.X].${NC}"
+    echo -e "${GREEN}✅ qmd MCP ensured in ~/.codex/config.toml${NC}"
     echo ""
     echo -e "${CYAN}Codex will now see mirrored skills, wiki source-command skills, and the portable Codex-native prompts.${NC}"
     echo -e "${CYAN}Portable prompts: /dev, /discovery, /ship, /qa, /quick-fix, /status, /rodin, /design-audit, /design-audit-squad, /seo-geo-audit, /seo-geo-squad.${NC}"
@@ -1272,6 +1445,9 @@ if [ "$GLOBAL_MODE" = true ]; then
             } > "$TEMP_OPENCODE"
             mv "$TEMP_OPENCODE" "$OPENCODE_HOME/AGENTS.md"
         fi
+
+        echo -e "${CYAN}🔌 Ensuring qmd MCP for OpenCode...${NC}"
+        ensure_opencode_qmd_mcp "$OPENCODE_HOME/opencode.json"
 
         echo -e "   ${GREEN}✅ Skills linked:       $opencode_skill_count${NC}"
         echo -e "   ${GREEN}✅ OpenCode commands:   $opencode_command_count${NC}"
@@ -1562,11 +1738,14 @@ if [ -d "$SOURCE_CLAUDE/knowledge" ]; then
 fi
 
 # Copy skills
-skills_total=$(find "$SOURCE_CLAUDE/skills" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+skills_total=$(find "$SOURCE_CLAUDE/skills" -mindepth 1 -maxdepth 1 -type d ! -name 'source-command-*' 2>/dev/null | wc -l | tr -d ' ')
 echo -e "${GREEN}📁 Installing skills ($skills_total)...${NC}"
 for skill_dir in "$SOURCE_CLAUDE/skills"/*; do
     if [ -d "$skill_dir" ]; then
         skill_name=$(basename "$skill_dir")
+        case "$skill_name" in
+            source-command-*) continue ;;
+        esac
         target_skill="$TARGET_CLAUDE/skills/$skill_name"
 
         # Skip if source and target are the same location
@@ -1852,6 +2031,18 @@ if [ -f "$SOURCE_CLAUDE/mcp.json" ]; then
     fi
 fi
 
+echo -e "${GREEN}🔌 Ensuring qmd MCP configs...${NC}"
+if project_provider_enabled claude; then
+    ensure_claude_qmd_mcp "$TARGET_CLAUDE/mcp.json"
+    ensure_claude_qmd_mcp "$TARGET_DIR/.mcp.json"
+fi
+if project_provider_enabled codex; then
+    ensure_codex_qmd_mcp "$TARGET_DIR/.codex/config.toml"
+fi
+if project_provider_enabled opencode; then
+    ensure_opencode_qmd_mcp "$TARGET_DIR/.opencode/opencode.json"
+fi
+
 # Copy settings.json (PRESERVE in update mode)
 echo -e "${GREEN}📄 Installing settings.json...${NC}"
 if [ -f "$SOURCE_CLAUDE/settings.json" ]; then
@@ -2010,7 +2201,7 @@ echo ""
 echo -e "${GREEN}Preserved (your customizations):${NC}"
 echo -e "   ${GREEN}✅ CLAUDE.md PROJECT-RULES section${NC}"
 echo -e "   ${GREEN}✅ settings.json${NC}"
-echo -e "   ${GREEN}✅ mcp.json${NC}"
+echo -e "   ${GREEN}✅ mcp.json (qmd MCP ensured)${NC}"
 else
 echo -e "${GREEN}╔═══════════════════════════════════════════════════════════════════════╗"
 echo -e "║                     ✅ Installation Complete!                         ║"

@@ -1,4 +1,5 @@
 ---
+name: wiki-capture-session
 description: Capture durable session notes into the Obsidian LLM Wiki raw layer. Usage: /wiki-capture-session [topic]
 ---
 

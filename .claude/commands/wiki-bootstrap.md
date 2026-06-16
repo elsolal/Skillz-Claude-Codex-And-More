@@ -1,6 +1,6 @@
 ---
 name: wiki-bootstrap
-description: Smart end-to-end setup of the Obsidian LLM Wiki vault — detects an existing vault, creates one if missing, patches ~/.claude/CLAUDE.md, verifies the qmd CLI, and runs a health check. Usage /wiki-bootstrap [--vault PATH] [--verify] [--with-qmd | --no-qmd]
+description: Smart end-to-end setup of the Obsidian LLM Wiki vault — detects an existing vault, creates one if missing, patches ~/.claude/CLAUDE.md, verifies qmd, refreshes a named qmd collection, and runs a health check. Usage /wiki-bootstrap [--vault PATH] [--verify] [--with-qmd | --no-qmd]
 ---
 
 # /wiki-bootstrap
@@ -11,7 +11,7 @@ Use this when:
 
 - Setting up the wiki for the first time on a new machine.
 - Adding it to a project where it has not been wired yet.
-- Re-verifying that the vault, the `~/.claude/CLAUDE.md` block, and the `qmd` index are all in sync.
+- Re-verifying that the vault, the `~/.claude/CLAUDE.md` block, and the QMD collection are all in sync.
 
 For day-to-day work prefer the more focused commands:
 
@@ -25,7 +25,7 @@ For day-to-day work prefer the more focused commands:
 1. **Detects existing vault** by reading `~/.claude/CLAUDE.md` for a `Vault memoire :` line. Reuses it if found.
 2. **Creates the vault** at the chosen path (default `~/Documents/Obsidian-<git-user>/Wiki`) if missing, using `init_vault.py` from the `llm-wiki` skill.
 3. **Patches `~/.claude/CLAUDE.md`** with an idempotent `<!-- BEGIN:llm-wiki-config --> … <!-- END:llm-wiki-config -->` block listing the vault path and the workflow.
-4. **Checks the `qmd` CLI** (https://github.com/tobi/qmd). Optionally builds the index of the vault.
+4. **Checks the `qmd` CLI** (https://github.com/tobi/qmd). Optionally creates or refreshes the collection for `wiki/`.
 5. **Smoke tests** the vault with `lint_wiki.py`.
 
 Idempotent: rerunning never duplicates the CLAUDE.md block and never overwrites an existing vault.
@@ -36,7 +36,8 @@ Idempotent: rerunning never duplicates the CLAUDE.md block and never overwrites 
 /wiki-bootstrap                          # interactive
 /wiki-bootstrap --vault ~/path/to/vault  # explicit path
 /wiki-bootstrap --verify                 # health check only, no writes
-/wiki-bootstrap --with-qmd               # also (re)build the qmd index
+/wiki-bootstrap --with-qmd               # update qmd collection and embeddings
+/wiki-bootstrap --qmd-collection name    # explicit qmd collection name
 /wiki-bootstrap --no-qmd                 # skip qmd entirely
 /wiki-bootstrap --non-interactive        # CI mode, fails if config missing
 ```
@@ -65,6 +66,6 @@ Idempotent: rerunning never duplicates the CLAUDE.md block and never overwrites 
 
 ## Notes
 
-- The `qmd` binary itself is **not** vendored — install it separately (`brew install tobi/tap/qmd`).
+- The `qmd` binary itself is **not** vendored — install it separately (`npm install -g @tobilu/qmd` or `bun install -g @tobilu/qmd`).
 - The script writes to `~/.claude/CLAUDE.md`. Permissions may prompt; that is expected.
 - The vault structure follows the upstream `llm-wiki` schema — see `skills/llm-wiki/SKILL.md` for the full data model.

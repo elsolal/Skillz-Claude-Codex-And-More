@@ -50,7 +50,7 @@ Creates `.claude/`, `.codex/`, `.gemini/`, `.opencode/`, `.agents/`, and `docs/`
 curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- update all
 ```
 
-Your provider config (`CLAUDE.md`, `settings.json`, `mcp.json`) is preserved — only the managed workflow section is refreshed.
+Your provider config is preserved. The installer only refreshes the managed workflow section and adds the `qmd` MCP entry if it is missing.
 
 <details>
 <summary><strong>Install one provider at a time</strong></summary>
@@ -182,7 +182,7 @@ A persistent, interlinked knowledge base that grows across sessions, inspired by
 bash install.sh install all --with-wiki
 ```
 
-This runs the standard install **and** bootstraps the wiki: it asks for the vault path, creates the structure, patches `~/.claude/CLAUDE.md`, checks `qmd`, and runs a health check. Skip the bootstrap with `--no-wiki`. Re-run anytime with `bash scripts/setup-wiki.sh` (idempotent).
+This runs the standard install **and** bootstraps the wiki: it asks for the vault path, creates the structure, patches `~/.claude/CLAUDE.md`, checks `qmd`, creates or refreshes a named QMD collection, and runs a health check. Skip the bootstrap with `--no-wiki`. Re-run anytime with `bash scripts/setup-wiki.sh` (idempotent).
 
 ### Prerequisites
 
@@ -190,7 +190,7 @@ This runs the standard install **and** bootstraps the wiki: it asks for the vaul
 |------|----------|---------|-----|
 | **Obsidian** | Yes | [obsidian.md/download](https://obsidian.md/download) (free) | Editor for the vault. Open the chosen folder as a vault inside Obsidian after bootstrap. |
 | **Python 3.9+** | Yes | already required by Skillz-Claude | Powers `init_vault.py`, `lint_wiki.py`, `wiki_search.py`. Stdlib only — no pip install. |
-| **`qmd` CLI** | Recommended | `brew install tobi/tap/qmd` (macOS) or see [tobi/qmd](https://github.com/tobi/qmd) | Local vector search across the vault for when the index alone is not enough. The setup script warns but does not block if absent. |
+| **`qmd` CLI** | Recommended | `npm install -g @tobilu/qmd` with Node 22+, or `bun install -g @tobilu/qmd`; see [tobi/qmd](https://github.com/tobi/qmd) | Local vector search across the vault for when the index alone is not enough. The setup script warns but does not block if absent. |
 
 ### What the bootstrap does
 
@@ -198,8 +198,20 @@ This runs the standard install **and** bootstraps the wiki: it asks for the vaul
 2. **Creates the vault** at the chosen path (default `~/Documents/Obsidian-<git-user>/Wiki`) with the three-layer structure (`raw/`, `wiki/{entities,concepts,sources,comparisons,synthesis}`, `index.md`, `log.md`).
 3. **Patches `~/.claude/CLAUDE.md`** with an idempotent `<!-- BEGIN:llm-wiki-config --> … <!-- END:llm-wiki-config -->` block so every new Claude session knows where the vault lives and how to use it.
 4. **Verifies the `qmd` binary** is on your PATH (warns if not).
-5. **Optionally builds the `qmd` index** for the vault (`--with-qmd` to force, prompted in interactive mode).
+5. **Optionally creates or refreshes the QMD collection** for `wiki/` (`--with-qmd` to force, prompted in interactive mode), then runs `qmd update` and `qmd embed`.
 6. **Smoke-tests** the vault with `lint_wiki.py` (orphans, broken links, frontmatter, log gap).
+
+### QMD MCP across agents
+
+`install/update all` now ensures the local QMD MCP server is available in the three agent clients used by this setup:
+
+| Client | Config file | QMD server entry |
+|---|---|---|
+| Claude Code | project `.mcp.json` and Skillz `.claude/mcp.json` | `"qmd": { "command": "qmd", "args": ["mcp"] }` |
+| Codex | `~/.codex/config.toml` | `[mcp_servers.qmd]` with `command = "qmd"` and `args = ["mcp"]` |
+| OpenCode | `~/.config/opencode/opencode.json` | `"qmd": { "type": "local", "command": ["qmd", "mcp"], "enabled": true }` |
+
+The installer only adds QMD if it is missing. Existing MCP servers stay in place.
 
 ### Open the vault in Obsidian
 
@@ -229,7 +241,8 @@ Codex note: Codex does not reliably consume Claude slash command files directly.
 bash scripts/setup-wiki.sh                       # interactive
 bash scripts/setup-wiki.sh --vault ~/path        # explicit vault path
 bash scripts/setup-wiki.sh --verify              # health check only, no writes
-bash scripts/setup-wiki.sh --with-qmd            # rebuild the qmd index
+bash scripts/setup-wiki.sh --with-qmd            # update qmd collection and embeddings
+bash scripts/setup-wiki.sh --qmd-collection name # explicit qmd collection name
 bash scripts/setup-wiki.sh --no-qmd              # skip qmd entirely
 bash scripts/setup-wiki.sh --non-interactive     # CI mode, fails if config missing
 ```
