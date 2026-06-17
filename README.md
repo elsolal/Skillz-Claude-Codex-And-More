@@ -213,6 +213,22 @@ This runs the standard install **and** bootstraps the wiki: it asks for the vaul
 
 The installer only adds QMD if it is missing. Existing MCP servers stay in place.
 
+### Local project memory pointers
+
+Project repos should not commit machine-specific memory paths. For shared teams, publish the memory vault repo and QMD collection name, then let each collaborator create local pointers:
+
+```bash
+scripts/create-project-memory-pointer.sh \
+  --project-dir /path/to/project-repo \
+  --project-name project-repo \
+  --vault-path "$OBSIDIAN_MEMORY_ROOT/Pleepole" \
+  --memory-repo https://github.com/Pleepole/pleepole-memory.git \
+  --qmd-collection pleepole-wiki \
+  --start-page wiki/index.md
+```
+
+The helper writes `.claude/project-memory.md` and `.agents/project-memory.md`, then protects them with `.git/info/exclude`. These files can contain absolute local paths and must stay out of commits.
+
 ### Open the vault in Obsidian
 
 After bootstrap:
