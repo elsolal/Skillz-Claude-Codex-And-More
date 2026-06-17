@@ -5,11 +5,11 @@ description: Capture durable session notes into the Obsidian LLM Wiki raw layer.
 
 # /wiki-capture-session
 
-Capture only durable learnings from the current coding session into the vault raw layer, then suggest ingesting it.
+Capture only durable learnings from the current coding session into the active memory vault raw layer, then suggest ingesting it.
 
-Vault target: `/Users/aymeric/Documents/Obsidian-Elsolal/Elsolal`
+Vault target: read the local project memory pointer first (`.claude/project-memory.md` or `.agents/project-memory.md`) and use its memory vault.
 
-Output directory: `/Users/aymeric/Documents/Obsidian-Elsolal/Elsolal/raw/session-notes/`
+Output directory: `<memory-vault>/raw/session-notes/`
 
 ## Important exception
 
@@ -24,6 +24,7 @@ Never modify, rename, move, overwrite, or delete an existing file in `raw/`.
    - Project name from the current directory basename.
    - Git branch if inside a git repo.
    - Remote URL if available.
+   - Memory vault from the local project memory pointer, if present.
    - Related issue or PR if mentioned in the session or arguments.
 2. Create a concise source note. Do not include the full transcript.
 3. Use this filename pattern:
