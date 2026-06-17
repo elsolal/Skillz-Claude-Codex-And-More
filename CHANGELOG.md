@@ -13,6 +13,7 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ### Changed
 - Wiki setup guidance now states that project-memory pointers are machine-specific and should stay ignored by Git.
+- `/wiki-ingest` now requires a coverage audit before indexing: raw sections/files must be mapped to wiki pages, weak or missing coverage must be fixed or explicitly skipped, and high-risk sources get targeted QMD retrieval checks.
 
 ## v5.14.2 (2026-06-16)
 

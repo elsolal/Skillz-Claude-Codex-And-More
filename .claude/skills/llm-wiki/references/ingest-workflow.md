@@ -63,13 +63,36 @@ Log contradictions in `log.md` with `op: note`.
 
 If the source meaningfully shifts a `synthesis/` page's thesis, revise the "Thesis" paragraph and append a dated entry under "How this synthesis has changed". Don't rewrite history; append.
 
-### 8. Update `index.md`
+### 8. Run the coverage audit
+
+Before updating the index, prove that the wiki now covers the source at the right depth.
+
+For a single source file:
+- Map the source sections/headings to the source summary and the entity/concept/synthesis pages updated.
+- Mark each important section as `covered`, `weak`, `missing`, or `intentionally skipped`.
+- For `weak` or `missing` sections, update the wiki before continuing unless the skip is explicit and justified.
+
+For a folder or multi-file ingest:
+- List every source file under the ingested raw path.
+- Classify each file as `active/current`, `archive/superseded`, `asset/diagram`, or `out of scope`.
+- Map each active/current file to at least one wiki page or a specific section in a source summary.
+
+High-risk sources require stricter coverage: architecture, operations, security, legal, finance/money movement, and product decisions. For these, do not stop with a light summary. Make sure architecture boundaries, operational rules, failure modes, open risks, and key terms are retrievable from the wiki.
+
+Add a short `## Coverage audit <YYYY-MM-DD>` section to the source summary when the source is large, high-risk, or folder-based. The section should include:
+- Raw scope audited
+- Pages updated
+- Coverage status
+- Important weak/missing/skipped items, if any
+- Retrieval phrases to test after QMD reindex
+
+### 9. Update `index.md`
 
 Either:
 - Run `python scripts/update_index.py --vault .` to regenerate the entire index from frontmatter, OR
 - Edit the relevant category sections inline (faster for small ingests).
 
-### 9. Append to `log.md`
+### 10. Append to `log.md`
 
 Run `python scripts/append_log.py --vault . --op ingest --title "<title>" --detail "<detail>"`.
 
@@ -82,7 +105,7 @@ concepts/polysemanticity, entities/anthropic-interpretability-team. Flagged
 contradiction with sources/distributed-representations.
 ```
 
-### 10. Reindex retrieval (QMD)
+### 11. Reindex retrieval (QMD)
 
 Run from the vault root:
 
@@ -95,15 +118,19 @@ qmd embed     # generate vector embeddings for new chunks
 
 **Validation:** run `qmd vsearch "<key phrase from the new source>" -n 3` and confirm the new pages appear in the top results. Prefer `vsearch` over `query` for validation — `query` may trigger a one-time reranker model download (~1.3 GB) that does not need to block the ingest.
 
+Run 5-10 targeted retrieval checks for large or high-risk ingests. Include both exact source terms and plain-language aliases, especially for code identifiers with underscores or abbreviations. Example: test both `wallet_m` and `wallet compensation`.
+
 **Skip only if** `command -v qmd` returns nothing (vault not configured for QMD). In that case, note it in the report so the user knows retrieval is stale.
 
-### 11. Report back to the user
+### 12. Report back to the user
 
 Summary the user sees in chat:
 - Source summary page created/updated
 - Pages touched (bulleted wikilinks so the user can click through)
+- Coverage audit result: `covered`, `covered with explicit skips`, or `needs follow-up`
 - Contradictions flagged (if any)
 - QMD reindex result (e.g. "9 new + 6 updated, 51 chunks embedded in 2s")
+- Targeted retrieval checks performed
 - Suggested next sources to pursue
 
 ## After-ingest tips
