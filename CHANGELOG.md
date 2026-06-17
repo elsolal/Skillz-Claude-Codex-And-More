@@ -2,6 +2,18 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## v5.14.3 (2026-06-17)
+
+**Portable team memory setup**
+
+### Added
+- `scripts/create-project-memory-pointer.sh` creates local `.claude/project-memory.md` and `.agents/project-memory.md` files for project repos.
+- The helper protects machine-specific pointers through `.git/info/exclude` so collaborators can keep local vault paths without committing them.
+- README documents the team-safe memory pointer workflow.
+
+### Changed
+- Wiki setup guidance now states that project-memory pointers are machine-specific and should stay ignored by Git.
+
 ## v5.14.2 (2026-06-16)
 
 **Obsidian LLM Wiki + QMD MCP hardening**
