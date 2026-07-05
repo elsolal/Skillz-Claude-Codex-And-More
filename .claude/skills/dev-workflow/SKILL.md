@@ -1,11 +1,11 @@
 ---
 name: dev-workflow
-description: Single-thread sequential feature development workflow inspired by D-EPCT+R. Loaded by /dev slash command in both Claude Code and Codex CLI. Use when the user wants to implement a feature, fix a bug described at higher level than /quick-fix, or work on a GitHub issue. Enforces Explore → Plan → Implement → Review ×3 → Ship with validation checkpoints between phases.
+description: Single-thread sequential feature development workflow inspired by D-EPCT+R. Loaded by /dev slash command in both Claude Code and Codex CLI. Use when the user wants to implement a feature, fix a bug described at higher level than /quick-fix, or work on a GitHub issue. Enforces Explore → Plan → Implement → Quality Gate → Ship with validation checkpoints between phases.
 ---
 
 # Dev Workflow — Feature Implementation
 
-This skill describes the full feature-development workflow enforced by the `/dev` command. It is runtime-agnostic: both Claude Code and Codex CLI execute it sequentially, without relying on parallel subagent dispatch. The rigor of D-EPCT+R (stop checkpoints, 3-pass review) is preserved — only the execution pattern changes from parallel subagents to sequential in-context phases.
+This skill describes the full feature-development workflow enforced by the `/dev` command. It is runtime-agnostic: both Claude Code and Codex CLI execute it sequentially, without relying on parallel subagent dispatch. The rigor of D-EPCT+R (stop checkpoints, bounded quality-gate loop) is preserved — only the execution pattern changes from parallel subagents to sequential in-context phases.
 
 **Input**: a task description, issue reference (e.g. `#42`), or feature description passed as arguments after the `/dev` invocation.
 
