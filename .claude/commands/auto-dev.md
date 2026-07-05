@@ -123,7 +123,7 @@ Réservé au **prototypage rapide**. Le log RALPH `docs/ralph-logs/${CLAUDE_SESS
 - Au retour : vérifier conflits, lancer tests
 
 ### Phase 4: REVIEW (boucle quality-gate)
-- Charger le skill `quality-gate` sur `git diff main...HEAD` (niveau 2, ou 3 si FRONTEND)
+- Charger le skill `quality-gate` sur le diff de la branche par défaut (`git diff <base>...HEAD`) (niveau 2, ou 3 si FRONTEND)
 - Boucle bornée : preuves d'exécution (manifeste) → lentilles → contre-vérification → fix → re-tour
 - Sortie : `docs/quality/GATE-<date>-<slug>.yaml` committé
 - En autonome, un verdict FAIL = nouvelle itération RALPH ; > 3 tentatives → STOP
@@ -152,8 +152,8 @@ Puis :
 Le loop considère la feature "COMPLETE" quand :
 - Code implémenté selon le plan
 - Tous les tests passent
-- 3 passes de review effectuées via subagents
-- Aucune issue 🔴 Critical restante
+- Boucle quality-gate convergée (2 tours propres, ou cap atteint documenté)
+- Gate file `docs/quality/GATE-<date>-<slug>.yaml` avec verdict PASS
 
 ## Métriques RALPH
 

@@ -122,7 +122,7 @@ Execute each step of the plan sequentially. For each step:
 **Goal**: converge on proven quality instead of a one-shot review.
 
 1. Determine the gate level: 2 by default; 3 if frontend or SEO/GEO work was detected in Phase 1 (their audit lenses join the loop).
-2. Run the `quality-gate` skill on `git diff main...HEAD` with the validated plan and the manifest. It loops (bounded) through execution evidence → multi-lens reviews → adversarial counter-verification → fixes, and writes `docs/quality/GATE-<date>-<slug>.yaml`.
+2. Run the `quality-gate` skill on the default-branch diff (`git diff <base>...HEAD`, per the quality-gate skill's base rule) with the validated plan and the manifest. It loops (bounded) through execution evidence → multi-lens reviews → adversarial counter-verification → fixes, and writes `docs/quality/GATE-<date>-<slug>.yaml`.
 3. Commit the gate file with the branch.
 
 **STOP CHECKPOINT 4** — Present the gate summary: verdict, rounds, findings (confirmed/refuted/fixed), `decisions_prises_en_ton_nom`, absents. Wait for user validation before ship.

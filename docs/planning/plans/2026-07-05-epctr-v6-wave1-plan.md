@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Errata (post-review finale)** : le contenu verbatim des Tasks 1-2 a été corrigé en implémentation (commits ee597d6, da9fab2 + batch review finale) — en cas d'écart, les SKILL.md en arbre font foi. Voir spec §12.
+
 **Goal:** Créer les deux briques partagées (`project-probe`, `quality-gate`) et les brancher sur la chaîne EPCT+R existante sans changer son modèle d'interaction.
 
 **Architecture:** Deux nouveaux skills markdown auto-découverts par `install.sh` ; la Phase 4 (REVIEW) de `/dev` et `/auto-dev` délègue à la boucle quality-gate ; toutes les vérifications en dur (`npm run lint…`) sont remplacées par la lecture du manifeste `.agents/verification.yaml`. Spec de référence : `docs/planning/specs/2026-07-05-epctr-v6-design.md` (§3, §4, §9 vague 1).

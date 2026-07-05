@@ -166,7 +166,7 @@ Quand les 2 subagents reviennent :
 
 ## Phase 4: REVIEW (boucle quality-gate)
 
-Charger le skill `quality-gate` et le lancer sur `git diff main...HEAD` avec le plan validé :
+Charger le skill `quality-gate` et le lancer sur le diff de la branche par défaut (`git diff <base>...HEAD`, règle du skill quality-gate) avec le plan validé :
 
 - Niveau de gate : 2 par défaut ; 3 si FRONTEND ou SEO/GEO détecté (leurs lentilles d'audit rejoignent la boucle).
 - La boucle est bornée : preuves d'exécution (commandes du manifeste `.agents/verification.yaml`) → reviews multi-lentilles en subagents frais → contre-vérification adversariale des findings nouveaux → fix des confirmés P0/P1 → re-tour, jusqu'à convergence (2 tours propres) ou cap.

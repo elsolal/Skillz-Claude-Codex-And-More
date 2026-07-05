@@ -214,3 +214,13 @@ Chaque vague = une branche + PR distincte. L'ancienne version reste dans git —
 - Recherche BMAD Method v6.10 (2026-07-05, session Claude) : scale-adaptive 0-4, Test Architect gate files PASS/CONCERNS/FAIL/WAIVED, ATDD, story-context, project-context, party mode anti-consensus.
 - Repo actuel : `commands/dev.md`, `skills/dev-workflow/SKILL.md`, `skills/ship-workflow/SKILL.md`, `skills/quick-fix-workflow/SKILL.md`, `skills/discovery-workflow/SKILL.md`, `commands/auto-dev.md`, `.claude/knowledge/workflows/verification-matrix.md`.
 - Principes : superpowers verification-before-completion, adversarial verification loops, loop-until-dry.
+
+## 12. Errata post-implémentation (vague 1)
+
+Les SKILL.md en arbre sont canoniques ; les extraits verbatim de ce document et du plan vague 1 sont figés à la date d'approbation. Corrections apportées pendant l'implémentation (commits ee597d6, da9fab2 et batch de la review finale) :
+
+- `git diff main...HEAD` → détection de la branche par défaut (`<base>` = `main`, sinon `master`) dans quality-gate et ses appelants.
+- Exception niveau 1 : les préconditions PASS s'appliquent aussi — sans preuve exécutable, CONCERNS même en 1 tour.
+- Clés du gate file en ASCII sans accents : `confirmes`, `refutes`, `corriges` (contrat de parsing pour /ship en vague 3) ; l'exemple du §4 avec accents est obsolète.
+- Un restart sur preuve rouge consomme un tour du cap ; preuve impossible à verdir dans le cap → verdict FAIL.
+- Le fingerprint de project-probe couvre aussi `justfile` et `.github/workflows/*.yml`.

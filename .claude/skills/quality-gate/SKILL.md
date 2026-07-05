@@ -26,7 +26,7 @@ Replaces the one-shot "review ×3" with a bounded loop that produces an auditabl
 ## One round
 
 1. **EXECUTION EVIDENCE — always first, never skipped.**
-   Run every command in the manifest's `commands`. If the harness provides the `verify` skill, drive the app's real affected flow (not just tests). Any red → fix immediately → restart the round. Record each command and its actual result; a claim without the executed command's output is worthless.
+   Run every command in the manifest's `commands`. If the harness provides the `verify` skill, drive the app's real affected flow (not just tests); otherwise use the manifest's `testability.runtime_verify` command to launch the app and drive the affected flow yourself. Any red → fix immediately → restart the round. A restart consumes a round from the cap; if execution evidence cannot be made green within the cap, the verdict is `FAIL`. Record each command and its actual result; a claim without the executed command's output is worthless.
    If the diff touches only docs/config with no runtime surface, still run the manifest commands and note the limitation in `absents` — never skip silently.
 
 2. **MULTI-LENS REVIEWS — fresh contexts.**
