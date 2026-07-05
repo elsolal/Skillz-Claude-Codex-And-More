@@ -1,7 +1,7 @@
 ---
-status: draft
-approved_by: null
-approved_at: null
+status: approved
+approved_by: aymeric
+approved_at: 2026-07-05
 date: 2026-07-05
 slug: epctr-v6
 title: "D-EPCT+R v6 — Source unique, boucle qualité agentic, niveaux adaptatifs"
