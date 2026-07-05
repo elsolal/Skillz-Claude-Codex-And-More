@@ -8,7 +8,7 @@ description: Bounded agentic quality loop that replaces human code re-reading be
 Replaces the one-shot "review ×3" with a bounded loop that produces an auditable verdict. The user reads the gate file instead of the diff.
 
 **Inputs**:
-- The diff to gate: `git diff main...HEAD` (or the diff the caller designates).
+- The diff to gate: `git diff <base>...HEAD` where `<base>` is the repo's default branch (`main`, or `master` if `main` does not exist), unless the caller designates another diff.
 - The validated plan / acceptance criteria, when the caller has one.
 - `.agents/verification.yaml` — if missing, run the `project-probe` skill first.
 - The task level (0-4). Default: 2. The caller passes it; level 0 changes are not gated (no gate file).
@@ -44,7 +44,7 @@ Replaces the one-shot "review ×3" with a bounded loop that produces an auditabl
 4. **FIX confirmed P0/P1** (the orchestrator fixes — it has context), then return to step 1. P2/P3 go to the gate file as notes, not fixes (no scope creep).
 
 **Convergence**: two consecutive rounds with zero new confirmed findings → verdict. Cap reached without convergence → verdict `CONCERNS`, remaining findings listed. Never loop past the cap.
-**Level-1 exception** (cap = 1 round): the verdict is decided on that single round — confirmed findings fixed + execution evidence re-run green → `PASS`.
+**Level-1 exception** (cap = 1 round): the verdict is decided on that single round — confirmed findings fixed + execution evidence re-run green → `PASS`. The Verdict-rules preconditions still apply: without at least one real executable proof, the verdict caps at `CONCERNS` even here.
 
 ## Verdict rules
 
@@ -75,7 +75,7 @@ absents:
   - "no e2e harness"
 ```
 
-Compute `diff_hash` with: `git diff main...HEAD | shasum -a 256 | cut -d' ' -f1`.
+Compute `diff_hash` by hashing the same gated diff: `git diff <base>...HEAD | shasum -a 256 | cut -d' ' -f1`.
 
 `decisions_prises_en_ton_nom` lists every autonomous deviation from the validated plan. **For levels 3-4 the calling workflow must show this section to the user before proposing ship** — it is the only careful read left to the human.
 
