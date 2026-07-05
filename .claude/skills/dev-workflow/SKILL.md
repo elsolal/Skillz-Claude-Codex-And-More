@@ -27,6 +27,8 @@ This skill describes the full feature-development workflow enforced by the `/dev
 
 **Goal**: build a complete mental model of the codebase relevant to the task.
 
+0. Run the `project-probe` skill: read `.agents/verification.yaml` (create it if absent or stale). All verification in later phases uses the manifest's commands.
+
 1. If the task argument is an issue reference (`#42`, `owner/repo#42`), fetch the issue:
    ```bash
    gh issue view 42
@@ -107,11 +109,7 @@ Execute each step of the plan sequentially. For each step:
    - No hard waits, no flaky patterns
    - Deterministic (fixed seeds, frozen time)
 
-3. **Verify lint + types + tests pass** after each step:
-   ```bash
-   npm run lint && npm run typecheck && npm test
-   ```
-   (adapt to project's actual commands — check `package.json` scripts or equivalent)
+3. **Verify after each step** by running the `commands` from `.agents/verification.yaml` (lint, typecheck, test). A command absent from the manifest is reported as absent — never faked green, never guessed.
 
 4. If a step breaks the build, fix before moving to the next step.
 
@@ -119,65 +117,15 @@ Execute each step of the plan sequentially. For each step:
 
 ---
 
-## Phase 4 — REVIEW (3 sequential passes)
+## Phase 4 — REVIEW (quality-gate loop)
 
-**Goal**: catch issues that tests don't catch, in 3 distinct mental contexts.
+**Goal**: converge on proven quality instead of a one-shot review.
 
-Execute 3 review passes **sequentially**, each focusing on one dimension only. Between passes, mentally reset — don't mix concerns.
+1. Determine the gate level: 2 by default; 3 if frontend or SEO/GEO work was detected in Phase 1 (their audit lenses join the loop).
+2. Run the `quality-gate` skill on `git diff main...HEAD` with the validated plan and the manifest. It loops (bounded) through execution evidence → multi-lens reviews → adversarial counter-verification → fixes, and writes `docs/quality/GATE-<date>-<slug>.yaml`.
+3. Commit the gate file with the branch.
 
-### Pass 1 — CORRECTNESS
-
-Review the diff (`git diff main...HEAD` or `git diff HEAD~N`) with this focus only:
-
-- Business logic correct?
-- Edge cases handled (null, undefined, empty, boundary)?
-- Race conditions, data loss risks?
-- Security issues (injection, XSS, auth bypass, trust boundary violations)?
-- Types correct, no unjustified `any`?
-- Tests cover the changes?
-
-Classify each issue:
-- 🔴 **CRITICAL**: bug, security flaw, data loss → must fix
-- 🟡 **MEDIUM**: code smell, logic weakness → should fix
-- 🟢 **MINOR**: style, naming → nice to have
-
-Output: a table with `Severity | File:Line | Issue | Suggested fix`.
-
-### Pass 2 — READABILITY
-
-Re-read the same diff with fresh eyes, focus only on:
-
-- Clear, consistent naming (verbNoun for functions, noun for variables)
-- Function size reasonable (< 20 lines ideally)
-- Useful comments (complex logic only, not trivia)
-- Logical structure, early return patterns
-- No duplication (DRY principle)
-- Appropriate abstractions (no over-engineering)
-
-Output: a table with `Type | File | Suggestion | Impact`.
-
-### Pass 3 — PERFORMANCE
-
-Re-read again, focus only on:
-
-- Avoidable O(n²) operations
-- Unnecessary re-renders (if React/frontend)
-- DB query issues (N+1, missing indexes)
-- Memory leaks (event listeners, subscriptions, unclosed resources)
-- Lazy loading opportunities
-- Caching opportunities
-
-Output: a table with `Type | Impact estimate | Effort | Suggestion`.
-
-After all 3 passes:
-
-1. **Consolidate** the 3 reports into one summary
-2. **Fix CRITICAL issues immediately** — you have the context, don't defer
-3. If frontend work was detected, run `design-audit --ship-gate` against the changed surface; fix P0 and P1 unless explicitly deferred by the user
-4. If SEO/GEO work was detected, run `seo-geo-audit --ship-gate` against the changed public surface; fix P0 and P1 unless explicitly accepted by the user
-5. **Re-run tests** after fixes
-
-**STOP CHECKPOINT 4** — Present consolidated review + fixes applied. Wait for user validation before ship.
+**STOP CHECKPOINT 4** — Present the gate summary: verdict, rounds, findings (confirmed/refuted/fixed), `decisions_prises_en_ton_nom`, absents. Wait for user validation before ship.
 
 ---
 
@@ -209,6 +157,8 @@ Wait for the user's choice.
 
 When useful, load these for deeper guidance:
 
+- Verification manifest: the `project-probe` skill (`.agents/verification.yaml`)
+- Quality loop & gate file: the `quality-gate` skill (`docs/quality/GATE-*.yaml`)
 - Testing strategy: `.claude/knowledge/testing/test-levels-framework.md`, `test-priorities-matrix.md`
 - Error handling: `.claude/knowledge/testing/error-handling.md`
 - Frontend components: `components/CLAUDE.md` or `components/AGENTS.md` if present
