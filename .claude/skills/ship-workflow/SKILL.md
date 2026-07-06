@@ -16,7 +16,7 @@ This skill describes the automated release pipeline executed by the `/ship` comm
 ## Core Principles
 
 1. **Non-interactive by default** — the user said `/ship`, which means DO IT. Don't ask for confirmation on version bumps, commit messages, or CHANGELOG content.
-2. **Only stop for real blockers** — merge conflicts that can't auto-resolve, test failures, critical review findings, frontend design-audit P0/P1, public-page seo-geo-audit P0/P1.
+2. **Only stop for real blockers** — merge conflicts that can't auto-resolve, red execution evidence, a gate FAIL, or an explicit CONCERNS-waiver decision.
 3. **Never force-push** — regular `git push` only. Never `--force`.
 4. **Never skip hooks** — no `--no-verify`, no `--no-gpg-sign` unless explicitly requested.
 5. **Bisectable commits** — each commit should be independently valid (no broken imports between commits).
