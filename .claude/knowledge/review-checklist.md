@@ -1,4 +1,4 @@
-# Pre-Landing Review Checklist
+# Review Checklist
 
 ## Instructions
 
@@ -11,7 +11,7 @@ Review the `git diff origin/main` output for the issues listed below. Be specifi
 **Output format:**
 
 ```
-Pre-Landing Review: N issues (X critical, Y informational)
+Review: N issues (X critical, Y informational)
 
 **CRITICAL** (blocking /ship):
 - [file:line] Problem description
@@ -22,7 +22,7 @@ Pre-Landing Review: N issues (X critical, Y informational)
   Fix: suggested fix
 ```
 
-If no issues found: `Pre-Landing Review: No issues found.`
+If no issues found: `Review: No issues found.`
 
 Be terse. One line problem, one line fix. No preamble.
 

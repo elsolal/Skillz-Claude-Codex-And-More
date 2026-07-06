@@ -60,7 +60,7 @@ Quality is proven by the gate file, not by a fresh review. One definition of qua
 
 1. Find the most recent `docs/quality/GATE-*.yaml` committed on this branch.
 2. Check **freshness**: recompute the diff hash with the gate's exclusion rule —
-   `git diff <base>...HEAD -- ':(exclude)docs/quality' | (shasum -a 256 2>/dev/null || sha256sum) | cut -d' ' -f1`
+   `git diff <base>...HEAD -- ':(exclude)docs/quality' ':(exclude)CHANGELOG.md' | (shasum -a 256 2>/dev/null || sha256sum) | cut -d' ' -f1`
    (`<base>` = `main`, or `master` if `main` does not exist) and compare with the gate's `diff_hash`.
 3. Decide:
    - **Gate PASS and fresh** → proceed. The gate file content goes into the PR body verbatim.

@@ -224,3 +224,4 @@ Les SKILL.md en arbre sont canoniques ; les extraits verbatim de ce document et 
 - Clés du gate file en ASCII sans accents : `confirmes`, `refutes`, `corriges` (contrat de parsing pour /ship en vague 3) ; l'exemple du §4 avec accents est obsolète.
 - Un restart sur preuve rouge consomme un tour du cap ; preuve impossible à verdir dans le cap → verdict FAIL.
 - Le fingerprint de project-probe couvre aussi `justfile` et `.github/workflows/*.yml`.
+- La règle de fraîcheur du gate exclut aussi `CHANGELOG.md` (le bookkeeping de /ship ne périme pas le gate) — vague 3.

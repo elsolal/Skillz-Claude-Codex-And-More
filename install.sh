@@ -2308,7 +2308,7 @@ if [ "$UPDATE_MODE" != true ]; then
 echo -e "${CYAN}Workflow:${NC}"
 echo ""
 echo "  Planning:  🧠 Brainstorm → 📋 PRD → 🏗️ Architecture → 📝 Stories (orchestrateur garde le contexte)"
-echo "  Dev:       🔍 Explore → 📝 Plan (orchestrateur) → 💻 Code+Tests (subagents //) → 🔄 Review ×3 (subagents //) → 🚀 Ship"
+echo "  Dev:       🔍 Explore → 📝 Plan (orchestrateur) → 💻 Code+Tests (subagents //) → 🔄 Boucle quality-gate → 🚀 Ship"
 echo ""
 echo -e "${CYAN}Documentation:${NC}"
 echo ""

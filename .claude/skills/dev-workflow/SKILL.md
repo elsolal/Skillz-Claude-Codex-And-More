@@ -78,7 +78,7 @@ Parallelizing two steps is allowed ONLY if their file sets are disjoint — and 
 
 Level 0: run the manifest commands, present the fix (no gate file). Done — Phase 6. In autonomous mode the minimum level is 1: a gate file is always produced, because the PR needs proof.
 
-Levels 1-4: run the `quality-gate` skill on the default-branch diff with the validated plan and the manifest. Gate level = task level (1 → 1 round; 2 → ≤3; 3-4 → ≤4 + design-audit / seo-geo-audit / a11y-enforcer lenses for the surfaces detected in Phase 1). Commit the gate file with the branch.
+Levels 1-4: commit the implementation first — the gate evaluates the committed diff (`<base>...HEAD`); uncommitted work is invisible to it. Then run the `quality-gate` skill on the default-branch diff with the validated plan and the manifest. Gate level = task level (1 → 1 round; 2 → ≤3; 3-4 → ≤4 + design-audit / seo-geo-audit / a11y-enforcer lenses for the surfaces detected in Phase 1). Commit the gate file with the branch.
 
 **Autonomous mode**: verdict PASS required — CONCERNS is never auto-accepted. If the CONCERNS is *structural* (the project offers no executable evidence at all), STOP immediately with the explanation — iterating cannot change it. FAIL → one more iteration to fix; >3 attempts → STOP with a clear report.
 

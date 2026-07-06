@@ -59,7 +59,7 @@ d-epct-workflow/
         ├── 📁 test-runner/
         │   └── 📄 SKILL.md               ← 🧪 Tests
         └── 📁 code-reviewer/
-            └── 📄 SKILL.md               ← 🔍 Review ×3
+            └── 📄 SKILL.md               ← 🔍 Boucle quality-gate
 ```
 
 ---
@@ -355,7 +355,7 @@ Quand une feature touche `.tsx`, `.jsx`, `.vue`, `.css`, des composants, tokens,
 Utilise `/design-audit-squad` quand il faut un audit complet façon Lyse Design Squad: règles communes, orchestrateur, 12 agents, livrables intermédiaires, score statique Lyse optionnel, taste runtime, drift Figma/code et ship-gate final.
 
 1. **Apres Explore** : audit rapide pour transformer les P0/P1 en contraintes de plan.
-2. **Apres Review ×3** : `design-audit --ship-gate` sur la preview ou les chemins UI modifies.
+2. **Apres la boucle quality-gate** : `design-audit --ship-gate` sur la preview ou les chemins UI modifies.
 3. **Dans `/qa`** : le health score inclut une categorie `Design system`.
 4. **Dans `/ship`** : P0 bloque; P1 bloque sauf risque explicitement accepte.
 
