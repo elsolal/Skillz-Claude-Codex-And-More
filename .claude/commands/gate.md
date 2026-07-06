@@ -4,7 +4,7 @@ description: Lance la boucle quality-gate en standalone sur un diff — reviews 
 
 # Gate — $ARGUMENTS
 
-Charge le skill `quality-gate` et exécute-le en standalone.
+Charge le skill `quality-gate` et exécute-le en mode **standalone** : **rapport d'abord, zéro modification avant mon arbitrage**. Après la contre-vérification, présente le rapport détaillé (fichier:ligne, sévérité, confirmé/réfuté avec raison, fix proposé), puis demande : **[A]** appliquer tous les P0/P1 confirmés et continuer la boucle | **[S]** sélectionner les fixes | **[R]** rapport seul (gate file écrit avec le verdict en l'état).
 
 - Arguments : **$ARGUMENTS** — un niveau optionnel (1-4, **défaut 3 = review complète** : correctness/sécurité, lisibilité, performance + lentilles design-audit/seo-geo/a11y si le diff touche ces surfaces, jusqu'à 4 tours) et/ou une cible (défaut : le diff de la branche par défaut, `git diff <base>...HEAD`). `/gate 1` pour un tour rapide mono-reviewer.
 - Prérequis : lancer `project-probe` d'abord si `.agents/verification.yaml` est absent.

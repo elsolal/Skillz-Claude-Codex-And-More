@@ -12,6 +12,7 @@ Replaces the one-shot "review ×3" with a bounded loop that produces an auditabl
 - The validated plan / acceptance criteria, when the caller has one.
 - `.agents/verification.yaml` — if missing, run the `project-probe` skill first.
 - The task level (0-4). Default: 2. The caller passes it; level 0 changes are not gated (no gate file).
+- The mode: **integrated** (called by dev-workflow or ship-workflow — the loop fixes autonomously) or **standalone** (invoked via /gate or directly by the user — report first, the user arbitrates every fix; see step 4).
 
 **Output**: `docs/quality/GATE-<YYYY-MM-DD>-<slug>.yaml` (slug = branch name or story slug, kebab-case) + a short summary to the caller.
 
@@ -41,7 +42,9 @@ Replaces the one-shot "review ×3" with a bounded loop that produces an auditabl
    - Each NEW finding goes to an independent verifier whose explicit job is to REFUTE it against the actual code. Uncertain → refuted (bias against false positives) — EXCEPT security findings (injection, auth bypass, secret exposure, trust-boundary violations): an uncertain security finding stays confirmed until positively disproven.
    - Confirmed → fix queue. Refuted → registry, never returns.
 
-4. **FIX confirmed P0/P1** (the orchestrator fixes — it has context), then return to step 1. P2/P3 go to the gate file as notes, not fixes (no scope creep).
+4. **FIX confirmed P0/P1**, then return to step 1. P2/P3 go to the gate file as notes, not fixes (no scope creep).
+   - **Integrated mode**: the orchestrator fixes autonomously — it has the context and the loop's job is to converge without human input.
+   - **Standalone mode**: NEVER modify a file before the user chooses. After counter-verification, present the **detailed report first** — one entry per finding: file:line, severity (P0-P3), confirmed/refuted with the verifier's reason, and the proposed fix (quoted). Then ask: **[A] apply all confirmed P0/P1 and continue the loop** | **[S] select which findings to fix** | **[R] report only** — write the gate file with the current verdict (unfixed confirmed P0/P1 ⇒ FAIL or CONCERNS per the verdict rules) and stop. On later rounds, present only the new findings (the delta) before fixing.
 
 **Convergence**: two consecutive rounds with zero new confirmed P0/P1 findings → verdict (P2/P3 notes never count toward convergence). Cap reached without convergence → verdict `CONCERNS`, remaining findings listed. Never loop past the cap.
 **Level-1 exception** (cap = 1 round): the verdict is decided on that single round — confirmed findings fixed + execution evidence re-run green → `PASS`. The Verdict-rules preconditions still apply: without at least one real executable proof, the verdict caps at `CONCERNS` even here.
@@ -86,3 +89,4 @@ Compute `diff_hash` by hashing the gated diff excluding gate files themselves: `
 - Skipping execution evidence because "only docs changed".
 - Fixing P2/P3 style findings during the loop (scope creep — note them instead).
 - Looping past the cap, or emitting PASS on opinion alone.
+- Modifying any file in standalone mode before the user has arbitrated the report.
