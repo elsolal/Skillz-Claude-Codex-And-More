@@ -26,7 +26,7 @@ Replaces the one-shot "review ×3" with a bounded loop that produces an auditabl
 ## One round
 
 1. **EXECUTION EVIDENCE — always first, never skipped.**
-   Run every command in the manifest's `commands`. If the harness provides the `verify` skill, drive the app's real affected flow (not just tests); otherwise use the manifest's `testability.runtime_verify` command to launch the app and drive the affected flow yourself. Any red → fix immediately → restart the round. A restart consumes a round from the cap; if execution evidence cannot be made green within the cap, the verdict is `FAIL`. Record each command and its actual result; a claim without the executed command's output is worthless.
+   Run every command in the manifest's `commands`. If the harness provides the `verify` skill, drive the app's real affected flow (not just tests); otherwise use the manifest's `testability.runtime_verify` command to launch the app and drive the affected flow yourself. Any red → fix immediately → restart the round. A restart consumes a round from the cap; if execution evidence cannot be made green within the cap, the verdict is `FAIL`. (At level 1 the single-round exception below still applies: fixing and re-running green within that round is allowed and does not consume a second round.) Record each command and its actual result; a claim without the executed command's output is worthless.
    If the diff touches only docs/config with no runtime surface, still run the manifest commands and note the limitation in `absents` — never skip silently.
 
 2. **MULTI-LENS REVIEWS — fresh contexts.**
@@ -38,7 +38,7 @@ Replaces the one-shot "review ×3" with a bounded loop that produces an auditabl
 3. **ADVERSARIAL COUNTER-VERIFICATION — new findings only.**
    Maintain a findings registry across rounds. Stable id: `<file>:<category>:<8-char-hash-of-quoted-excerpt>`.
    - A finding already in the registry (confirmed or refuted) is not re-verified and not counted as new.
-   - Each NEW finding goes to an independent verifier whose explicit job is to REFUTE it against the actual code. Uncertain → refuted (bias against false positives).
+   - Each NEW finding goes to an independent verifier whose explicit job is to REFUTE it against the actual code. Uncertain → refuted (bias against false positives) — EXCEPT security findings (injection, auth bypass, secret exposure, trust-boundary violations): an uncertain security finding stays confirmed until positively disproven.
    - Confirmed → fix queue. Refuted → registry, never returns.
 
 4. **FIX confirmed P0/P1** (the orchestrator fixes — it has context), then return to step 1. P2/P3 go to the gate file as notes, not fixes (no scope creep).
