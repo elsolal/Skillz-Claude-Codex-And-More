@@ -1,5 +1,5 @@
 ---
-description: D-EPCT+R v6 adaptive feature development: levels 0-4, single plan checkpoint, quality-gate loop
+description: 'D-EPCT+R v6 adaptive feature development: levels 0-4, single plan checkpoint, quality-gate loop'
 ---
 
 IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL `.opencode/skills/dev-workflow/SKILL.md` if it exists, otherwise `.claude/skills/dev-workflow/SKILL.md`, READ its entire contents, and execute the workflow in **interactive** mode, sequentially phase-by-phase.
