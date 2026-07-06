@@ -1241,10 +1241,13 @@ if [ "$GLOBAL_MODE" = true ]; then
             # We detect "ours" by comparing content — if it exists and differs from
             # source but isn't a symlink, assume it's user-managed and skip.
             if [ -e "$target" ] && [ ! -L "$target" ]; then
-                # Safe to overwrite if content matches (already copied from us) OR
-                # if the existing file looks like a dead symlink that got replaced.
-                if ! cmp -s "$prompt_file" "$target"; then
-                    echo -e "   ${YELLOW}⚠️  $name (skipped — real file with different content)${NC}"
+                # Overwrite if content matches (already ours) OR if the target
+                # carries the Skillz loader signature (an older Skillz-shipped
+                # version that must self-update). Only genuinely foreign prompts
+                # (BMad, user-authored) are preserved.
+                if ! cmp -s "$prompt_file" "$target" && \
+                   ! grep -q "IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND" "$target"; then
+                    echo -e "   ${YELLOW}⚠️  $name (skipped — user/third-party prompt preserved)${NC}"
                     prompt_skip_count=$((prompt_skip_count + 1))
                     continue
                 fi
