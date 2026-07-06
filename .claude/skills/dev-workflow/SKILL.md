@@ -1,167 +1,115 @@
 ---
 name: dev-workflow
-description: Single-thread sequential feature development workflow inspired by D-EPCT+R. Loaded by /dev slash command in both Claude Code and Codex CLI. Use when the user wants to implement a feature, fix a bug described at higher level than /quick-fix, or work on a GitHub issue. Enforces Explore → Plan → Implement → Quality Gate → Ship with validation checkpoints between phases.
+description: Adaptive single-source feature development workflow (D-EPCT+R v6). Loaded by /dev, /quick-fix and /auto-dev in both Claude Code and Codex CLI. Scales rigor to task levels 0-4 (typo fix → epic) with automatic escalation, a single human checkpoint at the plan, conditional acceptance-test-first (RED), and a bounded quality-gate loop replacing human code re-reading. Use for any implementation task: bug fix, feature, GitHub issue.
 ---
 
-# Dev Workflow — Feature Implementation
+# Dev Workflow — Adaptive Feature Implementation
 
-This skill describes the full feature-development workflow enforced by the `/dev` command. It is runtime-agnostic: both Claude Code and Codex CLI execute it sequentially, without relying on parallel subagent dispatch. The rigor of D-EPCT+R (stop checkpoints, bounded quality-gate loop) is preserved — only the execution pattern changes from parallel subagents to sequential in-context phases.
+One engine, three entry modes. The caller (slash command / prompt) sets the mode; everything else lives here.
 
-**Input**: a task description, issue reference (e.g. `#42`), or feature description passed as arguments after the `/dev` invocation.
+| Mode | Entry | Human checkpoints |
+|---|---|---|
+| `interactive` | `/dev` | ONE: the plan (Phase 2). Levels 3-4 add the handoff read (Phase 6). |
+| `quick-fix` | `/quick-fix` | None below level 1; starts at level 0 and may escalate. |
+| `autonomous` | `/auto-dev` (RALPH) | None; the mandate gate (below) replaces the plan stop. |
 
-**Output**: implemented + tested + reviewed code, ready to `/ship`.
+**Inputs**: task description or issue reference, plus the mode.
+**Output**: implemented + tested + gated code, ready to `/ship`, with a gate file as proof.
 
----
+## Core principles
 
-## Core Principles
+1. **The orchestrator keeps all context** — planning is never delegated.
+2. **One human stop** (interactive mode): everything the user must judge is on one screen at Phase 2.
+3. **Rigor scales with the level** — never run level-2 ceremony on a typo, never run a typo circuit on a migration.
+4. **Escalate, never restart** — if scope grows, move up a level reusing all acquired work, and say so.
+5. **Verification comes from the manifest** (`.agents/verification.yaml`) — never guess commands.
+6. **Quality is proven by the gate file, not by the user re-reading the diff.**
 
-1. **The orchestrator keeps all context** — never fork the main context to a subagent for planning or review. The model executing this workflow is the orchestrator.
-2. **Stop checkpoints are mandatory** — present findings and wait for validation at each `STOP CHECKPOINT`. Do not skip ahead.
-3. **Explicit phase boundaries** — even though execution is sequential, treat each phase as a distinct mental context. Between phases, summarize what was done before starting the next.
-4. **Read before write** — always understand existing code before modifying it. This is non-negotiable.
-5. **Lint + types pass at every step** — never leave the codebase in a broken state between phases.
+## Phase 0 — PROBE (silent)
 
----
+Run the `project-probe` skill: read `.agents/verification.yaml`, create or refresh it if absent/stale. Read repo conventions (CLAUDE.md / AGENTS.md, local project memory pointer if present).
 
 ## Phase 1 — EXPLORE
 
-**Goal**: build a complete mental model of the codebase relevant to the task.
+1. If the task is an issue reference (`#42`, `owner/repo#42`): `gh issue view 42` — extract title, description, acceptance criteria, labels, Figma URLs.
+2. Explore the codebase: architecture, impacted files, patterns to follow, dependencies, risks.
+3. **Surface detection** (feeds gate lenses and level scoring):
+   - *Frontend*: impacted files `.tsx/.jsx/.vue/.svelte/.css`, `components/CLAUDE.md` or `components.json` present, Figma URL in issue, UI keywords. If detected: read the components inventory; fetch Figma design context when available.
+   - *SEO/GEO*: public indexable surfaces — homepage/landing/blog, `.mdx`, `metadata`, schema/JSON-LD, `robots.txt`, `sitemap.*`, `llms.txt`, title/meta/H1/canonical/FAQ, SEO keywords in issue.
+4. **Assess the level**:
 
-0. Run the `project-probe` skill: read `.agents/verification.yaml` (create it if absent or stale). All verification in later phases uses the manifest's commands.
+| Level | Signals | Circuit |
+|---|---|---|
+| **0** | typo, constant, style; ≤3 files, ≤50 lines, zero risk | Fix → manifest verify → present. No plan, no RED, no gate file. |
+| **1** | small localized bug or adjustment, 1 file cluster | Light explore → mini-plan ⛔ (interactive) → fix → gate, 1 round, 1 reviewer. |
+| **2** | standard feature, one component | Full flow below. |
+| **3** | multi-component, public surface, rich UI | Full flow + design/SEO/a11y lenses in the gate + human handoff read. |
+| **4** | epic, migration, auth, DB schema, data handling | REFUSE to start without an approved spec (`docs/planning/specs/*-design.md`, frontmatter `status: approved`, `approved_by` set and ≠ `ralph`, `approved_at` non-empty). Route the user to `/discovery`. Then execute per story at level 2-3 with the human handoff read. |
 
-1. If the task argument is an issue reference (`#42`, `owner/repo#42`), fetch the issue:
-   ```bash
-   gh issue view 42
-   ```
-   Extract: title, description, acceptance criteria, labels, linked PRs.
+State the detected level and why. In interactive mode the user can override it at the Phase 2 stop.
 
-2. Explore the codebase:
-   - Identify the architecture (framework, main directories, entry points)
-   - List files likely to be impacted (use `Grep` + `Glob`)
-   - Identify existing patterns to follow (conventions, naming, test layout)
-   - Identify dependencies (what imports what, what's shared)
-   - Identify risks (tightly coupled code, shared state, migration needs)
-
-3. If the task mentions UI/frontend work (keywords: "screen", "page", "component", "UI", "design", "form", "layout") OR files to modify are `.tsx`/`.jsx`/`.vue`/`.css`, detect frontend context:
-   - Check if `components/CLAUDE.md` or `components/AGENTS.md` exists → read it for components inventory
-   - Check if `components.json` exists (shadcn) → note the convention
-   - If a Figma URL is in the issue body → note it, fetch the design context if possible
-   - Load `design-audit` and run a quick read-only audit on the target path/Figma/preview when available; P0/P1 findings become planning constraints
-
-4. If the task touches public SEO/GEO surfaces (homepage, landing, blog, `.mdx`, `metadata`, `schema`, `robots.txt`, `sitemap.*`, `llms.txt`, title/meta/H1/canonical/FAQ), load `seo-geo-audit` and run a quick read-only audit when a URL/path is available; P0/P1 findings become planning constraints.
-
-5. Produce an EXPLORE synthesis with these sections:
-   - **Requirements** (from issue or description)
-   - **Files to modify/create** (absolute paths + purpose)
-   - **Patterns to follow** (reference to existing similar code)
-   - **Risks** (what could break)
-   - **Frontend context** (if applicable)
-
-**STOP CHECKPOINT 1** — Present the synthesis. Wait for user validation before planning.
-
----
+**Escalation rule (applies in every phase):** the moment reality exceeds the level (4th file touched at level 0, schema change discovered at level 2, 10+ plan steps...) — announce it, move up one level, keep everything already produced (explore synthesis, partial plan, code). A quick-fix that grows becomes a level-1/2 run mid-flight; it never aborts.
 
 ## Phase 2 — PLAN
 
-**Goal**: break the task into atomic, reviewable steps before touching code.
+Skip at level 0 (go straight to Phase 4 with a one-line intent statement).
 
-1. Using the EXPLORE context, produce a numbered implementation plan. Each step must specify:
-   - **What**: precise description of the change
-   - **Where**: absolute file paths to create/modify
-   - **How**: pattern to follow, reference to existing code
-   - **Constraints**: what NOT to touch
-   - **Test strategy**: what should be tested (P0-P3 priority)
+Build the plan: numbered atomic steps — each with what / where (absolute paths) / how (pattern to follow) / constraints (what NOT to touch) / **acceptance criteria** (testable) / test strategy (P0-P3). If frontend: components to reuse, tokens (never hardcoded values), Figma mapping. If SEO/GEO: impacted public files, facts that stay `Non vérifié` without preview/GSC.
 
-2. If the plan has 3+ steps, consider tracking progress with tasks/todos.
+- **interactive** → ⛔ **THE STOP**: present ONE screen = explore synthesis + detected level + full plan + acceptance criteria + test strategy. The user validates, adjusts, or changes the level. This is the only stop before Phase 6.
+- **quick-fix (level 1 after escalation)** → present the mini-plan as the stop.
+- **autonomous** → no stop. **Mandate gate instead** (checked before Phase 1): a valid GitHub issue OR an approved spec (criteria above). No mandate → refuse with the exact remediation options (`/discovery`, `gh issue create`, or `--allow-no-spec` for prototyping only, logged as such). Track iterations in `docs/ralph-logs/<session>.md` per RALPH conventions; `/cancel-ralph` stops the loop.
 
-3. If frontend work is detected, add to the plan:
-   - Which existing components to reuse (reference `components/CLAUDE.md` inventory)
-   - Which CSS tokens/variables to use (never hardcoded hex/spacing)
-   - If Figma provided: map Figma elements → code components
-   - Which `design-audit` P0/P1 findings must be fixed before ship
-   - If new components created: note that the design system doc will need updating
+## Phase 3 — RED (conditional)
 
-4. If SEO/GEO work is detected, add to the plan:
-   - Which public pages/meta/schema/content files are impacted
-   - Which `seo-geo-audit` P0/P1 findings must be fixed before ship
-   - Which facts remain `Non vérifié` without preview URL, GSC or external checks
+Run only if **level ≥ 2 AND `testability.harness ≠ none`** in the manifest.
 
-**STOP CHECKPOINT 2** — Present the plan. Wait for user validation before implementing.
+Write the acceptance tests derived from the plan's acceptance criteria — and run them to prove they FAIL for the right reason before any implementation. These tests encode what the user validated; the gate will prove they turned green.
 
----
+If skipped (no harness): acceptance criteria will be verified at runtime in the gate (manifest `testability.runtime_verify`, or the `verify` skill when the runtime offers it) and the gate file records `absents: ["no test harness — acceptance verified at runtime"]`.
 
-## Phase 3 — IMPLEMENT
+## Phase 4 — IMPLEMENT
 
-**Goal**: write the code AND its tests together.
+Execute plan steps **sequentially**. For each step: code + its unit tests together → run the manifest's `commands` (lint, typecheck, test) → green before the next step. Follow repo conventions; no unrequested refactoring; no out-of-scope edits.
 
-Execute each step of the plan sequentially. For each step:
+Parallelizing two steps is allowed ONLY if their file sets are disjoint — and with worktree isolation when the runtime provides it. Sequential is the default, not the fallback.
 
-1. **Code the change**
-   - Follow the project conventions (CLAUDE.md / AGENTS.md at repo root)
-   - Respect existing file structure
-   - No unrequested refactoring
-   - No out-of-scope edits
+## Phase 5 — GATE
 
-2. **Write the tests**
-   - Priority-based (P0 for happy path + critical edge cases, P1-P3 for completeness)
-   - Arrange-Act-Assert pattern
-   - Naming: `should_[behavior]_when_[condition]`
-   - No hard waits, no flaky patterns
-   - Deterministic (fixed seeds, frozen time)
+Level 0: run the manifest commands, present the fix (no gate file). Done — Phase 6.
 
-3. **Verify after each step** by running the `commands` from `.agents/verification.yaml` (lint, typecheck, test). A command absent from the manifest is reported as absent — never faked green, never guessed.
+Levels 1-4: run the `quality-gate` skill on the default-branch diff with the validated plan and the manifest. Gate level = task level (1 → 1 round; 2 → ≤3; 3-4 → ≤4 + design-audit / seo-geo-audit / a11y-enforcer lenses for the surfaces detected in Phase 1). Commit the gate file with the branch.
 
-4. If a step breaks the build, fix before moving to the next step.
+**Autonomous mode**: verdict PASS required — CONCERNS is never auto-accepted. If the CONCERNS is *structural* (the project offers no executable evidence at all), STOP immediately with the explanation — iterating cannot change it. FAIL → one more iteration to fix; >3 attempts → STOP with a clear report.
 
-**STOP CHECKPOINT 3** — Summary of what was implemented. Tests green. Wait for user validation before review.
+## Phase 6 — HANDOFF
 
----
+Present the final report: verdict + rounds + findings summary, **`decisions_prises_en_ton_nom`** (every deviation from the validated plan), `absents`, diff stats, and the RED→GREEN evidence when Phase 3 ran.
 
-## Phase 4 — REVIEW (quality-gate loop)
+- Levels 0-2 (interactive): propose **[S] `/ship`** | **[C] commit only** | **[R] re-run the gate**.
+- Levels 3-4 (interactive): require the user to read `decisions_prises_en_ton_nom` (quote it in full) before proposing the same options. This is the only careful read left to the human.
+- Frontend + new components: propose `/ds-doc --update` before ship.
+- Autonomous: chain `/ship` directly when the gate is PASS; the PR body carries the gate file.
 
-**Goal**: converge on proven quality instead of a one-shot review.
+## Runtime capabilities
 
-1. Determine the gate level: 2 by default; 3 if frontend or SEO/GEO work was detected in Phase 1 (their audit lenses join the loop).
-2. Run the `quality-gate` skill on the default-branch diff (`git diff <base>...HEAD`, per the quality-gate skill's base rule) with the validated plan and the manifest. It loops (bounded) through execution evidence → multi-lens reviews → adversarial counter-verification → fixes, and writes `docs/quality/GATE-<date>-<slug>.yaml`.
-3. Commit the gate file with the branch.
+- **Claude Code**: dispatch Phase 1 exploration to an Explore subagent; use TaskCreate for 2+ plan steps; quality-gate uses native `/code-review` as primary lens with parallel lens subagents; parallel implementation only for disjoint-file steps, preferably in worktrees.
+- **Sequential runtimes (Codex CLI, OpenCode)**: run every phase inline in order; quality-gate lenses run one at a time with an explicit reset between lenses. Same phases, same rules, same gate file.
 
-**STOP CHECKPOINT 4** — Present the gate summary: verdict, rounds, findings (confirmed/refuted/fixed), `decisions_prises_en_ton_nom`, absents. Wait for user validation before ship.
+## Anti-patterns
 
----
-
-## Phase 5 — SHIP
-
-**Goal**: propose next action.
-
-Present the options:
-- **[S]** Run `/ship` — automated merge main + tests + final review + CHANGELOG + PR
-- **[C]** Commit only — stage + commit, no push/PR
-- **[R]** Review again — go back to Phase 4
-- **[D]** (if frontend + new components) Update design system docs first, then ship
-
-Wait for the user's choice.
-
----
-
-## Anti-patterns to avoid
-
-- ❌ Skipping Phase 1 (EXPLORE) because "the task seems simple"
-- ❌ Merging Phase 2 (PLAN) and Phase 3 (IMPLEMENT) — always plan first
-- ❌ Doing review passes in parallel mentally — they must be distinct contexts
-- ❌ Fixing review issues and skipping the re-test
-- ❌ Not presenting at each STOP CHECKPOINT — rigor requires validation
-
----
+- ❌ Running the full ceremony on a level-0 task, or a level-0 circuit on risky scope
+- ❌ Restarting from scratch when scope grows — escalate and reuse
+- ❌ More than one human stop in interactive mode (the plan is THE stop; Phase 6 levels 3-4 is a read, not a re-plan)
+- ❌ Hardcoding verification commands instead of reading the manifest
+- ❌ Writing RED tests that can't fail, or skipping the failing run
+- ❌ Accepting CONCERNS in autonomous mode, or iterating on a structural CONCERNS
+- ❌ Shipping levels 3-4 without surfacing `decisions_prises_en_ton_nom`
 
 ## Referenced knowledge & skills
 
-When useful, load these for deeper guidance:
-
-- Verification manifest: the `project-probe` skill (`.agents/verification.yaml`)
-- Quality loop & gate file: the `quality-gate` skill (`docs/quality/GATE-*.yaml`)
+- Verification manifest: `project-probe` skill (`.agents/verification.yaml`)
+- Quality loop & gate file: `quality-gate` skill (`docs/quality/GATE-*.yaml`)
 - Testing strategy: `.claude/knowledge/testing/test-levels-framework.md`, `test-priorities-matrix.md`
-- Error handling: `.claude/knowledge/testing/error-handling.md`
-- Frontend components: `components/CLAUDE.md` or `components/AGENTS.md` if present
-- Design system: the `ds-doc` skill for documenting new components
-- Design audit gate: the `design-audit` skill for tokens, components, a11y, taste, Figma/code drift, and AI surface evidence
-- SEO/GEO audit gate: the `seo-geo-audit` skill for public pages, content, metadata, schema, llms.txt, SERP and AI visibility evidence
+- Design/SEO gates: `design-audit`, `seo-geo-audit`, `a11y-enforcer` skills
+- Design system docs: `ds-doc` skill
