@@ -1,16 +1,10 @@
 ---
-description: 'Quick fix for small bugs and typos — minimal overhead, max 3 files / 50 lines'
+description: 'Quick fix via the v6 workflow short circuit (level 0 forced, automatic escalation)'
 disable-model-invocation: true
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL `~/.codex/skills/quick-fix-workflow/SKILL.md`, READ its entire contents, and execute the 5 steps sequentially.
+IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL `~/.codex/skills/dev-workflow/SKILL.md`, READ its entire contents, and execute the workflow in **quick-fix** mode (level 0 forced).
 
 The user's problem description follows this line.
 
-This workflow is for SMALL fixes only:
-- Max 3 files modified
-- Max 50 lines changed
-- No new dependency
-- No architectural change
-
-If at any point the fix grows beyond these limits, STOP and tell the user to restart with `/dev`. Do not auto-commit — present the change and let the user decide.
+Short circuit: locate → fix → run the manifest's verification commands → present the fix and a suggested commit. No formal plan, no gate file. If the fix grows beyond level 0 (4th file, >50 lines, new dependency), the workflow escalates one level automatically, keeping all work — do not tell the user to restart with `/dev`. Never auto-commit.
