@@ -48,7 +48,7 @@ Run the `project-probe` skill: read `.agents/verification.yaml`, create or refre
 
 State the detected level and why. In interactive mode the user can override it at the Phase 2 stop.
 
-**Escalation rule (applies in every phase):** the moment reality exceeds the level (4th file touched at level 0, schema change discovered at level 2, 10+ plan steps...) — announce it, move up one level, keep everything already produced (explore synthesis, partial plan, code). A quick-fix that grows becomes a level-1/2 run mid-flight; it never aborts.
+**Escalation rule (applies in every phase):** the moment reality exceeds the level (4th file touched at level 0, schema change discovered at level 2, 10+ plan steps...) — announce it, re-classify the task against the level grid (a level-0 fix that turns out multi-file may jump straight to level 2), keep everything already produced (explore synthesis, partial plan, code). A quick-fix that grows becomes a level-1/2 run mid-flight; it never aborts.
 
 ## Phase 2 — PLAN
 
@@ -57,7 +57,7 @@ Skip at level 0 (go straight to Phase 4 with a one-line intent statement).
 Build the plan: numbered atomic steps — each with what / where (absolute paths) / how (pattern to follow) / constraints (what NOT to touch) / **acceptance criteria** (testable) / test strategy (P0-P3). If frontend: components to reuse, tokens (never hardcoded values), Figma mapping. If SEO/GEO: impacted public files, facts that stay `Non vérifié` without preview/GSC.
 
 - **interactive** → ⛔ **THE STOP**: present ONE screen = explore synthesis + detected level + full plan + acceptance criteria + test strategy. The user validates, adjusts, or changes the level. This is the only stop before Phase 6.
-- **quick-fix (level 1 after escalation)** → present the mini-plan as the stop.
+- **quick-fix (escalated to level ≥ 1)** → present the (mini-)plan as the stop, exactly like interactive at that level.
 - **autonomous** → no stop. **Mandate gate instead** (checked before Phase 1): a valid GitHub issue OR an approved spec (criteria above). No mandate → refuse with the exact remediation options (`/discovery`, `gh issue create`, or `--allow-no-spec` for prototyping only, logged as such). Track iterations in `docs/ralph-logs/<session>.md` per RALPH conventions; `/cancel-ralph` stops the loop.
 
 ## Phase 3 — RED (conditional)
@@ -86,6 +86,7 @@ Levels 1-4: run the `quality-gate` skill on the default-branch diff with the val
 
 Present the final report: verdict + rounds + findings summary, **`decisions_prises_en_ton_nom`** (every deviation from the validated plan), `absents`, diff stats, and the RED→GREEN evidence when Phase 3 ran.
 
+- Level 0 (quick-fix): present the fix, the manifest verification results, and a suggested commit (include `.agents/verification.yaml` if the probe just created it); never auto-commit.
 - Levels 0-2 (interactive): propose **[S] `/ship`** | **[C] commit only** | **[R] re-run the gate**.
 - Levels 3-4 (interactive): require the user to read `decisions_prises_en_ton_nom` (quote it in full) before proposing the same options. This is the only careful read left to the human.
 - Frontend + new components: propose `/ds-doc --update` before ship.
