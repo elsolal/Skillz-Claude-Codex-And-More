@@ -1,28 +1,29 @@
-# D-EPCT+R Workflow
+# D-EPCT+R v6 — Agentic Dev Workflow
 
-> Skills Claude Code pour un workflow de développement structuré — du brainstorm au déploiement.
+> Skills et workflows pour un développement piloté par agents — de l'idée à la PR, avec une qualité **prouvée** plutôt que relue.
 
-An orchestrator-based workflow that guides you through the full development lifecycle across Claude Code, Codex, Gemini, OpenCode, and generic agents.
+One engine, four runtimes (Claude Code, Codex CLI, Gemini CLI, OpenCode), a single human checkpoint, and a **quality gate file** as proof — so you stop re-reading diffs.
 
 ```
-/discovery → /dev → /ship
+/discovery  →  /dev  →  /gate  →  /ship
+   plan         build     prove      deliver
 ```
 
 ---
 
-## Features
+## Why v6
 
-- **Orchestrator pattern** — the main thread keeps full context across all phases. Only mechanical work (code, tests, reviews, issue creation) is dispatched to parallel subagents.
-- **Three-command workflow** — `/discovery` for planning, `/dev` for implementation, `/ship` for delivery.
-- **Autonomous mode (RALPH)** — `/auto-discovery`, `/auto-dev`, `/auto-loop` run the same workflows without validation stops, with safety gates to prevent runaway execution.
-- **Multi-provider** — one source of truth in `.claude/`, mirrored into Codex, Gemini, OpenCode, and generic agent folders.
-- **Design audit loop** — `/design-audit` gates UI/design-system work with tokens, components, stories/docs, a11y, taste, Figma/code drift, AI governance, and optional Lyse evidence; `/design-audit-squad` runs the full 12-agent Lyse Design Squad.
-- **SEO/GEO audit workflow** — `/seo-geo-audit` audits technical SEO, content, SERP intent, authority, local SEO, llms.txt and AI visibility; `/seo-geo-squad` runs the full 11-agent Roso SEO Squad.
-- **Web navigation layer** — `web-navigator` lets agents browse, inspect, extract and source information from real sites using Playwright CLI, Browser/MCP or WebFetch fallbacks.
-- **50+ skills** — planning (PRD, architecture, stories), critical thinking (Rodin), design (UX, UI, Figma integration), development (code, tests, review, security, performance), audio/video (ElevenLabs, Remotion).
-- **48 knowledge files** — testing frameworks, workflow templates, brainstorming techniques, Supabase security.
-- **Multi-Mind debate** — 6 AI agents (Claude, GPT, Gemini, DeepSeek, GLM, Kimi) validate PRDs and code through 5 iterative rounds.
-- **Obsidian LLM Wiki** — optional second-brain memory that compounds across sessions. One-command bootstrap with `bash install.sh install all --with-wiki` or the `/wiki-bootstrap` slash command. See [the dedicated section below](#obsidian-llm-wiki--second-brain-memory).
+| You get | How |
+|---|---|
+| **One human stop per feature** | `/dev` scales its rigor to the task level (0-4) and stops exactly once: at the plan. Levels 3-4 (auth, migrations, data) add one careful read before ship. |
+| **Proven quality, not re-read code** | The `quality-gate` loop (execution evidence → multi-lens reviews → adversarial counter-verification) converges to a versioned **gate file** (`PASS/CONCERNS/FAIL/WAIVED`). `/ship` consumes it — no PASS without real executable proof. |
+| **Any stack** | `project-probe` detects the project's real lint/typecheck/test/build commands into `.agents/verification.yaml`. Nothing hardcoded. |
+| **Adaptive planning** | `/discovery` uses the same 0-4 grid: direct tech-spec for small scopes, full Brainstorm → PRD → Architecture → Stories above — always ending with an approved spec that mandates `/auto-dev`. |
+| **Thinking tools** | `/elicit` (12 named reasoning lenses), `/rodin` (socratic anti-echo), `multi-mind` with its **anti-consensus Contrarian**, and a `[P]` pressure-test before any brainstorm. |
+| **Autonomous mode (RALPH)** | `/auto-discovery`, `/auto-dev`, `/auto-loop` — zero stops, hard safety gates (mandate required, gate PASS required, structural-CONCERNS early stop). |
+| **Quality squads** | `/design-audit(-squad)` — 12-agent Lyse Design Squad ; `/seo-geo-audit(-squad)` — 11-agent Roso SEO Squad. |
+| **Second-brain memory** | Optional Obsidian LLM Wiki: durable decisions, sources and syntheses that compound across sessions. |
+| **55+ skills, 55+ knowledge files** | Planning, design, Figma (8 skills), audio/video, security, web navigation — all auto-triggered from descriptions. |
 
 ---
 
@@ -50,7 +51,7 @@ Creates `.claude/`, `.codex/`, `.gemini/`, `.opencode/`, `.agents/`, and `docs/`
 curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- update all
 ```
 
-Your provider config is preserved. The installer only refreshes the managed workflow section and adds the `qmd` MCP entry if it is missing.
+Your provider config is preserved. Skillz-managed prompts self-update (loader signature); user and third-party prompts (BMad, etc.) are never touched. Drift protection via `~/.claude/.skillz-manifest`: skills removed from the source are purged, user-added skills are kept.
 
 <details>
 <summary><strong>Install one provider at a time</strong></summary>
@@ -109,8 +110,6 @@ Claude must be installed first since the other providers mirror it.
 ./install.sh help
 ```
 
-Drift protection: `~/.claude/.skillz-manifest` tracks skills and Claude commands installed by Skillz. During updates, items previously managed by Skillz but no longer in the source are removed. User-added skills are not touched.
-
 </details>
 
 <details>
@@ -138,9 +137,8 @@ Reload skills with `/reload-plugins` (Claude Code) or restart your agent after m
 
 </details>
 
-Diagnostic: `/skillz-doctor` (v5.8.0+) and autonomous safety gates (v5.7.0+) are documented in [CHANGELOG.md](./CHANGELOG.md).
-
-### Optional: Playwright CLI for agent navigation
+<details>
+<summary><strong>Optional: Playwright CLI for agent navigation</strong></summary>
 
 Playwright automates real browsers. Installing `@playwright/cli` gives AI agents a terminal-driven way to open a product or public site, click through flows, fill forms, inspect console/network errors, resize viewports, capture screenshots and extract grounded information. Skillz-Claude routes this through `web-navigator`, then QA, SEO/GEO, design and test skills consume the same evidence.
 
@@ -151,6 +149,8 @@ playwright-cli --help
 ```
 
 Use it with `web-navigator`, `/qa`, `seo-geo-audit`, `test-runner` and `design-audit` when you want runtime evidence from a local, preview, staging or production URL. `playwright-cli install --skills` installs the companion skills for Claude by default; use `playwright-cli install --skills=agents` for generic agent skills.
+
+</details>
 
 <details>
 <summary><strong>Manual Windows install</strong></summary>
@@ -165,6 +165,327 @@ Copy-Item -Recurse -Force Skillz-Claude\.opencode\ .\.opencode\
 New-Item -ItemType Directory -Force -Path docs\planning\brainstorms, docs\planning\ux, docs\planning\prd, docs\planning\ui, docs\planning\architecture, docs\stories, docs\ralph-logs, docs\debates, docs\security
 Remove-Item -Recurse -Force Skillz-Claude
 ```
+
+</details>
+
+Diagnostic: `/skillz-doctor` (v5.8.0+) and autonomous safety gates (v5.7.0+) are documented in [CHANGELOG.md](./CHANGELOG.md).
+
+---
+
+## Quick Start
+
+### 1. New idea → approved spec
+
+```
+/discovery
+> "I want to build a personal expense tracker with categories and budget alerts"
+```
+
+The workflow assesses the level (0-4). Small scope → direct tech-spec. Bigger → Brainstorm → PRD → Architecture → Stories, validated at each checkpoint (`[P]` pressure-tests the idea first, `[E]` applies a reasoning lens before validating). Every discovery ends with an **approved spec** in `docs/planning/specs/` — the mandate for `/auto-dev`.
+
+### 2. Implement — one stop only
+
+```
+/dev #123
+```
+
+Probe (verification manifest) → Explore + level assessment → **Plan ⛔ (your only stop)** → RED acceptance tests (conditional) → sequential implementation → **quality-gate loop** → gate file + handoff report. You read the report — never the diff. Small fix? `/quick-fix "desc"` runs the same engine at level 0 and auto-escalates if scope grows.
+
+### 3. Prove quality on demand
+
+```
+/gate            # complete review (level 3) of the current branch diff
+/gate 1          # quick single-reviewer pass
+```
+
+Standalone quality-gate loop on any diff — same engine, same gate file as `/dev`.
+
+### 4. Ship it
+
+```
+/ship
+```
+
+Merges main, runs the manifest evidence, **consumes the gate file** (PASS and fresh → straight to PR with the gate in the body; stale or CONCERNS → re-gates or asks for an explicit waiver), generates the changelog, creates the PR.
+
+### 5. Autonomous mode (RALPH)
+
+```
+/auto-discovery "Personal expense tracker app"
+/auto-dev #123
+```
+
+Zero stops. `/auto-dev` refuses to start without a mandate (GitHub issue or approved spec) and never ships without a PASS gate.
+
+---
+
+## The Quality Engine
+
+The heart of v6 — two shared skills consumed by `/dev`, `/gate` and `/ship`:
+
+**`project-probe`** detects the project's real verification commands (lint, typecheck, test, build, run) once, and caches them into a committed manifest:
+
+```yaml
+# .agents/verification.yaml
+stack: node-ts
+commands: { lint: "npm run lint", test: "npm test", ... }
+testability: { harness: vitest, runtime_verify: "npm run dev" }
+absents: ["no e2e harness"]        # explicit, never silently skipped
+```
+
+**`quality-gate`** runs a bounded convergence loop: execution evidence first (never skipped) → multi-lens reviews in fresh contexts (correctness/security, readability, performance — plus design/SEO/a11y lenses when the diff touches those surfaces) → **adversarial counter-verification** of every new finding (a refuter attacks it; only confirmed findings get fixed) → repeat until two clean rounds. Output:
+
+```yaml
+# docs/quality/GATE-2026-07-06-my-feature.yaml
+verdict: PASS                      # PASS | CONCERNS | FAIL | WAIVED
+preuve:
+  executable: { lint: vert, tests: "vert (47 passed)", ... }
+  opinion: { findings: { total: 9, confirmes: 4, corriges: 4, restants: 0 } }
+decisions_prises_en_ton_nom: [...]  # the only careful read left to the human
+```
+
+**Hard rules**: no PASS without real executable evidence (a project without tests caps at CONCERNS — the gate never claims more than it knows) ; CONCERNS is never auto-accepted (explicit waiver → WAIVED, recorded) ; the loop is bounded (never infinite).
+
+---
+
+## Commands
+
+| Category | Command | Description |
+|---|---|---|
+| **Planning** | `/discovery "idea"` | Planning in levels 0-4 — tech-spec direct (0-1) or full chain (2-4), approved spec output |
+| | `/auto-discovery "idea"` | Autonomous planning (RALPH), spec stays draft until a human approves |
+| **Dev** | `/dev [issue]` | Adaptive implementation, levels 0-4, single plan stop, quality-gate loop |
+| | `/quick-fix "desc"` | Level-0 short circuit of the same engine, auto-escalates by the grid |
+| | `/auto-dev #123` | Autonomous implementation (RALPH), mandate + PASS gate required |
+| | `/refactor <file>` | Targeted refactor with review passes |
+| **Quality** | `/gate [level] [target]` | **Standalone quality-gate loop** (default level 3 = complete review) → gate file |
+| | `/pr-review #123` | Review a GitHub PR (3 core passes + UI/SEO gates when relevant) |
+| | `/qa [url]` | Systematic runtime QA + health score |
+| **Ship** | `/ship` | Merge → manifest evidence → gate consumption (PASS or waiver) → changelog → PR |
+| **Thinking** | `/elicit [lens] [target]` | Re-examine any output through ONE named reasoning lens (12 available) |
+| | `/rodin <text\|path\|url>` | Socratic anti-echo challenge of a plan or decision |
+| | `/multi-mind prd\|review <file>` | 6-AI debate, 5 rounds, with the anti-consensus Contrarian |
+| | `/multi-mind --room anti-consensus <target>` | Short mid-workflow contrarian session on a live decision |
+| | `/plan-review <doc>` | CEO/Founder review (Expansion/Hold/Reduction) |
+| **Audits** | `/design-audit <target>` | UI/DS audit + ship-gate design evidence |
+| | `/design-audit-squad <target>` | Full 12-agent Lyse Design Squad audit |
+| | `/seo-geo-audit <target>` | SEO/GEO audit + AI visibility roadmap |
+| | `/seo-geo-squad <target>` | Full 11-agent Roso SEO Squad audit |
+| **Utilities** | `/status` | Project state (docs, issues, RALPH) |
+| | `/retro [--since 7d]` | Engineering retrospective |
+| | `/docs [type]` | Generate docs (readme\|api\|guide\|all) |
+| | `/changelog [version]` | Generate CHANGELOG.md |
+| | `/metrics` | Metrics dashboard |
+| | `/init [template]` | Scaffold (next\|express\|api\|cli\|lib) |
+| | `/skillz-doctor` | Installation diagnostic |
+| **Memory** | `/wiki-*` | Obsidian LLM Wiki commands — see [the wiki section](#obsidian-llm-wiki--second-brain-memory) |
+
+> Figma skills, `ds-doc` (design-system documenter) and `supabase-security` (full Supabase audit) are auto-triggered via descriptions — no slash commands needed.
+
+<details>
+<summary><strong>RALPH autonomous commands (limits and overrides)</strong></summary>
+
+| Command | Max Iter | Timeout | Completion Promise |
+|---|---|---|---|
+| `/auto-loop "prompt"` | 20 | 1h | `DONE` |
+| `/auto-discovery "idea"` | 30 | 1h | `DISCOVERY COMPLETE` |
+| `/auto-dev #123` | 50 | 2h | `DEV COMPLETE` |
+
+Options: `--max N`, `--timeout Xh`, `--verbose`
+Stop: `/cancel-ralph` — Resume: `/resume-ralph [session-id]`
+
+</details>
+
+<details>
+<summary><strong>Command availability per provider</strong></summary>
+
+Claude Code receives the full command set. Codex, Gemini, and OpenCode receive the portable subset (Codex prompts carry a loader signature so the installer keeps them up to date):
+
+| Command | Claude | Codex | Gemini | OpenCode |
+|---|---:|---:|---:|---:|
+| `/dev`, `/discovery`, `/ship`, `/quick-fix`, `/qa`, `/status` | Yes | Yes | Yes | Yes |
+| `/rodin` | Yes | Yes | Yes | Yes |
+| `/design-audit(-squad)`, `/seo-geo-audit(-squad)` | Yes | Yes | Yes | Yes |
+| `/elicit`, `/gate` | Yes | Yes | No | No |
+| `/refactor`, `/pr-review`, `/retro`, RALPH commands, etc. | Yes | No | No | No |
+
+Model choice does not change command discovery — each CLI discovers commands from its own folder.
+
+</details>
+
+---
+
+## The v6 Workflow
+
+The orchestrator (main thread) keeps ALL context. Rigor scales with the task level; escalation re-classifies against the grid (a level-0 fix may jump straight to level 2) reusing all acquired work — never restarting.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  PLANNING (/discovery — levels 0-4)                                         │
+│  [P] pressure-test → level 0-1: direct tech-spec ──────────┐               │
+│                    → level 2-4: Brainstorm → [UX] → PRD →   ├→ APPROVED    │
+│                      [UI] → Architecture → Stories ─────────┘   SPEC       │
+│                                                                             │
+│  DEVELOPMENT (/dev — levels 0-4)                                            │
+│  PROBE → EXPLORE → PLAN ⛔ → RED → IMPLEMENT → GATE (loop) → HANDOFF        │
+│  manifest  +level    the one   (cond.) (sequential)  gate file    report    │
+│                      stop                                                   │
+│                                                                             │
+│  DELIVERY (/ship)                                                           │
+│  merge main → manifest evidence → gate consumption → changelog → PR        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  MANUAL: one stop at PLAN ⛔ — levels 3-4 add a handoff read                │
+│  RALPH: zero stops — mandate gate + PASS gate replace them                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+<details>
+<summary><strong>Levels grid</strong></summary>
+
+| Level | Signals | Dev circuit |
+|---|---|---|
+| **0** | typo, constant; ≤3 files, ≤50 lines | Fix → manifest verify → present. No plan, no gate file. |
+| **1** | small localized bug | Light explore → mini-plan ⛔ → fix → 1-round gate. |
+| **2** | standard feature | Full flow: plan ⛔, RED, sequential implement, gate loop (≤3 rounds). |
+| **3** | multi-component, public surface | + design/SEO/a11y lenses in the gate + human handoff read. |
+| **4** | epic, migration, auth, DB schema | Refuses to start without an approved spec — route through `/discovery`. |
+
+</details>
+
+<details>
+<summary><strong>Checkpoints and gates</strong></summary>
+
+**Planning (interactive)**
+
+| Checkpoint | Phase | Gate |
+|---|---|---|
+| Level | Phase 1 | 0-4 assessed, `[P]` pressure-test offered |
+| Brainstorm → Stories | Phases 2-7 (levels 2-4) | Validated per phase, `[E]` lens available |
+| **Spec** | Phase 7-bis | **Approved by the human** (`status: approved`) |
+| Readiness | Stories | Score ≥ 13/15 |
+
+**Development (adaptive)**
+
+| Checkpoint | Phase | Gate |
+|---|---|---|
+| Probe | Phase 0 | Verification manifest read or refreshed |
+| Plan | Phase 2 (⛔ the one stop) | Plan + acceptance criteria approved |
+| RED | Phase 3 (level ≥ 2 + harness) | Acceptance tests fail for the right reason |
+| Implement | Phase 4 | Manifest commands green per step |
+| Gate | Phase 5 | **Gate file: PASS** (or explicit waiver) |
+| Handoff | Phase 6 (levels 3-4) | `decisions_prises_en_ton_nom` read by the human |
+
+</details>
+
+---
+
+## Thinking Tools
+
+Three complementary gestures against complacency:
+
+- **`/elicit`** — re-examine an existing output under **one named lens**: Pre-mortem, Inversion, First Principles, Red/Blue Team, Steelman-then-attack, Chesterton's Fence, 10-10-10, Second-Order Effects, Occam's Razor, Constraint Removal, Persona Shift, Cost-of-Delay. The lens reveals; it never rewrites — findings + proposed revisions, you arbitrate. Available at every `/discovery` checkpoint (`[E]`).
+- **`/rodin`** — socratic anti-echo challenge (steelman → classified claims → strong objections → reality tests → verdict). Inspired by [Benjamin Debon's rodin.md](https://gist.github.com/bdebon/e22d0b728abc5f393227440907b334cf) — see [ATTRIBUTION](./skills/ATTRIBUTION.md).
+- **`multi-mind`** — 6 AI agents (Claude, GPT, Gemini, DeepSeek, GLM, Kimi) debate through 5 rounds, **plus the Contrarian**: an anti-consensus persona whose only mandate is to produce the strongest objection to the emerging consensus — no consensus can be declared until it has been explicitly refuted or integrated. `--room anti-consensus` runs a short contrarian session mid-workflow without breaking your flow. Setup: `.env.local` with API keys (see `.env.example`), minimum 3 agents.
+
+And before any brainstorm: **`[P]` pressure-test** in `/discovery` — challenge the idea socratically first, produce a forge-report (thesis / objections / surviving kernel / verdict) and only invest in planning if the kernel survives.
+
+---
+
+## Skills
+
+Capability groups, all auto-triggered from skill descriptions.
+
+- **Quality engine** — `project-probe`, `quality-gate`
+- **Planning** — `idea-brainstorm`, `pm-prd`, `architect`, `pm-stories`, `api-designer`, `database-designer`
+- **Thinking** — `elicitation`, `rodin`, `multi-mind`
+- **Design** — `ux-designer`, `ui-designer`, `ds-doc`, `design-audit`
+- **Web navigation** — `web-navigator`
+- **SEO/GEO** — `seo-geo-audit`
+- **Figma integration (8)** — `figma-use`, `figma-implement-design`, `figma-generate-design`, `figma-generate-library`, `figma-code-connect`, `figma-create-design-system-rules`, `figma-create-new-file`, `figma-design-code-sync`
+- **Audio & Video** — `elevenlabs`, `remotion`
+- **Development** — `github-issue-reader`, `code-implementer`, `test-runner`, `code-reviewer`, `security-auditor`, `performance-auditor`, `supabase-security`
+
+<details>
+<summary><strong>Full skills breakdown with key features</strong></summary>
+
+**Quality engine**
+
+| Skill | Role | Key Features |
+|---|---|---|
+| `project-probe` | Verification manifest | Detects lint/typecheck/test/build commands, any stack, fingerprinted cache in `.agents/verification.yaml` |
+| `quality-gate` | Quality loop | Bounded convergence loop (evidence + multi-lens review + adversarial counter-verification) → gate file PASS/CONCERNS/FAIL/WAIVED |
+
+**Planning**
+
+| Skill | Role | Key Features |
+|---|---|---|
+| `idea-brainstorm` | Creative exploration | 61 techniques, 10 categories, anti-bias protocol, `[E]` lens pass at synthesis |
+| `pm-prd` | Product Requirements | Complete (levels 2-4) or synthetic (levels 0-1) PRD, templates |
+| `architect` | Technical architecture | Stack, structure, data model, APIs |
+| `pm-stories` | Epics + Stories | INVEST, Given/When/Then, Readiness Check /15 |
+| `api-designer` | API design | OpenAPI 3.1, REST/GraphQL, versioning |
+| `database-designer` | Database design | ERD, migrations, indexes, Prisma/Drizzle |
+
+**Thinking**
+
+| Skill | Role | Key Features |
+|---|---|---|
+| `elicitation` | Named reasoning lenses | 12 lenses (CSV), one lens at a time, reveals-not-rewrites protocol |
+| `rodin` | Socratic challenger | Anti-echo review, steelman, claim classification, blind spots, reality tests |
+| `multi-mind` | Multi-agent debate | 6 AIs, 5 iterative rounds, Contrarian anti-consensus room |
+
+**Design (optional, auto-triggered)**
+
+| Skill | Role | Key Features |
+|---|---|---|
+| `ux-designer` | User experience | Personas, user journeys, wireframes |
+| `ui-designer` | Design system | Tokens, components, Figma import |
+| `design-audit` | UI/DS audit | Tokens, components, stories/docs, a11y, taste, Figma/code drift, AI governance, Lyse references and 12-agent squad |
+| `ds-doc` | DS documenter | Scan project → CLAUDE.md + components/CLAUDE.md with Figma links |
+
+**Web Navigation**
+
+| Skill | Role | Key Features |
+|---|---|---|
+| `web-navigator` | Web navigation | Playwright CLI, Browser/MCP and WebFetch fallback; pages visited, screenshots/snapshots, console/network and Confirmé/Déduit/Non vérifié evidence |
+
+**SEO/GEO**
+
+| Skill | Role | Key Features |
+|---|---|---|
+| `seo-geo-audit` | SEO/GEO audit | Technical SEO, content, SERP intent, authority, local SEO, llms.txt, AI visibility, full Roso SEO Squad references |
+
+**Figma (from figma/mcp-server-guide)**
+
+| Skill | Role | Key Features |
+|---|---|---|
+| `figma-use` | **Mandatory prereq** | Plugin API rules, gotchas, pre-flight checklist |
+| `figma-implement-design` | Figma → Code | 7-step workflow: design context → screenshot → assets → translate → validate |
+| `figma-generate-design` | Code → Figma | Build screens from design system components, variables, styles |
+| `figma-generate-library` | Build DS in Figma | Multi-phase: tokens → file structure → components → QA |
+| `figma-code-connect` | Code Connect | Parserless .figma.js templates mapping Figma components to code |
+| `figma-create-design-system-rules` | DS rules | Generate CLAUDE.md/AGENTS.md rules for Figma-to-code workflows |
+| `figma-create-new-file` | Create files | Create new Figma design or FigJam files via MCP |
+| `figma-design-code-sync` | Bidirectional sync | Detect drift between Figma components and code counterparts |
+
+**Audio & Video**
+
+| Skill | Role | Key Features |
+|---|---|---|
+| `elevenlabs` | Voice AI | TTS (70+ languages, 22+ voices), music generation, SFX, batch pipeline |
+| `remotion` | React video | 40 rule files, animations, captions, transitions, ElevenLabs→Remotion voiceover pipeline |
+
+**Development**
+
+| Skill | Role | Key Features |
+|---|---|---|
+| `github-issue-reader` | Issue reading | Categorization, ambiguity classification |
+| `code-implementer` | Implementation | Lint/types mandatory, agent worker |
+| `test-runner` | Tests | P0-P3 risk-based, 9 knowledge refs |
+| `code-reviewer` | Review (3 passes) | Correctness → Readability → Performance — used by `/refactor` and `/pr-review` |
+| `security-auditor` | Security audit | OWASP Top 10, CVE, secrets |
+| `performance-auditor` | Performance audit | Core Web Vitals, Lighthouse, bundle |
+| `supabase-security` | Supabase audit | RLS, buckets, auth, CVSS scoring |
 
 </details>
 
@@ -203,7 +524,7 @@ This runs the standard install **and** bootstraps the wiki: it asks for the vaul
 
 ### QMD MCP across agents
 
-`install/update all` now ensures the local QMD MCP server is available in the three agent clients used by this setup:
+`install/update all` ensures the local QMD MCP server is available in the three agent clients used by this setup:
 
 | Client | Config file | QMD server entry |
 |---|---|---|
@@ -269,380 +590,54 @@ Secrets, tokens, credentials, full logs, raw transcripts, stack traces. The wiki
 
 ---
 
-## Quick Start
-
-### 1. New idea → full planning
-
-```
-/discovery
-> "I want to build a personal expense tracker with categories and budget alerts"
-```
-
-The orchestrator guides you through Brainstorm → PRD → Architecture → Stories → GitHub Issues. You validate at each checkpoint.
-
-### 2. Implement an existing issue
-
-```
-/dev #123
-```
-
-The workflow probes the project's verification commands, explores the codebase, and assesses the task level (0-4) — you validate once, at the plan. Implementation runs the plan step by step, then a bounded quality-gate loop (lint/types/tests + multi-lens review) converges to a gate file before `/ship`.
-
-### 3. Autonomous mode (RALPH)
-
-```
-/auto-discovery "Personal expense tracker app"
-/auto-dev #123
-```
-
-Same workflows, zero validation stops. Claude works autonomously until completion.
-
-### 4. Ship it
-
-```
-/ship
-```
-
-Merges main, verifies via the manifest, consumes the quality-gate file (PASS required, or an explicit waiver on CONCERNS), generates changelog, creates PR.
-
----
-
-## Commands
-
-| Category | Command | Description |
-|---|---|---|
-| **Planning** | `/discovery` | Planning in levels 0-4 — direct tech-spec (0-1) or full chain (2-4), validated at each step |
-| | `/auto-discovery "idea"` | Autonomous planning (RALPH) |
-| **Dev** | `/dev [issue]` | Adaptive implementation, levels 0-4, single plan stop, quality-gate loop |
-| | `/auto-dev #123` | Autonomous implementation (RALPH) |
-| | `/quick-fix "desc"` | Level-0 short circuit of the same dev-workflow engine, auto-escalates |
-| | `/refactor <file>` | Targeted refactor with 3-pass review |
-| **Ship & QA** | `/ship [branch]` | Merge → manifest evidence → gate file (PASS or waiver) → changelog → PR |
-| | `/qa [url]` | Systematic QA + health score |
-| | `/design-audit <target>` | UI/DS audit + ship-gate design evidence |
-| | `/design-audit-squad <target>` | Full 12-agent Lyse Design Squad audit |
-| | `/seo-geo-audit <target>` | SEO/GEO audit + AI visibility roadmap |
-| | `/seo-geo-squad <target>` | Full 11-agent Roso SEO Squad audit |
-| | `/plan-review <doc>` | CEO/Founder review (Expansion/Hold/Reduction) |
-| | `/rodin <text|path|url>` | Socratic anti-echo challenge |
-| | `/retro [--since 7d]` | Engineering retrospective |
-| **Utilities** | `/status` | Project state (docs, issues, RALPH) |
-| | `/pr-review #123` | Review a PR (3 core passes + UI/SEO gates when relevant) |
-| | `/docs [type]` | Generate docs (readme\|api\|guide\|all) |
-| | `/changelog [version]` | Generate CHANGELOG.md |
-| | `/metrics` | Metrics dashboard |
-| | `/init [template]` | Scaffold (next\|express\|api\|cli\|lib) |
-| **Design** | `/ds-doc [--figma url]` | Document design system in CLAUDE.md |
-| | `/supabase-security <url>` | Full Supabase security audit |
-
-> Figma skills are auto-triggered via descriptions — no slash commands needed.
-
-<details>
-<summary><strong>RALPH autonomous commands (limits and overrides)</strong></summary>
-
-| Command | Max Iter | Timeout | Completion Promise |
-|---|---|---|---|
-| `/auto-loop "prompt"` | 20 | 1h | `DONE` |
-| `/auto-discovery "idea"` | 30 | 1h | `DISCOVERY COMPLETE` |
-| `/auto-dev #123` | 50 | 2h | `DEV COMPLETE` |
-
-Options: `--max N`, `--timeout Xh`, `--verbose`
-Stop: `/cancel-ralph` — Resume: `/resume-ralph [session-id]`
-
-</details>
-
-<details>
-<summary><strong>Command availability per provider</strong></summary>
-
-Claude Code receives the full command set. Codex, Gemini, and OpenCode receive the portable subset:
-
-| Command | Claude | Codex | Gemini | OpenCode |
-|---|---:|---:|---:|---:|
-| `/dev <task>` | Yes | Yes | Yes | Yes |
-| `/discovery <idea>` | Yes | Yes | Yes | Yes |
-| `/ship` | Yes | Yes | Yes | Yes |
-| `/qa [url]` | Yes | Yes | Yes | Yes |
-| `/quick-fix "<problem>"` | Yes | Yes | Yes | Yes |
-| `/status` | Yes | Yes | Yes | Yes |
-| `/rodin <text|path|url>` | Yes | Yes | Yes | Yes |
-| `/design-audit <target>` | Yes | Yes | Yes | Yes |
-| `/design-audit-squad <target>` | Yes | Yes | Yes | Yes |
-| `/seo-geo-audit <target>` | Yes | Yes | Yes | Yes |
-| `/seo-geo-squad <target>` | Yes | Yes | Yes | Yes |
-| `/refactor`, `/pr-review`, `/retro`, RALPH commands, etc. | Yes | No | No | No |
-
-Model choice does not change command discovery — each CLI discovers commands from its own folder.
-
-</details>
-
----
-
-## Rodin Socratic Challenge
-
-Rodin is the lightweight anti-echo pass for plans, PRDs, architecture choices, product strategy, and agent reasoning. It is read-only by design: it challenges the decision before implementation instead of editing files or replacing `/dev`, `/plan-review`, or `multi-mind`.
-
-> **Inspired by Benjamin Debon's [`rodin.md`](https://gist.github.com/bdebon/e22d0b728abc5f393227440907b334cf) anti-echo prompt — adapted into a Skillz-Claude read-only agent workflow. See [`skills/ATTRIBUTION.md`](./skills/ATTRIBUTION.md).**
-
-```bash
-/rodin "On devrait ajouter ce nouveau workflow parce que..."
-/rodin docs/planning/specs/2026-05-22-feature-design.md
-/rodin https://example.com/strategy-note.md
-```
-
-Rodin outputs a structured review:
-
-- **These testee** — the real claim or decision being made.
-- **Steelman** — the strongest charitable version of the position.
-- **Points classes** — `JUSTE`, `CONTESTABLE`, `SIMPLIFICATION`, `ANGLE MORT`, or `FAUX` where it matters.
-- **Objections fortes** — the objections that would actually change the decision.
-- **Tests de realite** — concrete checks before committing to the plan.
-- **Verdict** — hold, modify, reject, or suspend pending evidence.
-
-Use Rodin when the risk is bad reasoning. Use `/plan-review` when you need founder-mode scope arbitration, `code-reviewer` when reviewing code, and `multi-mind` when a critical decision deserves a heavier multi-agent debate.
-
----
-
-## Architecture
-
-The orchestrator (main thread) keeps ALL context. It never forks to isolated skills for planning. Only execution (code, tests, reviews, issue creation) is dispatched to subagents via `SendMessage`.
-
-**Frontend-aware:** after Explore, the workflow auto-detects frontend work (Figma URLs, `.tsx` files, `components/CLAUDE.md`) and prioritizes component reuse, token usage, and Figma mapping. After implementation, it proposes `/ds-doc --update` to keep design system documentation in sync.
-
-<details>
-<summary><strong>Full workflow diagram</strong></summary>
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              WORKFLOW COMPLET                               │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  PLANNING (orchestrateur garde tout le contexte, niveaux 0-4)              │
-│  Niveau 0-1 → tech-spec directe → spec approuvée                          │
-│  Niveau 2-4:                                                               │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐              │
-│  │ Brainstorm│ →  │   PRD    │ →  │  Archi   │ →  │ Stories  │ → GitHub    │
-│  │ +Research │    │          │    │          │    │+Readiness│   (subagent)│
-│  └──────────┘    └──────────┘    └──────────┘    └──────────┘              │
-│        │              │                                                     │
-│        ▼              ▼                                                     │
-│  ┌──────────┐    ┌──────────┐   (optional, auto-triggered)                │
-│  │UX Design │ →  │UI Design │                                              │
-│  └──────────┘    └──────────┘                                              │
-│                                                                             │
-│  DEVELOPMENT (orchestrateur garde tout le contexte, niveaux 0-4)           │
-│  ┌───────┐  ┌─────────┐  ┌──────┐  ┌─────┐  ┌───────────┐  ┌──────────┐   │
-│  │ PROBE │→ │ EXPLORE │→ │ PLAN │→ │ RED │→ │ IMPLEMENT │→ │   GATE   │→  │
-│  │manifest│  │ + level │  │  ⛔  │  │(cond)│  │(sequential)│ │ (loop)   │  │
-│  └───────┘  └─────────┘  └──────┘  └─────┘  └───────────┘  └────┬─────┘   │
-│                                                                  ▼         │
-│                                                              HANDOFF →SHIP │
-│                                                                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  MANUAL: One stop, at PLAN (⛔) — levels 3-4 add a handoff read            │
-│  RALPH: Fully autonomous — mandate gate replaces the plan stop            │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-</details>
-
-<details>
-<summary><strong>Checkpoints and gates</strong></summary>
-
-**Planning (orchestrator keeps context)**
-
-| Checkpoint | Phase | Gate |
-|---|---|---|
-| Brainstorm | Discovery | Direction validated |
-| UX Design | Discovery (optional) | Personas and journeys validated |
-| PRD | Discovery | Scope defined |
-| UI Design | Discovery (optional) | Tokens and components validated |
-| Architecture | Discovery | Stack approved |
-| **Readiness** | Stories | **Score ≥ 13/15** |
-
-**Development (adaptive, levels 0-4)**
-
-| Checkpoint | Phase | Gate |
-|---|---|---|
-| Probe | Phase 0 | Verification manifest read or refreshed |
-| Explore | Phase 1 | Level assessed, architecture understood |
-| Plan | Phase 2 (⛔ the one stop) | Plan + acceptance criteria approved |
-| RED | Phase 3 (conditional, level ≥ 2) | Acceptance tests fail for the right reason |
-| Implement | Phase 4 | Lint + Types pass per step |
-| Gate | Phase 5 (quality-gate loop) | **Gate file: PASS** (or explicit waiver) |
-
-</details>
-
----
-
-## Skills
-
-Capability groups, all auto-triggered from skill descriptions.
-
-- **Planning** — `idea-brainstorm`, `pm-prd`, `architect`, `pm-stories`, `api-designer`, `database-designer`
-- **Design** — `ux-designer`, `ui-designer`, `ds-doc`, `design-audit`
-- **Web navigation** — `web-navigator`
-- **SEO/GEO** — `seo-geo-audit`
-- **Figma integration (8)** — `figma-use`, `figma-implement-design`, `figma-generate-design`, `figma-generate-library`, `figma-code-connect`, `figma-create-design-system-rules`, `figma-create-new-file`, `figma-design-code-sync`
-- **Audio & Video** — `elevenlabs`, `remotion`
-- **Critical thinking** — `rodin`, `multi-mind`
-- **Development** — `github-issue-reader`, `code-implementer`, `test-runner`, `code-reviewer`, `security-auditor`, `performance-auditor`, `supabase-security`, `project-probe`, `quality-gate`
-
-<details>
-<summary><strong>Full skills breakdown with key features</strong></summary>
-
-**Planning**
-
-| Skill | Role | Key Features |
-|---|---|---|
-| `idea-brainstorm` | Creative exploration | 61 techniques, 10 categories, anti-bias protocol |
-| `pm-prd` | Product Requirements | FULL/LIGHT auto-detection, templates |
-| `architect` | Technical architecture | Stack, structure, data model, APIs |
-| `pm-stories` | Epics + Stories | INVEST, Given/When/Then, Readiness Check /15 |
-| `api-designer` | API design | OpenAPI 3.1, REST/GraphQL, versioning |
-| `database-designer` | Database design | ERD, migrations, indexes, Prisma/Drizzle |
-
-**Design (optional, auto-triggered)**
-
-| Skill | Role | Key Features |
-|---|---|---|
-| `ux-designer` | User experience | Personas, user journeys, wireframes |
-| `ui-designer` | Design system | Tokens, components, Figma import |
-| `design-audit` | UI/DS audit | Tokens, components, stories/docs, a11y, taste, Figma/code drift, AI governance, Lyse references and 12-agent squad |
-
-**Web Navigation**
-
-| Skill | Role | Key Features |
-|---|---|---|
-| `web-navigator` | Web navigation | Playwright CLI, Browser/MCP and WebFetch fallback; pages visited, screenshots/snapshots, console/network and Confirmé/Déduit/Non vérifié evidence |
-
-**SEO/GEO**
-
-| Skill | Role | Key Features |
-|---|---|---|
-| `seo-geo-audit` | SEO/GEO audit | Technical SEO, content, SERP intent, authority, local SEO, llms.txt, AI visibility, full Roso SEO Squad references |
-| `ds-doc` | DS documenter | Scan project → CLAUDE.md + components/CLAUDE.md with Figma links |
-
-**Figma (from figma/mcp-server-guide)**
-
-| Skill | Role | Key Features |
-|---|---|---|
-| `figma-use` | **Mandatory prereq** | Plugin API rules, gotchas, pre-flight checklist |
-| `figma-implement-design` | Figma → Code | 7-step workflow: design context → screenshot → assets → translate → validate |
-| `figma-generate-design` | Code → Figma | Build screens from design system components, variables, styles |
-| `figma-generate-library` | Build DS in Figma | Multi-phase: tokens → file structure → components → QA |
-| `figma-code-connect` | Code Connect | Parserless .figma.js templates mapping Figma components to code |
-| `figma-create-design-system-rules` | DS rules | Generate CLAUDE.md/AGENTS.md rules for Figma-to-code workflows |
-| `figma-create-new-file` | Create files | Create new Figma design or FigJam files via MCP |
-| `figma-design-code-sync` | Bidirectional sync | Detect drift between Figma components and code counterparts |
-
-**Audio & Video**
-
-| Skill | Role | Key Features |
-|---|---|---|
-| `elevenlabs` | Voice AI | TTS (70+ languages, 22+ voices), music generation, SFX, batch pipeline |
-| `remotion` | React video | 40 rule files, animations, captions, transitions, ElevenLabs→Remotion voiceover pipeline |
-
-**Critical Thinking**
-
-| Skill | Role | Key Features |
-|---|---|---|
-| `rodin` | Socratic challenger | Anti-echo review, steelman, claim classification, blind spots, reality tests |
-| `multi-mind` | Multi-agent debate | 6 AIs, 5 iterative rounds |
-
-**Development**
-
-| Skill | Role | Key Features |
-|---|---|---|
-| `github-issue-reader` | Issue reading | Categorization, ambiguity classification |
-| `code-implementer` | Implementation | Lint/types mandatory, agent worker |
-| `test-runner` | Tests | P0-P3 risk-based, 9 knowledge refs |
-| `code-reviewer` | Review (3 passes) | Correctness → Readability → Performance |
-| `security-auditor` | Security audit | OWASP Top 10, CVE, secrets |
-| `performance-auditor` | Performance audit | Core Web Vitals, Lighthouse, bundle |
-| `supabase-security` | Supabase audit | RLS, buckets, auth, CVSS scoring |
-| `project-probe` | Verification manifest | Detects lint/typecheck/test/build commands, any stack, into `.agents/verification.yaml` |
-| `quality-gate` | Quality loop | Bounded convergence loop (evidence + multi-lens review) → gate file PASS/CONCERNS/FAIL/WAIVED |
-
-</details>
-
----
-
-## Multi-Mind Debate
-
-6 AI agents debate to validate PRDs and code through 5 rounds: Critique → Frictions → Debate → Convergence → Consensus.
-
-```bash
-/multi-mind prd docs/PRD/PRD-Feature.md    # Validate a PRD
-/multi-mind review src/components/Auth.tsx  # Multi-perspective review
-```
-
-| Agent | Provider | Role | Cost |
-|---|---|---|---|
-| Claude | Anthropic | Prudent Architect | Included |
-| GPT | OpenAI | Perfectionist | Paid |
-| Gemini | Google | UX Innovator | Paid |
-| DeepSeek | DeepSeek | Provocateur | Free |
-| GLM | Zhipu AI | Frontend Craftsman | Free |
-| Kimi | Moonshot | Product Thinker | Free |
-
-Setup: create `.env.local` with API keys (see `.env.example`). Minimum 3 agents for a valid debate.
-
----
-
 ## Multi-Agent Compatibility
 
-Works with Claude Code, OpenAI Codex CLI, Google Gemini CLI, OpenCode, and generic agents. `.agents/`, `.codex/`, `.gemini/`, and `.opencode/` mirror `.claude/` as the single source of truth, while provider-native command files live in each provider folder.
+Works with Claude Code, OpenAI Codex CLI, Google Gemini CLI, OpenCode, and generic agents. `.agents/`, `.codex/`, `.gemini/`, and `.opencode/` mirror `.claude/` as the single source of truth, while provider-native command files live in each provider folder. Since v6, every workflow lives in ONE canonical skill (English) — commands and prompts are thin launchers, so there is nothing to keep in sync by hand.
 
 <details>
 <summary><strong>Project structure</strong></summary>
 
 ```
 .claude/
-├── CLAUDE.md                        # Project instructions
-├── commands/                        # Claude slash commands
-│   ├── discovery.md                 # /discovery (orchestrator)
-│   ├── dev.md                       # /dev (orchestrator + subagents)
-│   ├── auto-discovery.md            # /auto-discovery (RALPH)
-│   ├── auto-dev.md                  # /auto-dev (RALPH)
-│   ├── ship.md, qa.md, ...          # Ship & QA commands
+├── CLAUDE.md                        # Project instructions (D-EPCT+R section = installer template)
+├── commands/                        # Claude slash commands (thin launchers)
+│   ├── dev.md, quick-fix.md         # → dev-workflow (interactive / level-0)
+│   ├── auto-dev.md                  # → dev-workflow (autonomous, RALPH)
+│   ├── discovery.md, auto-discovery.md  # → discovery-workflow
+│   ├── ship.md                      # → ship-workflow
+│   ├── gate.md                      # → quality-gate (standalone)
+│   ├── elicit.md                    # → elicitation
 │   └── ...
-├── skills/                          # Shared skills
-│   ├── idea-brainstorm/
-│   ├── pm-prd/
-│   ├── architect/
-│   ├── pm-stories/
-│   ├── code-implementer/            # Agent worker
-│   ├── test-runner/                 # Agent worker
-│   ├── web-navigator/               # Browser navigation + evidence layer
-│   ├── code-reviewer/               # Parallel-ready
+├── skills/                          # Canonical skills (single source of truth)
+│   ├── dev-workflow/                # The adaptive engine (levels 0-4, 3 modes)
+│   ├── discovery-workflow/          # Planning in levels + spec output
+│   ├── ship-workflow/               # Gate consumption → PR
+│   ├── project-probe/               # Verification manifest
+│   ├── quality-gate/                # Quality loop → gate file
+│   ├── elicitation/                 # 12 reasoning lenses
+│   ├── multi-mind/                  # 6-AI debate + Contrarian
 │   ├── rodin/                       # Socratic anti-echo challenger
+│   ├── web-navigator/               # Browser navigation + evidence layer
+│   ├── design-audit/, seo-geo-audit/# Squad audits
 │   ├── figma-*/                     # Figma integration (8 skills)
-│   ├── elevenlabs/                  # TTS, music, SFX
-│   ├── remotion/                    # React video
-│   ├── ds-doc/                      # Design system documenter
-│   ├── design-audit/                # UI/DS ship-gate audit + Lyse references
-│   ├── seo-geo-audit/               # SEO/GEO + AI visibility audit + Roso SEO Squad references
+│   ├── elevenlabs/, remotion/       # Audio & video
 │   └── ...
-├── knowledge/                       # 48 files
+├── knowledge/                       # 55+ files
 │   ├── testing/                     # 32 files (levels, priorities, fixtures...)
-│   ├── workflows/                   # 10 files (templates, patterns, estimation)
-│   ├── brainstorming/               # Techniques CSV (61 techniques)
-│   ├── multi-mind/                  # Agent personalities, debate templates
+│   ├── workflows/                   # templates, verification matrix, estimation
+│   ├── brainstorming/               # 61 techniques + 12 elicitation lenses (CSV)
+│   ├── multi-mind/                  # Agent personalities (incl. Contrarian), debate templates
 │   └── supabase-security/           # 7 audit files
-└── templates/
-    ├── github-actions/              # CI/CD templates
-    ├── github/                      # PR & issue templates
-    ├── git-hooks/                   # pre-commit, commit-msg
-    └── devcontainer/                # Docker dev environment
+└── templates/                       # CI/CD, PR/issue, git hooks, devcontainer
 
 docs/                                # Generated output
-├── planning/                        # brainstorms/, ux/, prd/, ui/, architecture/
+├── planning/                        # brainstorms/, prd/, architecture/, specs/, forge/
+├── quality/                         # GATE-*.yaml (gate files)
 ├── stories/                         # EPIC-{num}-{slug}/
 ├── debates/                         # Multi-Mind reports
-├── security/                        # Supabase audit reports
 └── ralph-logs/                      # RALPH session logs
 
-.agents/, .codex/, .gemini/, .opencode/  # Multi-agent compatibility (symlinks)
+.agents/, .codex/, .gemini/, .opencode/  # Multi-agent compatibility (symlinks + native launchers)
 ```
 
 </details>
@@ -658,7 +653,7 @@ Progressive loading based on complexity:
 | **advanced** | If complex | `fixture-architecture.md` |
 | **debugging** | If problem | `test-healing-patterns.md` |
 
-48 files across testing (32), workflows (10), brainstorming (1), multi-mind (2), supabase-security (7). Figma references are bundled inside skills.
+55+ files across testing, workflows, brainstorming (techniques + elicitation lenses), multi-mind, and supabase-security. Figma references are bundled inside skills.
 
 </details>
 
@@ -674,9 +669,10 @@ You are free to use, copy, and adapt this workflow for your own projects.
 
 ## Credits
 
-- **[BMAD-METHOD](https://github.com/bmadcode/BMAD-METHOD)** — 32 knowledge files + agent structure
+- **[BMAD-METHOD](https://github.com/bmadcode/BMAD-METHOD)** — 32 knowledge files + agent structure; the v6 gate files, scale-adaptive levels, elicitation lenses and anti-consensus room are inspired by BMAD Method v6
 - **[RALPH Protocol](https://ghuntley.com/ralph/)** — Autonomous loop mode
 - **[Benjamin Debon's Rodin prompt](https://gist.github.com/bdebon/e22d0b728abc5f393227440907b334cf)** — anti-echo Socratic challenge posture adapted as the `rodin` skill
+- **[alirezarezvani/claude-skills](https://github.com/alirezarezvani/claude-skills)** — LLM Wiki foundation (MIT), see [ATTRIBUTION](./skills/ATTRIBUTION.md)
 
 ---
 
