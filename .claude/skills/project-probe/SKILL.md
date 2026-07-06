@@ -23,7 +23,7 @@ cat package.json pnpm-lock.yaml yarn.lock Makefile justfile pyproject.toml setup
   | (shasum -a 256 2>/dev/null || sha256sum) | cut -d' ' -f1
 ```
 
-(`find` évite l'échec de glob zsh quand `.github/workflows/` est vide ; `sha256sum` couvre les conteneurs Linux minimaux sans `shasum`.)
+(`find` avoids zsh unmatched-glob failures when `.github/workflows/` is empty; the `sha256sum` fallback covers minimal Linux containers without `shasum`.)
 
 ## Probe procedure
 
