@@ -118,7 +118,7 @@ assignee: (optionnel)
 - [ ] Code implémenté selon les standards du projet
 - [ ] Tests unitaires écrits (coverage > 80%)
 - [ ] Tests d'intégration si applicable
-- [ ] Code review approuvée (3 passes)
+- [ ] Gate file PASS (ou waiver explicite)
 - [ ] Documentation mise à jour
 - [ ] Pas de régression sur les tests existants
 - [ ] Déployé en staging et validé

@@ -2,7 +2,7 @@
 
 Cross-agent context file (OpenCode, Aider, Codex CLI, generic agents) at repo root.
 
-D-EPCT+R v6 workflow (Probe → Explore → Plan → Red → Implement → Gate → Handoff), adaptive across levels 0-4, + 34 skills + 22 slash commands.
+D-EPCT+R v6 workflow (Probe → Explore → Plan → Red → Implement → Gate → Handoff), adaptive across levels 0-4, with dozens of skills and slash commands.
 
 ## Source de vérité
 
@@ -10,8 +10,8 @@ D-EPCT+R v6 workflow (Probe → Explore → Plan → Red → Implement → Gate 
 
 ## Layout (repo root)
 
-- `skills/` → symlink vers `.claude/skills/` (34 skills, format SKILL.md)
-- `commands/` → symlink vers `.claude/commands/` (22 slash commands, format Markdown)
+- `skills/` → symlink vers `.claude/skills/` (des dizaines de skills, format SKILL.md)
+- `commands/` → symlink vers `.claude/commands/` (des dizaines de slash commands, format Markdown)
 - `.claude-plugin/plugin.json` → manifest Claude Code plugin
 - `.gemini/gemini-extension.json` + `.gemini/GEMINI.md` → extension Gemini CLI native
 - `AGENTS.md` → ce fichier (OpenCode + fallback générique)
@@ -35,7 +35,7 @@ D-EPCT+R v6 workflow (Probe → Explore → Plan → Red → Implement → Gate 
 | `/auto-dev #123` | RALPH mode (autonome, gate pre-flight obligatoire) |
 | `/skillz-doctor` | Diagnostic install |
 
-Voir `.claude/CLAUDE.md` pour la liste complète (22 commandes).
+Voir `.claude/CLAUDE.md` pour la liste complète des commandes.
 
 ## Installation
 

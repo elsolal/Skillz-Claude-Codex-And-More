@@ -66,7 +66,7 @@ Utilisateur dit...                    → Workflow
 ORCHESTRATEUR garde tout le contexte → Niveau 0-1 : tech-spec directe → Niveau 2-4 : Brainstorm → [UX] → PRD → [UI] → Architecture → Stories → GitHub (subagent)
 ```
 
-Niveaux 0-4 auto-détectés (même grille que `/dev`). Niveau 0-1 : tech-spec directe, pas de brainstorm ni de PRD complet. Niveau 2-4 : chaîne complète, UX/UI optionnels et auto-triggered si pertinent. Sortie obligatoire : spec consolidée et approuvée dans `docs/planning/specs/`, qui donne mandat à `/dev` et `/auto-dev`.
+Niveaux 0-4 auto-détectés (même grille que `/dev`). Niveau 0-1 : tech-spec directe, pas de brainstorm ni de PRD complet. Niveau 2-4 : chaîne complète, UX/UI optionnels et auto-triggered si pertinent. Sortie obligatoire : spec consolidée et approuvée dans `docs/planning/specs/` — mandat obligatoire pour `/auto-dev` et pour `/dev` niveau 4.
 Seule la publication GitHub est dispatchée en subagent (travail mécanique).
 
 ### Dev (workflow adaptatif niveaux 0-4)

@@ -1259,7 +1259,7 @@ if [ "$GLOBAL_MODE" = true ]; then
         done
         echo -e "   ${GREEN}✅ $prompt_copy_count Codex prompts copied${NC}"
         if [ "$prompt_skip_count" -gt 0 ]; then
-            echo -e "   ${YELLOW}⚠️  $prompt_skip_count skipped (existing files with different content)${NC}"
+            echo -e "   ${YELLOW}⚠️  $prompt_skip_count skipped (user/third-party prompts preserved)${NC}"
         fi
     else
         echo -e "${YELLOW}ℹ️  No .codex/prompts/ in source — skipping Codex prompts${NC}"
@@ -2308,7 +2308,7 @@ if [ "$UPDATE_MODE" != true ]; then
 echo -e "${CYAN}Workflow:${NC}"
 echo ""
 echo "  Planning:  🧠 Brainstorm → 📋 PRD → 🏗️ Architecture → 📝 Stories (orchestrateur garde le contexte)"
-echo "  Dev:       🔍 Explore → 📝 Plan (orchestrateur) → 💻 Code+Tests (subagents //) → 🔄 Boucle quality-gate → 🚀 Ship"
+echo "  Dev:       🔍 Explore → 📐 Plan ⛔ → 💻 Implement → 🔄 Boucle quality-gate → 🚀 Ship"
 echo ""
 echo -e "${CYAN}Documentation:${NC}"
 echo ""

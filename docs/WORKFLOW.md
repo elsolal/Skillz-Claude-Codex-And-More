@@ -17,7 +17,7 @@
 Un ensemble de **Skills** et **Commands** pour Claude Code qui automatise ton workflow de développement :
 
 ```
-DISCOVERY → EXPLORE → PLAN (orchestrateur) → CODE+TESTS (subagents //) → REVIEW ×3 (subagents //)
+DISCOVERY → PROBE → EXPLORE → PLAN ⛔ (stop unique) → RED (conditionnel) → IMPLEMENT (séquentiel) → GATE (boucle quality-gate) → HANDOFF
 ```
 
 ### Pourquoi Skills plutôt qu'Agents ?
@@ -193,64 +193,53 @@ claude
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│                                                                      │
+│                                                                     │
 │   🎯 DISCOVERY                                                       │
 │   ├─ Tu expliques ton besoin (speech-to-text OK)                    │
-│   ├─ Claude PM pose des questions                                    │
+│   ├─ Niveau 0-4 auto-détecté (tech-spec ou chaîne complète)         │
 │   ├─ Synthèse → Tu valides                                          │
-│   ├─ Rédaction Epic + User Stories                                  │
-│   └─ Publication GitHub → Tu obtiens #XX                            │
-│                                                                      │
-│   ⏸️ CHECKPOINT ─────────────────────────────────────────────────    │
-│                                                                      │
-│   📋 EXPLAIN                                                         │
+│   └─ Spec consolidée et approuvée → docs/planning/specs/            │
+│                                                                     │
+│   ⏸️ CHECKPOINT — spec approuvée ─────────────────────────────────  │
+│                                                                     │
+│   🔎 PROBE (silencieux)                                              │
+│   └─ Lecture/rafraîchissement de .agents/verification.yaml          │
+│                                                                     │
+│   📋 EXPLORE                                                         │
 │   ├─ Lecture de l'issue #XX                                         │
-│   ├─ Analyse du codebase                                            │
-│   └─ Cartographie des fichiers impactés                             │
-│                                                                      │
-│   ⏸️ CHECKPOINT ─────────────────────────────────────────────────    │
-│                                                                      │
-│   📝 PLAN                                                            │
-│   ├─ Décomposition en étapes                                        │
-│   ├─ Estimation complexité                                          │
-│   └─ Identification des risques                                     │
-│                                                                      │
-│   ⏸️ CHECKPOINT ─────────────────────────────────────────────────    │
-│                                                                      │
-│   💻 CODE                                                            │
-│   ├─ Implémentation étape par étape                                 │
-│   ├─ Validation à chaque étape                                      │
+│   ├─ Analyse du codebase + détection surface (UI/SEO)               │
+│   └─ Évaluation du niveau 0-4                                       │
+│                                                                     │
+│   📝 PLAN ⛔ (stop unique)                                            │
+│   ├─ Décomposition en étapes + critères d'acceptance                │
+│   └─ Validation utilisateur — seul arrêt avant le handoff           │
+│                                                                     │
+│   🔴 RED (conditionnel, niveau ≥ 2 + harness dispo)                  │
+│   └─ Tests d'acceptance qui échouent pour la bonne raison           │
+│                                                                     │
+│   💻 IMPLEMENT (séquentiel)                                          │
+│   ├─ Étape par étape : code + tests → manifeste vert                │
 │   └─ Respect des conventions                                        │
-│                                                                      │
-│   ⏸️ CHECKPOINT ─────────────────────────────────────────────────    │
-│                                                                      │
-│   🧪 TEST                                                            │
-│   ├─ Écriture tests unitaires                                       │
-│   ├─ Tests d'intégration                                            │
-│   └─ Vérification coverage                                          │
-│                                                                      │
-│   ⏸️ CHECKPOINT ─────────────────────────────────────────────────    │
-│                                                                      │
-│   🔍 REVIEW ×3                                                       │
-│   ├─ Pass 1: Correctness (logique, bugs)                            │
-│   │   └─ Corrections → Validation                                   │
-│   ├─ Pass 2: Readability (lisibilité, maintenance)                  │
-│   │   └─ Améliorations → Validation                                 │
-│   └─ Pass 3: Performance (optimisation)                             │
-│       └─ Optimisations → Validation                                 │
-│                                                                      │
-│   🎨 DESIGN AUDIT (si UI/frontend)                                   │
+│                                                                     │
+│   🔄 GATE (boucle quality-gate)                                      │
+│   ├─ Commit d'abord, gate sur le diff committé                      │
+│   ├─ Design/SEO/a11y = lenses du gate (niv. 3-4)                    │
+│   └─ Verdict PASS/CONCERNS/FAIL → docs/quality/GATE-*.yaml          │
+│                                                                     │
+│   🎨 DESIGN AUDIT (si UI/frontend, lens du gate)                     │
 │   ├─ Tokens + composants + a11y + taste                             │
 │   ├─ Drift Figma/code + surface IA                                  │
 │   └─ /design-audit-squad pour l'audit complet 12 agents             │
-│                                                                      │
+│                                                                     │
 │   📈 SEO/GEO AUDIT (si site public / contenu indexable)              │
-│   ├─ Technique + contenu + SERP + autorité                           │
-│   ├─ llms.txt + visibilité IA + preuves                              │
+│   ├─ Technique + contenu + SERP + autorité                          │
+│   ├─ llms.txt + visibilité IA + preuves                             │
 │   └─ /seo-geo-squad pour l'audit complet 11 agents                   │
-│                                                                      │
-│   ✅ TERMINÉ                                                         │
-│                                                                      │
+│                                                                     │
+│   ✅ HANDOFF                                                         │
+│   ├─ Rapport : verdict, décisions prises en ton nom, absents        │
+│   └─ [S] /ship  [C] commit seul  [R] re-run gate (niv. 1-2)         │
+│                                                                     │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -277,38 +266,57 @@ claude
 - [ ] Given X, when Y, then Z
 ```
 
+#### 🔎 PROBE (silencieux)
+
+**Objectif** : établir les preuves d'exécution disponibles avant toute exploration.
+
+**Ce que fait Claude** :
+1. Charge le skill `project-probe`
+2. Lit `.agents/verification.yaml` (lint, types, tests, build) ; le crée ou le rafraîchit s'il est absent ou périmé
+3. Lit les conventions du repo (`CLAUDE.md` / `AGENTS.md`, pointeur mémoire local si présent)
+
 #### 📋 EXPLORE (subagent Explore)
 
-**Objectif** : Comprendre le contexte avant de coder.
+**Objectif** : comprendre le contexte et évaluer le niveau avant de planifier.
 
 **Ce que fait Claude** :
-1. Dispatche un subagent Explore via `SendMessage`
-2. Le subagent lit et parse l'issue GitHub
-3. Analyse l'architecture du projet
-4. Identifie les fichiers à modifier
+1. Dispatche un subagent Explore via `SendMessage` (Claude Code) ou explore inline sur les runtimes séquentiels
+2. Le subagent lit et parse l'issue GitHub (ou la spec issue de la discovery)
+3. Analyse l'architecture du projet, les fichiers impactés, les patterns et les risques
+4. Détecte la surface (frontend `.tsx/.jsx/.vue/.css`, SEO/GEO pages publiques) et évalue le niveau 0-4
 5. Retourne une synthèse structurée à l'orchestrateur
 
-#### 📝 PLAN (orchestrateur principal)
+#### 📝 PLAN ⛔ (stop unique)
 
-**Objectif** : Créer un plan d'implémentation validé.
+**Objectif** : produire le plan validé — le seul arrêt humain avant le handoff.
 
 **Ce que fait Claude** (l'orchestrateur garde le contexte et planifie directement) :
-1. Décompose en étapes atomiques
-2. Définit l'ordre des tâches et les fichiers impactés
-3. Identifie les risques
-4. Prépare les prompts complets et autonomes pour les subagents d'implémentation
+1. Décompose en étapes atomiques : quoi / où / comment / contraintes / critères d'acceptance testables / stratégie de tests (P0-P3)
+2. Identifie les composants/tokens à réutiliser (frontend) ou les fichiers publics concernés (SEO/GEO)
+3. Présente un seul écran de validation : synthèse Explore + niveau détecté + plan complet + critères d'acceptance + stratégie de tests
+4. En mode `/auto-dev`, ce stop est remplacé par le mandate gate (issue valide ou spec approuvée) — aucun arrêt humain
 
-#### 💻 CODE + 🧪 TESTS (2 subagents parallèles)
+#### 🔴 RED (conditionnel)
 
-**Objectif** : Implémenter et tester en parallèle.
+**Objectif** : prouver que les tests d'acceptance échouent pour la bonne raison avant toute implémentation.
 
 **Ce que fait Claude** :
-1. Dispatche 2 subagents en parallèle via `SendMessage(run_in_background: true)`
-2. **Subagent Code** : implémente selon le plan, lint/types obligatoires
-3. **Subagent Tests** : écrit les tests P0-P3 risk-based
-4. L'orchestrateur vérifie les résultats au retour
+1. N'exécute cette phase que si le niveau est ≥ 2 et qu'un harness de test existe dans le manifeste
+2. Écrit les tests d'acceptance dérivés des critères validés en phase PLAN
+3. Les exécute et vérifie qu'ils échouent pour la bonne raison (pas une erreur de setup)
+4. Sans harness : les critères sont vérifiés à l'exécution pendant GATE, et le gate file consigne l'absence dans `absents`
 
-Pour les apps web, le subagent Tests peut charger `web-navigator`, qui utilise Playwright CLI comme runtime recommande avant de coder les E2E:
+#### 💻 IMPLEMENT (séquentiel)
+
+**Objectif** : implémenter le plan étape par étape.
+
+**Ce que fait Claude** :
+1. Exécute les étapes du plan **séquentiellement** : code + ses tests unitaires ensemble à chaque étape
+2. Lance les commandes du manifeste (lint, types, tests) — vert avant de passer à l'étape suivante
+3. Respecte les conventions du repo, sans refactoring ni édition hors périmètre
+4. Ne parallélise deux étapes que si leurs fichiers sont disjoints, idéalement en worktrees
+
+Pour les apps web, la phase RED (ou IMPLEMENT) peut charger `web-navigator`, qui utilise Playwright CLI comme runtime recommande avant de coder les E2E:
 
 ```bash
 npm install -g @playwright/cli@latest
@@ -331,20 +339,23 @@ Playwright pilote un vrai navigateur. Dans Skillz-Claude, `web-navigator` l'util
 
 Le livrable standardise les preuves avec `Confirmé / Déduit / Non vérifié`, puis les skills metier consomment ce rapport: `/qa`, `seo-geo-audit`, `design-audit`, `test-runner`, `taste-critic`.
 
-#### 🔍 REVIEW ×3 (3 subagents parallèles)
+#### 🔄 GATE (boucle quality-gate)
 
-**Objectif** : Valider le code avec 3 reviews spécialisées en parallèle.
+**Objectif** : prouver la qualité par un gate file plutôt que par une relecture humaine du diff.
 
 **Ce que fait Claude** :
-1. Dispatche 3 subagents review en parallèle via `SendMessage(run_in_background: true)`
-2. Chaque subagent a un focus spécifique
-3. L'orchestrateur synthétise les rapports et corrige les issues critiques
+1. Commit l'implémentation d'abord — le gate évalue le diff committé (`<base>...HEAD`), le travail non committé lui est invisible
+2. Lance le skill `quality-gate` avec le plan validé et le manifeste ; niveau de gate = niveau de la tâche (1 round au niveau 1, ≤3 au niveau 2, ≤4 + lenses design/SEO/a11y aux niveaux 3-4 pour les surfaces détectées en EXPLORE)
+3. Boucle jusqu'à un verdict : PASS, CONCERNS (jamais auto-accepté en mode autonome ; attend une décision explicite en mode interactif), ou FAIL (une itération de plus, puis STOP après 3 tentatives)
+4. Commit le gate file avec la branche
 
-| Pass | Focus | Questions |
-|------|-------|-----------|
-| **#1 Correctness** | Le code fait ce qu'il doit ? | Bugs ? Cas limites ? Sécurité ? |
-| **#2 Readability** | Le code est maintenable ? | Nommage ? Structure ? DRY ? |
-| **#3 Performance** | Le code est optimal ? | Complexité ? Memory ? Scale ? |
+| Verdict | Sens | Action |
+|---------|------|--------|
+| **PASS** | Preuves conformes au plan | Proposer `/ship` |
+| **CONCERNS** | Findings non bloquants | Décision humaine explicite (waiver) ou nouvelle itération |
+| **FAIL** | Findings confirmés bloquants | Corriger, jusqu'à 3 itérations, puis STOP |
+
+Le gate file (`docs/quality/GATE-*.yaml`) est la seule preuve de qualité du système — il remplace les 3 passes de review humaines.
 
 #### 🎨 DESIGN AUDIT (si UI/frontend)
 
@@ -396,6 +407,16 @@ En mode squad complet, le skill lit les prompts originaux stockés dans `.claude
 | Content GEO | réponse directe, sources, stats, FAQ, contenus citables IA |
 | Autorité/local | avis, GBP, NAP, mentions, backlinks connus, réseaux sociaux |
 | Visibilité IA | llms.txt, prompts Claude/Google AIO/ChatGPT/Perplexity/Gemini, sources citées |
+
+#### ✅ HANDOFF
+
+**Objectif** : clôturer la tâche avec un rapport et une décision claire, sans rouvrir le plan.
+
+**Ce que fait Claude** :
+1. Présente le rapport final : verdict du gate, nombre de rounds, résumé des findings, `decisions_prises_en_ton_nom` (tout écart au plan validé), `absents`, stats du diff, et la preuve RED→GREEN si la phase RED a tourné
+2. Niveaux 0-2 (mode interactif) : propose **[S] `/ship`** | **[C] commit seul** | **[R] re-run du gate** (niveaux 1-2) — ce menu est la décision de handoff, pas un second checkpoint
+3. Niveaux 3-4 (mode interactif) : exige la lecture complète de `decisions_prises_en_ton_nom` avant de proposer les mêmes options — c'est la seule relecture humaine restante
+4. Mode autonome : enchaîne `/ship` directement si le gate est PASS ; le corps de la PR embarque le gate file
 
 ---
 

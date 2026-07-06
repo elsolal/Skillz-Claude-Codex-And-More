@@ -27,7 +27,7 @@ This skill describes the automated release pipeline executed by the `/ship` comm
 
 1. Check current branch: `git branch --show-current`.
 2. **If on `main` or `master`**: abort with message "You're on main. Ship from a feature branch."
-3. Run `git status` (never use `-uall`). Note uncommitted changes.
+3. Run `git status` (never use `-uall`). If the working tree is dirty beyond `CHANGELOG.md`, **STOP**: "Commit your work first — the gate only evaluates committed work." (Step 4's staleness check will then trigger a re-gate if the new commits changed the diff.)
 4. Run `git diff main...HEAD --stat` and `git log main..HEAD --oneline` to understand what's being shipped.
 
 ---

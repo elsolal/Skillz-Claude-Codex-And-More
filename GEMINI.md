@@ -1,6 +1,6 @@
 # Skillz-Claude — Gemini CLI context
 
-D-EPCT+R v6 workflow (Probe → Explore → Plan → Red → Implement → Gate → Handoff), adaptatif niveaux 0-4, + 34 skills, adapté pour Gemini CLI.
+D-EPCT+R v6 workflow (Probe → Explore → Plan → Red → Implement → Gate → Handoff), adaptatif niveaux 0-4, avec des dizaines de skills, adapté pour Gemini CLI.
 
 ## Source de vérité
 
@@ -8,8 +8,8 @@ D-EPCT+R v6 workflow (Probe → Explore → Plan → Red → Implement → Gate 
 
 ## Layout
 
-- `skills/` → symlink vers `.claude/skills/` (34 skills)
-- `commands/` → symlink vers `.claude/commands/` (22 commandes Claude, format Markdown)
+- `skills/` → symlink vers `.claude/skills/` (des dizaines de skills)
+- `commands/` → symlink vers `.claude/commands/` (des dizaines de commandes Claude, format Markdown)
 - `.gemini/commands/` → commandes Gemini natives (`.toml`) pour `/dev`, `/discovery`, `/ship`, `/quick-fix`, `/status`
 - `.gemini/gemini-extension.json` → manifest recommandé pour `gemini --extension-dir`
 - `.claude-plugin/plugin.json` → manifest Claude Code (parallèle)
@@ -50,6 +50,6 @@ curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-Mor
 
 ## Différences avec Claude Code
 
-- **Commands format** : Gemini attend du TOML (`.toml`) en natif. Les 5 commandes portables vivent dans `.gemini/commands/`; les 22 commandes Markdown restent dans `.claude/commands/` pour Claude Code.
+- **Commands format** : Gemini attend du TOML (`.toml`) en natif. Les 5 commandes portables vivent dans `.gemini/commands/`; les autres commandes Markdown restent dans `.claude/commands/` pour Claude Code.
 - **Skills** : 100% compatible (même format `SKILL.md` avec frontmatter).
 - **MCP** : non configuré ici (à déclarer dans `.gemini/gemini-extension.json` > `mcpServers` si besoin).

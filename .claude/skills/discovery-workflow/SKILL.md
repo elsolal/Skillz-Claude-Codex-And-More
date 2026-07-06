@@ -30,7 +30,7 @@ This skill describes the full product planning workflow enforced by the `/discov
 
 | Level | Signals | Discovery track |
 |---|---|---|
-| **0-1** | 1-2 features, single component, ≤2 screens, no integration, < 1 day | **Tech-spec direct**: skip to Phase 7-bis — write the consolidated spec straight away (no brainstorm, no PRD), 1-2 stories max. |
+| **0-1** | 1-2 features, single component, ≤2 screens, no integration, < 1 day | **Tech-spec direct**: skip to Phase 7-bis — write the consolidated spec straight away (no brainstorm, no PRD), 1-2 stories max, derived from the spec's acceptance criteria (Phase 8 publishes them directly from the spec). |
 | **2-3** | 3+ features, multi-component, 3+ screens, or 1+ integration | Full chain: Brainstorm → (UX) → PRD → (UI) → Architecture → Stories. |
 | **4** | epic scope, migration, auth/data handling, compliance | Full chain + a formalized **NFR & security requirements** section in the spec (these become quality-gate lens criteria during /dev). |
 
