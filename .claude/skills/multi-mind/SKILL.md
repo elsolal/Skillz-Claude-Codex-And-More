@@ -1,6 +1,6 @@
 ---
 name: multi-mind
-description: Débat multi-agents avec 6 IA pour valider PRD et code. Utiliser pour obtenir des perspectives diverses sur des décisions critiques, après un PRD en mode FULL, ou après une code review de code critique.
+description: Débat multi-agents avec 6 IA pour valider PRD et code. Utiliser pour obtenir des perspectives diverses sur des décisions critiques, après un PRD de niveau 2+, ou après une code review de code critique. Inclut l'anti-consensus room (Contrarian).
 model: opus
 context: fork
 allowed-tools:
@@ -47,6 +47,7 @@ knowledge:
 - ⛔ Ne JAMAIS sauter un round
 - ⛔ Ne JAMAIS ignorer une critique majeure
 - ⛔ Ne JAMAIS forcer un consensus artificiel
+- ⛔ Ne JAMAIS déclarer un consensus tant que le **Contrarian** n'a pas produit sa meilleure objection au round final ET que celle-ci n'a pas reçu une réponse explicite (réfutée avec raison, ou intégrée). Sinon : divergence documentée, pas de consensus.
 - ⛔ Ne JAMAIS interrompre le débat (mode continu)
 - ⛔ Ne JAMAIS contourner un agent si sa clé API est configurée (même si erreur temporaire, retry 2x)
 - ⛔ Ne JAMAIS utiliser un modèle différent de celui spécifié dans les connecteurs
@@ -403,6 +404,14 @@ Points sur lesquels tous les agents s'accordent :
 ### 💬 Recommandation finale
 [Recommandation finale de Claude basée sur le débat complet - 3 à 5 phrases]
 ```
+
+---
+
+## Anti-consensus room
+
+Le **Contrarian** (voir `agent-personalities.md`) siège dans chaque débat. Au round de convergence, il produit LA plus forte objection au consensus émergent — armé au besoin d'une lentille d'elicitation (Pre-mortem, Inversion, Steelman). Le consensus n'existe que si son objection est explicitement réfutée (avec raison) ou intégrée ; sinon le rapport documente la divergence.
+
+**Déclenchement en cours de workflow** : `multi-mind --room anti-consensus <cible>` invoque une session courte (Contrarian + 2 agents) sur une décision en cours — mid-brainstorm, mid-PRD, mid-plan — sans casser le fil du workflow appelant : le rapport court revient dans la conversation, le workflow reprend où il en était.
 
 ---
 
