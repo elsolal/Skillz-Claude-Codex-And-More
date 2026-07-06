@@ -26,7 +26,7 @@ These Gemini commands load the shared workflow skills:
 | `/discovery` | `discovery-workflow` |
 | `/ship` | `ship-workflow` |
 | `/qa` | `web-navigator` + Claude `/qa` workflow |
-| `/quick-fix` | `quick-fix-workflow` |
+| `/quick-fix` | `dev-workflow` (mode quick-fix) |
 | `/status` | `status-workflow` |
 | `/rodin` | `rodin` |
 | `/design-audit` | `design-audit` |

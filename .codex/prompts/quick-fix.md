@@ -7,4 +7,4 @@ IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL `~/.codex/skills/dev-
 
 The user's problem description follows this line.
 
-Short circuit: locate → fix → run the manifest's verification commands → present the fix and a suggested commit. No formal plan, no gate file. If the fix grows beyond level 0 (4th file, >50 lines, new dependency), the workflow escalates one level automatically, keeping all work — do not tell the user to restart with `/dev`. Never auto-commit.
+Short circuit: locate → fix → run the manifest's verification commands → present the fix and a suggested commit. No formal plan, no gate file. If the fix grows beyond level 0 (4th file, >50 lines, new dependency), the workflow re-classifies against the level grid automatically (it may jump straight to level 2), keeping all work — do not tell the user to restart with `/dev`. Never auto-commit.

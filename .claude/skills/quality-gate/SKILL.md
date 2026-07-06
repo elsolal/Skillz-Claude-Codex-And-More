@@ -48,7 +48,7 @@ Replaces the one-shot "review ×3" with a bounded loop that produces an auditabl
 
 ## Verdict rules
 
-- `PASS` requires ALL of: every available executable evidence green · zero confirmed findings remaining · at least one real executable proof (tests or runtime verify). A project with no executable evidence at all **caps at `CONCERNS`** — the gate cannot claim more than it knows.
+- `PASS` requires ALL of: every available executable evidence green · zero confirmed P0/P1 findings remaining (confirmed P2/P3 are recorded as notes and do not block PASS) · at least one real executable proof (tests or runtime verify). A project with no executable evidence at all **caps at `CONCERNS`** — the gate cannot claim more than it knows.
 - `FAIL`: confirmed P0 remaining that could not be fixed within the cap.
 - `CONCERNS`: cap reached without convergence, or executable evidence too weak for PASS, or unfixed confirmed P1.
 - `WAIVED`: only on explicit user request, with the reason recorded in the gate file.

@@ -1,6 +1,6 @@
 ---
 name: dev-workflow
-description: Adaptive single-source feature development workflow (D-EPCT+R v6). Loaded by /dev, /quick-fix and /auto-dev in both Claude Code and Codex CLI. Scales rigor to task levels 0-4 (typo fix → epic) with automatic escalation, a single human checkpoint at the plan, conditional acceptance-test-first (RED), and a bounded quality-gate loop replacing human code re-reading. Use for any implementation task: bug fix, feature, GitHub issue.
+description: Adaptive single-source feature development workflow (D-EPCT+R v6). Loaded by /dev, /quick-fix and /auto-dev in Claude Code and by their prompt equivalents in Codex/Gemini/OpenCode. Scales rigor to task levels 0-4 (typo fix → epic) with automatic escalation, a single human checkpoint at the plan, conditional acceptance-test-first (RED), and a bounded quality-gate loop replacing human code re-reading. Use for any implementation task: bug fix, feature, GitHub issue.
 ---
 
 # Dev Workflow — Adaptive Feature Implementation
@@ -9,7 +9,7 @@ One engine, three entry modes. The caller (slash command / prompt) sets the mode
 
 | Mode | Entry | Human checkpoints |
 |---|---|---|
-| `interactive` | `/dev` | ONE: the plan (Phase 2). Levels 3-4 add the handoff read (Phase 6). |
+| `interactive` | `/dev` | ONE: the plan (Phase 2) — none at level 0. Levels 3-4 add the handoff read (Phase 6). |
 | `quick-fix` | `/quick-fix` | None below level 1; starts at level 0 and may escalate. |
 | `autonomous` | `/auto-dev` (RALPH) | None; the mandate gate (below) replaces the plan stop. |
 
@@ -76,7 +76,7 @@ Parallelizing two steps is allowed ONLY if their file sets are disjoint — and 
 
 ## Phase 5 — GATE
 
-Level 0: run the manifest commands, present the fix (no gate file). Done — Phase 6.
+Level 0: run the manifest commands, present the fix (no gate file). Done — Phase 6. In autonomous mode the minimum level is 1: a gate file is always produced, because the PR needs proof.
 
 Levels 1-4: run the `quality-gate` skill on the default-branch diff with the validated plan and the manifest. Gate level = task level (1 → 1 round; 2 → ≤3; 3-4 → ≤4 + design-audit / seo-geo-audit / a11y-enforcer lenses for the surfaces detected in Phase 1). Commit the gate file with the branch.
 
@@ -87,7 +87,7 @@ Levels 1-4: run the `quality-gate` skill on the default-branch diff with the val
 Present the final report: verdict + rounds + findings summary, **`decisions_prises_en_ton_nom`** (every deviation from the validated plan), `absents`, diff stats, and the RED→GREEN evidence when Phase 3 ran.
 
 - Level 0 (quick-fix): present the fix, the manifest verification results, and a suggested commit (include `.agents/verification.yaml` if the probe just created it); never auto-commit.
-- Levels 0-2 (interactive): propose **[S] `/ship`** | **[C] commit only** | **[R] re-run the gate**.
+- Levels 0-2 (interactive): propose **[S] `/ship`** | **[C] commit only** | **[R] re-run the gate** (levels 1-2). This menu is the handoff decision, not a second checkpoint — do not re-open the plan here.
 - Levels 3-4 (interactive): require the user to read `decisions_prises_en_ton_nom` (quote it in full) before proposing the same options. This is the only careful read left to the human.
 - Frontend + new components: propose `/ds-doc --update` before ship.
 - Autonomous: chain `/ship` directly when the gate is PASS; the PR body carries the gate file.
