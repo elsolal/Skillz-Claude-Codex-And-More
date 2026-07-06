@@ -26,7 +26,7 @@ Replaces the one-shot "review ×3" with a bounded loop that produces an auditabl
 ## One round
 
 1. **EXECUTION EVIDENCE — always first, never skipped.**
-   Run every command in the manifest's `commands`. If the harness provides the `verify` skill, drive the app's real affected flow (not just tests); otherwise use the manifest's `testability.runtime_verify` command to launch the app and drive the affected flow yourself. Any red → fix immediately → restart the round. A restart consumes a round from the cap; if execution evidence cannot be made green within the cap, the verdict is `FAIL`. Record each command and its actual result; a claim without the executed command's output is worthless.
+   Run every command in the manifest's `commands`. If the harness provides the `verify` skill, drive the app's real affected flow (not just tests); otherwise use the manifest's `testability.runtime_verify` command to launch the app and drive the affected flow yourself. Any red → fix immediately → restart the round. A restart consumes a round from the cap; if execution evidence cannot be made green within the cap, the verdict is `FAIL`. (At level 1 the single-round exception below still applies: fixing and re-running green within that round is allowed and does not consume a second round.) Record each command and its actual result; a claim without the executed command's output is worthless.
    If the diff touches only docs/config with no runtime surface, still run the manifest commands and note the limitation in `absents` — never skip silently.
 
 2. **MULTI-LENS REVIEWS — fresh contexts.**
@@ -38,17 +38,17 @@ Replaces the one-shot "review ×3" with a bounded loop that produces an auditabl
 3. **ADVERSARIAL COUNTER-VERIFICATION — new findings only.**
    Maintain a findings registry across rounds. Stable id: `<file>:<category>:<8-char-hash-of-quoted-excerpt>`.
    - A finding already in the registry (confirmed or refuted) is not re-verified and not counted as new.
-   - Each NEW finding goes to an independent verifier whose explicit job is to REFUTE it against the actual code. Uncertain → refuted (bias against false positives).
+   - Each NEW finding goes to an independent verifier whose explicit job is to REFUTE it against the actual code. Uncertain → refuted (bias against false positives) — EXCEPT security findings (injection, auth bypass, secret exposure, trust-boundary violations): an uncertain security finding stays confirmed until positively disproven.
    - Confirmed → fix queue. Refuted → registry, never returns.
 
 4. **FIX confirmed P0/P1** (the orchestrator fixes — it has context), then return to step 1. P2/P3 go to the gate file as notes, not fixes (no scope creep).
 
-**Convergence**: two consecutive rounds with zero new confirmed findings → verdict. Cap reached without convergence → verdict `CONCERNS`, remaining findings listed. Never loop past the cap.
+**Convergence**: two consecutive rounds with zero new confirmed P0/P1 findings → verdict (P2/P3 notes never count toward convergence). Cap reached without convergence → verdict `CONCERNS`, remaining findings listed. Never loop past the cap.
 **Level-1 exception** (cap = 1 round): the verdict is decided on that single round — confirmed findings fixed + execution evidence re-run green → `PASS`. The Verdict-rules preconditions still apply: without at least one real executable proof, the verdict caps at `CONCERNS` even here.
 
 ## Verdict rules
 
-- `PASS` requires ALL of: every available executable evidence green · zero confirmed findings remaining · at least one real executable proof (tests or runtime verify). A project with no executable evidence at all **caps at `CONCERNS`** — the gate cannot claim more than it knows.
+- `PASS` requires ALL of: every available executable evidence green · zero confirmed P0/P1 findings remaining (confirmed P2/P3 are recorded as notes and do not block PASS) · at least one real executable proof (tests or runtime verify). A project with no executable evidence at all **caps at `CONCERNS`** — the gate cannot claim more than it knows.
 - `FAIL`: confirmed P0 remaining that could not be fixed within the cap.
 - `CONCERNS`: cap reached without convergence, or executable evidence too weak for PASS, or unfixed confirmed P1.
 - `WAIVED`: only on explicit user request, with the reason recorded in the gate file.
@@ -75,7 +75,7 @@ absents:
   - "no e2e harness"
 ```
 
-Compute `diff_hash` by hashing the same gated diff: `git diff <base>...HEAD | shasum -a 256 | cut -d' ' -f1`.
+Compute `diff_hash` by hashing the gated diff excluding gate files themselves: `git diff <base>...HEAD -- ':(exclude)docs/quality' | (shasum -a 256 2>/dev/null || sha256sum) | cut -d' ' -f1` — so committing the gate file does not invalidate its own hash. Consumers recompute with the same exclusion.
 
 `decisions_prises_en_ton_nom` lists every autonomous deviation from the validated plan. **For levels 3-4 the calling workflow must show this section to the user before proposing ship** — it is the only careful read left to the human.
 

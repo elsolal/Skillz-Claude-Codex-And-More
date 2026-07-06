@@ -17,9 +17,13 @@ Make every workflow stack-agnostic: workflows never guess or hardcode verificati
 Fingerprint = SHA-256 of the concatenated config files that exist, in this fixed order:
 
 ```bash
+ci_files=$(find .github/workflows -name '*.yml' -o -name '*.yaml' 2>/dev/null | sort)
 cat package.json pnpm-lock.yaml yarn.lock Makefile justfile pyproject.toml setup.cfg \
-    Cargo.toml go.mod Gemfile composer.json .github/workflows/*.yml 2>/dev/null | shasum -a 256 | cut -d' ' -f1
+    Cargo.toml go.mod Gemfile composer.json $ci_files 2>/dev/null \
+  | (shasum -a 256 2>/dev/null || sha256sum) | cut -d' ' -f1
 ```
+
+(`find` avoids zsh unmatched-glob failures when `.github/workflows/` is empty; the `sha256sum` fallback covers minimal Linux containers without `shasum`.)
 
 ## Probe procedure
 
@@ -60,6 +64,10 @@ monorepo: {}                    # optional: per-package command overrides
 - Run verification **only** via `commands` from the manifest — never hardcode.
 - An entry missing from `commands` means the project does not have that verification: **report it** (in the checkpoint summary or the gate file `absents`), never fake a green.
 - If a manifest command fails with "command not found" or similar breakage, re-run this skill (config drifted) before concluding anything.
+
+## Runtime capabilities
+
+The probe procedure is identical on every runtime. Runtimes with parallel subagents may sanity-check command candidates concurrently; sequential runtimes check them one at a time. No step of this skill requires any runtime-specific tool.
 
 ## Anti-patterns
 
