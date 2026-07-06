@@ -345,6 +345,7 @@ Après 50+ idées ou demande explicite :
 
 **Prochaine étape ?**
 - [P] Passer au PRD (structurer l'idée)
+- [E] Appliquer une lentille d'elicitation (`/elicit`) sur le top 5 avant de clore — typiquement Pre-mortem ou Second-Order Effects
 - [R] Faire plus de research
 - [B] Continuer le brainstorm (nouvelle technique)
 - [S] Sauvegarder et pause

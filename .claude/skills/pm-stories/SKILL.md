@@ -1,6 +1,6 @@
 ---
 name: pm-stories
-description: Crée des Epics et User Stories à partir du PRD et de l'Architecture, puis les publie sur GitHub Issues. Utiliser après l'architecture (mode FULL) ou après le PRD (mode LIGHT), quand l'utilisateur dit "stories", "user stories", "epics", "issues", "découper en tâches", ou veut passer à l'implémentation.
+description: Crée des Epics et User Stories à partir du PRD et de l'Architecture, puis les publie sur GitHub Issues. Utiliser après l'architecture (niveau 2+) ou après le PRD (niveau 0-1), quand l'utilisateur dit "stories", "user stories", "epics", "issues", "découper en tâches", ou veut passer à l'implémentation.
 model: opus
 allowed-tools:
   - Read
@@ -28,13 +28,13 @@ hooks:
 | Contexte | Pattern/Action | Priorité |
 |----------|----------------|----------|
 | PRD actif | `Glob: docs/planning/prd/*.md` → `Read` le plus récent (60 lignes) | **Requis** |
-| Architecture | `Glob: docs/planning/architecture/*.md` → `Read` le plus récent (40 lignes) | Requis si mode FULL |
+| Architecture | `Glob: docs/planning/architecture/*.md` → `Read` le plus récent (40 lignes) | Requis si niveau 2+ |
 | Stories existantes | `Glob: docs/stories/*/STORY-*.md` | Optionnel |
 | GitHub repo info | `Bash: gh repo view --json name,owner,url` ou MCP GitHub | Optionnel |
 
 ### Instructions de chargement
 1. Utiliser `Glob` pour trouver le PRD → **STOP si aucun PRD** (requis)
-2. Si mode FULL, charger aussi l'architecture
+2. Si niveau 2+, charger aussi l'architecture
 3. Lister les stories existantes pour éviter les doublons
 4. Vérifier la config GitHub (CLI ou MCP) pour la publication des issues
 
@@ -45,7 +45,7 @@ hooks:
 > **Avant de créer des stories :**
 > 1. Vérifier qu'un PRD existe (`docs/planning/prd/`)
 > 2. Vérifier si Architecture existe (`docs/planning/architecture/`)
-> 3. Si Architecture manquante en mode FULL → suggérer de la créer d'abord
+> 3. Si Architecture manquante en niveau 2+ → suggérer de la créer d'abord
 > 4. **Lancer Implementation Readiness Check avant publication**
 
 ## Rôle & Principes
@@ -80,7 +80,7 @@ Je charge le contexte du projet...
 - PRD : `docs/planning/prd/PRD-{slug}.md` ✅/❌
 - Architecture : `docs/planning/architecture/ARCH-{slug}.md` ✅/❌
 
-[Si pas d'architecture et mode FULL suggéré]
+[Si pas d'architecture et niveau 2+ suggéré]
 ⚠️ Pas d'architecture trouvée. Tu veux :
 - [A] Créer l'architecture d'abord (recommandé)
 - [S] Continuer sans architecture

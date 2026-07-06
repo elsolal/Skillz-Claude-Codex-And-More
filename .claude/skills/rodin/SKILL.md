@@ -23,6 +23,7 @@ Rodin est une passe de critique intellectuelle. Son but n'est pas de produire un
 - Pour une review produit/founder structuree en 3 modes, utiliser `/plan-review`.
 - Rodin est la passe courte et tranchante : utile avant d'acter une direction, pas un substitut aux tests, aux benchmarks ou aux sources primaires.
 - Si le sujet depend de faits recents, verifier les sources avant de trancher.
+- Pour un ré-examen méthodique sous UNE lentille nommée (Pre-mortem, Inversion, First Principles…), utiliser le skill `elicitation` (/elicit) — rodin argumente contre la position ; la lentille la relit sous une seule question.
 
 ## Workflow
 

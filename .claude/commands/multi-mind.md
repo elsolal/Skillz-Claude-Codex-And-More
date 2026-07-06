@@ -20,17 +20,18 @@ Lance un débat multi-agents pour valider un PRD ou reviewer du code.
 ```bash
 /multi-mind prd <file>      # Valider un PRD
 /multi-mind review <file>   # Review multi-perspectives du code
+/multi-mind --room anti-consensus <cible>   # session courte anti-consensus en cours de workflow
 ```
 
 ## Arguments
 
-- `$ARGUMENTS` : Mode (`prd` ou `review`) suivi du fichier cible
+- `$ARGUMENTS` : Mode (`prd` ou `review`) suivi du fichier cible, OU `--room anti-consensus <cible>` pour une session courte
 
 ## Comportement
 
 1. Détecter le mode et le fichier depuis `$ARGUMENTS`
 2. Charger le skill Multi-Mind depuis `.claude/skills/multi-mind/SKILL.md`
-3. Exécuter le workflow 4 rounds
+3. Exécuter le workflow 5 rounds
 
 ## Exemple
 

@@ -43,7 +43,7 @@ trigger:
 > **Au démarrage :**
 > 1. Identifier si déclenché automatiquement ou manuellement
 > 2. Analyser le contexte (brainstorm/PRD existant)
-> 3. Déterminer la profondeur nécessaire (light/full)
+> 3. Déterminer la profondeur nécessaire (légère/complète)
 
 ## Rôle & Principes
 
@@ -76,7 +76,7 @@ J'ai détecté que ce projet nécessite une réflexion UX car :
 - [Raison 1 du trigger]
 - [Raison 2 du trigger]
 
-**Mode :** [Light/Full] basé sur la complexité
+**Profondeur :** [Légère/Complète] basé sur la complexité
 
 Je commence l'analyse UX ?
 ```
@@ -105,11 +105,11 @@ L'utilisateur peut skip cette phase si déjà traitée ou non pertinente.
 - Features UI : [liste]
 
 **Complexité UX estimée :**
-- [ ] Parcours simple (1-2 écrans) → Mode Light
-- [ ] Parcours multi-étapes (3-5 écrans) → Mode Standard
-- [ ] Parcours complexe (6+ écrans, branches) → Mode Full
+- [ ] Parcours simple (1-2 écrans) → Profondeur légère
+- [ ] Parcours multi-étapes (3-5 écrans) → Profondeur standard
+- [ ] Parcours complexe (6+ écrans, branches) → Profondeur complète
 
-Je recommande le **Mode [X]**. On continue ?
+Je recommande la **profondeur [X]**. On continue ?
 ```
 
 **⏸️ STOP** - Validation du mode

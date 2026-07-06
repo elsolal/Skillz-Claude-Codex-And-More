@@ -67,7 +67,7 @@ Product Manager focalisé sur la création de PRD clairs et actionnables. Transf
 
 Analyser le scope pour recommander le mode approprié :
 
-**Critères MODE FULL (score ≥ 3)** :
+**Critères PRD complet, niveaux 2-4 (score ≥ 3)** :
 - [ ] 3+ features distinctes mentionnées (+1)
 - [ ] Architecture multi-composants (+1)
 - [ ] 3+ écrans/pages UI (+1)
@@ -75,19 +75,19 @@ Analyser le scope pour recommander le mode approprié :
 - [ ] Estimation > 1 jour de dev (+1)
 - [ ] Mots-clés : "système", "plateforme", "architecture" (+1)
 
-**Critères MODE LIGHT (score < 3)** :
+**Critères PRD synthétique, niveaux 0-1 (score < 3)** :
 - Feature isolée, petit scope
 - Mots-clés : "petit", "quick", "simple", "juste"
 
 ```markdown
 📋 **Création PRD**
 
-J'ai analysé ton besoin. Je suggère le **Mode [FULL/LIGHT]** car :
+J'ai analysé ton besoin. Je suggère un **PRD [complet (niveaux 2-4)/synthétique (niveaux 0-1)]** car :
 - [Raison 1]
 - [Raison 2]
 
-**[F]** Mode Full → PRD complet + Architecture ensuite
-**[L]** Mode Light → Direct aux User Stories
+**[C]** PRD complet (niveaux 2-4) → PRD complet + Architecture ensuite
+**[S]** PRD synthétique (niveaux 0-1) → Direct aux User Stories
 **[?]** M'expliquer la différence
 
 Ton choix ?
@@ -121,7 +121,7 @@ Poser les questions essentielles (max 3-4 à la fois) :
 
 ### 3. Rédaction PRD
 
-#### Mode FULL - PRD Complet
+#### PRD complet (niveaux 2-4)
 
 Créer `docs/planning/prd/PRD-{feature-slug}.md` :
 
@@ -222,11 +222,11 @@ version: 1.0
 [Références, maquettes, liens utiles]
 ```
 
-#### Mode LIGHT - PRD Simplifié
+#### PRD synthétique (niveaux 0-1)
 
 ```markdown
 ---
-title: PRD Light - [Feature]
+title: PRD Synthétique - [Feature]
 date: YYYY-MM-DD
 status: draft
 ---
@@ -267,13 +267,13 @@ J'ai créé le PRD dans `docs/planning/prd/PRD-{slug}.md`
 - **Problème**: [1 ligne]
 - **Solution**: [1 ligne]
 - **Features MVP**: [nombre]
-- **Mode**: [FULL/LIGHT]
+- **Format**: [complet (niveaux 2-4)/synthétique (niveaux 0-1)]
 
 ---
 
 **Prochaine étape ?**
-- [A] Passer à l'Architecture (recommandé pour Mode FULL)
-- [S] Passer direct aux Stories (Mode LIGHT)
+- [A] Passer à l'Architecture (recommandé pour PRD complet, niveaux 2-4)
+- [S] Passer direct aux Stories (PRD synthétique, niveaux 0-1)
 - [R] Réviser le PRD
 - [P] Pause
 ```
@@ -375,7 +375,7 @@ Avant de proposer la transition, valider :
 | Features MVP listées avec priorités | ✅/❌ |
 | Hors scope défini | ✅/❌ |
 | Métriques de succès mesurables | ✅/❌ |
-| Mode (FULL/LIGHT) choisi | ✅/❌ |
+| Format PRD (complet niveaux 2-4 / synthétique niveaux 0-1) choisi | ✅/❌ |
 
 **Score : X/7** → Si < 5, compléter avant transition
 ```
@@ -391,18 +391,18 @@ Après validation du PRD, proposer automatiquement :
 
 ✅ PRD créé et validé.
 
-**Mode détecté : [FULL/LIGHT]**
+**Format détecté : [complet (niveaux 2-4)/synthétique (niveaux 0-1)]**
 
-[Si Mode FULL + Score UX ≥ 4]
+[Si PRD complet (niveaux 2-4) + Score UX ≥ 4]
 → 🎨 **Lancer `/ux-designer` ?** (recommandé - interface complexe)
 
-[Si Mode FULL + pas d'UX requis]
+[Si PRD complet (niveaux 2-4) + pas d'UX requis]
 → 🏗️ **Lancer `/architect` ?** (architecture technique requise)
 
-[Si Mode FULL - optionnel]
+[Si PRD complet (niveaux 2-4) - optionnel]
 → 🧠 **Lancer `/multi-mind prd` ?** (débat multi-perspectives avec 6 IA)
 
-[Si Mode LIGHT]
+[Si PRD synthétique (niveaux 0-1)]
 → 📝 **Lancer `/pm-stories` ?** (direct aux stories)
 
 ---
