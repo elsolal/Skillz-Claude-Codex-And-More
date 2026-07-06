@@ -401,6 +401,9 @@ Points sur lesquels tous les agents s'accordent :
 4. [ ] **P2** : [Action souhaitable]
 5. [ ] **P2** : [Action souhaitable]
 
+### 🚫 Objection du Contrarian
+**Objection du Contrarian** : <la plus forte objection> → réfutée (raison) | intégrée | divergence documentée
+
 ### 💬 Recommandation finale
 [Recommandation finale de Claude basée sur le débat complet - 3 à 5 phrases]
 ```

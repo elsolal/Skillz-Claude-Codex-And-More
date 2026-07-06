@@ -1,6 +1,6 @@
 # Agent Personalities
 
-> System prompts pour les 6 agents du système Multi-Mind.
+> System prompts pour les 6 agents débatteurs du système Multi-Mind + le Contrarian (anti-consensus).
 
 ---
 
