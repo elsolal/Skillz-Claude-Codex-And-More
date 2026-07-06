@@ -1,5 +1,5 @@
 ---
-description: Développe une feature GitHub en mode RALPH autonome avec multi-agent parallèle (Explore → Plan orchestrateur → Code+Tests // → Review ×3 // → Ship). Usage: /auto-dev #123
+description: Développe une feature GitHub en mode RALPH autonome avec multi-agent parallèle (Explore → Plan orchestrateur → Code+Tests // → Review boucle quality-gate → Ship). Usage: /auto-dev #123
 ---
 
 # Auto-Dev - RALPH Mode
@@ -122,16 +122,11 @@ Réservé au **prototypage rapide**. Le log RALPH `docs/ralph-logs/${CLAUDE_SESS
 - Les 2 subagents tournent en parallèle
 - Au retour : vérifier conflits, lancer tests
 
-### Phase 4: REVIEW (3 subagents parallèles)
-- **Subagent Correctness** via `SendMessage(run_in_background: true)` :
-  - Bugs, logique, sécurité, edge cases
-  - Classifie : 🔴 Critical | 🟡 Medium | 🟢 Minor
-- **Subagent Readability** via `SendMessage(run_in_background: true)` :
-  - Nommage, structure, DRY, abstractions
-- **Subagent Performance** via `SendMessage(run_in_background: true)` :
-  - O(n²), re-renders, queries, memory leaks, caching
-- Corriger automatiquement les issues 🔴 Critical (TOI, pas un subagent)
-- Relancer les tests après corrections
+### Phase 4: REVIEW (boucle quality-gate)
+- Charger le skill `quality-gate` sur le diff de la branche par défaut (`git diff <base>...HEAD`) (niveau 2, ou 3 si FRONTEND)
+- Boucle bornée : preuves d'exécution (manifeste) → lentilles → contre-vérification → fix → re-tour
+- Sortie : `docs/quality/GATE-<date>-<slug>.yaml` committé
+- En autonome, un verdict FAIL = nouvelle itération RALPH ; > 3 tentatives → STOP
 
 ### Phase 5: FINALIZE (verification-before-completion gate)
 
@@ -141,9 +136,8 @@ Vérifs **obligatoires** avant de marquer "DEV COMPLETE" :
 
 | Check | Commande | Statut |
 |---|---|---|
-| Lint | `npm run lint` (ou équivalent stack) | ✅ |
-| Types | `npm run typecheck` | ✅ |
-| Tests P0/P1 | `npm test -- --filter=p0,p1` (ou équivalent) | ✅ |
+| Vérifs du manifeste | les `commands` de `.agents/verification.yaml` | ✅ |
+| Gate file | verdict PASS requis en autonome (jamais CONCERNS auto-accepté) | ✅ |
 | Log RALPH cohérent | inspecter les 3 dernières itérations dans `docs/ralph-logs/${CLAUDE_SESSION_ID}.md` — pas de pattern d'erreur en boucle | ✅ |
 
 **Si une vérif échoue :** ne pas marquer COMPLETE, créer une nouvelle itération RALPH pour corriger. Si > 3 tentatives → STOP avec message clair pour l'utilisateur.
@@ -158,8 +152,8 @@ Puis :
 Le loop considère la feature "COMPLETE" quand :
 - Code implémenté selon le plan
 - Tous les tests passent
-- 3 passes de review effectuées via subagents
-- Aucune issue 🔴 Critical restante
+- Boucle quality-gate convergée (2 tours propres, ou cap atteint documenté)
+- Gate file `docs/quality/GATE-<date>-<slug>.yaml` avec verdict PASS
 
 ## Métriques RALPH
 

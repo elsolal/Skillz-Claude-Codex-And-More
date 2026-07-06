@@ -1,5 +1,5 @@
 ---
-description: Lance le workflow multi-agent pour développer une feature. Explore → Plan (orchestrateur) → Code+Tests (subagents //) → Review ×3 (subagents //) → Ship. Usage: /dev [issue] ou /dev "description"
+description: Lance le workflow multi-agent pour développer une feature. Explore → Plan (orchestrateur) → Code+Tests (subagents //) → Review (boucle quality-gate) → Ship. Usage: /dev [issue] ou /dev "description"
 ---
 
 # Dev: Feature Implementation — $ARGUMENTS
@@ -164,80 +164,13 @@ Quand les 2 subagents reviennent :
 
 ---
 
-## Phase 4: REVIEW (3 subagents parallèles)
+## Phase 4: REVIEW (boucle quality-gate)
 
-Dispatcher **3 subagents review en parallèle** via `SendMessage` dans un seul message :
+Charger le skill `quality-gate` et le lancer sur le diff de la branche par défaut (`git diff <base>...HEAD`, règle du skill quality-gate) avec le plan validé :
 
-### Subagent Correctness
-```
-SendMessage(run_in_background: true)
-Prompt: "Tu es un reviewer expert en correctness. Review les changements suivants :
-
-[git diff des fichiers modifiés]
-
-**Focus CORRECTNESS :**
-- Logique métier correcte
-- Edge cases gérés (null, undefined, empty, boundary)
-- Pas de bugs, race conditions, data loss
-- Types corrects, pas de any non justifié
-- Failles de sécurité (injection, XSS, auth bypass)
-- Tests couvrent les changements
-
-Classifie chaque issue :
-- 🔴 Critical : bugs, failles sécurité, data loss → Fix obligatoire
-- 🟡 Medium : performance, code smells → Fix recommandé
-- 🟢 Minor : style, nommage → Nice-to-have
-
-Output : table Sévérité | Fichier | Ligne | Issue | Suggestion
-
-Knowledge: .claude/knowledge/testing/error-handling.md, risk-governance.md,
-probability-impact.md"
-```
-
-### Subagent Readability
-```
-SendMessage(run_in_background: true)
-Prompt: "Tu es un reviewer expert en lisibilité. Review les changements suivants :
-
-[git diff des fichiers modifiés]
-
-**Focus READABILITY :**
-- Nommage clair et cohérent (verbNoun fonctions, noun variables)
-- Fonctions de taille raisonnable (< 20 lignes)
-- Commentaires utiles (logique complexe uniquement)
-- Structure logique, early return
-- Pas de code dupliqué (DRY)
-- Abstractions appropriées (pas d'over-engineering)
-
-Output : table Type | Fichier | Suggestion | Impact
-
-Knowledge: .claude/knowledge/testing/test-quality.md, nfr-criteria.md"
-```
-
-### Subagent Performance
-```
-SendMessage(run_in_background: true)
-Prompt: "Tu es un reviewer expert en performance. Review les changements suivants :
-
-[git diff des fichiers modifiés]
-
-**Focus PERFORMANCE :**
-- Opérations O(n²) évitables
-- Re-renders inutiles (si React/frontend)
-- Queries optimisées (si DB) — N+1, missing indexes
-- Memory leaks (event listeners, subscriptions)
-- Lazy loading si pertinent
-- Caching si pertinent
-
-Output : table Type | Impact estimé | Effort | Suggestion
-
-Knowledge: .claude/knowledge/testing/nfr-criteria.md"
-```
-
-Quand les 3 subagents reviennent :
-1. **Synthétiser** les 3 rapports en un rapport consolidé
-2. **Corriger** les issues 🔴 Critical (toi-même, pas un subagent — tu as le contexte)
-3. **Relancer les tests** après corrections
+- Niveau de gate : 2 par défaut ; 3 si FRONTEND ou SEO/GEO détecté (leurs lentilles d'audit rejoignent la boucle).
+- La boucle est bornée : preuves d'exécution (commandes du manifeste `.agents/verification.yaml`) → reviews multi-lentilles en subagents frais → contre-vérification adversariale des findings nouveaux → fix des confirmés P0/P1 → re-tour, jusqu'à convergence (2 tours propres) ou cap.
+- Sortie : `docs/quality/GATE-<date>-<slug>.yaml`, committé avec la branche.
 
 ### Phase 4.5: DESIGN AUDIT (si FRONTEND)
 
@@ -249,7 +182,7 @@ Après les 3 reviews classiques, lancer `design-audit --ship-gate` sur la surfac
 - P1 = correction obligatoire en mode ship-gate, sauf justification explicite dans le résumé.
 - P2/P3 = documenter comme polish ou dette.
 
-**STOP CHECKPOINT 4** — Présenter le résumé review consolidé + verdict design-audit. Validation.
+**STOP CHECKPOINT 4** — Présenter le résumé du gate : verdict, tours, findings (confirmés/réfutés/corrigés), `decisions_prises_en_ton_nom`, absents + verdict design/SEO le cas échéant. Validation.
 
 ### Phase 4.6: SEO/GEO AUDIT (si SEO/GEO)
 
@@ -269,9 +202,8 @@ Avant de proposer `/ship`, vérifier la matrice (`.claude/knowledge/workflows/ve
 
 | Check | Commande | Statut |
 |---|---|---|
-| Lint | `npm run lint` (ou équivalent stack) | ✅ |
-| Types | `npm run typecheck` (ou `tsc --noEmit`) | ✅ |
-| Tests P0/P1 | `npm test` | ✅ |
+| Lint / Types / Tests | les `commands` de `.agents/verification.yaml` | ✅ |
+| Gate file | `docs/quality/GATE-<date>-<slug>.yaml` — verdict PASS (ou CONCERNS explicitement accepté) | ✅ |
 
 **Si une vérif échoue → ne pas proposer SHIP**, retourner en Phase 4 ou créer une issue de blocage.
 

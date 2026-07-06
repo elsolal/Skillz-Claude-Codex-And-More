@@ -1,5 +1,10 @@
 # Verification Before Completion — Matrice par workflow
 
+> **Source de vérité : `.agents/verification.yaml`** (généré par le skill `project-probe`).
+> Les workflows lisent le manifeste, jamais cette table directement. La table
+> « Commandes par stack » ci-dessous ne sert qu'au probe comme fallback quand
+> aucun script explicite n'est trouvé — et seulement si l'outil est vérifiablement présent.
+
 Avant de déclarer une feature/fix "DONE", "COMPLETE", "SHIPPED" ou de proposer une PR, chaque workflow doit valider les checks ci-dessous. **Si une vérif échoue → ne pas déclarer DONE**, reporter l'erreur et proposer correction.
 
 ## Matrice
