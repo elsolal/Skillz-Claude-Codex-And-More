@@ -2,7 +2,7 @@
 
 Cross-agent context file (OpenCode, Aider, Codex CLI, generic agents) at repo root.
 
-D-EPCT+R workflow (Explore → Plan → Implement → Review → Ship) + 34 skills + 22 slash commands.
+D-EPCT+R v6 workflow (Probe → Explore → Plan → Red → Implement → Gate → Handoff), adaptive across levels 0-4, + 34 skills + 22 slash commands.
 
 ## Source de vérité
 
@@ -28,10 +28,10 @@ D-EPCT+R workflow (Explore → Plan → Implement → Review → Ship) + 34 skil
 
 | Commande | Usage |
 |---|---|
-| `/dev [issue]` | Workflow complet multi-agent |
-| `/discovery` | Planning (Brainstorm → PRD → Architecture → Stories) |
-| `/ship` | Merge main + tests + review + PR |
-| `/quick-fix "desc"` | Fix rapide |
+| `/dev [issue]` | Workflow adaptatif niveaux 0-4, stop unique au plan, boucle quality-gate |
+| `/discovery` | Planning niveaux 0-4 : tech-spec directe ou chaîne complète, spec approuvée en sortie |
+| `/ship` | Merge main + preuves manifeste + gate file (PASS ou waiver) + PR |
+| `/quick-fix "desc"` | Fix rapide — niveau 0 du moteur dev-workflow, escalade auto |
 | `/auto-dev #123` | RALPH mode (autonome, gate pre-flight obligatoire) |
 | `/skillz-doctor` | Diagnostic install |
 

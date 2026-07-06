@@ -1,6 +1,6 @@
 # Skillz-Claude — Gemini CLI context
 
-D-EPCT+R workflow (Explore → Plan → Implement → Review → Ship) + 34 skills, adapté pour Gemini CLI.
+D-EPCT+R v6 workflow (Probe → Explore → Plan → Red → Implement → Gate → Handoff), adaptatif niveaux 0-4, + 34 skills, adapté pour Gemini CLI.
 
 ## Source de vérité
 
@@ -25,10 +25,10 @@ D-EPCT+R workflow (Explore → Plan → Implement → Review → Ship) + 34 skil
 
 | Commande | Usage |
 |---|---|
-| `/dev [issue]` | Workflow complet multi-agent |
-| `/discovery` | Planning (Brainstorm → PRD → Architecture → Stories) |
-| `/ship` | Merge main + tests + review + PR |
-| `/quick-fix "desc"` | Fix rapide |
+| `/dev [issue]` | Workflow adaptatif niveaux 0-4, stop unique au plan, boucle quality-gate |
+| `/discovery` | Planning niveaux 0-4 : tech-spec directe ou chaîne complète, spec approuvée en sortie |
+| `/ship` | Merge main + preuves manifeste + gate file (PASS ou waiver) + PR |
+| `/quick-fix "desc"` | Fix rapide — niveau 0 du moteur dev-workflow, escalade auto |
 | `/status` | État du projet |
 
 Les autres commandes (`/auto-dev`, `/skillz-doctor`, `/pr-review`, etc.) restent Claude-native dans `.claude/commands/`. Gemini peut lire leurs instructions comme contexte, mais elles ne sont pas packagées en TOML natif.
