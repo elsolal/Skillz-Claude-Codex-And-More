@@ -26,6 +26,9 @@ This skill describes the full product planning workflow enforced by the `/discov
 
 1. Listen to the user's need. They may speak freely (speech-to-text is OK). Don't interrupt.
 2. Ask 2-3 clarifying questions only if something is genuinely ambiguous.
+
+2-bis. **Offer the pressure-test**: `[P] Pressure-test the idea first` — before any brainstorm, challenge the idea socratically (rodin posture) armed with 2-3 elicitation lenses picked for the idea (typically Pre-mortem, Inversion, First Principles — see the `elicitation` skill). Output: `docs/planning/forge/FORGE-<slug>-<date>.md` — tested thesis, strongest objections, surviving kernel (problem / for whom / central bet), verdict continue / pivot / drop. The kernel feeds Phase 2 (or the level 0-1 tech-spec directly). Skip silently if the user declines.
+
 3. Assess the discovery level (same 0-4 scale as `dev-workflow`):
 
 | Level | Signals | Discovery track |
@@ -38,7 +41,7 @@ This skill describes the full product planning workflow enforced by the `/discov
 
 **Escalation rule:** if a level-0-1 tech-spec reveals bigger scope while writing it (3+ features, schema changes, multiple journeys), announce it and enter the full chain **reusing the tech-spec as the PRD's input** — never restart.
 
-**STOP CHECKPOINT 1** — Level validated.
+**STOP CHECKPOINT 1** — Level validated. At this and every later checkpoint, `[E] apply an elicitation lens` is available before validating (see the `elicitation` skill).
 
 ---
 
