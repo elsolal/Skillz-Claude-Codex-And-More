@@ -402,7 +402,7 @@ Points sur lesquels tous les agents s'accordent :
 5. [ ] **P2** : [Action souhaitable]
 
 ### 🚫 Objection du Contrarian
-**Objection du Contrarian** : <la plus forte objection> → réfutée (raison) | intégrée | divergence documentée
+<la plus forte objection> → réfutée (raison) | intégrée | divergence documentée
 
 ### 💬 Recommandation finale
 [Recommandation finale de Claude basée sur le débat complet - 3 à 5 phrases]
@@ -412,9 +412,9 @@ Points sur lesquels tous les agents s'accordent :
 
 ## Anti-consensus room
 
-Le **Contrarian** (voir `agent-personalities.md`) siège dans chaque débat. Au round de convergence, il produit LA plus forte objection au consensus émergent — armé au besoin d'une lentille d'elicitation (Pre-mortem, Inversion, Steelman). Le consensus n'existe que si son objection est explicitement réfutée (avec raison) ou intégrée ; sinon le rapport documente la divergence.
+Le **Contrarian** (voir `agent-personalities.md`) siège dans chaque débat. Au round final (Round 5 — CONSENSUS), il produit LA plus forte objection au consensus émergent — armé au besoin d'une lentille d'elicitation (Pre-mortem, Inversion, Steelman). Le consensus n'existe que si son objection est explicitement réfutée (avec raison) ou intégrée ; sinon le rapport documente la divergence.
 
-**Déclenchement en cours de workflow** : `multi-mind --room anti-consensus <cible>` invoque une session courte (Contrarian + 2 agents) sur une décision en cours — mid-brainstorm, mid-PRD, mid-plan — sans casser le fil du workflow appelant : le rapport court revient dans la conversation, le workflow reprend où il en était.
+**Déclenchement en cours de workflow** : `multi-mind --room anti-consensus <cible>` invoque une session courte (Contrarian + 2 agents) sur une décision en cours — mid-brainstorm, mid-PRD, mid-plan — sans casser le fil du workflow appelant : le rapport court revient dans la conversation, le workflow reprend où il en était. Le mode room est EXEMPT de la structure 5 rounds et du rapport `docs/debates/` : forme minimale — une objection du Contrarian (joué par Claude par défaut, ou un agent externe disponible) + une réponse explicite (réfutée avec raison, ou intégrée) — rapport court inline dans la conversation, puis le workflow appelant reprend.
 
 ---
 

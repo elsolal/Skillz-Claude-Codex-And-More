@@ -50,4 +50,4 @@ Smoke « runtime naïf » : (a) `/elicit premortem` sur un doc scratch produit d
 
 ## 7. Backlog restant après cette vague
 
-`/pr-review` consomme le gate file ; court-circuit CONCERNS-frais dans ship ; alignement `<base>` ship steps 1/2/5 ; références fantômes `pm-discovery` dans WORKFLOW.md ; exclusion du manifeste dans le hash (edge).
+`/pr-review` consomme le gate file ; court-circuit CONCERNS-frais dans ship ; alignement `<base>` ship steps 1/2/5 ; références fantômes `pm-discovery` dans WORKFLOW.md ; exclusion du manifeste dans le hash (edge) ; rafraîchissement des catalogues README/AGENTS.md/GEMINI.md/CLAUDE.md (mention de /elicit et de l'anti-consensus room).
