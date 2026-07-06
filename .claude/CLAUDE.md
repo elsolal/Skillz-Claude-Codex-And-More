@@ -23,7 +23,7 @@ Do not store secrets, credentials, full logs, stack traces, or raw transcripts i
 
 <!-- D-EPCT-START -->
 
-# D-EPCT+R v5.1 — Instructions de travail
+# D-EPCT+R v6 — Instructions de travail
 
 ## Quel workflow utiliser ?
 
@@ -60,23 +60,22 @@ Utilisateur dit...                    → Workflow
 "design une UI de chat / copilot"     → skill ai-native-ui
 ```
 
-### Discovery (planning — orchestrateur)
+### Discovery (planning en niveaux)
 
 ```
-ORCHESTRATEUR garde tout le contexte → Brainstorm → [UX] → PRD → [UI] → Architecture → Stories → GitHub (subagent)
+ORCHESTRATEUR garde tout le contexte → Niveau 0-1 : tech-spec directe → Niveau 2-4 : Brainstorm → [UX] → PRD → [UI] → Architecture → Stories → GitHub (subagent)
 ```
 
-Mode FULL (gros scope) : toutes les phases. Mode LIGHT (petit scope) : PRD → Stories → GitHub.
-Le mode est auto-détecté. UX/UI sont optionnels et auto-triggered si pertinent.
+Niveaux 0-4 auto-détectés (même grille que `/dev`). Niveau 0-1 : tech-spec directe, pas de brainstorm ni de PRD complet. Niveau 2-4 : chaîne complète, UX/UI optionnels et auto-triggered si pertinent. Sortie obligatoire : spec consolidée et approuvée dans `docs/planning/specs/` — mandat obligatoire pour `/auto-dev` et pour `/dev` niveau 4.
 Seule la publication GitHub est dispatchée en subagent (travail mécanique).
 
-### Dev (développement multi-agent)
+### Dev (workflow adaptatif niveaux 0-4)
 
 ```
-EXPLORE (subagent) → PLAN (orchestrateur) → IMPLEMENT (2 subagents //) → REVIEW (3 subagents //) → SHIP
+PROBE → EXPLORE → PLAN ⛔ → RED (conditionnel) → IMPLEMENT → GATE (boucle quality-gate) → HANDOFF
 ```
 
-L'orchestrateur principal garde tout le contexte et planifie. Les phases Code+Tests et Review ×3 sont dispatchées en **subagents parallèles** via `SendMessage`.
+L'orchestrateur principal garde tout le contexte. La rigueur s'adapte au niveau détecté (0 = fix trivial sans plan ni gate file, 4 = epic avec spec approuvée obligatoire). Un seul stop humain : le plan (Phase 2) ; niveaux 3-4 ajoutent la lecture des « décisions prises en ton nom » avant ship. La qualité vient de la boucle `quality-gate` (PASS/CONCERNS/FAIL), qui produit un gate file, pas d'une relecture humaine du diff.
 
 ### Mode RALPH (autonome)
 
@@ -90,17 +89,17 @@ Logger chaque itération dans `docs/ralph-logs/`.
 
 ```bash
 # Planning
-/discovery                  # Planning complet (validation à chaque étape)
+/discovery                  # Planning niveaux 0-4 (validation à chaque étape)
 /auto-discovery "idée"      # Planning autonome
 
 # Développement
-/dev [issue]                # Implémentation multi-agent guidée
-/auto-dev #123              # Implémentation multi-agent autonome
-/quick-fix "desc"           # Fix rapide sans workflow
+/dev [issue]                # Workflow adaptatif niveaux 0-4, stop unique au plan
+/auto-dev #123              # Workflow adaptatif autonome (RALPH), gate obligatoire
+/quick-fix "desc"           # Circuit court niveau 0 du moteur dev-workflow, escalade auto
 /refactor <file>            # Refactoring ciblé
 
 # Ship & QA
-/ship [branch]              # Ship: merge → tests → review → changelog → PR
+/ship [branch]              # Ship: merge → preuves manifeste → gate file (PASS/waiver) → changelog → PR
 /qa [url]                   # QA systématique: health score, screenshots, rapport
 /design-audit <target>      # Audit UI/DS: tokens, composants, a11y, taste, Figma/code, IA
 /design-audit-squad <target> # Orchestration complète UI/DS: 12 agents Lyse Design Squad
@@ -154,6 +153,10 @@ Logger chaque itération dans `docs/ralph-logs/`.
 # web-navigator             # Navigation/analyse web, extraction sourcée, preuves runtime
 # playwright-cli            # Runtime recommandé: npm install -g @playwright/cli@latest && playwright-cli install --skills
 
+# Moteur qualité (invoqués par dev-workflow/ship-workflow) :
+# project-probe             # Phase 0 : sonde le projet → .agents/verification.yaml (lint/types/tests/build)
+# quality-gate              # Boucle bornée → gate file docs/quality/GATE-*.yaml (PASS/CONCERNS/FAIL/WAIVED)
+
 # Sécurité
 /supabase-security <url>    # Audit Supabase
 
@@ -175,13 +178,13 @@ Logger chaque itération dans `docs/ralph-logs/`.
 - Valider le plan avec l'utilisateur en mode manuel
 - Utiliser TaskCreate si 2+ étapes d'implémentation
 - Lint + types OK à chaque étape de code
-- 3 passes de review : Correctness → Readability → Performance
+- Boucle quality-gate jusqu'à verdict (gate file PASS/CONCERNS/FAIL) avant de proposer /ship
 
 ### Jamais
 
 - Commit/push directement sur main — toujours branche + PR
 - Committer sans tests qui passent
-- Merger sans les 3 passes de review
+- Merger sans gate file PASS (ou waiver explicite sur CONCERNS)
 - Enchaîner les skills sans validation en mode manuel
 - Coder sans avoir compris l'existant
 

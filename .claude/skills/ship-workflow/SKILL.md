@@ -1,6 +1,6 @@
 ---
 name: ship-workflow
-description: Automated ship workflow that takes a feature branch from "done" to "PR opened" in a single non-interactive pass. Loaded by /ship slash command in both Claude Code and Codex CLI. Use when the user has finished implementing a feature and wants to merge main, run tests, design/SEO ship-gates when relevant, pre-landing review, CHANGELOG, commit, push, and create a PR in one go.
+description: Automated ship workflow that takes a feature branch from "done" to "PR opened" in a single non-interactive pass. Loaded by /ship slash command in both Claude Code and Codex CLI. Use when the user has finished implementing a feature and wants to merge main, manifest verification, quality-gate consumption (PASS required or explicit waiver), CHANGELOG, commit, push, and create a PR in one go.
 ---
 
 # Ship Workflow — Release Engineer Mode
@@ -16,7 +16,7 @@ This skill describes the automated release pipeline executed by the `/ship` comm
 ## Core Principles
 
 1. **Non-interactive by default** — the user said `/ship`, which means DO IT. Don't ask for confirmation on version bumps, commit messages, or CHANGELOG content.
-2. **Only stop for real blockers** — merge conflicts that can't auto-resolve, test failures, critical review findings, frontend design-audit P0/P1, public-page seo-geo-audit P0/P1.
+2. **Only stop for real blockers** — merge conflicts that can't auto-resolve, red execution evidence, a gate FAIL, or an explicit CONCERNS-waiver decision.
 3. **Never force-push** — regular `git push` only. Never `--force`.
 4. **Never skip hooks** — no `--no-verify`, no `--no-gpg-sign` unless explicitly requested.
 5. **Bisectable commits** — each commit should be independently valid (no broken imports between commits).
@@ -27,7 +27,7 @@ This skill describes the automated release pipeline executed by the `/ship` comm
 
 1. Check current branch: `git branch --show-current`.
 2. **If on `main` or `master`**: abort with message "You're on main. Ship from a feature branch."
-3. Run `git status` (never use `-uall`). Note uncommitted changes.
+3. Run `git status` (never use `-uall`). If the working tree is dirty beyond `CHANGELOG.md`, **STOP**: "Commit your work first — the gate only evaluates committed work." (Step 4's staleness check will then trigger a re-gate if the new commits changed the diff.)
 4. Run `git diff main...HEAD --stat` and `git log main..HEAD --oneline` to understand what's being shipped.
 
 ---
@@ -45,76 +45,30 @@ git fetch origin main && git merge origin/main --no-edit
 
 ---
 
-## Step 3 — Run tests
+## Step 3 — Execution evidence (manifest)
 
-Detect the project's test command by reading `package.json`, `Makefile`, `pyproject.toml`, or common conventions:
+Run the `project-probe` skill (read `.agents/verification.yaml`, create if absent), then run every command in the manifest's `commands` (lint, typecheck, test, build), capturing output for possible debugging.
 
-```bash
-# Detect and run the project test command:
-npm test              # Node.js with package.json "scripts.test"
-pytest                # Python with pyproject.toml or pytest.ini
-bundle exec rspec     # Ruby
-go test ./...         # Go
-cargo test            # Rust
-```
-
-Capture output to `/tmp/ship_tests.txt` for possible debugging.
-
-- **If any test fails**: display the failures and **STOP**.
-- **If all pass**: note the counts briefly and continue.
+- **If anything is red**: display the failures and **STOP**.
+- **If green**: note the counts briefly and continue. Entries absent from the manifest are reported as absent — never guessed, never faked.
 
 ---
 
-## Step 4 — Pre-Landing Review
+## Step 4 — Quality gate consumption
 
-Do a two-pass review of the diff (`git diff origin/main`) to catch structural issues that tests don't catch, plus design and SEO/GEO ship-gates when relevant.
+Quality is proven by the gate file, not by a fresh review. One definition of quality in the whole system: the `quality-gate` skill.
 
-### Pass 1 — CRITICAL (blocks `/ship`)
-
-- **SQL & data safety**: string interpolation in SQL, TOCTOU races, bypassing model validations
-- **Race conditions**: read-check-write without locks, find_or_create without unique index
-- **Security**: XSS via unsafe HTML insertion (e.g. React `dangerously*` props, Rails `html_safe`), injection vectors, secret leakage in logs
-- **Trust boundaries**: LLM or user output written to DB without validation or sanitization
-- **Credentials**: hardcoded secrets, API keys, tokens in the diff
-
-### Pass 2 — INFORMATIONAL (goes in PR body)
-
-- Conditional side effects (one branch forgets a side effect)
-- Magic numbers, string coupling
-- Dead code, stale comments
-- Test gaps (missing negative paths)
-- Performance (N+1 queries, O(n²) hot loops, missing indexes)
-
-### Pass 3 — DESIGN AUDIT (frontend only)
-
-If the diff touches `.tsx`, `.jsx`, `.vue`, `.svelte`, `.html`, `.css`, `.scss`, Tailwind, Figma mapping, tokens, or components:
-
-1. Load `design-audit`.
-2. Run the read-only ship gate against the preview URL if available, otherwise the changed UI paths.
-3. Treat P0 as blocking.
-4. Treat P1 as blocking unless the PR body documents an explicit accepted risk.
-5. Put P2/P3 in the PR body as follow-up polish.
-
-### Pass 4 — SEO/GEO AUDIT (public/indexable surface only)
-
-If the diff touches public landing pages, homepage, blog/docs/content, `metadata`, title/meta/H1, canonical, schema/JSON-LD, `robots.txt`, `sitemap.*`, `llms.txt`, or SEO copy:
-
-1. Load `seo-geo-audit`.
-2. Run the read-only ship gate against the preview URL if available, otherwise the changed paths.
-3. Treat P0 as blocking.
-4. Treat P1 as blocking unless the PR body documents an explicit accepted risk.
-5. Keep `Non vérifié` items visible in the PR body.
-
-**Output all findings.**
-
-- **If CRITICAL issues found**: for each one, ask the user with options:
-  - (A) Fix now → apply the fix
-  - (B) Acknowledge and ship → note in PR body
-  - (C) False positive → skip
-- **If design-audit P0/P1 found**: stop, show the finding, and require a fix or explicit accepted risk for P1 only.
-- **If seo-geo-audit P0/P1 found**: stop, show the finding, and require a fix or explicit accepted risk for P1 only.
-- **If only informational**: note them in the PR body and continue automatically.
-- **If no issues**: output "Pre-Landing Review: No issues found." and continue.
+1. Find the most recent `docs/quality/GATE-*.yaml` committed on this branch.
+2. Check **freshness**: recompute the diff hash with the gate's exclusion rule —
+   `git diff <base>...HEAD -- ':(exclude)docs/quality' ':(exclude)CHANGELOG.md' | (shasum -a 256 2>/dev/null || sha256sum) | cut -d' ' -f1`
+   (`<base>` = `main`, or `master` if `main` does not exist) and compare with the gate's `diff_hash`.
+3. Decide:
+   - **Gate PASS and fresh** → proceed. The gate file content goes into the PR body verbatim.
+   - **Gate absent, stale, FAIL, or CONCERNS** → run the `quality-gate` skill now (level from the gate file if present, else 2; the run includes design/SEO/a11y lenses when the diff touches those surfaces — they live inside the gate, not as separate ship passes). Then:
+     - New verdict **PASS** → commit the new gate file and proceed.
+     - **CONCERNS** → non-interactive rule exception: present the gate summary and ask the user once — accept explicitly (verdict becomes `WAIVED` with the reason recorded in the gate file) or abort. Never auto-accept.
+     - **FAIL** → **STOP** and show the confirmed findings.
+4. If the gate's `decisions_prises_en_ton_nom` is non-empty and the gate level is 3-4, quote it in the PR body under its own heading — it is the reviewer-facing record of autonomous decisions.
 
 ---
 
@@ -168,8 +122,9 @@ gh pr create --title "type(scope): summary" --body "$(cat <<'EOF'
 ## Summary
 <bullet points from CHANGELOG>
 
-## Pre-Landing Review
-<findings from Step 4, or "No issues found.">
+## Quality Gate
+<the gate file content (yaml), verbatim>
+<if levels 3-4: the decisions_prises_en_ton_nom section quoted>
 
 ## Test plan
 - [x] All tests pass
@@ -186,5 +141,5 @@ EOF
 
 - **Never skip tests**. If tests fail, stop immediately.
 - **Never force-push**. Regular `git push` only.
-- **Never ask for confirmation** except for CRITICAL review findings, merge conflicts, frontend design-audit P1 risk acknowledgement, or seo-geo-audit P1 risk acknowledgement.
+- **Never ask for confirmation** except for merge conflicts and an explicit CONCERNS waiver decision.
 - **The goal**: the user says `/ship`, the next thing they see is the PR URL.

@@ -1,13 +1,6 @@
-description = "Ship workflow: tests, review, changelog, commit, push, PR"
+description = "Ship v6: merge main, manifest evidence, quality-gate consumption (PASS or explicit waiver), CHANGELOG, commit, push, PR"
 prompt = """
 IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL `.gemini/skills/ship-workflow/SKILL.md` if it exists, otherwise `.claude/skills/ship-workflow/SKILL.md`, READ its entire contents, and execute all steps sequentially.
 
-This is a NON-INTERACTIVE workflow. The user said `/ship`, which means DO IT. Do not ask for confirmation on version bumps, commit messages, or CHANGELOG content. Only stop for:
-- Current branch is `main` (abort)
-- Merge conflicts that can't auto-resolve
-- Test failures
-- CRITICAL findings in pre-landing review
-- Remote is ahead of local
-
-Output the PR URL as the final line.
+NON-INTERACTIVE: the user said /ship, so DO IT — the next thing they see is the PR URL. Quality comes from the committed gate file (`docs/quality/GATE-*.yaml`): PASS and fresh → straight to PR with the gate in the body; absent/stale/CONCERNS/FAIL → the skill runs quality-gate itself. Only stop for: main branch, unresolvable merge conflicts, red execution evidence, gate FAIL, or the explicit CONCERNS-waiver decision.
 """

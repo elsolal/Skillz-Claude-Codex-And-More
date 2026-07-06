@@ -75,7 +75,7 @@ absents:
   - "no e2e harness"
 ```
 
-Compute `diff_hash` by hashing the gated diff excluding gate files themselves: `git diff <base>...HEAD -- ':(exclude)docs/quality' | (shasum -a 256 2>/dev/null || sha256sum) | cut -d' ' -f1` — so committing the gate file does not invalidate its own hash. Consumers recompute with the same exclusion.
+Compute `diff_hash` by hashing the gated diff excluding gate files themselves: `git diff <base>...HEAD -- ':(exclude)docs/quality' ':(exclude)CHANGELOG.md' | (shasum -a 256 2>/dev/null || sha256sum) | cut -d' ' -f1` — so neither committing the gate file nor the ship workflow's CHANGELOG entry invalidates the hash. Consumers recompute with the same exclusion.
 
 `decisions_prises_en_ton_nom` lists every autonomous deviation from the validated plan. **For levels 3-4 the calling workflow must show this section to the user before proposing ship** — it is the only careful read left to the human.
 

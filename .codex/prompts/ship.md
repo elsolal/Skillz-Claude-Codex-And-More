@@ -1,15 +1,8 @@
 ---
-description: 'Ship workflow: merge main → tests → pre-landing review → CHANGELOG → commit → push → PR'
+description: 'Ship v6: merge main, manifest evidence, quality-gate consumption (PASS or explicit waiver), CHANGELOG, commit, push, PR'
 disable-model-invocation: true
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL `~/.codex/skills/ship-workflow/SKILL.md`, READ its entire contents, and execute all 8 steps sequentially.
+IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL `~/.codex/skills/ship-workflow/SKILL.md`, READ its entire contents, and execute all steps sequentially.
 
-This is a NON-INTERACTIVE workflow. The user said `/ship`, which means DO IT. Do not ask for confirmation on version bumps, commit messages, or CHANGELOG content. Only stop for:
-- Current branch is `main` (abort)
-- Merge conflicts that can't auto-resolve
-- Test failures
-- CRITICAL findings in pre-landing review
-- Remote is ahead of local (unusual)
-
-Output the PR URL as the final line. That's the whole output the user needs.
+NON-INTERACTIVE: the user said /ship, so DO IT — the next thing they see is the PR URL. Quality comes from the committed gate file (`docs/quality/GATE-*.yaml`): PASS and fresh → straight to PR with the gate in the body; absent/stale/CONCERNS/FAIL → the skill runs quality-gate itself. Only stop for: main branch, unresolvable merge conflicts, red execution evidence, gate FAIL, or the explicit CONCERNS-waiver decision.

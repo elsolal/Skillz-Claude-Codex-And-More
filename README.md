@@ -286,7 +286,7 @@ The orchestrator guides you through Brainstorm → PRD → Architecture → Stor
 /dev #123
 ```
 
-The orchestrator explores the codebase, plans the implementation, then dispatches Code + Tests to 2 parallel subagents and Review ×3 to 3 parallel subagents.
+The workflow probes the project's verification commands, explores the codebase, and assesses the task level (0-4) — you validate once, at the plan. Implementation runs the plan step by step, then a bounded quality-gate loop (lint/types/tests + multi-lens review) converges to a gate file before `/ship`.
 
 ### 3. Autonomous mode (RALPH)
 
@@ -303,7 +303,7 @@ Same workflows, zero validation stops. Claude works autonomously until completio
 /ship
 ```
 
-Merges main, runs tests, pre-landing review, generates changelog, creates PR.
+Merges main, verifies via the manifest, consumes the quality-gate file (PASS required, or an explicit waiver on CONCERNS), generates changelog, creates PR.
 
 ---
 
@@ -311,13 +311,13 @@ Merges main, runs tests, pre-landing review, generates changelog, creates PR.
 
 | Category | Command | Description |
 |---|---|---|
-| **Planning** | `/discovery` | Full planning with validation at each step |
+| **Planning** | `/discovery` | Planning in levels 0-4 — direct tech-spec (0-1) or full chain (2-4), validated at each step |
 | | `/auto-discovery "idea"` | Autonomous planning (RALPH) |
-| **Dev** | `/dev [issue]` | Multi-agent implementation with validation |
+| **Dev** | `/dev [issue]` | Adaptive implementation, levels 0-4, single plan stop, quality-gate loop |
 | | `/auto-dev #123` | Autonomous implementation (RALPH) |
-| | `/quick-fix "desc"` | Fix without full workflow |
+| | `/quick-fix "desc"` | Level-0 short circuit of the same dev-workflow engine, auto-escalates |
 | | `/refactor <file>` | Targeted refactor with 3-pass review |
-| **Ship & QA** | `/ship [branch]` | Merge → tests → review → changelog → PR |
+| **Ship & QA** | `/ship [branch]` | Merge → manifest evidence → gate file (PASS or waiver) → changelog → PR |
 | | `/qa [url]` | Systematic QA + health score |
 | | `/design-audit <target>` | UI/DS audit + ship-gate design evidence |
 | | `/design-audit-squad <target>` | Full 12-agent Lyse Design Squad audit |
@@ -416,10 +416,12 @@ The orchestrator (main thread) keeps ALL context. It never forks to isolated ski
 │                              WORKFLOW COMPLET                               │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  PLANNING (orchestrateur garde tout le contexte)                           │
+│  PLANNING (orchestrateur garde tout le contexte, niveaux 0-4)              │
+│  Niveau 0-1 → tech-spec directe → spec approuvée                          │
+│  Niveau 2-4:                                                               │
 │  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐              │
 │  │ Brainstorm│ →  │   PRD    │ →  │  Archi   │ →  │ Stories  │ → GitHub    │
-│  │ +Research │    │FULL/LIGHT│    │          │    │+Readiness│   (subagent)│
+│  │ +Research │    │          │    │          │    │+Readiness│   (subagent)│
 │  └──────────┘    └──────────┘    └──────────┘    └──────────┘              │
 │        │              │                                                     │
 │        ▼              ▼                                                     │
@@ -427,17 +429,17 @@ The orchestrator (main thread) keeps ALL context. It never forks to isolated ski
 │  │UX Design │ →  │UI Design │                                              │
 │  └──────────┘    └──────────┘                                              │
 │                                                                             │
-│  DEVELOPMENT (orchestrateur + subagents parallèles)                        │
-│  ┌──────────┐    ┌──────────┐    ┌──────────────┐  ┌──────────────┐        │
-│  │  EXPLORE │    │   PLAN   │    │  IMPLEMENT   │  │   REVIEW     │        │
-│  │ subagent │ →  │orchestr. │ →  │ ┌─ Code //  │→ │ ┌─ Correct  │→ SHIP  │
-│  │          │    │(contexte)│    │ └─ Tests //  │  │ ├─ Read     │        │
-│  │          │    │          │    │ (2 subagents) │  │ └─ Perf     │        │
-│  └──────────┘    └──────────┘    └──────────────┘  └──────────────┘        │
+│  DEVELOPMENT (orchestrateur garde tout le contexte, niveaux 0-4)           │
+│  ┌───────┐  ┌─────────┐  ┌──────┐  ┌─────┐  ┌───────────┐  ┌──────────┐   │
+│  │ PROBE │→ │ EXPLORE │→ │ PLAN │→ │ RED │→ │ IMPLEMENT │→ │   GATE   │→  │
+│  │manifest│  │ + level │  │  ⛔  │  │(cond)│  │(sequential)│ │ (loop)   │  │
+│  └───────┘  └─────────┘  └──────┘  └─────┘  └───────────┘  └────┬─────┘   │
+│                                                                  ▼         │
+│                                                              HANDOFF →SHIP │
 │                                                                             │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  MANUAL: Validation at each checkpoint                                      │
-│  RALPH: Fully autonomous with parallel agents                               │
+│  MANUAL: One stop, at PLAN (⛔) — levels 3-4 add a handoff read            │
+│  RALPH: Fully autonomous — mandate gate replaces the plan stop            │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -457,14 +459,16 @@ The orchestrator (main thread) keeps ALL context. It never forks to isolated ski
 | Architecture | Discovery | Stack approved |
 | **Readiness** | Stories | **Score ≥ 13/15** |
 
-**Development (orchestrator + subagents)**
+**Development (adaptive, levels 0-4)**
 
 | Checkpoint | Phase | Gate |
 |---|---|---|
-| Explore | Subagent | Architecture understood |
-| Plan | Orchestrator | Steps approved |
-| Code+Tests | 2 parallel subagents | **Lint + Types pass** |
-| Review | 3 parallel subagents | **3 passes OK** |
+| Probe | Phase 0 | Verification manifest read or refreshed |
+| Explore | Phase 1 | Level assessed, architecture understood |
+| Plan | Phase 2 (⛔ the one stop) | Plan + acceptance criteria approved |
+| RED | Phase 3 (conditional, level ≥ 2) | Acceptance tests fail for the right reason |
+| Implement | Phase 4 | Lint + Types pass per step |
+| Gate | Phase 5 (quality-gate loop) | **Gate file: PASS** (or explicit waiver) |
 
 </details>
 
@@ -481,7 +485,7 @@ Capability groups, all auto-triggered from skill descriptions.
 - **Figma integration (8)** — `figma-use`, `figma-implement-design`, `figma-generate-design`, `figma-generate-library`, `figma-code-connect`, `figma-create-design-system-rules`, `figma-create-new-file`, `figma-design-code-sync`
 - **Audio & Video** — `elevenlabs`, `remotion`
 - **Critical thinking** — `rodin`, `multi-mind`
-- **Development** — `github-issue-reader`, `code-implementer`, `test-runner`, `code-reviewer`, `security-auditor`, `performance-auditor`, `supabase-security`
+- **Development** — `github-issue-reader`, `code-implementer`, `test-runner`, `code-reviewer`, `security-auditor`, `performance-auditor`, `supabase-security`, `project-probe`, `quality-gate`
 
 <details>
 <summary><strong>Full skills breakdown with key features</strong></summary>
@@ -556,6 +560,8 @@ Capability groups, all auto-triggered from skill descriptions.
 | `security-auditor` | Security audit | OWASP Top 10, CVE, secrets |
 | `performance-auditor` | Performance audit | Core Web Vitals, Lighthouse, bundle |
 | `supabase-security` | Supabase audit | RLS, buckets, auth, CVSS scoring |
+| `project-probe` | Verification manifest | Detects lint/typecheck/test/build commands, any stack, into `.agents/verification.yaml` |
+| `quality-gate` | Quality loop | Bounded convergence loop (evidence + multi-lens review) → gate file PASS/CONCERNS/FAIL/WAIVED |
 
 </details>
 
