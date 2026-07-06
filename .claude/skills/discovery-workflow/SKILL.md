@@ -214,6 +214,7 @@ After creation, present the final summary with all issue numbers and URLs.
 | UI Design | docs/planning/ui/... | ✅/⏭️ |
 | Architecture | docs/planning/architecture/... | ✅/⏭️ |
 | Stories | docs/stories/EPIC-xxx/ | ✅ |
+| Spec (consolidated) | docs/planning/specs/YYYY-MM-DD-slug-design.md | ✅ |
 
 ### GitHub Issues
 | Type | Count | Numbers |
@@ -229,7 +230,7 @@ After creation, present the final summary with all issue numbers and URLs.
 
 ## Anti-patterns
 
-- ❌ Jumping to PRD without brainstorm in FULL mode
-- ❌ Writing stories without architecture validation (FULL mode)
+- ❌ Jumping to PRD without brainstorm at levels 2-4
+- ❌ Writing stories without architecture validation (levels 2-4)
 - ❌ Publishing to GitHub before the user validates the story list
 - ❌ Forking context to a "pm-prd skill execution" — the skill is a reference, you write the PRD in place
