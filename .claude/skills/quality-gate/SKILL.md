@@ -1,6 +1,6 @@
 ---
 name: quality-gate
-description: Bounded agentic quality loop that replaces human code re-reading before PR. Runs execution evidence (lint/types/tests/runtime verify), multi-lens reviews in fresh contexts, adversarial counter-verification of every finding, loops until convergence, and writes a versioned gate file (PASS/CONCERNS/FAIL/WAIVED) with proof. Use after implementation in /dev, before PR in /ship, or standalone via /gate on any diff the user wants gated.
+description: Bounded agentic quality loop that replaces human code re-reading before PR. Runs execution evidence (lint/types/tests/runtime verify), multi-lens reviews in fresh contexts, final structural maintainability review via thermo-nuclear-code-quality-review, adversarial counter-verification of every finding, loops until convergence, and writes a versioned gate file (PASS/CONCERNS/FAIL/WAIVED) with proof. Use after implementation in /dev, before PR in /ship, or standalone via /gate on any diff the user wants gated.
 ---
 
 # Quality Gate — Convergence Loop
@@ -20,9 +20,9 @@ Replaces the one-shot "review ×3" with a bounded loop that produces an auditabl
 
 | Level | Max rounds | Review lenses |
 |---|---|---|
-| 1 | 1 | one generalist reviewer |
-| 2 | 3 | correctness+security · readability · performance |
-| 3-4 | 4 | level-2 lenses + `design-audit` / `seo-geo-audit` / `a11y-enforcer` for the surfaces the caller detected |
+| 1 | 1 | one generalist reviewer with a quick structural-smell check |
+| 2 | 3 | correctness+security · readability · performance · final `thermo-nuclear-code-quality-review` |
+| 3-4 | 4 | level-2 lenses + `design-audit` / `seo-geo-audit` / `a11y-enforcer` for the surfaces the caller detected; `thermo-nuclear-code-quality-review` still runs last |
 
 ## One round
 
@@ -32,9 +32,13 @@ Replaces the one-shot "review ×3" with a bounded loop that produces an auditabl
 
 2. **MULTI-LENS REVIEWS — fresh contexts.**
    Each lens reviews the diff + plan only (no session history). Findings are classified P0 (must fix) / P1 (should fix) / P2-P3 (note).
+   The lens order is deliberate:
+   1. Core lenses: correctness+security, readability, performance.
+   2. Conditional domain lenses: `design-audit`, `seo-geo-audit`, `a11y-enforcer` only when Phase 1 detected those surfaces.
+   3. Final structural lens: `thermo-nuclear-code-quality-review` for level ≥ 2. This pass runs after the other lenses so it can judge the final implementation shape without duplicating their domains. It must ignore issues already covered as correctness, security, performance, UI/DS, SEO/GEO or a11y unless the same issue also creates a distinct structural maintainability regression. It only reports abstraction debt, giant-file growth, spaghetti branching, boundary leaks, unnecessary wrappers/casts, non-atomic orchestration, and missed simplification moves.
    **Runtime capabilities:**
-   - *Claude Code*: use the native `/code-review` skill as the primary correctness lens (its CONFIRMED/PLAUSIBLE verdicts feed step 3 directly — CONFIRMED skips re-verification). Dispatch the remaining lenses as parallel subagents.
-   - *Sequential runtimes (Codex CLI)*: run the lenses one at a time in distinct passes, with an explicit mental reset between lenses.
+   - *Claude Code*: use the native `/code-review` skill as the primary correctness lens (its CONFIRMED/PLAUSIBLE verdicts feed step 3 directly — CONFIRMED skips re-verification). Dispatch the remaining lenses as parallel subagents when useful, but keep `thermo-nuclear-code-quality-review` as the final pass after their outputs are available.
+   - *Sequential runtimes (Codex CLI, OpenCode, Gemini)*: run the lenses one at a time in the order above, with an explicit mental reset between lenses. Run `thermo-nuclear-code-quality-review` last and de-duplicate it against already-recorded findings before step 3.
 
 3. **ADVERSARIAL COUNTER-VERIFICATION — new findings only.**
    Maintain a findings registry across rounds. Stable id: `<file>:<category>:<8-char-hash-of-quoted-excerpt>`.

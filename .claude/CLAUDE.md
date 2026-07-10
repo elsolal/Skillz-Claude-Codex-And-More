@@ -156,6 +156,7 @@ Logger chaque itération dans `docs/ralph-logs/`.
 # Moteur qualité (invoqués par dev-workflow/ship-workflow) :
 # project-probe             # Phase 0 : sonde le projet → .agents/verification.yaml (lint/types/tests/build)
 # quality-gate              # Boucle bornée → gate file docs/quality/GATE-*.yaml (PASS/CONCERNS/FAIL/WAIVED)
+# thermo-nuclear-code-quality-review # Derniere lentille quality-gate : maintenabilite stricte, abstractions, fichiers geants, spaghetti
 
 # Sécurité
 /supabase-security <url>    # Audit Supabase

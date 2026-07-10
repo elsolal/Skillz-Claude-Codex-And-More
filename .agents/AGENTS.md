@@ -43,3 +43,4 @@ This folder provides a generic compatibility layer for agents that read `AGENTS.
 | Web navigation and extraction | `web-navigator` |
 | Quick fixes | `dev-workflow` (mode quick-fix) |
 | Project status | `status-workflow` |
+| Strict maintainability review | `thermo-nuclear-code-quality-review` |

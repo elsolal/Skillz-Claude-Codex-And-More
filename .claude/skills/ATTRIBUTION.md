@@ -83,6 +83,21 @@ The `rodin/` skill and `/rodin` command are a Skillz-Claude adaptation inspired 
 
 The source prompt is a broad French "anti-chambre d'echo" interlocutor. Skillz-Claude keeps the useful reasoning protocol (anti-complaisance, steelman, claim classification, angles morts, tests de realite) and adapts it into a read-only agent workflow for challenging plans, PRDs, architecture decisions, strategies, and agent reasoning.
 
+## Cursor Team Kit (cursor/plugins)
+
+The `thermo-nuclear-code-quality-review/` skill is a Skillz-Claude adaptation of Cursor's public team-kit maintainability review skill.
+
+| Asset | Source |
+|-------|--------|
+| `skills/thermo-nuclear-code-quality-review/SKILL.md` | Adapted from `cursor-team-kit/skills/thermo-nuclear-code-quality-review/SKILL.md` |
+
+**Upstream** : https://github.com/cursor/plugins/tree/main/cursor-team-kit/skills/thermo-nuclear-code-quality-review
+**Author** : Cursor / Anysphere
+
+### Adaptation notes
+
+The upstream prompt focuses on strict maintainability review: abstraction quality, giant files, spaghetti branching, and ambitious structural simplification. Skillz-Claude keeps that intent, removes Cursor-only frontmatter, adds a provider-neutral runtime contract for Claude Code, Codex, OpenCode, Gemini and generic agents, and aligns the output with the local review/gate conventions.
+
 ## Lyse Labs (lyse-labs/lyse)
 
 The `design-audit/` skill and `/design-audit` command are Skillz-Claude originals inspired by Lyse Labs' approach to static design-system and AI-surface auditing.

@@ -33,6 +33,12 @@ D-EPCT+R v6 workflow (Probe → Explore → Plan → Red → Implement → Gate 
 
 Les autres commandes (`/auto-dev`, `/skillz-doctor`, `/pr-review`, etc.) restent Claude-native dans `.claude/commands/`. Gemini peut lire leurs instructions comme contexte, mais elles ne sont pas packagées en TOML natif.
 
+## Skills partages
+
+| Skill | Usage |
+|---|---|
+| `thermo-nuclear-code-quality-review` | Review maintenabilite tres stricte : abstractions, fichiers geants, branches spaghetti, simplification structurelle |
+
 ## Installation
 
 ### Option 1 — Extension Gemini (recommandé)

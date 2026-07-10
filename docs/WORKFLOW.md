@@ -345,7 +345,7 @@ Le livrable standardise les preuves avec `Confirmé / Déduit / Non vérifié`, 
 
 **Ce que fait Claude** :
 1. Commit l'implémentation d'abord — le gate évalue le diff committé (`<base>...HEAD`), le travail non committé lui est invisible
-2. Lance le skill `quality-gate` avec le plan validé et le manifeste ; niveau de gate = niveau de la tâche (1 round au niveau 1, ≤3 au niveau 2, ≤4 + lenses design/SEO/a11y aux niveaux 3-4 pour les surfaces détectées en EXPLORE)
+2. Lance le skill `quality-gate` avec le plan validé et le manifeste ; niveau de gate = niveau de la tâche (1 round au niveau 1 avec quick structural-smell check, ≤3 au niveau 2 avec `thermo-nuclear-code-quality-review` en dernière lentille, ≤4 + lenses design/SEO/a11y aux niveaux 3-4 pour les surfaces détectées en EXPLORE, puis `thermo-nuclear-code-quality-review` en dernière lentille)
 3. Boucle jusqu'à un verdict : PASS, CONCERNS (jamais auto-accepté en mode autonome ; attend une décision explicite en mode interactif), ou FAIL (une itération de plus, puis STOP après 3 tentatives)
 4. Commit le gate file avec la branche
 
@@ -355,7 +355,7 @@ Le livrable standardise les preuves avec `Confirmé / Déduit / Non vérifié`, 
 | **CONCERNS** | Findings non bloquants | Décision humaine explicite (waiver) ou nouvelle itération |
 | **FAIL** | Findings confirmés bloquants | Corriger, jusqu'à 3 itérations, puis STOP |
 
-Le gate file (`docs/quality/GATE-*.yaml`) est la seule preuve de qualité du système — il remplace les 3 passes de review humaines.
+Le gate file (`docs/quality/GATE-*.yaml`) est la seule preuve de qualité du système — il remplace les 3 passes de review humaines. La revue `thermo-nuclear-code-quality-review` fait partie du gate en dernière lentille de maintenabilité ; ne pas la relancer comme revue séparée après le gate.
 
 #### 🎨 DESIGN AUDIT (si UI/frontend)
 

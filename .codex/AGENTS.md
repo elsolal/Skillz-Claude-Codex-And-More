@@ -52,6 +52,7 @@ These Codex prompts load the shared workflow skills:
 | Skill | Usage |
 |---|---|
 | `web-navigator` | Natural browser navigation, extraction and runtime evidence via Playwright CLI, Browser/MCP or WebFetch fallback |
+| `thermo-nuclear-code-quality-review` | Strict maintainability review lens for abstraction debt, giant files, spaghetti branching, and structural simplification |
 
 ## Wiki Source Commands
 

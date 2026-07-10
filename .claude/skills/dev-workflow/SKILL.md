@@ -78,7 +78,7 @@ Parallelizing two steps is allowed ONLY if their file sets are disjoint — and 
 
 Level 0: run the manifest commands, present the fix (no gate file). Done — Phase 6. In autonomous mode the minimum level is 1: a gate file is always produced, because the PR needs proof.
 
-Levels 1-4: commit the implementation first — the gate evaluates the committed diff (`<base>...HEAD`); uncommitted work is invisible to it. Then run the `quality-gate` skill on the default-branch diff with the validated plan and the manifest. Gate level = task level (1 → 1 round; 2 → ≤3; 3-4 → ≤4 + design-audit / seo-geo-audit / a11y-enforcer lenses for the surfaces detected in Phase 1). Commit the gate file with the branch.
+Levels 1-4: commit the implementation first — the gate evaluates the committed diff (`<base>...HEAD`); uncommitted work is invisible to it. Then run the `quality-gate` skill on the default-branch diff with the validated plan and the manifest. Gate level = task level (1 → 1 round with a quick structural-smell check; 2 → ≤3 + final `thermo-nuclear-code-quality-review`; 3-4 → ≤4 + design-audit / seo-geo-audit / a11y-enforcer lenses for the surfaces detected in Phase 1, then final `thermo-nuclear-code-quality-review`). Do not run a separate maintainability review outside the gate; the final thermo-nuclear lens is part of the gate and is de-duplicated against earlier findings. Commit the gate file with the branch.
 
 **Autonomous mode**: verdict PASS required — CONCERNS is never auto-accepted. If the CONCERNS is *structural* (the project offers no executable evidence at all), STOP immediately with the explanation — iterating cannot change it. FAIL → one more iteration to fix; >3 attempts → STOP with a clear report.
 
@@ -111,6 +111,7 @@ Present the final report: verdict + rounds + findings summary, **`decisions_pris
 
 - Verification manifest: `project-probe` skill (`.agents/verification.yaml`)
 - Quality loop & gate file: `quality-gate` skill (`docs/quality/GATE-*.yaml`)
+- Final structural maintainability lens: `thermo-nuclear-code-quality-review` skill (inside `quality-gate`, not as a separate post-gate review)
 - Testing strategy: `.claude/knowledge/testing/test-levels-framework.md`, `test-priorities-matrix.md`
 - Design/SEO gates: `design-audit`, `seo-geo-audit`, `a11y-enforcer` skills
 - Design system docs: `ds-doc` skill
