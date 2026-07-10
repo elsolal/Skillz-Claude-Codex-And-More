@@ -221,7 +221,7 @@ Zero stops. `/auto-dev` refuses to start without a mandate (GitHub issue or appr
 
 ## The Quality Engine
 
-The heart of v6 — two shared skills consumed by `/dev`, `/gate` and `/ship`:
+The heart of v6 — `project-probe` and `quality-gate` are consumed by `/dev`, `/gate` and `/ship`; `quality-gate` also calls the final `thermo-nuclear-code-quality-review` lens for strict maintainability.
 
 **`project-probe`** detects the project's real verification commands (lint, typecheck, test, build, run) once, and caches them into a committed manifest:
 
@@ -233,7 +233,7 @@ testability: { harness: vitest, runtime_verify: "npm run dev" }
 absents: ["no e2e harness"]        # explicit, never silently skipped
 ```
 
-**`quality-gate`** runs a bounded convergence loop: execution evidence first (never skipped) → multi-lens reviews in fresh contexts (correctness/security, readability, performance — plus design/SEO/a11y lenses when the diff touches those surfaces) → **adversarial counter-verification** of every new finding (a refuter attacks it; only confirmed findings get fixed) → repeat until two clean rounds. Output:
+**`quality-gate`** runs a bounded convergence loop: execution evidence first (never skipped) → multi-lens reviews in fresh contexts (correctness/security, readability, performance — plus design/SEO/a11y lenses when the diff touches those surfaces) → final `thermo-nuclear-code-quality-review` maintainability lens for level ≥ 2, de-duplicated against prior findings → **adversarial counter-verification** of every new finding (a refuter attacks it; only confirmed findings get fixed) → repeat until two clean rounds. Output:
 
 ```yaml
 # docs/quality/GATE-2026-07-06-my-feature.yaml
@@ -345,9 +345,9 @@ The orchestrator (main thread) keeps ALL context. Rigor scales with the task lev
 | Level | Signals | Dev circuit |
 |---|---|---|
 | **0** | typo, constant; ≤3 files, ≤50 lines | Fix → manifest verify → present. No plan, no gate file. |
-| **1** | small localized bug | Light explore → mini-plan ⛔ → fix → 1-round gate. |
-| **2** | standard feature | Full flow: plan ⛔, RED, sequential implement, gate loop (≤3 rounds). |
-| **3** | multi-component, public surface | + design/SEO/a11y lenses in the gate + human handoff read. |
+| **1** | small localized bug | Light explore → mini-plan ⛔ → fix → 1-round gate with quick structural-smell check. |
+| **2** | standard feature | Full flow: plan ⛔, RED, sequential implement, gate loop (≤3 rounds) + final thermo-nuclear maintainability lens. |
+| **3** | multi-component, public surface | + design/SEO/a11y lenses in the gate, then final thermo-nuclear maintainability lens + human handoff read. |
 | **4** | epic, migration, auth, DB schema | Refuses to start without an approved spec — route through `/discovery`. |
 
 </details>
@@ -395,7 +395,7 @@ And before any brainstorm: **`[P]` pressure-test** in `/discovery` — challenge
 
 Capability groups, all auto-triggered from skill descriptions.
 
-- **Quality engine** — `project-probe`, `quality-gate`
+- **Quality engine** — `project-probe`, `quality-gate`, `thermo-nuclear-code-quality-review`
 - **Planning** — `idea-brainstorm`, `pm-prd`, `architect`, `pm-stories`, `api-designer`, `database-designer`
 - **Thinking** — `elicitation`, `rodin`, `multi-mind`
 - **Design** — `ux-designer`, `ui-designer`, `ds-doc`, `design-audit`
@@ -414,6 +414,7 @@ Capability groups, all auto-triggered from skill descriptions.
 |---|---|---|
 | `project-probe` | Verification manifest | Detects lint/typecheck/test/build commands, any stack, fingerprinted cache in `.agents/verification.yaml` |
 | `quality-gate` | Quality loop | Bounded convergence loop (evidence + multi-lens review + adversarial counter-verification) → gate file PASS/CONCERNS/FAIL/WAIVED |
+| `thermo-nuclear-code-quality-review` | Strict maintainability lens | Harsh structural review for abstraction debt, giant files, spaghetti branching, boundary leaks, and missed simplification moves |
 
 **Planning**
 
@@ -614,6 +615,7 @@ Works with Claude Code, OpenAI Codex CLI, Google Gemini CLI, OpenCode, and gener
 │   ├── ship-workflow/               # Gate consumption → PR
 │   ├── project-probe/               # Verification manifest
 │   ├── quality-gate/                # Quality loop → gate file
+│   ├── thermo-nuclear-code-quality-review/ # Strict maintainability review lens
 │   ├── elicitation/                 # 12 reasoning lenses
 │   ├── multi-mind/                  # 6-AI debate + Contrarian
 │   ├── rodin/                       # Socratic anti-echo challenger
