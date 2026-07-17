@@ -2,6 +2,24 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## [Unreleased] - 2026-07-17
+
+**Observable second-brain efficiency discovery**
+
+### Added
+- Approved level-4 design for a portable, task-first and observable `memory` CLI built on the existing Obsidian, `llm-wiki` and QMD stack.
+- Five implementation epics and 21 INVEST stories, linked to GitHub issues #36 through #61 with complete PRD/NFR traceability.
+- Pilot contract for Skillz-Claude and Pleepole-back, including bounded token budgets, metadata-only telemetry, golden questions, holdouts and a composite rollout gate.
+- Project verification manifest for the repository's Shell and Markdown surface.
+- Quality gate proving the planning contracts, YAML frontmatter, GitHub parent links, shell syntax and secret scan.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh`
+- YAML frontmatter parsing across all new planning and story files
+- FR-001–FR-032 and complete NFR coverage checks
+- Five Epic and 21 Story GitHub mappings, including 21/21 `Part of` relationships
+- Two-round level-4 quality gate: PASS
+
 ## v5.14.3 (2026-06-17)
 
 **Portable team memory setup**
