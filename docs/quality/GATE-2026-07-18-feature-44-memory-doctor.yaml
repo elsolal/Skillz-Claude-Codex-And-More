@@ -1,0 +1,70 @@
+# Quality gate for STORY-004 / GitHub issue #44.
+verdict: PASS
+niveau: 2
+tours: 3
+base: main
+head: 511852a
+diff_hash: "7518d24b3b1193c3e47e87b9f164b768462434d8de06bd8a15deb65872fba26b"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "vert (3/3 tours, exit 0)"
+    tests:
+      cmd: "bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "vert (3/3 tours; installer PASS; 43 tests au tour 1, 44 tests aux tours 2-3)"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: "vert (exit 0)"
+    runtime_contract:
+      flow: "manifest + projection -> memory doctor -> JSON/humain ready, degraded ou blocked"
+      statut: "vert via subprocess CLI fixtures Skillz-Claude et Pleepole-back; p95 local < 2 s"
+    live_adapter:
+      flow: "parser QMD contre le binaire local 0.9.0 et ses quatre collections"
+      statut: "vert; version (0, 9, 0), collections elsolal/ines/pleepole/kering reconnues"
+  red_green:
+    red: "les nouveaux tests echouaient sur memory_cli.qmd_adapter absent et golden.start_question refuse"
+    green: "44 tests Python passent apres implementation et corrections du gate"
+  opinion:
+    findings:
+      total: 3
+      confirmes: 2
+      refutes: 1
+      corriges: 2
+      restants: 0
+    registre:
+      - id: ".claude/skills/llm-wiki/memory_cli/doctor.py:correctness:c60d2c91"
+        severite: P1
+        statut: corrige
+        resume: "la fraicheur QMD ne comparait pas encore l'index aux mtimes des pages d'entree"
+        preuve: "doctor compare maintenant indexed_at au mtime le plus recent; regression 1h couverte"
+      - id: ".claude/skills/llm-wiki/memory_cli/doctor.py:correctness:1fff92d8"
+        severite: P1
+        statut: corrige
+        resume: "une collection QMD declaree mais vide etait marquee prete"
+        preuve: "zero fichier produit degraded/qmd_collection_empty et conserve seulement minimal/project"
+      - id: ".claude/skills/llm-wiki/memory_cli/qmd_adapter.py:compatibility:e66cd801"
+        severite: P2
+        statut: refute
+        resume: "le support aurait du accepter QMD 0.10+ sans nouvelle fixture"
+        preuve: "STORY-004 borne explicitement le parser au contrat textuel 0.9.x; 1.0 reste degrade sans fausse compatibilite"
+    lentilles:
+      correctness_security: "aucun P0/P1 restant; sorties redigees, shell=False, timeouts et priorite blocked couverts"
+      readability: "aucun P0/P1; CLI, projection, orchestration doctor et adapter QMD restent separes"
+      performance: "aucun P0/P1; p95 < 2 s sur 20 executions reparties entre les deux formes pilotes"
+      thermo_nuclear: "approve; aucun fichier ne depasse 1000 lignes, orchestration et parsing externe restent decouples, aucune simplification bloquante"
+acceptation:
+  AC1: "vert - activation valide retourne ready/0 et affiche golden.start_question"
+  AC2: "vert - QMD absent retourne degraded/10, modes minimal/project et installation bun copiable"
+  AC3: "vert - manifeste/projection/pages invalides retournent blocked/30; acces remote refuse retourne blocked/32"
+  AC4: "vert - snapshots, refs et proxies prouvent zero fetch/update/embed/ecriture en nominal"
+  AC5: "vert - JSON stable, NO_COLOR et stdout non-TTY conservent toute l'information sans ANSI ni prompt"
+  AC6: "vert - p95 local sous deux secondes sur fixtures Skillz-Claude et Pleepole-back"
+decisions_prises_en_ton_nom: []
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no long-running runtime application surface; subprocess CLI contract tests provide executable proof"
+  - "no real pilot .agents/memory.yaml committed in this story; pilot activation remains in issues #58 and #59"
+  - "no live remote network probe; --network success/failure is exercised through a non-mutating Git proxy"
