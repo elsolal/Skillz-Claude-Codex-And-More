@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "command": "context",
-  "status": "ready",
+  "status": "sufficient",
   "project_id": "skillz-claude",
   "event_id": null,
   "data": {
@@ -21,6 +21,26 @@
           "snippet_line": 13
         }
       ]
+    },
+    "fallback": {
+      "used": false,
+      "explicit_decision": false,
+      "reason_codes": []
+    },
+    "decision": {
+      "status": "sufficient",
+      "thresholds_version": "qmd-0.9-v1",
+      "reason_codes": [],
+      "evidence": {
+        "freshness": "fresh",
+        "hits": [
+          {
+            "docid": "#dfec5e",
+            "score": 0.91,
+            "provenance": "page"
+          }
+        ]
+      }
     }
   },
   "warnings": [],

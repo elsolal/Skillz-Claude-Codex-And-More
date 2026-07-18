@@ -11,6 +11,7 @@ from typing import Mapping
 
 PUBLIC_SCHEMA_VERSION = 1
 MANIFEST_SCHEMA_VERSION = 1
+DEFAULT_SUFFICIENCY_THRESHOLDS_VERSION = "qmd-0.9-v1"
 
 
 class RetrievalMode(str, Enum):
@@ -38,6 +39,36 @@ class TaskCategory(str, Enum):
     HISTORICAL = "historical"
     ONBOARDING = "onboarding"
     GENERAL = "general"
+
+
+class FreshnessStatus(str, Enum):
+    FRESH = "fresh"
+    STALE = "stale"
+    UNKNOWN = "unknown"
+
+
+class ProvenanceKind(str, Enum):
+    PAGE = "page"
+    SOURCE = "source"
+    SYNTHESIS = "synthesis"
+    UNKNOWN = "unknown"
+
+
+class SufficiencyStatus(str, Enum):
+    SUFFICIENT = "sufficient"
+    INSUFFICIENT = "insufficient"
+    AMBIGUOUS = "ambiguous"
+    BLOCKED = "blocked"
+
+
+class SufficiencyReason(str, Enum):
+    NO_RESULT = "no_result"
+    BELOW_SCORE = "below_score"
+    INSUFFICIENT_COVERAGE = "insufficient_coverage"
+    STALE = "stale"
+    MISSING_PROVENANCE = "missing_provenance"
+    TASK_REQUIRES_TRANSVERSE = "task_requires_transverse"
+    AMBIGUOUS = "ambiguous"
 
 
 @dataclass(frozen=True, slots=True)
@@ -79,6 +110,7 @@ class PolicyConfig:
     semantic_retrieval: SemanticRetrieval
     full_index_fallback: bool
     retention_days: int
+    sufficiency_thresholds_version: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -157,3 +189,29 @@ class RetrievalHit:
     score: float
     snippet_line: int
     snippet: str
+
+
+@dataclass(frozen=True, slots=True)
+class SufficiencyHit:
+    """Minimal normalized evidence consumed by the pure sufficiency gate."""
+
+    docid: str
+    score: float
+    provenance: ProvenanceKind
+
+
+@dataclass(frozen=True, slots=True)
+class SufficiencyEvidence:
+    mode: RetrievalMode
+    task_category: TaskCategory
+    hits: tuple[SufficiencyHit, ...]
+    freshness: FreshnessStatus
+    thresholds_version: str = DEFAULT_SUFFICIENCY_THRESHOLDS_VERSION
+
+
+@dataclass(frozen=True, slots=True)
+class SufficiencyDecision:
+    status: SufficiencyStatus
+    reason_codes: tuple[SufficiencyReason, ...]
+    thresholds_version: str
+    evidence: SufficiencyEvidence

@@ -67,6 +67,10 @@ class ManifestContractTests(unittest.TestCase):
         self.assertEqual(manifest.stores.project.collection, "elsolal-wiki")
         self.assertEqual(manifest.budgets[RetrievalMode.PROJECT].hard_tokens, 4000)
         self.assertEqual(manifest.policy.retention_days, 30)
+        self.assertEqual(
+            manifest.policy.sufficiency_thresholds_version,
+            "qmd-0.9-v1",
+        )
         self.assertEqual(manifest.golden.visible_path.as_posix(), ".agents/memory/golden.json")
         self.assertIsNone(manifest.golden.start_question)
         self.assertEqual(
@@ -132,6 +136,27 @@ class ManifestContractTests(unittest.TestCase):
             with self.assertRaises(ManifestError) as raised:
                 load_manifest(path)
         self.assertEqual(raised.exception.code, "invalid_start_question")
+
+    def test_threshold_version_is_backward_compatible_and_rejects_unknown_profiles(self) -> None:
+        payload = self.load_payload()
+        del payload["policy"]["sufficiency_thresholds_version"]  # type: ignore[index]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manifest = load_manifest(self.write_payload(Path(temp_dir), payload))
+        self.assertEqual(
+            manifest.policy.sufficiency_thresholds_version,
+            "qmd-0.9-v1",
+        )
+
+        payload["policy"]["sufficiency_thresholds_version"] = "future-v9"  # type: ignore[index]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = self.write_payload(Path(temp_dir), payload)
+            with self.assertRaises(ManifestError) as raised:
+                load_manifest(path)
+        self.assertEqual(
+            raised.exception.code,
+            "unsupported_sufficiency_thresholds_version",
+        )
+        self.assertEqual(raised.exception.field, "policy.sufficiency_thresholds_version")
 
     def test_rejects_free_yaml_with_v1_constraint(self) -> None:
         with self.assertRaises(ManifestError) as raised:

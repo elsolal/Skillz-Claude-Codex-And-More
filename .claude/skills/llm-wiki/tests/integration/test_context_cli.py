@@ -31,11 +31,12 @@ class ContextCliIntegrationTests(unittest.TestCase):
         (self.vault / "wiki" / "entities").mkdir(parents=True)
         (self.vault / "wiki" / "entities" / "project.md").write_text("# Project\n")
         self._write_activation()
+        subprocess.run(["git", "init", "-b", "main"], cwd=self.repo, check=True, capture_output=True)
         self.qmd_log = self.root / "qmd-invocations.jsonl"
         self.qmd_log.write_text("")
         self.qmd = self._make_qmd()
 
-    def _write_activation(self) -> None:
+    def _write_activation(self, *, role: str = "owner") -> None:
         manifest = {
             "schema_version": 1,
             "project": {"id": "skillz-claude", "name": "Skillz-Claude", "owner": "Tests"},
@@ -46,7 +47,15 @@ class ContextCliIntegrationTests(unittest.TestCase):
                     "entry_pages": ["wiki/entities/project.md"],
                 }
             },
-            "fallbacks": [],
+            "fallbacks": [
+                {
+                    "id": "transverse",
+                    "collection": "shared-wiki",
+                    "allowed_roles": ["owner"],
+                    "task_categories": ["architecture", "historical"],
+                    "entry_pages": ["wiki/sources/shared.md"],
+                }
+            ],
             "budgets": {
                 "minimal": {"target_tokens": 800, "hard_tokens": 1200},
                 "project": {"target_tokens": 2500, "hard_tokens": 4000},
@@ -56,6 +65,7 @@ class ContextCliIntegrationTests(unittest.TestCase):
                 "semantic_retrieval": "explicit",
                 "full_index_fallback": True,
                 "retention_days": 30,
+                "sufficiency_thresholds_version": "qmd-0.9-v1",
             },
             "golden": {
                 "visible_path": ".agents/memory/golden.json",
@@ -64,12 +74,11 @@ class ContextCliIntegrationTests(unittest.TestCase):
         }
         projection = {
             "schema_version": 1,
-            "principal": {"role": "owner"},
+            "principal": {"role": role},
             "stores": {"project": {"root": str(self.vault)}},
         }
         (self.repo / ".agents" / "memory.yaml").write_text(json.dumps(manifest))
         (self.repo / ".agents" / "memory.local.json").write_text(json.dumps(projection))
-        subprocess.run(["git", "init", "-b", "main"], cwd=self.repo, check=True, capture_output=True)
 
     def _make_qmd(self) -> Path:
         binary = self.root / "qmd-fixture"
@@ -78,16 +87,37 @@ class ContextCliIntegrationTests(unittest.TestCase):
             "import hashlib, json, os, sys\n"
             f"fixture = {str(SEARCH_FIXTURE)!r}\n"
             f"log = {str(self.qmd_log)!r}\n"
+            "command = sys.argv[1] if len(sys.argv) > 1 else ''\n"
+            "freshness = os.environ.get('FAKE_QMD_FRESHNESS', 'fresh')\n"
+            "if command == '--version': print('qmd 0.9.0'); raise SystemExit\n"
+            "if command == 'status':\n"
+            "    age = '3d ago' if freshness == 'stale' else '3h ago'\n"
+            "    print('Collections')\n"
+            "    if freshness != 'project-unknown':\n"
+            "        print('  elsolal-wiki (qmd://elsolal-wiki/)')\n"
+            "        print(f'    Files: 179 (updated {age})')\n"
+            "    print('  shared-wiki (qmd://shared-wiki/)')\n"
+            "    print('    Files: 12 (updated 2h ago)')\n"
+            "    raise SystemExit\n"
             "query = sys.argv[2] if len(sys.argv) > 2 else ''\n"
             "collection = sys.argv[sys.argv.index('-c') + 1] if '-c' in sys.argv else None\n"
             "with open(log, 'a', encoding='utf-8') as stream:\n"
-            "    stream.write(json.dumps({'command': sys.argv[1], 'collection': collection, "
+            "    stream.write(json.dumps({'command': command, 'collection': collection, "
             "'query_sha256': hashlib.sha256(query.encode()).hexdigest()}) + '\\n')\n"
             "mode = os.environ.get('FAKE_QMD_MODE', 'ready')\n"
             "if mode == 'empty': print('[]')\n"
             "elif mode == 'invalid': print('{not-json')\n"
+            "elif mode == 'fallback' and collection == 'elsolal-wiki':\n"
+            "    print(json.dumps([{'docid': '#600000', 'score': 0.60, "
+            "'file': 'qmd://elsolal-wiki/entities/project.md', 'title': 'Project', "
+            "'snippet': '@@ -1,2 @@\\n\\nProject context.'}]))\n"
+            "elif mode == 'fallback' and collection == 'shared-wiki':\n"
+            "    print(json.dumps([{'docid': '#900000', 'score': 0.90, "
+            "'file': 'qmd://shared-wiki/sources/shared.md', 'title': 'Shared source', "
+            "'snippet': '@@ -1,2 @@\\n\\nShared context.'}]))\n"
             "else:\n"
-            "    with open(fixture, encoding='utf-8') as stream: print(stream.read())\n"
+            "    with open(fixture, encoding='utf-8') as stream:\n"
+            "        print(stream.read().replace('qmd://elsolal-wiki/', f'qmd://{collection}/'))\n"
         )
         binary.chmod(binary.stat().st_mode | stat.S_IXUSR)
         return binary
@@ -97,6 +127,7 @@ class ContextCliIntegrationTests(unittest.TestCase):
         *arguments: str,
         stdin: str | None = None,
         fake_mode: str = "ready",
+        freshness: str = "fresh",
     ) -> subprocess.CompletedProcess[str]:
         environment = os.environ.copy()
         environment.update(
@@ -104,6 +135,7 @@ class ContextCliIntegrationTests(unittest.TestCase):
                 "PYTHONPATH": str(SKILL_ROOT),
                 "SKILLZ_MEMORY_QMD": str(self.qmd),
                 "FAKE_QMD_MODE": fake_mode,
+                "FAKE_QMD_FRESHNESS": freshness,
             }
         )
         return subprocess.run(
@@ -129,14 +161,114 @@ class ContextCliIntegrationTests(unittest.TestCase):
         invocation = json.loads(self.qmd_log.read_text().splitlines()[0])
 
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(output["status"], "ready")
+        self.assertEqual(output["status"], "sufficient")
         self.assertEqual(output["data"]["route"], ["elsolal-wiki"])
         self.assertEqual(output["data"]["retrieval"]["status"], "ready")
+        self.assertEqual(output["data"]["decision"]["status"], "sufficient")
+        self.assertEqual(output["data"]["decision"]["reason_codes"], [])
         self.assertEqual(output["data"]["retrieval"]["hits"][0]["path"], "entities/skillz-claude.md")
         self.assertNotIn("agentic coding", result.stdout)
         self.assertIsInstance(output["data"]["retrieval"]["duration_ms"], int)
         self.assertEqual(invocation["command"], "search")
         self.assertEqual(invocation["collection"], "elsolal-wiki")
+        self.assertEqual(len(self.qmd_log.read_text().splitlines()), 1)
+
+    def test_authorized_fallback_runs_after_project_insufficiency_with_reason_codes(self) -> None:
+        result = self._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "architecture",
+            "--json",
+            "cross-project decision",
+            fake_mode="fallback",
+        )
+        output = json.loads(result.stdout)
+        invocations = [json.loads(line) for line in self.qmd_log.read_text().splitlines()]
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(output["status"], "sufficient")
+        self.assertEqual(output["data"]["route"], ["elsolal-wiki", "shared-wiki"])
+        self.assertTrue(output["data"]["fallback"]["used"])
+        self.assertIn(
+            "insufficient_coverage",
+            output["data"]["fallback"]["reason_codes"],
+        )
+        self.assertEqual(
+            [invocation["collection"] for invocation in invocations],
+            ["elsolal-wiki", "shared-wiki"],
+        )
+
+    def test_collaborator_denial_never_calls_or_reveals_transverse_collection(self) -> None:
+        self._write_activation(role="collaborator")
+
+        result = self._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "architecture",
+            "--json",
+            "cross-project decision",
+            fake_mode="fallback",
+        )
+        output = json.loads(result.stdout)
+        invocations = [json.loads(line) for line in self.qmd_log.read_text().splitlines()]
+
+        self.assertEqual(result.returncode, 20, result.stderr)
+        self.assertEqual(output["status"], "insufficient")
+        self.assertEqual(output["data"]["route"], ["elsolal-wiki"])
+        self.assertEqual(output["warnings"][0]["code"], "fallback_not_authorized")
+        self.assertEqual(len(invocations), 1)
+        self.assertNotIn("shared-wiki", result.stdout)
+
+    def test_ambiguous_context_waits_for_explicit_fallback_decision(self) -> None:
+        stopped = self._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "architecture",
+            "--json",
+            "ambiguous freshness",
+            freshness="project-unknown",
+        )
+        stopped_output = json.loads(stopped.stdout)
+
+        self.assertEqual(stopped.returncode, 21, stopped.stderr)
+        self.assertEqual(stopped_output["status"], "ambiguous")
+        self.assertEqual(len(self.qmd_log.read_text().splitlines()), 1)
+
+        self.qmd_log.write_text("")
+        continued = self._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "architecture",
+            "--fallback-on-ambiguous",
+            "--json",
+            "ambiguous freshness",
+            freshness="project-unknown",
+        )
+        continued_output = json.loads(continued.stdout)
+
+        self.assertEqual(continued.returncode, 0, continued.stderr)
+        self.assertEqual(continued_output["status"], "sufficient")
+        self.assertTrue(continued_output["data"]["fallback"]["explicit_decision"])
+        self.assertEqual(len(self.qmd_log.read_text().splitlines()), 2)
+
+    def test_explain_human_output_contains_the_same_reason_codes(self) -> None:
+        result = self._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "architecture",
+            "--explain",
+            "cross-project decision",
+            fake_mode="fallback",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Reason codes", result.stdout)
+        self.assertIn("insufficient_coverage", result.stdout)
 
     def test_query_stdin_is_not_persisted_or_rendered_and_cannot_inject_shell(self) -> None:
         escaped = self.root / "shell-injection"

@@ -65,9 +65,12 @@ printf '%s' "private task" | memory context --task-category security --query-std
 ```
 
 The command uses lexical `qmd search` only, never persists the query, and emits
-normalized metadata without raw snippets. Empty, timeout, invalid-output, and
-missing-QMD states remain distinct non-successes. Fallback and context assembly
-are intentionally handled by later bounded-retrieval stories.
+normalized metadata without raw snippets. A deterministic, versioned gate stops
+after sufficient project evidence and only calls one transverse fallback when
+the local role and shared manifest policy both allow it. Ambiguous evidence
+requires the explicit `--fallback-on-ambiguous` option; `--explain` shows the
+same reason codes and evidence exposed in JSON. Empty, timeout, invalid-output,
+stale, ambiguous, and missing-QMD states remain distinct outcomes.
 
 The CLI requires Python 3.10+ and uses the standard library only. The installer
 does not create a virtual environment or download QMD, a model, or another

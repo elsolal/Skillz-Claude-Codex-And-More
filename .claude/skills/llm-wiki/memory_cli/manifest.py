@@ -9,6 +9,7 @@ from typing import Any, NoReturn
 from urllib.parse import urlsplit
 
 from .contracts import (
+    DEFAULT_SUFFICIENCY_THRESHOLDS_VERSION,
     MANIFEST_SCHEMA_VERSION,
     BudgetConfig,
     FallbackConfig,
@@ -453,6 +454,7 @@ def _build_manifest(payload: dict[str, Any]) -> MemoryManifest:
         policy_data,
         "policy",
         required={"semantic_retrieval", "full_index_fallback", "retention_days"},
+        optional={"sufficiency_thresholds_version"},
     )
     semantic_value = _string(policy_data["semantic_retrieval"], "policy.semantic_retrieval")
     if semantic_value not in {member.value for member in SemanticRetrieval}:
@@ -471,10 +473,30 @@ def _build_manifest(payload: dict[str, Any]) -> MemoryManifest:
             correction='Set "policy.full_index_fallback" to true or false without quotes.',
         )
     retention_days = _positive_int(policy_data["retention_days"], "policy.retention_days")
+    sufficiency_thresholds_version = _string(
+        policy_data.get(
+            "sufficiency_thresholds_version",
+            DEFAULT_SUFFICIENCY_THRESHOLDS_VERSION,
+        ),
+        "policy.sufficiency_thresholds_version",
+    )
+    if sufficiency_thresholds_version != DEFAULT_SUFFICIENCY_THRESHOLDS_VERSION:
+        _error(
+            code="unsupported_sufficiency_thresholds_version",
+            field="policy.sufficiency_thresholds_version",
+            message=(
+                "The configured sufficiency thresholds version is not supported."
+            ),
+            correction=(
+                'Set "policy.sufficiency_thresholds_version" to '
+                f'"{DEFAULT_SUFFICIENCY_THRESHOLDS_VERSION}".'
+            ),
+        )
     policy = PolicyConfig(
         semantic_retrieval=SemanticRetrieval(semantic_value),
         full_index_fallback=full_index_fallback,
         retention_days=retention_days,
+        sufficiency_thresholds_version=sufficiency_thresholds_version,
     )
 
     golden_data = _object(payload["golden"], "golden")
