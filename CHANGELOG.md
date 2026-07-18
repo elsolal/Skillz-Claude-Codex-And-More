@@ -4,6 +4,28 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## [Unreleased] - 2026-07-18
 
+**Local memory activation diagnostics**
+
+### Added
+- `memory doctor` with stable human and JSON outputs, `ready` / `degraded` / `blocked` states, prioritized causes, copyable next actions, and distinct exit codes.
+- Explicit `--network`, narrowly scoped `--fix`, and non-interactive `--explain` modes without implicit fetch, QMD update, embedding, download, or page mutation.
+- Fixture-backed QMD 0.9.x adapter plus contract coverage for manifest, projection, Git ignore, entry pages, collection state, freshness, rendering, side effects, and two-pilot p95 performance.
+
+### Changed
+- Portable manifest V1 accepts the backward-compatible optional `golden.start_question`; activation remains valid without it but doctor reports `degraded` until it is supplied.
+- Portable memory CLI runtime version advanced to `0.4.0` and onboarding documentation now includes the complete configure-to-doctor flow.
+
+### Fixed
+- QMD collections with zero indexed files now degrade to bounded entry-page modes instead of reporting a false ready state.
+- Freshness now compares the QMD status age with local entry-page mtimes, detecting pages changed after the last index update.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — installer PASS, 44 tests Python OK
+- Three-round level-2 quality gate: PASS
+
+## [Unreleased] - 2026-07-18
+
 **Local memory projection and managed pointers**
 
 ### Added
