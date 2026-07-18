@@ -156,7 +156,7 @@ def context_outcome(
         mode=mode,
         task_category=task_category,
         route=route,
-        retrieval_status=retrieval.status,
+        retrieval_status=(QmdSearchStatus.READY if hits else retrieval.status),
         duration_ms=duration_ms,
         hits=hits,
         decision=decision,

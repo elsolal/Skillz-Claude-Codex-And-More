@@ -34,13 +34,13 @@ from .qmd_adapter import (
 )
 from .receipts import ContextOutcome, blocked_context, context_outcome
 from .routing import authorized_fallbacks
-from .sufficiency import evaluate_sufficiency
+from .sufficiency import evaluate_sufficiency, thresholds_for
 
 
-MODE_SEARCH_CONFIG: dict[RetrievalMode, tuple[int, float]] = {
-    RetrievalMode.MINIMAL: (3, 0.70),
-    RetrievalMode.PROJECT: (8, 0.55),
-    RetrievalMode.HISTORICAL: (15, 0.45),
+MODE_SEARCH_LIMITS: dict[RetrievalMode, int] = {
+    RetrievalMode.MINIMAL: 3,
+    RetrievalMode.PROJECT: 8,
+    RetrievalMode.HISTORICAL: 15,
 }
 QMD_INSTALL_COMMAND = "bun install -g @tobilu/qmd"
 QMD_FRESHNESS_SECONDS = 24 * 60 * 60
@@ -60,16 +60,16 @@ def _search(
     query: str,
     collection: str,
     mode: RetrievalMode,
+    thresholds_version: str,
     runner: Runner,
     timeout_seconds: float,
 ) -> QmdSearchOutcome:
-    limit, min_score = MODE_SEARCH_CONFIG[mode]
     return search_qmd(
         executable,
         query=query,
         collection=collection,
-        limit=limit,
-        min_score=min_score,
+        limit=MODE_SEARCH_LIMITS[mode],
+        min_score=thresholds_for(thresholds_version, mode).candidate_score,
         runner=runner,
         timeout_seconds=timeout_seconds,
     )
@@ -210,6 +210,7 @@ def run_context(
             query=query,
             collection=project_collection,
             mode=mode,
+            thresholds_version=manifest.policy.sufficiency_thresholds_version,
             runner=runner,
             timeout_seconds=timeout_seconds,
         )
@@ -318,6 +319,7 @@ def run_context(
             query=query,
             collection=fallback.collection,
             mode=mode,
+            thresholds_version=manifest.policy.sufficiency_thresholds_version,
             runner=runner,
             timeout_seconds=timeout_seconds,
         )

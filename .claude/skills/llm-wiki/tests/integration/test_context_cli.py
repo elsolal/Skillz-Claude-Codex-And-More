@@ -101,13 +101,15 @@ class ContextCliIntegrationTests(unittest.TestCase):
             "    raise SystemExit\n"
             "query = sys.argv[2] if len(sys.argv) > 2 else ''\n"
             "collection = sys.argv[sys.argv.index('-c') + 1] if '-c' in sys.argv else None\n"
+            "min_score = sys.argv[sys.argv.index('--min-score') + 1] if '--min-score' in sys.argv else None\n"
             "with open(log, 'a', encoding='utf-8') as stream:\n"
             "    stream.write(json.dumps({'command': command, 'collection': collection, "
+            "'min_score': min_score, "
             "'query_sha256': hashlib.sha256(query.encode()).hexdigest()}) + '\\n')\n"
             "mode = os.environ.get('FAKE_QMD_MODE', 'ready')\n"
             "if mode == 'empty': print('[]')\n"
             "elif mode == 'invalid': print('{not-json')\n"
-            "elif mode == 'fallback' and collection == 'elsolal-wiki':\n"
+            "elif mode in {'fallback', 'fallback-empty'} and collection == 'elsolal-wiki':\n"
             "    print(json.dumps([{'docid': '#600000', 'score': 0.60, "
             "'file': 'qmd://elsolal-wiki/entities/project.md', 'title': 'Project', "
             "'snippet': '@@ -1,2 @@\\n\\nProject context.'}]))\n"
@@ -115,6 +117,7 @@ class ContextCliIntegrationTests(unittest.TestCase):
             "    print(json.dumps([{'docid': '#900000', 'score': 0.90, "
             "'file': 'qmd://shared-wiki/sources/shared.md', 'title': 'Shared source', "
             "'snippet': '@@ -1,2 @@\\n\\nShared context.'}]))\n"
+            "elif mode == 'fallback-empty' and collection == 'shared-wiki': print('[]')\n"
             "else:\n"
             "    with open(fixture, encoding='utf-8') as stream:\n"
             "        print(stream.read().replace('qmd://elsolal-wiki/', f'qmd://{collection}/'))\n"
@@ -198,6 +201,25 @@ class ContextCliIntegrationTests(unittest.TestCase):
             [invocation["collection"] for invocation in invocations],
             ["elsolal-wiki", "shared-wiki"],
         )
+        self.assertEqual([invocation["min_score"] for invocation in invocations], ["0.55", "0.55"])
+
+    def test_empty_fallback_keeps_aggregate_retrieval_status_consistent_with_project_hits(self) -> None:
+        result = self._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "architecture",
+            "--json",
+            "cross-project decision",
+            fake_mode="fallback-empty",
+        )
+        output = json.loads(result.stdout)
+
+        self.assertEqual(result.returncode, 20, result.stderr)
+        self.assertEqual(output["status"], "insufficient")
+        self.assertEqual(output["data"]["retrieval"]["status"], "ready")
+        self.assertEqual(len(output["data"]["retrieval"]["hits"]), 1)
+        self.assertEqual(output["data"]["decision"]["reason_codes"], ["no_result"])
 
     def test_collaborator_denial_never_calls_or_reveals_transverse_collection(self) -> None:
         self._write_activation(role="collaborator")

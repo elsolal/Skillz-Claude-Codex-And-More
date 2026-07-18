@@ -73,20 +73,21 @@ def _decision(
     )
 
 
+def thresholds_for(version: str, mode: RetrievalMode) -> ModeThresholds:
+    profile = SUFFICIENCY_PROFILES.get(version)
+    if profile is None:
+        raise ValueError(f"Unsupported sufficiency thresholds version: {version}")
+    return profile[mode]
+
+
 def evaluate_sufficiency(evidence: SufficiencyEvidence) -> SufficiencyDecision:
     """Evaluate normalized evidence without I/O, hidden models or mutable state."""
 
-    profile = SUFFICIENCY_PROFILES.get(evidence.thresholds_version)
-    if profile is None:
-        raise ValueError(
-            "Unsupported sufficiency thresholds version: "
-            f"{evidence.thresholds_version}"
-        )
+    thresholds = thresholds_for(evidence.thresholds_version, evidence.mode)
     for candidate in evidence.hits:
         if not math.isfinite(candidate.score) or not 0 <= candidate.score <= 1:
             raise ValueError("Sufficiency hit scores must be finite values between zero and one.")
 
-    thresholds = profile[evidence.mode]
     qualified = tuple(
         candidate
         for candidate in evidence.hits
@@ -161,4 +162,5 @@ __all__ = [
     "DEFAULT_SUFFICIENCY_THRESHOLDS_VERSION",
     "SUFFICIENCY_PROFILES",
     "evaluate_sufficiency",
+    "thresholds_for",
 ]
