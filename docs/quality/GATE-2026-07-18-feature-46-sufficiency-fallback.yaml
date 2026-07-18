@@ -1,0 +1,94 @@
+# Quality gate for STORY-006 / GitHub issue #46.
+verdict: PASS
+niveau: 3
+tours: 4
+base: main
+head: 80cfebe
+diff_hash: "8bf5842a7a40a14db4ac05356bd7190f23a06e94c6562a666ec549156fe008e3"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "vert (4/4 tours, exit 0)"
+    tests:
+      cmd: "bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "vert (4/4 tours; installer PASS; 65 tests Python aux tours de convergence)"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: "vert (4/4 tours, exit 0)"
+    runtime_contract:
+      flow: "manifest + projection -> projet QMD -> gate pur -> fallback autorise optionnel -> recu JSON/humain"
+      statut: "vert via faux binaire QMD 0.9.x; projet-first, suffisance, refus, ambiguite, fallback vide, timeout et redaction couverts"
+  red_green:
+    red: "les nouveaux tests echouaient car les contrats de fraicheur/suffisance etaient absents, le manifeste refusait le profil de seuil et context ne connaissait ni --explain ni le fallback conditionnel"
+    green: "65 tests passent apres implementation, alignement du seuil de recherche, centralisation des policies et corrections du gate"
+  opinion:
+    findings:
+      total: 7
+      confirmes: 5
+      refutes: 2
+      corriges: 5
+      restants: 0
+    registre:
+      - id: ".claude/skills/llm-wiki/memory_cli/context.py:correctness:candidate-threshold-drift"
+        severite: P1
+        statut: corrige
+        resume: "les scores candidats etaient dupliques entre la recherche QMD et le profil de suffisance"
+        preuve: "context obtient maintenant candidate_score via thresholds_for; le test d'integration verifie 0.55 sur les deux routes"
+      - id: ".claude/skills/llm-wiki/memory_cli/receipts.py:correctness:aggregate-status"
+        severite: P1
+        statut: corrige
+        resume: "un fallback vide pouvait produire retrieval.status empty tout en rendant encore les hits projet"
+        preuve: "tout recu avec hits agreges expose ready; la regression fallback-empty est couverte"
+      - id: ".claude/skills/llm-wiki/memory_cli/manifest.py:correctness:routing-policy-drift"
+        severite: P1
+        statut: corrige
+        resume: "initial_route et le runtime dupliquaient la double condition role plus categorie"
+        preuve: "initial_route delegue desormais au helper canonique authorized_fallbacks"
+      - id: ".claude/skills/llm-wiki/memory_cli/context.py:correctness:freshness-policy-drift"
+        severite: P1
+        statut: corrige
+        resume: "doctor et context possedaient deux copies du seuil de fraicheur de 24 heures"
+        preuve: "freshness.py fournit le seuil et la classification partages"
+      - id: ".claude/skills/llm-wiki/tests/integration/test_context_cli.py:coverage:policy-denial"
+        severite: P1
+        statut: corrige
+        resume: "le refus collaborateur etait couvert, mais pas le role owner sur une categorie interdite"
+        preuve: "le test parametre les deux formes et prouve un seul appel projet sans divulgation de shared-wiki"
+      - id: ".claude/skills/llm-wiki/memory_cli/context.py:performance:qmd-status-call"
+        severite: P2
+        statut: refute
+        resume: "l'inspection QMD ajoute un appel local au chemin context"
+        preuve: "la fraicheur est une entree obligatoire du gate, status est inspecte une seule fois puis partage entre les routes, et les tests contractuels restent verts"
+      - id: ".claude/skills/llm-wiki/memory_cli/routing.py:security:self-declared-role"
+        severite: P2
+        statut: refute
+        resume: "le role local auto-declare aurait pu etre traite comme une autorisation de stockage"
+        preuve: "le role ne cree aucun acces; il reduit seulement une route deja declaree par la policy partagee, tandis que les permissions locales restent la frontiere d'autorite"
+    lentilles:
+      correctness_security: "aucun P0/P1 restant; seuils, fraicheur, provenance, refus sans divulgation, argv sans shell et sorties distinctes sont couverts"
+      readability: "aucun P0/P1; gate pur, autorisation, fraicheur, orchestration et recus ont des frontieres explicites"
+      performance: "aucun P0/P1; deux recherches maximum, une seule inspection status, limites et timeouts bornes"
+      thermo_nuclear: "approve; aucune couche morte ou dependance circulaire, context reste une orchestration lisible et la policy canonique n'est plus dupliquee"
+acceptation:
+  AC1: "vert - un hit projet fort et frais retourne sufficient/0 et le journal prouve un seul appel a la collection projet"
+  AC2: "vert - une couverture projet insuffisante declenche le fallback autorise avec reason code stable"
+  AC3: "vert - collaborateur et owner sur categorie interdite restent projet-only, sans appel ni nom de collection transverse"
+  AC4: "vert - une fraicheur inconnue avec preuve autrement suffisante retourne ambiguous/21; seul --fallback-on-ambiguous autorise la suite"
+  AC5: "vert - historical exige deux hits candidats et au moins un chemin sources/ ou synthesis/"
+  AC6: "vert - qmd-0.9-v1 est optionnel par compatibilite, rejette toute version inconnue et fixe seuils plus ordre des reason codes"
+decisions_prises_en_ton_nom:
+  - "Le champ policy.sufficiency_thresholds_version reste optionnel et vaut qmd-0.9-v1 par defaut afin de ne pas invalider les manifestes V1 existants."
+  - "Les seuils initiaux suivent la spec approuvee: minimal 0.75, project 0.75 ou deux hits a 0.55, historical deux hits a 0.45 dont une source ou synthese."
+  - "La fraicheur QMD est classee fresh jusqu'a 24 heures incluses; une absence de statut devient unknown et produit ambiguous seulement si les autres preuves suffiraient."
+  - "La provenance V1 est derivee exclusivement du premier segment du chemin QMD: sources/, synthesis/, autre page ou inconnu."
+  - "Le fallback est limite a la premiere route autorisee; un cas ambiguous exige --fallback-on-ambiguous, et le recu conserve separement les reason codes du projet."
+  - "La decision finale apres fallback evalue la collection transverse seule, de facon conservative, tandis que le recu rend les hits projet et transverse agreges."
+  - "policy.full_index_fallback reste distinct du fallback transverse de cette story et n'est pas active implicitement."
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no long-running runtime application surface; subprocess CLI integration tests provide executable proof"
+  - "no live real-vault QMD query in this story; the fixture-backed QMD 0.9.x adapter supplies deterministic runtime proof"
+  - "no semantic retrieval, model call, model download or network call executed"
