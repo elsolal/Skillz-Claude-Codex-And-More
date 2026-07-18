@@ -1,0 +1,18 @@
+[
+  {
+    "docid": "#dfec5e",
+    "score": 0.91,
+    "file": "qmd://elsolal-wiki/entities/skillz-claude.md",
+    "title": "Skillz-Claude",
+    "context": "Compiled project memory.",
+    "snippet": "@@ -13,4 @@ (12 before, 41 after)\n\nRepo d'outillage d'agentic coding pour plusieurs runtimes."
+  },
+  {
+    "docid": "#751b00",
+    "score": 0.78,
+    "file": "qmd://elsolal-wiki/concepts/project-memory-workflow.md",
+    "title": "Project Memory Workflow",
+    "context": "Compiled project memory.",
+    "snippet": "@@ -21,3 @@ (20 before, 12 after)\n\nLe codebase reste la source de vérité immédiate."
+  }
+]

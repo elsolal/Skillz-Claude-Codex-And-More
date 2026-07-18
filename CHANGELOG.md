@@ -4,6 +4,26 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## [Unreleased] - 2026-07-18
 
+**Task-first project QMD retrieval**
+
+### Added
+- `memory context` with project-first lexical retrieval, explicit task categories, `minimal` / `project` / `historical` modes, positional queries, and privacy-oriented `--query-stdin` input.
+- Fixture-backed QMD 0.9.x search normalization for docid, collection, relative path, title, score, snippet line, duration, and distinct `ready` / `empty` / `timeout` / `invalid` / `error` states.
+- Unit and subprocess integration coverage for strict JSON, hostile values, shell isolation, query non-persistence, bounded stdin, output limits, exit codes, and project-route ordering.
+
+### Changed
+- Portable memory CLI runtime version advanced to `0.5.0`.
+- Public context receipts expose retrieval metadata without persisting or rendering raw queries and snippet text; internal `RetrievalHit` values retain snippets for later bounded-context assembly.
+- QMD process execution now uses explicit argument arrays with `shell=False`, an eight-second default timeout capped at thirty seconds, and one-MiB stdout/stderr rejection.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — installer PASS, 53 tests Python OK
+- Warm QMD 0.9.0 p95: 514 ms on `elsolal-wiki`, 205 ms on `pleepole-wiki`, below the five-second target.
+- Two-round level-2 quality gate: PASS
+
+## [Unreleased] - 2026-07-18
+
 **Local memory activation diagnostics**
 
 ### Added

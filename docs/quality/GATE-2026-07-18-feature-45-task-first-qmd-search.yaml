@@ -1,0 +1,63 @@
+# Quality gate for STORY-005 / GitHub issue #45.
+verdict: PASS
+niveau: 2
+tours: 2
+base: main
+head: 006b4d4
+diff_hash: "dde3d80c6db48fbfa8bfade5107ba2765c2de3144ed76c528dc4b3a9c46a5e90"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "vert (2/2 tours, exit 0)"
+    tests:
+      cmd: "bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "vert (2/2 tours; installer PASS; 53 tests Python)"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: "vert (2/2 tours, exit 0)"
+    runtime_contract:
+      flow: "manifest + projection -> memory context -> faux QMD 0.9.x -> enveloppe JSON ready/insufficient/blocked"
+      statut: "vert; projet-first, argument/stdin, empty, invalid, timeout, injection et non-persistance couverts"
+    live_adapter:
+      flow: "20 recherches lexicales chaudes sur elsolal-wiki et pleepole-wiki avec QMD 0.9.0 local"
+      statut: "vert; p95 514 ms Elsolal et 205 ms Pleepole, cible < 5 s"
+  red_green:
+    red: "les tests echouaient sur QmdSearchStatus/parse_qmd_search absents et sur un snippet public repetant la requete"
+    green: "53 tests passent; le DTO garde le snippet en memoire mais le recu public expose uniquement ses metadonnees"
+  opinion:
+    findings:
+      total: 1
+      confirmes: 1
+      refutes: 0
+      corriges: 0
+      restants: 1
+    registre:
+      - id: ".claude/skills/llm-wiki/memory_cli/qmd_adapter.py:performance:61dbfea9"
+        severite: P2
+        statut: confirme_non_bloquant
+        resume: "la limite de 1 MiB est verifiee apres que subprocess.run a bufferise stdout et stderr"
+        contre_verification: "risque memoire residuel confirme, mais QMD est local, le timeout et le nombre de hits sont bornes, et aucune sortie surdimensionnee n'est acceptee"
+        suivi: "adopter une lecture streaming uniquement si les pilotes observent un binaire QMD produisant des sorties anormales"
+    lentilles:
+      correctness_security: "aucun P0/P1; route projet, statuts, redaction, shell=False, chemins, scores, timeout et taille de sortie couverts"
+      readability: "aucun P0/P1; orchestration context, rendu CLI, contrats et adapter QMD restent separes"
+      performance: "aucun P0/P1; une seule commande QMD par route, pas de preflight version/status, p95 pilote sous 0,6 s"
+      thermo_nuclear: "approve; aucun fichier ne franchit 1000 lignes, pas de spaghetti ni de couche inutile, frontiere QMD canonique preservee"
+acceptation:
+  AC1: "vert - le faux binaire prouve que la premiere et unique recherche cible la collection projet avec qmd search"
+  AC2: "vert - la requete stdin est absente de stdout, stderr, fichiers, evenements et temporaires; seul son hash de test est journalise par le faux QMD"
+  AC3: "vert - docid, collection, chemin relatif, titre, score et ligne de snippet sont normalises depuis une fixture QMD 0.9.x"
+  AC4: "vert - empty/20, timeout/40 et invalid/40 portent trois retrieval_status distincts et aucun succes"
+  AC5: "vert - tableau argv, shell=False, collection hostile refusee avant invocation et metacaracteres de requete inertes"
+  AC6: "vert - p95 chaud mesure a 514 ms et 205 ms sur les deux collections pilotes locales"
+decisions_prises_en_ton_nom:
+  - "Les requetes stdin sont plafonnees a 16384 caracteres avant invocation de QMD pour borner la memoire d'entree."
+  - "Le recu public omet le texte brut du snippet afin qu'une requete repetee dans un resultat ne soit pas reexposee; RetrievalHit le conserve seulement en memoire pour les stories d'assemblage futures."
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no long-running runtime application surface; subprocess CLI integration tests provide executable proof"
+  - "no committed pilot .agents/memory.yaml in this story; live proof exercises the adapter directly against the two installed pilot collections"
+  - "no qmd update, qmd embed, semantic retrieval, model download or network call executed"

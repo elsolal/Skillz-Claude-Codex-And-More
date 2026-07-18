@@ -4,14 +4,25 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from collections.abc import Sequence
 from typing import Any
 
 from . import __version__
-from .contracts import PUBLIC_SCHEMA_VERSION, MemoryManifest, PrincipalRole
+from .context import ContextOutcome, run_context
+from .contracts import (
+    PUBLIC_SCHEMA_VERSION,
+    MemoryManifest,
+    PrincipalRole,
+    RetrievalMode,
+    TaskCategory,
+)
 from .doctor import DoctorOutcome, run_doctor
 from .manifest import ManifestError, discover_manifest, load_manifest, load_nearest_manifest
 from .projection import ConfigureOutcome, ProjectionError, configure_projection
+
+
+MAX_QUERY_CHARACTERS = 16 * 1024
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -89,6 +100,38 @@ def build_parser() -> argparse.ArgumentParser:
         help="Show detailed check explanations and available capabilities.",
     )
     doctor_parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit the stable machine-readable result envelope.",
+    )
+    context_parser = commands.add_parser(
+        "context",
+        help="Retrieve the first bounded project-memory route for a task.",
+    )
+    context_parser.add_argument(
+        "query",
+        nargs="?",
+        help="Task query; use --query-stdin for sensitive input.",
+    )
+    context_parser.add_argument(
+        "--query-stdin",
+        action="store_true",
+        help="Read the query from stdin without persisting it in memory artifacts.",
+    )
+    context_parser.add_argument(
+        "--mode",
+        choices=[mode.value for mode in RetrievalMode],
+        default=RetrievalMode.PROJECT.value,
+        help="Retrieval envelope to prepare (default: project).",
+    )
+    context_parser.add_argument(
+        "--task-category",
+        choices=[category.value for category in TaskCategory],
+        required=True,
+        help="Classify the task for deterministic routing and later sufficiency decisions.",
+    )
+    context_parser.add_argument(
         "--json",
         action="store_true",
         dest="json_output",
@@ -391,6 +434,73 @@ def _run_doctor_command(
     return outcome.exit_code
 
 
+def _render_context_human(outcome: ContextOutcome) -> None:
+    retrieval = outcome.retrieval_status.value
+    print(
+        f"[{outcome.status}] memory context · {retrieval} · "
+        f"route {outcome.route[0]}"
+    )
+    if outcome.hits:
+        for hit in outcome.hits:
+            print(
+                f"  {hit.docid}  {hit.relative_path.as_posix()}  "
+                f"score {hit.score:g} · line {hit.snippet_line}"
+            )
+    for warning in outcome.warnings:
+        print(f"Warning: {warning['message']}")
+        print(f"Correction: {warning['correction']}")
+    for error in outcome.errors:
+        print(f"Error: {error['message']}")
+        print(f"Correction: {error['correction']}")
+    print("Machine output: memory context --json")
+
+
+def _run_context_command(
+    *,
+    mode: str,
+    task_category: str,
+    query: str,
+    json_output: bool,
+) -> int:
+    try:
+        outcome = run_context(
+            mode=RetrievalMode(mode),
+            task_category=TaskCategory(task_category),
+            query=query,
+        )
+    except (ManifestError, ProjectionError) as error:
+        if json_output:
+            _render_json(
+                _envelope(
+                    command="context",
+                    status="blocked",
+                    project_id=None,
+                    data={},
+                    errors=[error.as_dict()],
+                )
+            )
+        else:
+            print(f"[blocked] memory context · {error.code}")
+            print(error.message)
+            print(f"Correction: {error.correction}")
+        return error.exit_code
+
+    if json_output:
+        _render_json(
+            _envelope(
+                command="context",
+                status=outcome.status,
+                project_id=outcome.project_id,
+                data=outcome.data(),
+                warnings=list(outcome.warnings),
+                errors=list(outcome.errors),
+            )
+        )
+    else:
+        _render_context_human(outcome)
+    return outcome.exit_code
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     arguments = parser.parse_args(argv)
@@ -409,6 +519,27 @@ def main(argv: Sequence[str] | None = None) -> int:
             network=arguments.network,
             fix=arguments.fix,
             explain=arguments.explain,
+            json_output=arguments.json_output,
+        )
+    if arguments.command == "context":
+        if arguments.query_stdin and arguments.query is not None:
+            parser.error("context accepts either a query argument or --query-stdin, not both")
+        if arguments.query_stdin:
+            query = sys.stdin.read(MAX_QUERY_CHARACTERS + 1)
+            if len(query) > MAX_QUERY_CHARACTERS:
+                parser.error(
+                    f"context query must not exceed {MAX_QUERY_CHARACTERS} characters"
+                )
+        elif arguments.query is not None:
+            query = arguments.query
+        else:
+            parser.error("context requires a query argument or --query-stdin")
+        if not query.strip():
+            parser.error("context query must not be empty")
+        return _run_context_command(
+            mode=arguments.mode,
+            task_category=arguments.task_category,
+            query=query,
             json_output=arguments.json_output,
         )
     parser.print_help()

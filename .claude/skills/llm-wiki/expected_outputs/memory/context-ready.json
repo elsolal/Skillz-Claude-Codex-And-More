@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "command": "context",
+  "status": "ready",
+  "project_id": "skillz-claude",
+  "event_id": null,
+  "data": {
+    "mode": "project",
+    "task_category": "architecture",
+    "route": ["elsolal-wiki"],
+    "retrieval": {
+      "status": "ready",
+      "duration_ms": 12,
+      "hits": [
+        {
+          "docid": "#dfec5e",
+          "collection": "elsolal-wiki",
+          "path": "entities/skillz-claude.md",
+          "title": "Skillz-Claude",
+          "score": 0.91,
+          "snippet_line": 13
+        }
+      ]
+    }
+  },
+  "warnings": [],
+  "errors": []
+}
