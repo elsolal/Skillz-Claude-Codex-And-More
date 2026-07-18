@@ -83,12 +83,12 @@ if [[ -z "$project_dir" || -z "$vault_path" ]]; then
 fi
 
 if [[ ! -d "$project_dir" ]]; then
-    printf 'Project directory does not exist: %s\n' "$project_dir" >&2
+    printf 'Project directory does not exist or is not accessible.\n' >&2
     exit 30
 fi
 
 if [[ ! -x "$memory_bin" ]]; then
-    printf 'Portable memory CLI is unavailable: %s\n' "$memory_bin" >&2
+    printf 'Portable memory CLI is unavailable.\n' >&2
     exit 31
 fi
 
@@ -108,5 +108,8 @@ if [[ "$explain_local_paths" == true ]]; then
     configure_args+=(--explain-local-paths)
 fi
 
-cd "$project_dir"
+if ! cd "$project_dir" 2>/dev/null; then
+    printf 'Project directory cannot be entered by the current user.\n' >&2
+    exit 30
+fi
 exec "$memory_bin" "${configure_args[@]}"

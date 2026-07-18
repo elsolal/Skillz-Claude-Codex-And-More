@@ -145,6 +145,18 @@ class ManifestContractTests(unittest.TestCase):
             self.assertEqual(raised.exception.code, "invalid_json_constant")
             self.assertIn("finite JSON number", raised.exception.correction)
 
+    def test_unreadable_manifest_error_does_not_expose_its_absolute_path(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            unreadable_manifest = Path(temp_dir) / "private-memory.yaml"
+            unreadable_manifest.mkdir()
+
+            with self.assertRaises(ManifestError) as raised:
+                load_manifest(unreadable_manifest)
+
+        self.assertEqual(raised.exception.code, "manifest_unreadable")
+        self.assertEqual(raised.exception.field, ".agents/memory.yaml")
+        self.assertNotIn(str(unreadable_manifest), raised.exception.message)
+
     def test_unknown_schema_version_stops_before_route_decision(self) -> None:
         payload = self.load_payload()
         payload["schema_version"] = 99

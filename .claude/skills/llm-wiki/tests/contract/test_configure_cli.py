@@ -266,6 +266,21 @@ class ConfigureCliContractTests(unittest.TestCase):
         self.assertTrue((repo / ".agents" / "memory.local.json").is_file())
         self.assertIn("Managed by skillz-memory", (repo / ".claude" / "project-memory.md").read_text())
 
+    def test_legacy_pointer_script_redacts_an_unavailable_project_path(self) -> None:
+        sensitive_path = "/Users/example/Private Project"
+
+        result = self.run_process(
+            str(REPO_ROOT / "scripts" / "create-project-memory-pointer.sh"),
+            "--project-dir",
+            sensitive_path,
+            "--vault-path",
+            "/Users/example/Private Vault",
+            cwd=REPO_ROOT,
+        )
+
+        self.assertEqual(result.returncode, 30)
+        self.assertNotIn("/Users/example", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
