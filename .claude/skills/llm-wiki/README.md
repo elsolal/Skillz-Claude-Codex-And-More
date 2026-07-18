@@ -36,6 +36,67 @@ The installer creates `~/.local/bin/skillz-memory`. It also creates
 A third-party `memory` command is never overwritten; use `skillz-memory` when
 the installer reports a collision. Ensure `~/.local/bin` is present in `PATH`.
 
+### Portable memory manifest V1
+
+Each activated repository versions `.agents/memory.yaml`. Despite its `.yaml`
+extension, V1 deliberately accepts only the JSON-compatible subset of YAML 1.2:
+keys and strings are quoted, and comments, tags, includes, anchors, and other
+YAML-only syntax are rejected. This keeps parsing deterministic with the Python
+standard library and prevents partial interpretation of hostile input.
+
+```json
+{
+  "schema_version": 1,
+  "project": {
+    "id": "skillz-claude",
+    "name": "Skillz-Claude",
+    "owner": "Aymeric"
+  },
+  "stores": {
+    "project": {
+      "remote": "https://github.com/elsolal/elsolal-memory.git",
+      "collection": "elsolal-wiki",
+      "entry_pages": [
+        "wiki/entities/skillz-claude.md",
+        "wiki/concepts/project-memory-workflow.md"
+      ]
+    }
+  },
+  "fallbacks": [],
+  "budgets": {
+    "minimal": {"target_tokens": 800, "hard_tokens": 1200},
+    "project": {"target_tokens": 2500, "hard_tokens": 4000},
+    "historical": {"target_tokens": 6000, "hard_tokens": 9000}
+  },
+  "policy": {
+    "semantic_retrieval": "explicit",
+    "full_index_fallback": true,
+    "retention_days": 30
+  },
+  "golden": {
+    "visible_path": ".agents/memory/golden.json",
+    "quality_rubric": ".agents/memory/quality-rubric.json"
+  }
+}
+```
+
+All IDs use lowercase kebab-case. Manifest paths are portable POSIX-relative
+paths: absolute paths, `..` traversal, backslashes, shell interpolation, and
+unknown keys are rejected. Budgets are positive integers and each target must
+remain below or equal to its hard cap. Machine-local roots belong in the ignored
+projection created by the later `memory configure` workflow, never here.
+
+Validate the nearest manifest without accessing QMD or the network:
+
+```bash
+memory manifest
+memory manifest --json
+```
+
+Validation failures use exit code `30`, identify the exact field, and include a
+copyable correction. `--json` always retains the public result envelope schema,
+even when the manifest's own `schema_version` is unsupported.
+
 ```bash
 # 1. Initialize a vault
 python scripts/init_vault.py --path ~/vaults/research --topic "LLM interpretability" --tool all

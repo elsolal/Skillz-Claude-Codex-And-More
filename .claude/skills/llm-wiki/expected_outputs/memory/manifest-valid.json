@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "command": "manifest",
+  "status": "ready",
+  "project_id": "skillz-claude",
+  "event_id": null,
+  "data": {
+    "manifest_schema_version": 1,
+    "project": {"id": "skillz-claude", "name": "Skillz-Claude", "owner": "Aymeric"},
+    "stores": {
+      "project": {
+        "remote": "https://github.com/elsolal/elsolal-memory.git",
+        "collection": "elsolal-wiki",
+        "entry_pages": [
+          "wiki/entities/skillz-claude.md",
+          "wiki/concepts/project-memory-workflow.md"
+        ]
+      }
+    },
+    "fallbacks": [
+      {
+        "id": "transverse",
+        "collection": "shared-wiki",
+        "allowed_roles": ["owner"],
+        "task_categories": ["architecture", "historical"],
+        "entry_pages": ["wiki/concepts/project-memory-workflow.md"]
+      }
+    ],
+    "budgets": {
+      "minimal": {"target_tokens": 800, "hard_tokens": 1200},
+      "project": {"target_tokens": 2500, "hard_tokens": 4000},
+      "historical": {"target_tokens": 6000, "hard_tokens": 9000}
+    },
+    "policy": {
+      "semantic_retrieval": "explicit",
+      "full_index_fallback": true,
+      "retention_days": 30
+    },
+    "golden": {
+      "visible_path": ".agents/memory/golden.json",
+      "quality_rubric": ".agents/memory/quality-rubric.json"
+    }
+  },
+  "warnings": [],
+  "errors": []
+}
