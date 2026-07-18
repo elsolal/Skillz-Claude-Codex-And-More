@@ -144,3 +144,16 @@ class MemoryProjection:
             principal_role=principal_role,
             stores=MappingProxyType(dict(stores)),
         )
+
+
+@dataclass(frozen=True, slots=True)
+class RetrievalHit:
+    """Normalized QMD result kept independent from the external JSON shape."""
+
+    docid: str
+    collection: str
+    relative_path: PurePosixPath
+    title: str
+    score: float
+    snippet_line: int
+    snippet: str

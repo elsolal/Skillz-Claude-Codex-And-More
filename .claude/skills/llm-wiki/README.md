@@ -151,6 +151,34 @@ activation, `31` missing required dependency, and `32` denied local/remote
 access. Human, non-TTY, `NO_COLOR=1`, and JSON modes expose the same functional
 status without relying on color or prompts.
 
+Retrieve the first bounded project-memory route directly from the task:
+
+```bash
+memory context --mode project --task-category architecture "How is the CLI structured?"
+printf '%s' "private task query" | \
+  memory context --mode project --task-category security --query-stdin --json
+```
+
+`context` calls `qmd search --json` against the manifest's project collection
+with an argument array and no shell interpolation. `--mode` accepts `minimal`,
+`project`, or `historical` and controls the initial result envelope. The task
+category is always explicit so later sufficiency and fallback decisions remain
+deterministic. In this first retrieval increment, only the project route runs;
+no transverse fallback, semantic search, model download, `qmd update`, or
+`qmd embed` occurs.
+
+The query is never written to an event, receipt field, or temporary file by
+`memory`. JSON and human output expose normalized hit metadata—docid,
+collection, relative path, title, score, and snippet line—but omit the raw query
+and snippet text. `--query-stdin` keeps sensitive input out of shell history;
+QMD still receives it transiently as its required positional process argument.
+
+A completed retrieval returns `ready`/`0`. No result is the distinct
+`insufficient`/`20` state. Missing QMD returns `blocked`/`31`; timeout, invalid
+JSON, oversized output, and other engine failures return `blocked`/`40` with a
+specific retrieval status and correction. The default route timeout is eight
+seconds and can never exceed thirty seconds inside the adapter.
+
 ```bash
 # 1. Initialize a vault
 python scripts/init_vault.py --path ~/vaults/research --topic "LLM interpretability" --tool all

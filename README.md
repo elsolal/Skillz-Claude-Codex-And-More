@@ -57,6 +57,18 @@ doctor` to verify pages, Git-local exclusions, QMD 0.9.x and local freshness.
 The command is read-only and offline by default; `--network` and the narrowly
 scoped `--fix` are always explicit. Use `--json` for automation.
 
+Start task-aware retrieval with the project collection first:
+
+```bash
+memory context --mode project --task-category architecture "How is this project structured?"
+printf '%s' "private task" | memory context --task-category security --query-stdin --json
+```
+
+The command uses lexical `qmd search` only, never persists the query, and emits
+normalized metadata without raw snippets. Empty, timeout, invalid-output, and
+missing-QMD states remain distinct non-successes. Fallback and context assembly
+are intentionally handled by later bounded-retrieval stories.
+
 The CLI requires Python 3.10+ and uses the standard library only. The installer
 does not create a virtual environment or download QMD, a model, or another
 dependency. If `~/.local/bin` is not already available from your shell, add:
