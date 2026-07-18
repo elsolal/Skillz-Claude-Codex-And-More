@@ -4,6 +4,29 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## [Unreleased] - 2026-07-18
 
+**Versioned context sufficiency and authorized fallback**
+
+### Added
+- Pure `qmd-0.9-v1` sufficiency decisions for `minimal`, `project`, and `historical` retrieval modes, with stable statuses, evidence, thresholds, and deterministic reason codes.
+- Project-first fallback orchestration guarded by both the local principal role and the shared manifest task-category policy, without calling or naming denied transverse collections.
+- Explicit `memory context --fallback-on-ambiguous` and `--explain` controls, plus unit and subprocess coverage for freshness, provenance, threshold boundaries, ambiguity, denial, and empty fallback behavior.
+
+### Changed
+- Portable memory CLI runtime version advanced to `0.6.0`.
+- `policy.sufficiency_thresholds_version` is accepted as a backward-compatible optional manifest field and defaults to `qmd-0.9-v1`.
+- Project and fallback QMD searches now share their candidate scores with the canonical sufficiency profile, while doctor and context share one 24-hour freshness policy.
+
+### Fixed
+- Context receipts keep a `ready` retrieval status whenever aggregate project/fallback hits are present, even if the final fallback collection is empty.
+- Initial routes and runtime fallback execution now consume the same authorization helper, preventing role/category policy drift.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — installer PASS, 65 tests Python OK
+- Four-round level-3 quality gate: PASS, five confirmed P1 findings corrected, no remaining P0/P1
+
+## [Unreleased] - 2026-07-18
+
 **Task-first project QMD retrieval**
 
 ### Added

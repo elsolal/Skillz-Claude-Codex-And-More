@@ -9,7 +9,7 @@ from collections.abc import Sequence
 from typing import Any
 
 from . import __version__
-from .context import ContextOutcome, run_context
+from .context import run_context
 from .contracts import (
     PUBLIC_SCHEMA_VERSION,
     MemoryManifest,
@@ -20,6 +20,7 @@ from .contracts import (
 from .doctor import DoctorOutcome, run_doctor
 from .manifest import ManifestError, discover_manifest, load_manifest, load_nearest_manifest
 from .projection import ConfigureOutcome, ProjectionError, configure_projection
+from .receipts import ContextOutcome
 
 
 MAX_QUERY_CHARACTERS = 16 * 1024
@@ -132,6 +133,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="Classify the task for deterministic routing and later sufficiency decisions.",
     )
     context_parser.add_argument(
+        "--fallback-on-ambiguous",
+        action="store_true",
+        help="Explicitly allow an authorized fallback when project evidence is ambiguous.",
+    )
+    context_parser.add_argument(
+        "--explain",
+        action="store_true",
+        help="Show sufficiency evidence, reason codes and fallback decisions.",
+    )
+    context_parser.add_argument(
         "--json",
         action="store_true",
         dest="json_output",
@@ -197,6 +208,9 @@ def _manifest_data(manifest: MemoryManifest) -> dict[str, Any]:
             "semantic_retrieval": manifest.policy.semantic_retrieval.value,
             "full_index_fallback": manifest.policy.full_index_fallback,
             "retention_days": manifest.policy.retention_days,
+            "sufficiency_thresholds_version": (
+                manifest.policy.sufficiency_thresholds_version
+            ),
         },
         "golden": {
             "visible_path": str(manifest.golden.visible_path),
@@ -434,11 +448,11 @@ def _run_doctor_command(
     return outcome.exit_code
 
 
-def _render_context_human(outcome: ContextOutcome) -> None:
+def _render_context_human(outcome: ContextOutcome, *, explain: bool) -> None:
     retrieval = outcome.retrieval_status.value
     print(
         f"[{outcome.status}] memory context · {retrieval} · "
-        f"route {outcome.route[0]}"
+        f"route {' -> '.join(outcome.route)}"
     )
     if outcome.hits:
         for hit in outcome.hits:
@@ -446,6 +460,29 @@ def _render_context_human(outcome: ContextOutcome) -> None:
                 f"  {hit.docid}  {hit.relative_path.as_posix()}  "
                 f"score {hit.score:g} · line {hit.snippet_line}"
             )
+    if outcome.decision is not None:
+        reasons = ", ".join(reason.value for reason in outcome.decision.reason_codes)
+        print(f"Reason codes: {reasons or 'none'}")
+        if explain:
+            print(
+                "Decision: "
+                f"{outcome.decision.status.value} · "
+                f"thresholds {outcome.decision.thresholds_version} · "
+                f"freshness {outcome.decision.evidence.freshness.value}"
+            )
+            for hit in outcome.decision.evidence.hits:
+                print(
+                    f"  {hit.docid} · score {hit.score:g} · "
+                    f"provenance {hit.provenance.value}"
+                )
+            fallback_reasons = ", ".join(
+                reason.value for reason in outcome.fallback_reason_codes
+            )
+            fallback_status = "used" if outcome.fallback_used else "not used"
+            explicit = " · explicit" if outcome.fallback_explicit_decision else ""
+            print(f"Fallback: {fallback_status}{explicit}")
+            if fallback_reasons:
+                print(f"Fallback reason codes: {fallback_reasons}")
     for warning in outcome.warnings:
         print(f"Warning: {warning['message']}")
         print(f"Correction: {warning['correction']}")
@@ -460,6 +497,8 @@ def _run_context_command(
     mode: str,
     task_category: str,
     query: str,
+    fallback_on_ambiguous: bool,
+    explain: bool,
     json_output: bool,
 ) -> int:
     try:
@@ -467,6 +506,7 @@ def _run_context_command(
             mode=RetrievalMode(mode),
             task_category=TaskCategory(task_category),
             query=query,
+            fallback_on_ambiguous=fallback_on_ambiguous,
         )
     except (ManifestError, ProjectionError) as error:
         if json_output:
@@ -497,7 +537,7 @@ def _run_context_command(
             )
         )
     else:
-        _render_context_human(outcome)
+        _render_context_human(outcome, explain=explain)
     return outcome.exit_code
 
 
@@ -540,6 +580,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             mode=arguments.mode,
             task_category=arguments.task_category,
             query=query,
+            fallback_on_ambiguous=arguments.fallback_on_ambiguous,
+            explain=arguments.explain,
             json_output=arguments.json_output,
         )
     parser.print_help()

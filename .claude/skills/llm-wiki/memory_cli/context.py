@@ -1,74 +1,48 @@
-"""Project-first lexical retrieval for the portable memory CLI."""
+"""Project-first retrieval, sufficiency evaluation and authorized fallback."""
 
 from __future__ import annotations
 
 import os
 import shutil
 import subprocess
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
-from .contracts import RetrievalHit, RetrievalMode, TaskCategory
+from .contracts import (
+    FreshnessStatus,
+    ProvenanceKind,
+    RetrievalHit,
+    RetrievalMode,
+    SufficiencyEvidence,
+    SufficiencyHit,
+    SufficiencyReason,
+    SufficiencyStatus,
+    TaskCategory,
+)
+from .freshness import collection_freshness
 from .manifest import discover_manifest, load_manifest
 from .projection import load_projection
 from .qmd_adapter import (
     DEFAULT_SEARCH_TIMEOUT_SECONDS,
     QmdInvocationError,
     QmdOutputError,
+    QmdSearchOutcome,
     QmdSearchStatus,
     QmdTimeoutError,
     Runner,
+    inspect_qmd,
     search_qmd,
 )
+from .receipts import ContextOutcome, blocked_context, context_outcome
+from .routing import authorized_fallbacks
+from .sufficiency import evaluate_sufficiency, thresholds_for
 
 
-MODE_SEARCH_CONFIG: dict[RetrievalMode, tuple[int, float]] = {
-    RetrievalMode.MINIMAL: (3, 0.70),
-    RetrievalMode.PROJECT: (8, 0.55),
-    RetrievalMode.HISTORICAL: (15, 0.45),
+MODE_SEARCH_LIMITS: dict[RetrievalMode, int] = {
+    RetrievalMode.MINIMAL: 3,
+    RetrievalMode.PROJECT: 8,
+    RetrievalMode.HISTORICAL: 15,
 }
 QMD_INSTALL_COMMAND = "bun install -g @tobilu/qmd"
-
-
-@dataclass(frozen=True, slots=True)
-class ContextOutcome:
-    status: str
-    exit_code: int
-    project_id: str
-    mode: RetrievalMode
-    task_category: TaskCategory
-    route: tuple[str, ...]
-    retrieval_status: QmdSearchStatus
-    duration_ms: int | None
-    hits: tuple[RetrievalHit, ...]
-    warnings: tuple[dict[str, Any], ...] = ()
-    errors: tuple[dict[str, Any], ...] = ()
-
-    def data(self) -> dict[str, Any]:
-        retrieval: dict[str, Any] = {
-            "status": self.retrieval_status.value,
-            "hits": [
-                {
-                    "docid": hit.docid,
-                    "collection": hit.collection,
-                    "path": hit.relative_path.as_posix(),
-                    "title": hit.title,
-                    "score": hit.score,
-                    "snippet_line": hit.snippet_line,
-                }
-                for hit in self.hits
-            ],
-        }
-        if self.duration_ms is not None:
-            retrieval["duration_ms"] = self.duration_ms
-        return {
-            "mode": self.mode.value,
-            "task_category": self.task_category.value,
-            "route": list(self.route),
-            "retrieval": retrieval,
-        }
-
 
 def _qmd_executable() -> str | None:
     override = os.environ.get("SKILLZ_MEMORY_QMD")
@@ -79,36 +53,115 @@ def _qmd_executable() -> str | None:
         return None
     return override
 
+def _search(
+    executable: str,
+    *,
+    query: str,
+    collection: str,
+    mode: RetrievalMode,
+    thresholds_version: str,
+    runner: Runner,
+    timeout_seconds: float,
+) -> QmdSearchOutcome:
+    return search_qmd(
+        executable,
+        query=query,
+        collection=collection,
+        limit=MODE_SEARCH_LIMITS[mode],
+        min_score=thresholds_for(thresholds_version, mode).candidate_score,
+        runner=runner,
+        timeout_seconds=timeout_seconds,
+    )
 
-def _blocked(
+
+def _provenance(hit: RetrievalHit) -> ProvenanceKind:
+    first_part = hit.relative_path.parts[0] if hit.relative_path.parts else ""
+    if first_part == "sources":
+        return ProvenanceKind.SOURCE
+    if first_part == "synthesis":
+        return ProvenanceKind.SYNTHESIS
+    if first_part:
+        return ProvenanceKind.PAGE
+    return ProvenanceKind.UNKNOWN
+
+
+def _evidence(
+    *,
+    mode: RetrievalMode,
+    task_category: TaskCategory,
+    hits: tuple[RetrievalHit, ...],
+    freshness: FreshnessStatus,
+    thresholds_version: str,
+) -> SufficiencyEvidence:
+    return SufficiencyEvidence(
+        mode=mode,
+        task_category=task_category,
+        hits=tuple(
+            SufficiencyHit(
+                docid=hit.docid,
+                score=hit.score,
+                provenance=_provenance(hit),
+            )
+            for hit in hits
+        ),
+        freshness=freshness,
+        thresholds_version=thresholds_version,
+    )
+
+def _search_failure(
+    error: Exception,
     *,
     project_id: str,
     mode: RetrievalMode,
     task_category: TaskCategory,
     route: tuple[str, ...],
-    retrieval_status: QmdSearchStatus,
-    code: str,
-    message: str,
-    correction: str,
-    exit_code: int,
+    hits: tuple[RetrievalHit, ...] = (),
+    duration_ms: int | None = None,
+    fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
+    explicit_decision: bool = False,
 ) -> ContextOutcome:
-    return ContextOutcome(
-        status="blocked",
-        exit_code=exit_code,
+    if isinstance(error, QmdTimeoutError):
+        return blocked_context(
+            project_id=project_id,
+            mode=mode,
+            task_category=task_category,
+            route=route,
+            retrieval_status=QmdSearchStatus.TIMEOUT,
+            code="qmd_timeout",
+            message="The QMD search exceeded its bounded timeout.",
+            correction="Retry memory context or run memory doctor.",
+            exit_code=40,
+            hits=hits,
+            duration_ms=duration_ms,
+            fallback_used=len(route) > 1,
+            fallback_explicit_decision=explicit_decision,
+            fallback_reason_codes=fallback_reason_codes,
+        )
+    if isinstance(error, QmdOutputError):
+        retrieval_status = QmdSearchStatus.INVALID
+        code = "qmd_invalid_output"
+        message = "The QMD search returned an unsupported result."
+        correction = "Repair or update QMD 0.9.x, then run memory doctor."
+    else:
+        retrieval_status = QmdSearchStatus.ERROR
+        code = "qmd_search_failed"
+        message = "The QMD search failed."
+        correction = "Run memory doctor, then retry the context command."
+    return blocked_context(
         project_id=project_id,
         mode=mode,
         task_category=task_category,
         route=route,
         retrieval_status=retrieval_status,
-        duration_ms=None,
-        hits=(),
-        errors=(
-            {
-                "code": code,
-                "message": message,
-                "correction": correction,
-            },
-        ),
+        code=code,
+        message=message,
+        correction=correction,
+        exit_code=40,
+        hits=hits,
+        duration_ms=duration_ms,
+        fallback_used=len(route) > 1,
+        fallback_explicit_decision=explicit_decision,
+        fallback_reason_codes=fallback_reason_codes,
     )
 
 
@@ -117,18 +170,20 @@ def run_context(
     mode: RetrievalMode,
     task_category: TaskCategory,
     query: str,
+    fallback_on_ambiguous: bool = False,
     runner: Runner = subprocess.run,
     timeout_seconds: float = DEFAULT_SEARCH_TIMEOUT_SECONDS,
 ) -> ContextOutcome:
-    """Execute only the first project route; sufficiency and fallback land later."""
+    """Search project first, stop when sufficient, and authorize any fallback."""
 
     manifest_path = discover_manifest()
     manifest = load_manifest(manifest_path)
-    load_projection(manifest_path)
-    route = (manifest.stores.project.collection,)
+    projection = load_projection(manifest_path)
+    project_collection = manifest.stores.project.collection
+    route = (project_collection,)
     executable = _qmd_executable()
     if executable is None:
-        return _blocked(
+        return blocked_context(
             project_id=manifest.project.id,
             mode=mode,
             task_category=task_category,
@@ -140,81 +195,157 @@ def run_context(
             exit_code=31,
         )
 
-    limit, min_score = MODE_SEARCH_CONFIG[mode]
     try:
-        retrieval = search_qmd(
+        project_retrieval = _search(
             executable,
             query=query,
-            collection=route[0],
-            limit=limit,
-            min_score=min_score,
+            collection=project_collection,
+            mode=mode,
+            thresholds_version=manifest.policy.sufficiency_thresholds_version,
             runner=runner,
             timeout_seconds=timeout_seconds,
         )
-    except QmdTimeoutError:
-        return _blocked(
+    except (QmdTimeoutError, QmdOutputError, QmdInvocationError) as error:
+        return _search_failure(
+            error,
             project_id=manifest.project.id,
             mode=mode,
             task_category=task_category,
             route=route,
-            retrieval_status=QmdSearchStatus.TIMEOUT,
-            code="qmd_timeout",
-            message="The project QMD search exceeded its bounded timeout.",
-            correction="Retry memory context or run memory doctor.",
-            exit_code=40,
-        )
-    except QmdOutputError:
-        return _blocked(
-            project_id=manifest.project.id,
-            mode=mode,
-            task_category=task_category,
-            route=route,
-            retrieval_status=QmdSearchStatus.INVALID,
-            code="qmd_invalid_output",
-            message="The project QMD search returned an unsupported result.",
-            correction="Repair or update QMD 0.9.x, then run memory doctor.",
-            exit_code=40,
-        )
-    except QmdInvocationError:
-        return _blocked(
-            project_id=manifest.project.id,
-            mode=mode,
-            task_category=task_category,
-            route=route,
-            retrieval_status=QmdSearchStatus.ERROR,
-            code="qmd_search_failed",
-            message="The project QMD search failed.",
-            correction="Run memory doctor, then retry the context command.",
-            exit_code=40,
         )
 
-    if retrieval.status is QmdSearchStatus.EMPTY:
-        return ContextOutcome(
-            status="insufficient",
-            exit_code=20,
+    try:
+        qmd_status = inspect_qmd(
+            executable,
+            runner=runner,
+            timeout_seconds=timeout_seconds,
+        )
+        collections = qmd_status.collections
+    except (QmdTimeoutError, QmdOutputError, QmdInvocationError):
+        collections = {}
+
+    project_decision = evaluate_sufficiency(
+        _evidence(
+            mode=mode,
+            task_category=task_category,
+            hits=project_retrieval.hits,
+            freshness=collection_freshness(collections.get(project_collection)),
+            thresholds_version=manifest.policy.sufficiency_thresholds_version,
+        )
+    )
+    if project_decision.status is SufficiencyStatus.SUFFICIENT:
+        return context_outcome(
             project_id=manifest.project.id,
             mode=mode,
             task_category=task_category,
             route=route,
-            retrieval_status=retrieval.status,
-            duration_ms=retrieval.duration_ms,
-            hits=(),
+            retrieval=project_retrieval,
+            hits=project_retrieval.hits,
+            duration_ms=project_retrieval.duration_ms,
+            decision=project_decision,
+            warnings=(
+                (
+                    {
+                        "code": "qmd_index_stale",
+                        "message": "The project QMD collection is stale.",
+                        "correction": "qmd update && qmd embed",
+                    },
+                )
+                if SufficiencyReason.STALE in project_decision.reason_codes
+                else ()
+            ),
+        )
+
+    if (
+        project_decision.status is SufficiencyStatus.AMBIGUOUS
+        and not fallback_on_ambiguous
+    ):
+        return context_outcome(
+            project_id=manifest.project.id,
+            mode=mode,
+            task_category=task_category,
+            route=route,
+            retrieval=project_retrieval,
+            hits=project_retrieval.hits,
+            duration_ms=project_retrieval.duration_ms,
+            decision=project_decision,
+        )
+
+    fallbacks = authorized_fallbacks(
+        manifest,
+        principal_role=projection.principal_role,
+        task_category=task_category,
+    )
+    if not fallbacks:
+        return context_outcome(
+            project_id=manifest.project.id,
+            mode=mode,
+            task_category=task_category,
+            route=route,
+            retrieval=project_retrieval,
+            hits=project_retrieval.hits,
+            duration_ms=project_retrieval.duration_ms,
+            decision=project_decision,
             warnings=(
                 {
-                    "code": "no_result",
-                    "message": "The project QMD search returned no result.",
-                    "correction": "Refine the query or inspect project entry pages.",
+                    "code": "fallback_not_authorized",
+                    "message": (
+                        "No transverse fallback is authorized for this local role "
+                        "and task category."
+                    ),
+                    "correction": (
+                        "Continue project-only or update the shared manifest policy "
+                        "through review."
+                    ),
                 },
             ),
         )
-    return ContextOutcome(
-        status="ready",
-        exit_code=0,
+
+    fallback = fallbacks[0]
+    route = (project_collection, fallback.collection)
+    explicit_decision = project_decision.status is SufficiencyStatus.AMBIGUOUS
+    try:
+        fallback_retrieval = _search(
+            executable,
+            query=query,
+            collection=fallback.collection,
+            mode=mode,
+            thresholds_version=manifest.policy.sufficiency_thresholds_version,
+            runner=runner,
+            timeout_seconds=timeout_seconds,
+        )
+    except (QmdTimeoutError, QmdOutputError, QmdInvocationError) as error:
+        return _search_failure(
+            error,
+            project_id=manifest.project.id,
+            mode=mode,
+            task_category=task_category,
+            route=route,
+            hits=project_retrieval.hits,
+            duration_ms=project_retrieval.duration_ms,
+            fallback_reason_codes=project_decision.reason_codes,
+            explicit_decision=explicit_decision,
+        )
+
+    fallback_decision = evaluate_sufficiency(
+        _evidence(
+            mode=mode,
+            task_category=task_category,
+            hits=fallback_retrieval.hits,
+            freshness=collection_freshness(collections.get(fallback.collection)),
+            thresholds_version=manifest.policy.sufficiency_thresholds_version,
+        )
+    )
+    return context_outcome(
         project_id=manifest.project.id,
         mode=mode,
         task_category=task_category,
         route=route,
-        retrieval_status=retrieval.status,
-        duration_ms=retrieval.duration_ms,
-        hits=retrieval.hits,
+        retrieval=fallback_retrieval,
+        hits=project_retrieval.hits + fallback_retrieval.hits,
+        duration_ms=project_retrieval.duration_ms + fallback_retrieval.duration_ms,
+        decision=fallback_decision,
+        fallback_used=True,
+        fallback_explicit_decision=explicit_decision,
+        fallback_reason_codes=project_decision.reason_codes,
     )

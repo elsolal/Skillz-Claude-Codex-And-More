@@ -32,7 +32,8 @@
   "policy": {
     "semantic_retrieval": "explicit",
     "full_index_fallback": true,
-    "retention_days": 30
+    "retention_days": 30,
+    "sufficiency_thresholds_version": "qmd-0.9-v1"
   },
   "golden": {
     "visible_path": ".agents/memory/golden.json",
