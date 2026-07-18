@@ -17,11 +17,24 @@ Most LLM+docs workflows are RAG: retrieve fragments at query time, synthesize fr
 | **3 sub-agents** | `wiki-ingestor`, `wiki-librarian`, `wiki-linter` |
 | **6 slash commands** | `/wiki-init`, `/wiki-ingest`, `/wiki-query`, `/wiki-lint`, `/wiki-log`, `/wiki-capture-session` |
 | **8 Python tools** | Standard library only: `init_vault`, `ingest_source`, `update_index`, `append_log`, `wiki_search` (BM25), `lint_wiki`, `graph_analyzer`, `export_marp` |
+| **Portable memory CLI** | `skillz-memory` plus the collision-safe `memory` alias; Python 3.10+ stdlib runtime |
 | **8 reference docs** | Schema, page formats, ingest/query/lint workflows, Obsidian setup, cross-tool setup, Memex principles |
 | **Vault templates** | `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, `index.md`, `log.md`, plus 5 page templates (entity, concept, source, comparison, synthesis) |
 | **Example vault** | A small worked example on "LLM interpretability" |
 
 ## Quick start
+
+Install Skillz-Claude globally, then verify the provider-neutral entrypoint:
+
+```bash
+bash install.sh install all
+skillz-memory --version
+```
+
+The installer creates `~/.local/bin/skillz-memory`. It also creates
+`~/.local/bin/memory` when the name is free or already managed by Skillz-Claude.
+A third-party `memory` command is never overwritten; use `skillz-memory` when
+the installer reports a collision. Ensure `~/.local/bin` is present in `PATH`.
 
 ```bash
 # 1. Initialize a vault

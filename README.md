@@ -37,6 +37,33 @@ curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-Mor
 
 Installs into `~/.claude/`, `~/.codex/`, `~/.gemini/`, `~/.config/opencode/`, and `~/.agents/`. Claude is the source of truth; the others mirror it.
 
+#### Portable memory CLI
+
+Global Claude installation also installs the provider-neutral memory command:
+
+```bash
+skillz-memory --version
+memory --version
+```
+
+`skillz-memory` is the collision-safe command and is always managed at
+`~/.local/bin/skillz-memory`. `memory` is an alias created only when that name is
+free or already points to the Skillz-Claude runtime. An existing third-party
+`memory` command is preserved and the installer tells you to use
+`skillz-memory` instead.
+
+The CLI requires Python 3.10+ and uses the standard library only. The installer
+does not create a virtual environment or download QMD, a model, or another
+dependency. If `~/.local/bin` is not already available from your shell, add:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+Updates replace only Skillz-managed links. `uninstall claude` and `uninstall
+all` remove a recorded link only while it still points to the installed
+Skillz-Claude runtime; a command replaced by another tool is preserved.
+
 ### Per-project
 
 ```bash
@@ -511,7 +538,7 @@ This runs the standard install **and** bootstraps the wiki: it asks for the vaul
 | Tool | Required | Install | Why |
 |------|----------|---------|-----|
 | **Obsidian** | Yes | [obsidian.md/download](https://obsidian.md/download) (free) | Editor for the vault. Open the chosen folder as a vault inside Obsidian after bootstrap. |
-| **Python 3.9+** | Yes | already required by Skillz-Claude | Powers `init_vault.py`, `lint_wiki.py`, `wiki_search.py`. Stdlib only — no pip install. |
+| **Python 3.10+** | Yes | already required by Skillz-Claude | Powers the portable memory CLI and wiki scripts. Stdlib only — no pip install. |
 | **`qmd` CLI** | Recommended | `npm install -g @tobilu/qmd` with Node 22+, or `bun install -g @tobilu/qmd`; see [tobi/qmd](https://github.com/tobi/qmd) | Local vector search across the vault for when the index alone is not enough. The setup script warns but does not block if absent. |
 
 ### What the bootstrap does

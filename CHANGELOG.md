@@ -2,6 +2,25 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## [Unreleased] - 2026-07-18
+
+**Collision-safe portable memory CLI**
+
+### Added
+- Provider-neutral `skillz-memory` command backed by a minimal Python 3.10+ standard-library runtime.
+- Nominal `memory` alias when the command name is free or already managed by Skillz-Claude.
+- Isolated Shell acceptance suite covering install, update, collisions, provider mirrors and safe uninstall.
+
+### Changed
+- Global installation now tracks `binary:*` ownership, diagnoses `PATH`, runs a version smoke test and preserves third-party commands.
+- Claude uninstall removes memory CLI links only while they still target the installed Skillz-Claude runtime.
+- Installation documentation now explains both command names, Python requirements and collision behavior.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `bash tests/test-install-memory-cli.sh`
+- Two-round level-2 quality gate: PASS
+
 ## [Unreleased] - 2026-07-17
 
 **Observable second-brain efficiency discovery**

@@ -474,15 +474,115 @@ EOF
     echo -e "   ${YELLOW}⚠️  Could not edit $target; wrote $sidecar for manual merge${NC}"
 }
 
+memory_cli_entrypoint() {
+    printf '%s\n' "$HOME/.claude/skills/llm-wiki/bin/memory"
+}
+
+is_skillz_memory_link() {
+    local link_path="$1"
+    local expected_target
+    expected_target="$(memory_cli_entrypoint)"
+
+    [ -L "$link_path" ] || return 1
+    [ "$(readlink "$link_path")" = "$expected_target" ]
+}
+
+require_memory_python() {
+    local detected_version
+
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo -e "${RED}❌ Error: skillz-memory requires Python 3.10 or newer.${NC}" >&2
+        echo -e "${YELLOW}   Install Python 3.10+ and re-run the installer.${NC}" >&2
+        return 1
+    fi
+
+    if ! python3 -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
+        detected_version="$(python3 --version 2>&1 || true)"
+        echo -e "${RED}❌ Error: skillz-memory requires Python 3.10 or newer.${NC}" >&2
+        echo -e "${YELLOW}   Detected: ${detected_version:-unknown Python version}.${NC}" >&2
+        return 1
+    fi
+}
+
+record_managed_binary() {
+    local manifest="$1"
+    local binary_name="$2"
+
+    if ! grep -qx "binary:$binary_name" "$manifest" 2>/dev/null; then
+        echo "binary:$binary_name" >> "$manifest"
+    fi
+}
+
+install_memory_cli() {
+    local entrypoint bin_dir skillz_link alias_link manifest version_output
+    entrypoint="$(memory_cli_entrypoint)"
+    bin_dir="$HOME/.local/bin"
+    skillz_link="$bin_dir/skillz-memory"
+    alias_link="$bin_dir/memory"
+    manifest="$HOME/.claude/.skillz-manifest"
+
+    require_memory_python
+
+    if [ ! -x "$entrypoint" ]; then
+        echo -e "${RED}❌ Error: memory CLI entrypoint is missing or not executable:${NC}" >&2
+        echo -e "${YELLOW}   $entrypoint${NC}" >&2
+        return 1
+    fi
+
+    mkdir -p "$bin_dir"
+
+    if [ -e "$skillz_link" ] || [ -L "$skillz_link" ]; then
+        if ! is_skillz_memory_link "$skillz_link"; then
+            echo -e "${RED}❌ Error: $skillz_link already exists and is not managed by Skillz-Claude.${NC}" >&2
+            echo -e "${YELLOW}   Move that binary or choose a different PATH before retrying; it was not modified.${NC}" >&2
+            return 1
+        fi
+    fi
+    ln -sfn "$entrypoint" "$skillz_link"
+    record_managed_binary "$manifest" "skillz-memory"
+
+    if [ -e "$alias_link" ] || [ -L "$alias_link" ]; then
+        if is_skillz_memory_link "$alias_link"; then
+            ln -sfn "$entrypoint" "$alias_link"
+            record_managed_binary "$manifest" "memory"
+        else
+            echo -e "${YELLOW}⚠️  $alias_link already exists and is not managed by Skillz-Claude.${NC}" >&2
+            echo -e "${YELLOW}   It was not modified. Use 'skillz-memory' for the Skillz-Claude runtime.${NC}" >&2
+        fi
+    else
+        ln -s "$entrypoint" "$alias_link"
+        record_managed_binary "$manifest" "memory"
+    fi
+
+    case ":${PATH:-}:" in
+        *":$bin_dir:"*) ;;
+        *)
+            echo -e "${YELLOW}⚠️  $bin_dir is not in PATH.${NC}" >&2
+            echo -e "${YELLOW}   Add this to your shell profile: export PATH=\"\$HOME/.local/bin:\$PATH\"${NC}" >&2
+            ;;
+    esac
+
+    if ! version_output="$($skillz_link --version 2>&1)"; then
+        echo -e "${RED}❌ Error: skillz-memory smoke test failed.${NC}" >&2
+        echo "$version_output" >&2
+        return 1
+    fi
+
+    echo -e "   ${GREEN}✅ skillz-memory installed ($version_output)${NC}"
+    if is_skillz_memory_link "$alias_link"; then
+        echo -e "   ${GREEN}✅ memory alias installed${NC}"
+    fi
+}
+
 # Uninstall Claude globally — reads ~/.claude/.skillz-manifest and removes
-# ONLY the skills/commands listed there. User-added items are preserved.
+# ONLY the skills/commands/binaries listed there. User-added items are preserved.
 # Never touches CLAUDE.md, settings.json, mcp.json, knowledge/, templates/.
 uninstall_claude_global() {
     echo -e "${BLUE}"
     echo "╔═══════════════════════════════════════════════════════════════════════╗"
     echo "║             Uninstall Claude (Skillz-managed items)                   ║"
     echo "║                                                                       ║"
-    echo "║   Removes: skills/* and commands/* that Skillz installed              ║"
+    echo "║   Removes: managed skills, commands, and memory CLI links             ║"
     echo "║   Preserves: CLAUDE.md, settings.json, mcp.json, user-added skills    ║"
     echo "╚═══════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
@@ -496,6 +596,7 @@ uninstall_claude_global() {
 
     local removed_skills=0
     local removed_commands=0
+    local removed_binaries=0
     while IFS= read -r line; do
         [ -z "$line" ] && continue
         case "$line" in \#*) continue ;; esac
@@ -516,14 +617,28 @@ uninstall_claude_global() {
                     removed_commands=$((removed_commands + 1))
                 fi
                 ;;
+            binary)
+                case "$name" in
+                    skillz-memory|memory)
+                        local binary_path="$HOME/.local/bin/$name"
+                        if is_skillz_memory_link "$binary_path"; then
+                            rm -f "$binary_path"
+                            echo -e "   ${YELLOW}🗑️  binary link: $name${NC}"
+                            removed_binaries=$((removed_binaries + 1))
+                        elif [ -e "$binary_path" ] || [ -L "$binary_path" ]; then
+                            echo -e "   ${YELLOW}⚠️  binary preserved (no longer Skillz-managed): $name${NC}"
+                        fi
+                        ;;
+                esac
+                ;;
         esac
     done < "$manifest"
 
     rm -f "$manifest"
     echo ""
-    echo -e "${GREEN}✅ Removed $removed_skills skill(s) and $removed_commands command(s)${NC}"
+    echo -e "${GREEN}✅ Removed $removed_skills skill(s), $removed_commands command(s), and $removed_binaries binary link(s)${NC}"
     echo -e "${GREEN}✅ Manifest deleted${NC}"
-    echo -e "${CYAN}ℹ️  Your CLAUDE.md, settings.json, mcp.json, and user-added skills are untouched.${NC}"
+    echo -e "${CYAN}ℹ️  Your CLAUDE.md, settings.json, mcp.json, and user-added tools are untouched.${NC}"
 }
 
 # Uninstall Codex globally — removes symlinks in ~/.codex/skills/ that point to
@@ -1059,7 +1174,7 @@ if [ "$GLOBAL_MODE" = true ]; then
     {
         echo "# skillz-manifest v1"
         echo "# Auto-generated by install.sh --global on $(date '+%Y-%m-%d %H:%M:%S')"
-        echo "# Lists skills/commands installed by Skillz (for drift detection on next run)"
+        echo "# Lists skills/commands/binaries installed by Skillz (for drift detection and safe uninstall)"
         echo "# DO NOT EDIT MANUALLY"
         for s in $NEW_SKILLS; do echo "skill:$s"; done
         for c in $NEW_COMMANDS; do echo "command:$c"; done
@@ -1098,6 +1213,9 @@ if [ "$GLOBAL_MODE" = true ]; then
 
     echo -e "${CYAN}🔌 Ensuring qmd MCP for Claude Code...${NC}"
     ensure_claude_qmd_mcp "$HOME/.claude/mcp.json"
+
+    echo -e "${CYAN}🧠 Installing portable memory CLI...${NC}"
+    install_memory_cli
 
     # Count what was installed
     skills_count=$(ls -1d ~/.claude/skills/*/SKILL.md 2>/dev/null | wc -l | tr -d ' ')
