@@ -4,6 +4,31 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## [Unreleased] - 2026-07-18
 
+**Portable memory manifest V1**
+
+### Added
+- Immutable Python contracts for project, stores, fallbacks, budgets, policy and golden paths.
+- Git-root-bounded discovery and strict JSON-compatible YAML parsing for `.agents/memory.yaml`.
+- `memory manifest` command with human and stable JSON outputs, exit code `30` and copyable corrections.
+- Unit, contract, hostile-input and deterministic performance tests with versioned fixtures.
+
+### Changed
+- Portable memory CLI runtime version advanced to `0.2.0`.
+- Project verification now includes the Python `unittest` manifest suite alongside installer tests.
+- `llm-wiki` documentation now defines the V1 manifest schema and validation workflow.
+- Python bytecode caches are ignored across the repository.
+
+### Fixed
+- Non-standard JSON constants `NaN`, `Infinity` and `-Infinity` are rejected before semantic validation.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'`
+- Parse and initial-route benchmark: 0.121 ms p95 over 200 samples, below the 300 ms ceiling.
+- Three-round level-2 quality gate: PASS
+
+## [Unreleased] - 2026-07-18
+
 **Collision-safe portable memory CLI**
 
 ### Added
