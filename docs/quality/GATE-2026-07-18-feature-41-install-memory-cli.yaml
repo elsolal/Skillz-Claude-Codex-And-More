@@ -1,0 +1,45 @@
+# Quality gate for STORY-001 / GitHub issue #41.
+verdict: PASS
+niveau: 2
+tours: 2
+base: main
+head: c547e00
+diff_hash: "dbd17fe9e3bff61b7be13677040ecccb886256bd40661b665bdf552cefc4845e"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "vert (2/2 tours, exit 0)"
+    tests:
+      cmd: "bash tests/test-install-memory-cli.sh"
+      statut: "vert (2/2 tours, PASS: memory CLI installer acceptance suite)"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: "vert (2/2 tours, exit 0)"
+  opinion:
+    findings:
+      total: 0
+      confirmes: 0
+      refutes: 0
+      corriges: 0
+      restants: 0
+    lentilles:
+      correctness_security: "aucun P0/P1; ownership revalide par cible et noms binary allowlistes"
+      readability: "aucun P0/P1; fonctions CLI regroupees et tests scenario-centriques"
+      performance: "aucun P0/P1; controles locaux constants, sans reseau ni dependance"
+      thermo_nuclear: "approve; aucune regression structurelle ni abstraction superflue"
+acceptation:
+  AC1: "vert - install all expose skillz-memory --version depuis PATH"
+  AC2: "vert - memory et skillz-memory resolvent le meme runtime"
+  AC3: "vert - un binaire memory tiers reste intact avec avertissement actionnable"
+  AC4: "vert - deux updates gardent les cibles et entrees manifeste uniques"
+  AC5: "vert - uninstall retire seulement les liens encore geres"
+  providers: "vert - Claude, Codex, Gemini, OpenCode et generic agents traverses"
+  no_implicit_download: "vert - qmd, npm, bun et curl interdits par le harness sans invocation"
+decisions_prises_en_ton_nom: []
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no runtime application surface beyond the CLI and installer integration flow"
+  - "Python 3.10 exact runtime unavailable locally; green suite ran on Python 3.12.7 and rejects a simulated Python 3.9"
