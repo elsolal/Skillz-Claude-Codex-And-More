@@ -71,14 +71,14 @@ def parse_store_arguments(values: list[str]) -> dict[str, Path]:
             _error(
                 code="invalid_store_assignment",
                 field=field,
-                message=f'Store assignment "{value}" is not NAME=PATH.',
+                message="A store assignment is not in the required NAME=PATH form.",
                 correction='Use an assignment such as --store project="/absolute/path/to/vault".',
             )
         if name != "project":
             _error(
                 code="unknown_store",
                 field=field,
-                message=f'Store "{name}" is not declared as a configurable V1 store.',
+                message="The requested store is not configurable in projection V1.",
                 correction='Use exactly one "project=..." store assignment.',
             )
         if name in stores:

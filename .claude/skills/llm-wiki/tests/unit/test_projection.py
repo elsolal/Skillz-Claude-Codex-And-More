@@ -49,6 +49,19 @@ class StoreAssignmentTests(unittest.TestCase):
         self.assertEqual(raised.exception.code, "local_root_unavailable")
         self.assertNotIn(str(missing), raised.exception.message)
 
+    def test_rejects_malformed_or_unknown_store_without_echoing_local_input(self) -> None:
+        sensitive_inputs = (
+            "/Users/example/Secret Vault",
+            "/Users/example/private=/absolute/vault",
+        )
+        for sensitive_input in sensitive_inputs:
+            with self.subTest(sensitive_input=sensitive_input), self.assertRaises(
+                ProjectionError
+            ) as raised:
+                parse_store_arguments([sensitive_input])
+
+            self.assertNotIn("/Users/example", raised.exception.message)
+
 
 if __name__ == "__main__":
     unittest.main()
