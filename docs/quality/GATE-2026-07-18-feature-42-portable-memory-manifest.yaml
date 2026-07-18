@@ -1,0 +1,55 @@
+# Quality gate for STORY-002 / GitHub issue #42.
+verdict: PASS
+niveau: 2
+tours: 3
+base: main
+head: 08d05d8
+diff_hash: "0ccdfd63089a528d07d88c48c5e065967d4aaf78c4e855b0c2702256b5eaf55e"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "vert (3/3 tours, exit 0)"
+    tests:
+      cmd: "bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "vert (3/3 tours; installer PASS; 13 tests Python OK)"
+    performance:
+      cmd: "benchmark local parse manifest + initial_route, Python 3.12.7"
+      statut: "vert (200 echantillons; p95 0.121 ms; plafond 300 ms)"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: "vert (exit 0)"
+  opinion:
+    findings:
+      total: 1
+      confirmes: 1
+      refutes: 0
+      corriges: 1
+      restants: 0
+    registre:
+      - id: ".claude/skills/llm-wiki/memory_cli/manifest.py:correctness:9ad1fbbf"
+        severite: P1
+        statut: corrige
+        resume: "json.loads acceptait NaN et Infinity hors contrat JSON strict"
+        preuve: "parse_constant refuse desormais NaN, Infinity et -Infinity; test de regression vert"
+    lentilles:
+      correctness_security: "aucun P0/P1 restant; version inconnue stoppee avant routage, traversal et credentials refuses"
+      readability: "aucun P0/P1; contrats, validation et rendu CLI ont des responsabilites separees"
+      performance: "aucun P0/P1; decouverte bornee par la racine Git et parsing p95 tres inferieur au budget"
+      thermo_nuclear: "approve; aucun fichier au-dessus de 1000 lignes, aucune couche ou abstraction structurelle superflue"
+acceptation:
+  AC1: "vert - le manifeste le plus proche est trouve depuis un sous-repertoire sans depasser la racine Git"
+  AC2: "vert - projet, stores, fallbacks, budgets, policy et golden paths sont exposes par des dataclasses et enums immuables"
+  AC3: "vert - chemins absolus/traversal, IDs invalides et cles interdites retournent exit 30 avec champ et correction"
+  AC4: "vert - YAML libre, doublons et constantes JSON non standard sont refuses sans interpretation partielle"
+  AC5: "vert - schema_version inconnu bloque avant initial_route et conserve l'enveloppe JSON publique v1"
+  AC6: "vert - parse + route p95 mesure a 0.121 ms sur 200 echantillons, sous 300 ms"
+decisions_prises_en_ton_nom:
+  - "Ajout de __pycache__/ et *.py[cod] au .gitignore pour que la nouvelle suite unittest ne pollue pas le worktree."
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no long-running runtime application surface; subprocess CLI contract tests provide the executable proof"
+  - "no real pilot .agents/memory.yaml committed in this story; Skillz-Claude pilot activation belongs to issue #58"
+  - "Python 3.10 exact runtime unavailable locally; green suite ran on Python 3.12.7"
