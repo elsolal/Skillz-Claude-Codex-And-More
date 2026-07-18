@@ -18,11 +18,11 @@ from .contracts import (
     SufficiencyStatus,
     TaskCategory,
 )
+from .freshness import collection_freshness
 from .manifest import discover_manifest, load_manifest
 from .projection import load_projection
 from .qmd_adapter import (
     DEFAULT_SEARCH_TIMEOUT_SECONDS,
-    QmdCollectionStatus,
     QmdInvocationError,
     QmdOutputError,
     QmdSearchOutcome,
@@ -43,7 +43,6 @@ MODE_SEARCH_LIMITS: dict[RetrievalMode, int] = {
     RetrievalMode.HISTORICAL: 15,
 }
 QMD_INSTALL_COMMAND = "bun install -g @tobilu/qmd"
-QMD_FRESHNESS_SECONDS = 24 * 60 * 60
 
 def _qmd_executable() -> str | None:
     override = os.environ.get("SKILLZ_MEMORY_QMD")
@@ -84,14 +83,6 @@ def _provenance(hit: RetrievalHit) -> ProvenanceKind:
     if first_part:
         return ProvenanceKind.PAGE
     return ProvenanceKind.UNKNOWN
-
-
-def _freshness(collection: QmdCollectionStatus | None) -> FreshnessStatus:
-    if collection is None:
-        return FreshnessStatus.UNKNOWN
-    if collection.age_seconds <= QMD_FRESHNESS_SECONDS:
-        return FreshnessStatus.FRESH
-    return FreshnessStatus.STALE
 
 
 def _evidence(
@@ -238,7 +229,7 @@ def run_context(
             mode=mode,
             task_category=task_category,
             hits=project_retrieval.hits,
-            freshness=_freshness(collections.get(project_collection)),
+            freshness=collection_freshness(collections.get(project_collection)),
             thresholds_version=manifest.policy.sufficiency_thresholds_version,
         )
     )
@@ -341,7 +332,7 @@ def run_context(
             mode=mode,
             task_category=task_category,
             hits=fallback_retrieval.hits,
-            freshness=_freshness(collections.get(fallback.collection)),
+            freshness=collection_freshness(collections.get(fallback.collection)),
             thresholds_version=manifest.policy.sufficiency_thresholds_version,
         )
     )

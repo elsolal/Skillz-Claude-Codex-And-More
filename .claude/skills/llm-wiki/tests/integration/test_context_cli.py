@@ -221,27 +221,35 @@ class ContextCliIntegrationTests(unittest.TestCase):
         self.assertEqual(len(output["data"]["retrieval"]["hits"]), 1)
         self.assertEqual(output["data"]["decision"]["reason_codes"], ["no_result"])
 
-    def test_collaborator_denial_never_calls_or_reveals_transverse_collection(self) -> None:
-        self._write_activation(role="collaborator")
-
-        result = self._run_cli(
-            "--mode",
-            "project",
-            "--task-category",
-            "architecture",
-            "--json",
-            "cross-project decision",
-            fake_mode="fallback",
+    def test_policy_denial_never_calls_or_reveals_transverse_collection(self) -> None:
+        denied_cases = (
+            ("collaborator", "architecture"),
+            ("owner", "general"),
         )
-        output = json.loads(result.stdout)
-        invocations = [json.loads(line) for line in self.qmd_log.read_text().splitlines()]
 
-        self.assertEqual(result.returncode, 20, result.stderr)
-        self.assertEqual(output["status"], "insufficient")
-        self.assertEqual(output["data"]["route"], ["elsolal-wiki"])
-        self.assertEqual(output["warnings"][0]["code"], "fallback_not_authorized")
-        self.assertEqual(len(invocations), 1)
-        self.assertNotIn("shared-wiki", result.stdout)
+        for role, task_category in denied_cases:
+            with self.subTest(role=role, task_category=task_category):
+                self._write_activation(role=role)
+                self.qmd_log.write_text("")
+
+                result = self._run_cli(
+                    "--mode",
+                    "project",
+                    "--task-category",
+                    task_category,
+                    "--json",
+                    "cross-project decision",
+                    fake_mode="fallback",
+                )
+                output = json.loads(result.stdout)
+                invocations = [json.loads(line) for line in self.qmd_log.read_text().splitlines()]
+
+                self.assertEqual(result.returncode, 20, result.stderr)
+                self.assertEqual(output["status"], "insufficient")
+                self.assertEqual(output["data"]["route"], ["elsolal-wiki"])
+                self.assertEqual(output["warnings"][0]["code"], "fallback_not_authorized")
+                self.assertEqual(len(invocations), 1)
+                self.assertNotIn("shared-wiki", result.stdout)
 
     def test_ambiguous_context_waits_for_explicit_fallback_decision(self) -> None:
         stopped = self._run_cli(

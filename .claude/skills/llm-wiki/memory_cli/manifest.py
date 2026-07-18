@@ -24,6 +24,7 @@ from .contracts import (
     StoresConfig,
     TaskCategory,
 )
+from .routing import authorized_fallbacks
 
 
 ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{1,62}$")
@@ -554,7 +555,10 @@ def initial_route(
     route = [manifest.stores.project.collection]
     route.extend(
         fallback.collection
-        for fallback in manifest.fallbacks
-        if principal_role in fallback.allowed_roles and category in fallback.task_categories
+        for fallback in authorized_fallbacks(
+            manifest,
+            principal_role=principal_role,
+            task_category=category,
+        )
     )
     return tuple(route)

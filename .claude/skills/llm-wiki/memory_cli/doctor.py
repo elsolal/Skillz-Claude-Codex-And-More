@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from .contracts import MemoryManifest
+from .freshness import QMD_FRESHNESS_WARNING_SECONDS
 from .manifest import ManifestError, discover_manifest, load_manifest
 from .projection import (
     MANAGED_MARKER,
@@ -24,7 +25,6 @@ from .qmd_adapter import QmdInvocationError, QmdOutputError, inspect_qmd
 
 
 QMD_INSTALL_COMMAND = "bun install -g @tobilu/qmd"
-QMD_FRESHNESS_WARNING_SECONDS = 24 * 60 * 60
 
 
 Runner = Callable[..., subprocess.CompletedProcess[str]]
