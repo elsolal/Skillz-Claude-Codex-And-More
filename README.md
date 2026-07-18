@@ -564,19 +564,36 @@ The installer only adds QMD if it is missing. Existing MCP servers stay in place
 
 ### Local project memory pointers
 
-Project repos should not commit machine-specific memory paths. For shared teams, publish the memory vault repo and QMD collection name, then let each collaborator create local pointers:
+Project repos should not commit machine-specific memory paths. Shared metadata
+lives in `.agents/memory.yaml`; each collaborator maps that portable manifest to
+their machine with the memory CLI:
+
+```bash
+cd /path/to/project-repo
+memory configure --store "project=$OBSIDIAN_MEMORY_ROOT/Pleepole"
+```
+
+The command writes `.agents/memory.local.json`, `.claude/project-memory.md`, and
+`.agents/project-memory.md` with user-only permissions where supported. It also
+adds their worktree-relative paths to Git's local `info/exclude`. Missing entry
+pages produce a usable `degraded` result (exit `10`); unmanaged pointer content
+is preserved unless replacement is explicitly requested with
+`--replace-managed`.
+
+Absolute paths stay hidden from command output unless
+`--explain-local-paths` is passed. The local role defaults to `collaborator` and
+can be declared with `--role owner`; this declaration never grants filesystem,
+Git, or remote access.
+
+The historical `scripts/create-project-memory-pointer.sh` interface remains a
+compatibility wrapper. Its metadata options are deprecated because the portable
+manifest is now authoritative:
 
 ```bash
 scripts/create-project-memory-pointer.sh \
   --project-dir /path/to/project-repo \
-  --project-name project-repo \
-  --vault-path "$OBSIDIAN_MEMORY_ROOT/Pleepole" \
-  --memory-repo https://github.com/Pleepole/pleepole-memory.git \
-  --qmd-collection pleepole-wiki \
-  --start-page wiki/index.md
+  --vault-path "$OBSIDIAN_MEMORY_ROOT/Pleepole"
 ```
-
-The helper writes `.claude/project-memory.md` and `.agents/project-memory.md`, then protects them with `.git/info/exclude`. These files can contain absolute local paths and must stay out of commits.
 
 ### Open the vault in Obsidian
 

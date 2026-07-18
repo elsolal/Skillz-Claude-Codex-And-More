@@ -8,8 +8,9 @@ from collections.abc import Sequence
 from typing import Any
 
 from . import __version__
-from .contracts import PUBLIC_SCHEMA_VERSION, MemoryManifest
-from .manifest import ManifestError, load_nearest_manifest
+from .contracts import PUBLIC_SCHEMA_VERSION, MemoryManifest, PrincipalRole
+from .manifest import ManifestError, discover_manifest, load_manifest, load_nearest_manifest
+from .projection import ConfigureOutcome, ProjectionError, configure_projection
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -28,6 +29,40 @@ def build_parser() -> argparse.ArgumentParser:
         help="Discover and validate the nearest portable memory manifest.",
     )
     manifest_parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit the stable machine-readable result envelope.",
+    )
+    configure_parser = commands.add_parser(
+        "configure",
+        help="Create the ignored local projection and project-memory pointers.",
+    )
+    configure_parser.add_argument(
+        "--store",
+        action="append",
+        required=True,
+        dest="stores",
+        metavar="NAME=PATH",
+        help="Map a logical store to an absolute local root (V1 requires project=PATH).",
+    )
+    configure_parser.add_argument(
+        "--role",
+        choices=[role.value for role in PrincipalRole],
+        default=PrincipalRole.COLLABORATOR.value,
+        help="Declare the local principal role; this never grants access (default: collaborator).",
+    )
+    configure_parser.add_argument(
+        "--replace-managed",
+        action="store_true",
+        help="Explicitly replace divergent project-memory pointers with managed content.",
+    )
+    configure_parser.add_argument(
+        "--explain-local-paths",
+        action="store_true",
+        help="Include absolute machine-local paths in this local command output.",
+    )
+    configure_parser.add_argument(
         "--json",
         action="store_true",
         dest="json_output",
@@ -120,6 +155,70 @@ def _render_error_human(error: ManifestError) -> None:
     print(f"Correction: {error.correction}")
 
 
+def _configure_data(
+    outcome: ConfigureOutcome,
+    *,
+    explain_local_paths: bool,
+) -> dict[str, Any]:
+    data: dict[str, Any] = {
+        "principal": {"role": outcome.projection.principal_role.value},
+        "configured_stores": list(outcome.projection.stores),
+        "local_files": [
+            path.relative_to(outcome.project_root).as_posix()
+            for path in outcome.local_files
+        ],
+        "changed_files": [
+            path.relative_to(outcome.project_root).as_posix()
+            for path in outcome.changed_files
+        ],
+    }
+    if explain_local_paths:
+        data["local_paths"] = {
+            "project_root": str(outcome.project_root),
+            "stores": {
+                name: str(store.root)
+                for name, store in outcome.projection.stores.items()
+            },
+            "files": [str(path) for path in outcome.local_files],
+        }
+    return data
+
+
+def _configure_warnings(outcome: ConfigureOutcome) -> list[dict[str, Any]]:
+    if not outcome.missing_entry_pages:
+        return []
+    return [
+        {
+            "code": "missing_entry_pages",
+            "message": "The local projection is usable, but declared entry pages are missing.",
+            "paths": [str(path) for path in outcome.missing_entry_pages],
+            "correction": "Restore the missing pages in the project store or update the shared manifest through review.",
+        }
+    ]
+
+
+def _render_configure_human(outcome: ConfigureOutcome, *, explain_local_paths: bool) -> None:
+    status = "degraded" if outcome.missing_entry_pages else "ok"
+    print(f"[{status}] projection     .agents/memory.local.json")
+    print(f"[ok] principal      {outcome.projection.principal_role.value}")
+    print("[ok] local files    ignored by Git")
+    if outcome.missing_entry_pages:
+        print(f"[degraded] pages    {len(outcome.missing_entry_pages)} declared page(s) missing")
+        for path in outcome.missing_entry_pages:
+            print(f"  - {path}")
+    if explain_local_paths:
+        print(f"[local] project     {outcome.project_root}")
+        for name, store in outcome.projection.stores.items():
+            print(f"[local] {name:<11} {store.root}")
+
+
+def _render_projection_error_human(error: ProjectionError | ManifestError) -> None:
+    print(f"[blocked] configure · {error.code}")
+    print(f"Field: {error.field}")
+    print(error.message)
+    print(f"Correction: {error.correction}")
+
+
 def _run_manifest(*, json_output: bool) -> int:
     try:
         manifest = load_nearest_manifest()
@@ -152,10 +251,69 @@ def _run_manifest(*, json_output: bool) -> int:
     return 0
 
 
+def _run_configure(
+    *,
+    stores: list[str],
+    role: str,
+    replace_managed: bool,
+    explain_local_paths: bool,
+    json_output: bool,
+) -> int:
+    project_id: str | None = None
+    try:
+        manifest_path = discover_manifest()
+        manifest = load_manifest(manifest_path)
+        project_id = manifest.project.id
+        outcome = configure_projection(
+            manifest=manifest,
+            manifest_path=manifest_path,
+            store_assignments=stores,
+            principal_role=PrincipalRole(role),
+            replace_managed=replace_managed,
+        )
+    except (ManifestError, ProjectionError) as error:
+        if json_output:
+            _render_json(
+                _envelope(
+                    command="configure",
+                    status="blocked",
+                    project_id=project_id,
+                    data={},
+                    errors=[error.as_dict()],
+                )
+            )
+        else:
+            _render_projection_error_human(error)
+        return error.exit_code
+
+    warnings = _configure_warnings(outcome)
+    if json_output:
+        _render_json(
+            _envelope(
+                command="configure",
+                status=outcome.status,
+                project_id=manifest.project.id,
+                data=_configure_data(outcome, explain_local_paths=explain_local_paths),
+                warnings=warnings,
+            )
+        )
+    else:
+        _render_configure_human(outcome, explain_local_paths=explain_local_paths)
+    return outcome.exit_code
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     arguments = parser.parse_args(argv)
     if arguments.command == "manifest":
         return _run_manifest(json_output=arguments.json_output)
+    if arguments.command == "configure":
+        return _run_configure(
+            stores=arguments.stores,
+            role=arguments.role,
+            replace_managed=arguments.replace_managed,
+            explain_local_paths=arguments.explain_local_paths,
+            json_output=arguments.json_output,
+        )
     parser.print_help()
     return 0

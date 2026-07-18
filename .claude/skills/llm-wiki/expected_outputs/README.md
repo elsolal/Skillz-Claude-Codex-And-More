@@ -15,6 +15,8 @@ or to verify the scripts behave correctly end-to-end.
 | `export_marp.py --json` | `export_marp.json` |
 | `memory manifest --json` | `memory/manifest-valid.json` |
 | invalid `memory manifest --json` | `memory/manifest-invalid-version.json` |
+| `memory configure --json` | `memory/configure-ready.json` |
+| degraded `memory configure --json` | `memory/configure-degraded.json` |
 
 These were captured against a small 2-page example vault (one concept page and
 one source page, both with proper frontmatter). Paths have been anonymized to

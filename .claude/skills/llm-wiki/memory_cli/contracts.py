@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 from types import MappingProxyType
 from typing import Mapping
 
@@ -117,4 +117,29 @@ class MemoryManifest:
             budgets=MappingProxyType(dict(budgets)),
             policy=policy,
             golden=golden,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class LocalStoreConfig:
+    root: Path
+
+
+@dataclass(frozen=True, slots=True)
+class MemoryProjection:
+    schema_version: int
+    principal_role: PrincipalRole
+    stores: Mapping[str, LocalStoreConfig]
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        principal_role: PrincipalRole,
+        stores: dict[str, LocalStoreConfig],
+    ) -> "MemoryProjection":
+        return cls(
+            schema_version=PUBLIC_SCHEMA_VERSION,
+            principal_role=principal_role,
+            stores=MappingProxyType(dict(stores)),
         )

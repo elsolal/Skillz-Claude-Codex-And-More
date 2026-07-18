@@ -123,11 +123,11 @@ def _reject_json_constant(value: str) -> NoReturn:
 def _parse_json(path: Path) -> dict[str, Any]:
     try:
         raw = path.read_text(encoding="utf-8")
-    except OSError as exc:
+    except OSError:
         _error(
             code="manifest_unreadable",
-            field=str(path),
-            message=f"The manifest cannot be read: {exc}.",
+            field=".agents/memory.yaml",
+            message="The manifest cannot be read safely.",
             correction="Check that the manifest exists and is readable by the current user.",
         )
     try:

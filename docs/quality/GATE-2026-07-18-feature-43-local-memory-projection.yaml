@@ -1,0 +1,50 @@
+# Quality gate for STORY-003 / GitHub issue #43.
+verdict: PASS
+niveau: 2
+tours: 3
+base: main
+head: fb11ab9
+diff_hash: "6d6df881a81b5a44e749cef451d7ad86c18452786bfbbd6f1e78398c43250094"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "vert (3/3 tours, exit 0)"
+    tests:
+      cmd: "bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "vert (3/3 tours; installer PASS; 25 -> 28 tests Python OK apres corrections)"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: "vert (exit 0)"
+  opinion:
+    findings:
+      total: 1
+      confirmes: 1
+      refutes: 0
+      corriges: 1
+      restants: 0
+    registre:
+      - id: ".claude/skills/llm-wiki/memory_cli/projection.py:security:local-path-redaction"
+        severite: P1
+        statut: corrige
+        resume: "des erreurs de configuration pouvaient recopier des chemins absolus sans --explain-local-paths"
+        preuve: "affectations store, wrapper legacy et lecture manifeste rendent des erreurs generiques; regressions de redaction vertes"
+    lentilles:
+      correctness_security: "aucun P0/P1 restant; traversal par symlink bloque, collisions preflightees, chemins locaux masques par defaut"
+      readability: "aucun P0/P1; contrats immuables, orchestration CLI et mutations locales restent separes"
+      performance: "aucun P0/P1; travail borne a trois petits fichiers, aux pages declarees et a deux resolutions Git locales"
+      thermo_nuclear: "approve; projection.py reste cohesif a 434 lignes, aucun fichier ne franchit 1000 lignes et aucune abstraction superflue"
+acceptation:
+  AC1: "vert - configure cree projection et deux pointeurs depuis un manifeste valide et une racine accessible"
+  AC2: "vert - les trois fichiers sont ajoutes une fois a info/exclude et git status reste propre en repo simple et linked worktree"
+  AC3: "vert - une seconde execution conserve octets, mtimes et regles Git sans doublon"
+  AC4: "vert - un pointeur non gere est preserve avec exit 30, puis remplace uniquement avec --replace-managed"
+  AC5: "vert - les pages absentes produisent les fichiers, exit 10, statut degraded et chemins relatifs uniquement"
+decisions_prises_en_ton_nom:
+  - "Le gate a durci l'erreur manifest_unreadable existante afin qu'elle ne revele plus de chemin absolu via memory configure."
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no long-running runtime application surface; subprocess CLI contract tests provide the executable proof"
+  - "no real pilot .agents/memory.yaml committed in this story; pilot activation remains outside issue #43"

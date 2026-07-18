@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "command": "configure",
+  "status": "ready",
+  "project_id": "skillz-claude",
+  "event_id": null,
+  "data": {
+    "principal": {"role": "collaborator"},
+    "configured_stores": ["project"],
+    "local_files": [
+      ".agents/memory.local.json",
+      ".claude/project-memory.md",
+      ".agents/project-memory.md"
+    ],
+    "changed_files": [
+      ".agents/memory.local.json",
+      ".claude/project-memory.md",
+      ".agents/project-memory.md"
+    ]
+  },
+  "warnings": [],
+  "errors": []
+}
