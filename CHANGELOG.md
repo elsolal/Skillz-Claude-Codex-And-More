@@ -4,6 +4,31 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## [Unreleased] - 2026-07-18
 
+**Local memory projection and managed pointers**
+
+### Added
+- `memory configure` with stable human and JSON results, explicit local roles, path redaction and `ready` / `degraded` / `blocked` exit semantics.
+- Atomic `.agents/memory.local.json` generation plus managed Claude and generic-agent project-memory pointers.
+- Git-local exclusions that keep machine-specific files out of commits in both standard repositories and linked worktrees.
+- Contract, integration, security and idempotence tests with versioned `ready` and `degraded` output fixtures.
+
+### Changed
+- Portable memory CLI runtime version advanced to `0.3.0`.
+- `scripts/create-project-memory-pointer.sh` now acts as a compatibility wrapper around the canonical Python command.
+- Root and `llm-wiki` documentation now describe portable-manifest activation, local roles and the historical-wrapper migration.
+
+### Fixed
+- Unmanaged pointers are preserved unless replacement is explicitly requested with `--replace-managed`.
+- Store, wrapper and manifest errors no longer reveal absolute local paths without `--explain-local-paths`.
+- Entry-page symlinks that escape the configured vault root are rejected before any local projection is written.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — installer PASS, 28 tests Python OK
+- Three-round level-2 quality gate: PASS
+
+## [Unreleased] - 2026-07-18
+
 **Portable memory manifest V1**
 
 ### Added
