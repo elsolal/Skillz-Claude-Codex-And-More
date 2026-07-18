@@ -131,9 +131,10 @@ memory doctor --json
 `doctor` is local, read-only, and network-free by default. A complete activation
 returns `ready`/`0` and prints the manifest's `golden.start_question`. Existing
 V1 manifests without that backward-compatible field remain valid, but doctor
-returns `degraded`/`10` with the exact addition required. Missing QMD, an unknown
-collection, or an index older than 24 hours also remains degraded while
-`minimal` and `project` can use the declared entry pages. A missing required
+returns `degraded`/`10` with the exact addition required. Missing QMD and unknown
+or empty collections are degraded; an index older than 24 hours or its entry
+pages is degraded too. The `minimal` and `project` modes can still use the
+declared entry pages. A missing required
 entry page, invalid projection, tracked local pointer, or inaccessible store is
 `blocked` with its documented non-zero exit code.
 

@@ -149,9 +149,10 @@ class DoctorCliContractTests(unittest.TestCase):
         root: Path,
         *,
         collection: str = "elsolal-wiki",
-        age: str = "3h ago",
+        age: str = "just now",
         version: str = "0.9.0",
         malformed_status: bool = False,
+        files: int = 2,
     ) -> tuple[Path, Path]:
         binary_dir = root / "bin"
         binary_dir.mkdir()
@@ -165,7 +166,7 @@ class DoctorCliContractTests(unittest.TestCase):
                 "    echo 'Collections'\n"
                 f"    echo '  {collection} (qmd://{collection}/)'\n"
                 "    echo '    Pattern:  **/*.md'\n"
-                f"    echo '    Files:    2 (updated {age})'\n"
+                f"    echo '    Files:    {files} (updated {age})'\n"
             )
         )
         binary.write_text(
@@ -345,6 +346,26 @@ class DoctorCliContractTests(unittest.TestCase):
 
                 self.assertEqual(result.returncode, 10, result.stderr)
                 self.assertEqual(output["warnings"][0]["code"], "qmd_status_unavailable")
+
+    def test_empty_collection_or_index_older_than_entry_pages_is_degraded(self) -> None:
+        temp_dir, repo, _ = self.make_configured_project()
+        self.addCleanup(temp_dir.cleanup)
+        binary_dir, _ = self.make_qmd(Path(temp_dir.name), files=0)
+
+        empty = self.run_cli(repo, "--json", path_prefix=binary_dir)
+        empty_output = json.loads(empty.stdout)
+
+        self.assertEqual(empty.returncode, 10, empty.stderr)
+        self.assertEqual(empty_output["warnings"][0]["code"], "qmd_collection_empty")
+
+        temp_dir_2, repo_2, _ = self.make_configured_project()
+        self.addCleanup(temp_dir_2.cleanup)
+        binary_dir_2, _ = self.make_qmd(Path(temp_dir_2.name), age="1h ago")
+        behind_pages = self.run_cli(repo_2, "--json", path_prefix=binary_dir_2)
+        behind_pages_output = json.loads(behind_pages.stdout)
+
+        self.assertEqual(behind_pages.returncode, 10, behind_pages.stderr)
+        self.assertEqual(behind_pages_output["warnings"][0]["code"], "qmd_index_stale")
 
     def test_missing_start_question_is_backward_compatible_but_degraded(self) -> None:
         temp_dir, repo, _ = self.make_configured_project()

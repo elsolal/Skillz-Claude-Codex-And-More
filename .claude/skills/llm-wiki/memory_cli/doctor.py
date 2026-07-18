@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -228,8 +229,9 @@ def _check_git_local_files(
 def _check_entry_pages(
     manifest: MemoryManifest,
     store_root: Path,
-) -> tuple[DoctorCheck, dict[str, Any] | None]:
+) -> tuple[DoctorCheck, dict[str, Any] | None, float | None]:
     missing: list[str] = []
+    latest_mtime = 0.0
     for entry_page in manifest.stores.project.entry_pages:
         candidate = store_root.joinpath(*entry_page.parts)
         try:
@@ -251,6 +253,7 @@ def _check_entry_pages(
                     "message": "An entry page escapes or cannot be resolved inside the project store.",
                     "correction": "Repair the declared entry page or its symlink, then retry.",
                 },
+                None,
             )
         if resolved.exists() and not os.access(resolved, os.R_OK):
             return (
@@ -265,9 +268,28 @@ def _check_entry_pages(
                     "message": "A required entry page cannot be read by the current user.",
                     "correction": "Restore read access to the declared entry page, then retry.",
                 },
+                None,
             )
         if not resolved.is_file():
             missing.append(entry_page.as_posix())
+            continue
+        try:
+            latest_mtime = max(latest_mtime, resolved.stat().st_mtime)
+        except OSError:
+            return (
+                DoctorCheck(
+                    id="entry_pages",
+                    status="blocked",
+                    message="A required entry page cannot be inspected safely.",
+                    correction="Restore access to the declared entry page, then retry.",
+                ),
+                {
+                    "code": "entry_page_access_denied",
+                    "message": "A required entry page cannot be inspected safely.",
+                    "correction": "Restore access to the declared entry page, then retry.",
+                },
+                None,
+            )
     if missing:
         return (
             DoctorCheck(
@@ -288,6 +310,7 @@ def _check_entry_pages(
                     "through review."
                 ),
             },
+            None,
         )
     return (
         DoctorCheck(
@@ -299,6 +322,7 @@ def _check_entry_pages(
             ),
         ),
         None,
+        latest_mtime,
     )
 
 
@@ -313,6 +337,7 @@ class QmdDiagnostic:
 def _diagnose_qmd(
     manifest: MemoryManifest,
     *,
+    latest_entry_page_mtime: float,
     runner: Runner,
     timeout_seconds: float,
 ) -> QmdDiagnostic:
@@ -403,12 +428,44 @@ def _diagnose_qmd(
             next_actions=(correction,),
         )
 
+    if collection.files == 0:
+        correction = "qmd update"
+        return QmdDiagnostic(
+            checks=(
+                DoctorCheck(
+                    "qmd",
+                    "degraded",
+                    "The declared QMD collection contains no indexed files.",
+                    correction,
+                ),
+                DoctorCheck(
+                    "freshness",
+                    "degraded",
+                    "QMD freshness is unavailable for an empty collection.",
+                ),
+            ),
+            ready=False,
+            warnings=(
+                {
+                    "code": "qmd_collection_empty",
+                    "message": "The declared QMD collection contains no indexed files.",
+                    "correction": correction,
+                },
+            ),
+            next_actions=(correction, "memory doctor"),
+        )
+
     qmd_check = DoctorCheck(
         "qmd",
         "ready",
         f"QMD 0.9.x exposes the declared collection with {collection.files} indexed file(s).",
     )
-    if collection.age_seconds <= QMD_FRESHNESS_WARNING_SECONDS:
+    indexed_at = time.time() - collection.age_seconds
+    index_predates_pages = latest_entry_page_mtime > indexed_at + 1.0
+    if (
+        collection.age_seconds <= QMD_FRESHNESS_WARNING_SECONDS
+        and not index_predates_pages
+    ):
         return QmdDiagnostic(
             checks=(
                 qmd_check,
@@ -426,7 +483,7 @@ def _diagnose_qmd(
             DoctorCheck(
                 "freshness",
                 "degraded",
-                "The local QMD collection is older than 24 hours.",
+                "The local QMD collection is stale relative to its age or entry pages.",
                 correction,
             ),
         ),
@@ -434,7 +491,7 @@ def _diagnose_qmd(
         warnings=(
             {
                 "code": "qmd_index_stale",
-                "message": "The local QMD collection is older than 24 hours.",
+                "message": "The local QMD collection is stale relative to its age or entry pages.",
                 "correction": correction,
             },
         ),
@@ -572,7 +629,7 @@ def run_doctor(
             next_action=git_error["correction"],
         )
 
-    pages_check, pages_error = _check_entry_pages(
+    pages_check, pages_error, latest_entry_page_mtime = _check_entry_pages(
         manifest,
         projection.stores["project"].root,
     )
@@ -587,8 +644,14 @@ def run_doctor(
             exit_code=exit_code,
             next_action=pages_error["correction"],
         )
+    assert latest_entry_page_mtime is not None
 
-    qmd = _diagnose_qmd(manifest, runner=runner, timeout_seconds=timeout_seconds)
+    qmd = _diagnose_qmd(
+        manifest,
+        latest_entry_page_mtime=latest_entry_page_mtime,
+        runner=runner,
+        timeout_seconds=timeout_seconds,
+    )
     checks.extend(qmd.checks)
     warnings.extend(qmd.warnings)
     next_actions.extend(qmd.next_actions)
