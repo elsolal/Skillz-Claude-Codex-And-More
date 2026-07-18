@@ -111,6 +111,15 @@ def _strict_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
+def _reject_json_constant(value: str) -> NoReturn:
+    _error(
+        code="invalid_json_constant",
+        field="manifest",
+        message=f'Non-standard JSON constant "{value}" is not allowed in manifest V1.',
+        correction="Replace NaN and Infinity with a finite JSON number or a documented null value.",
+    )
+
+
 def _parse_json(path: Path) -> dict[str, Any]:
     try:
         raw = path.read_text(encoding="utf-8")
@@ -122,7 +131,11 @@ def _parse_json(path: Path) -> dict[str, Any]:
             correction="Check that the manifest exists and is readable by the current user.",
         )
     try:
-        payload = json.loads(raw, object_pairs_hook=_strict_object)
+        payload = json.loads(
+            raw,
+            object_pairs_hook=_strict_object,
+            parse_constant=_reject_json_constant,
+        )
     except ManifestError:
         raise
     except (UnicodeError, json.JSONDecodeError) as exc:

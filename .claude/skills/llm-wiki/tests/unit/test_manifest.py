@@ -134,6 +134,17 @@ class ManifestContractTests(unittest.TestCase):
 
         self.assertEqual(raised.exception.code, "duplicate_key")
 
+    def test_rejects_non_standard_json_constants(self) -> None:
+        for constant in ("NaN", "Infinity", "-Infinity"):
+            with self.subTest(constant=constant), tempfile.TemporaryDirectory() as temp_dir:
+                path = Path(temp_dir) / "memory.yaml"
+                path.write_text(f'{{"schema_version": 1, "value": {constant}}}')
+                with self.assertRaises(ManifestError) as raised:
+                    load_manifest(path)
+
+            self.assertEqual(raised.exception.code, "invalid_json_constant")
+            self.assertIn("finite JSON number", raised.exception.correction)
+
     def test_unknown_schema_version_stops_before_route_decision(self) -> None:
         payload = self.load_payload()
         payload["schema_version"] = 99
