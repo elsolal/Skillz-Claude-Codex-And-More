@@ -68,6 +68,7 @@ class ManifestContractTests(unittest.TestCase):
         self.assertEqual(manifest.budgets[RetrievalMode.PROJECT].hard_tokens, 4000)
         self.assertEqual(manifest.policy.retention_days, 30)
         self.assertEqual(manifest.golden.visible_path.as_posix(), ".agents/memory/golden.json")
+        self.assertIsNone(manifest.golden.start_question)
         self.assertEqual(
             initial_route(manifest, role="owner", task_category="architecture"),
             ("elsolal-wiki", "shared-wiki"),
@@ -117,6 +118,20 @@ class ManifestContractTests(unittest.TestCase):
                     with self.assertRaises(ManifestError) as raised:
                         load_manifest(path)
                 self.assertIn(expected, raised.exception.correction)
+
+    def test_accepts_optional_start_question_and_rejects_multiline_content(self) -> None:
+        payload = self.load_payload()
+        payload["golden"]["start_question"] = "What should I know before this task?"  # type: ignore[index]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manifest = load_manifest(self.write_payload(Path(temp_dir), payload))
+        self.assertEqual(manifest.golden.start_question, "What should I know before this task?")
+
+        payload["golden"]["start_question"] = "line one\nline two"  # type: ignore[index]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = self.write_payload(Path(temp_dir), payload)
+            with self.assertRaises(ManifestError) as raised:
+                load_manifest(path)
+        self.assertEqual(raised.exception.code, "invalid_start_question")
 
     def test_rejects_free_yaml_with_v1_constraint(self) -> None:
         with self.assertRaises(ManifestError) as raised:

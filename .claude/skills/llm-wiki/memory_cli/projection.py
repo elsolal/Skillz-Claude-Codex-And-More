@@ -185,6 +185,118 @@ def _projection_payload(projection: MemoryProjection) -> dict[str, Any]:
     }
 
 
+def projection_paths(manifest_path: Path) -> tuple[Path, Path, Path, Path]:
+    """Return the project root and the three managed local projection paths."""
+
+    project_root = manifest_path.parent.parent.resolve()
+    return (
+        project_root,
+        project_root / ".agents" / "memory.local.json",
+        project_root / ".claude" / "project-memory.md",
+        project_root / ".agents" / "project-memory.md",
+    )
+
+
+def load_projection(manifest_path: Path) -> MemoryProjection:
+    """Read the generated local projection without mutating or leaking local paths."""
+
+    _, projection_path, _, _ = projection_paths(manifest_path)
+    try:
+        raw = projection_path.read_text(encoding="utf-8")
+    except OSError:
+        _error(
+            code="projection_unavailable",
+            field=".agents/memory.local.json",
+            message="The local memory projection is missing or cannot be read safely.",
+            correction="Run memory configure with the local project store, then retry.",
+        )
+
+    def strict_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("duplicate projection key")
+            result[key] = value
+        return result
+
+    def reject_constant(_: str) -> NoReturn:
+        raise ValueError("non-standard projection constant")
+
+    try:
+        payload = json.loads(
+            raw,
+            object_pairs_hook=strict_object,
+            parse_constant=reject_constant,
+        )
+    except (json.JSONDecodeError, ValueError):
+        _error(
+            code="projection_invalid",
+            field=".agents/memory.local.json",
+            message="The local memory projection is not valid JSON.",
+            correction="Run memory configure again to regenerate the managed projection.",
+        )
+    if not isinstance(payload, dict) or set(payload) != {"schema_version", "principal", "stores"}:
+        _error(
+            code="projection_invalid",
+            field=".agents/memory.local.json",
+            message="The local memory projection does not match schema V1.",
+            correction="Run memory configure again to regenerate the managed projection.",
+        )
+    if payload["schema_version"] != 1:
+        _error(
+            code="projection_invalid",
+            field="schema_version",
+            message="The local memory projection uses an unsupported schema version.",
+            correction="Run memory configure again with the current skillz-memory CLI.",
+        )
+    principal = payload["principal"]
+    stores = payload["stores"]
+    if (
+        not isinstance(principal, dict)
+        or set(principal) != {"role"}
+        or principal["role"] not in {role.value for role in PrincipalRole}
+        or not isinstance(stores, dict)
+        or set(stores) != {"project"}
+        or not isinstance(stores["project"], dict)
+        or set(stores["project"]) != {"root"}
+        or not isinstance(stores["project"]["root"], str)
+    ):
+        _error(
+            code="projection_invalid",
+            field=".agents/memory.local.json",
+            message="The local memory projection contains invalid principal or store data.",
+            correction="Run memory configure again to regenerate the managed projection.",
+        )
+    root = Path(stores["project"]["root"])
+    if not root.is_absolute():
+        _error(
+            code="projection_invalid",
+            field="stores.project.root",
+            message="The configured local store root is not absolute.",
+            correction="Run memory configure again with an absolute project store path.",
+        )
+    try:
+        resolved_root = root.resolve(strict=True)
+    except (OSError, RuntimeError):
+        _error(
+            code="store_access_denied",
+            field="stores.project.root",
+            message="The configured local store is missing or cannot be resolved.",
+            correction="Restore access to the configured vault or run memory configure again.",
+        )
+    if not resolved_root.is_dir() or not os.access(resolved_root, os.R_OK | os.X_OK):
+        _error(
+            code="store_access_denied",
+            field="stores.project.root",
+            message="The configured local store is not readable by the current user.",
+            correction="Restore read and traversal access to the configured vault.",
+        )
+    return MemoryProjection.create(
+        principal_role=PrincipalRole(principal["role"]),
+        stores={"project": LocalStoreConfig(root=resolved_root)},
+    )
+
+
 def _render_claude_pointer(
     manifest: MemoryManifest,
     projection: MemoryProjection,
@@ -391,14 +503,13 @@ def configure_projection(
     """Validate and write the local projection as one preflighted operation."""
 
     store_roots = parse_store_arguments(store_assignments)
-    project_root = manifest_path.parent.parent.resolve()
+    project_root, projection_path, claude_pointer, agents_pointer = projection_paths(
+        manifest_path
+    )
     projection = MemoryProjection.create(
         principal_role=principal_role,
         stores={name: LocalStoreConfig(root=root) for name, root in store_roots.items()},
     )
-    projection_path = project_root / ".agents" / "memory.local.json"
-    claude_pointer = project_root / ".claude" / "project-memory.md"
-    agents_pointer = project_root / ".agents" / "project-memory.md"
     local_files = (projection_path, claude_pointer, agents_pointer)
 
     projection_content = json.dumps(

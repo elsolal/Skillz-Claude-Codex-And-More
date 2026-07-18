@@ -85,6 +85,7 @@ class PolicyConfig:
 class GoldenPaths:
     visible_path: PurePosixPath
     quality_rubric: PurePosixPath
+    start_question: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

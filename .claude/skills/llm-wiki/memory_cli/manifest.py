@@ -216,6 +216,24 @@ def _string(value: Any, field: str) -> str:
     return value
 
 
+def _start_question(value: Any) -> str:
+    question = _string(value, "golden.start_question")
+    if len(question) > 500 or any(ord(character) < 32 for character in question):
+        _error(
+            code="invalid_start_question",
+            field="golden.start_question",
+            message=(
+                'Field "golden.start_question" must be a single-line question '
+                "of at most 500 characters."
+            ),
+            correction=(
+                "Use one concise, single-line golden start question without "
+                "control characters."
+            ),
+        )
+    return question
+
+
 def _identifier(value: Any, field: str) -> str:
     identifier = _string(value, field)
     if not ID_PATTERN.fullmatch(identifier):
@@ -460,10 +478,20 @@ def _build_manifest(payload: dict[str, Any]) -> MemoryManifest:
     )
 
     golden_data = _object(payload["golden"], "golden")
-    _exact_keys(golden_data, "golden", required={"visible_path", "quality_rubric"})
+    _exact_keys(
+        golden_data,
+        "golden",
+        required={"visible_path", "quality_rubric"},
+        optional={"start_question"},
+    )
     golden = GoldenPaths(
         visible_path=_relative_path(golden_data["visible_path"], "golden.visible_path"),
         quality_rubric=_relative_path(golden_data["quality_rubric"], "golden.quality_rubric"),
+        start_question=(
+            _start_question(golden_data["start_question"])
+            if "start_question" in golden_data
+            else None
+        ),
     )
 
     return MemoryManifest.create(
