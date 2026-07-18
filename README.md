@@ -52,6 +52,11 @@ free or already points to the Skillz-Claude runtime. An existing third-party
 `memory` command is preserved and the installer tells you to use
 `skillz-memory` instead.
 
+After a project has a portable manifest and local projection, run `memory
+doctor` to verify pages, Git-local exclusions, QMD 0.9.x and local freshness.
+The command is read-only and offline by default; `--network` and the narrowly
+scoped `--fix` are always explicit. Use `--json` for automation.
+
 The CLI requires Python 3.10+ and uses the standard library only. The installer
 does not create a virtual environment or download QMD, a model, or another
 dependency. If `~/.local/bin` is not already available from your shell, add:
@@ -571,6 +576,7 @@ their machine with the memory CLI:
 ```bash
 cd /path/to/project-repo
 memory configure --store "project=$OBSIDIAN_MEMORY_ROOT/Pleepole"
+memory doctor
 ```
 
 The command writes `.agents/memory.local.json`, `.claude/project-memory.md`, and
@@ -579,6 +585,14 @@ adds their worktree-relative paths to Git's local `info/exclude`. Missing entry
 pages produce a usable `degraded` result (exit `10`); unmanaged pointer content
 is preserved unless replacement is explicitly requested with
 `--replace-managed`.
+
+`memory doctor` reports `ready`, `degraded`, or `blocked`, a copyable next
+action, and the manifest's golden start question. QMD absence stays usable in
+bounded `minimal`/`project` modes; missing required entry pages block activation.
+Run `memory doctor --explain` for per-check details or `memory doctor --json` for
+the stable machine-readable envelope. Network access occurs only with
+`memory doctor --network`; safe managed-file repair occurs only with
+`memory doctor --fix`.
 
 Absolute paths stay hidden from command output unless
 `--explain-local-paths` is passed. The local role defaults to `collaborator` and

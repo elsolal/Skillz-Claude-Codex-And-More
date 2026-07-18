@@ -75,7 +75,8 @@ standard library and prevents partial interpretation of hostile input.
   },
   "golden": {
     "visible_path": ".agents/memory/golden.json",
-    "quality_rubric": ".agents/memory/quality-rubric.json"
+    "quality_rubric": ".agents/memory/quality-rubric.json",
+    "start_question": "What should I know before working on this project?"
   }
 }
 ```
@@ -118,6 +119,36 @@ file. Re-running the same configuration does not rewrite identical files.
 Missing declared entry pages create the projection but return `degraded` with
 exit code `10`. Absolute paths remain absent from output unless
 `--explain-local-paths` is explicitly requested.
+
+Diagnose the resulting activation before starting work:
+
+```bash
+memory doctor
+memory doctor --explain
+memory doctor --json
+```
+
+`doctor` is local, read-only, and network-free by default. A complete activation
+returns `ready`/`0` and prints the manifest's `golden.start_question`. Existing
+V1 manifests without that backward-compatible field remain valid, but doctor
+returns `degraded`/`10` with the exact addition required. Missing QMD, an unknown
+collection, or an index older than 24 hours also remains degraded while
+`minimal` and `project` can use the declared entry pages. A missing required
+entry page, invalid projection, tracked local pointer, or inaccessible store is
+`blocked` with its documented non-zero exit code.
+
+Network and repair behavior always require explicit options:
+
+```bash
+memory doctor --network  # git ls-remote only; never fetches or updates refs
+memory doctor --fix      # managed projection files and Git exclusions only
+```
+
+`--fix` never edits wiki pages, untracks files, or invokes `qmd update`/`embed`.
+The main exit codes are `0` ready, `10` degraded but usable, `30` invalid local
+activation, `31` missing required dependency, and `32` denied local/remote
+access. Human, non-TTY, `NO_COLOR=1`, and JSON modes expose the same functional
+status without relying on color or prompts.
 
 ```bash
 # 1. Initialize a vault

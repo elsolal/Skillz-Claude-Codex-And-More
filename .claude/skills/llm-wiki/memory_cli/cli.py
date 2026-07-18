@@ -9,6 +9,7 @@ from typing import Any
 
 from . import __version__
 from .contracts import PUBLIC_SCHEMA_VERSION, MemoryManifest, PrincipalRole
+from .doctor import DoctorOutcome, run_doctor
 from .manifest import ManifestError, discover_manifest, load_manifest, load_nearest_manifest
 from .projection import ConfigureOutcome, ProjectionError, configure_projection
 
@@ -63,6 +64,31 @@ def build_parser() -> argparse.ArgumentParser:
         help="Include absolute machine-local paths in this local command output.",
     )
     configure_parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit the stable machine-readable result envelope.",
+    )
+    doctor_parser = commands.add_parser(
+        "doctor",
+        help="Diagnose local memory activation without mutating it by default.",
+    )
+    doctor_parser.add_argument(
+        "--network",
+        action="store_true",
+        help="Explicitly verify access to the declared memory remote without fetching.",
+    )
+    doctor_parser.add_argument(
+        "--fix",
+        action="store_true",
+        help="Repair only managed local projection files and Git exclusions.",
+    )
+    doctor_parser.add_argument(
+        "--explain",
+        action="store_true",
+        help="Show detailed check explanations and available capabilities.",
+    )
+    doctor_parser.add_argument(
         "--json",
         action="store_true",
         dest="json_output",
@@ -132,6 +158,11 @@ def _manifest_data(manifest: MemoryManifest) -> dict[str, Any]:
         "golden": {
             "visible_path": str(manifest.golden.visible_path),
             "quality_rubric": str(manifest.golden.quality_rubric),
+            **(
+                {"start_question": manifest.golden.start_question}
+                if manifest.golden.start_question is not None
+                else {}
+            ),
         },
     }
 
@@ -302,6 +333,64 @@ def _run_configure(
     return outcome.exit_code
 
 
+def _render_doctor_human(outcome: DoctorOutcome, *, explain: bool) -> None:
+    project_name = outcome.project_name or "Unknown project"
+    print(f"Memory Doctor · {project_name}")
+    ready_count = sum(check.status == "ready" for check in outcome.checks)
+    print(
+        f"Status: {outcome.status.upper()} · "
+        f"{ready_count}/{len(outcome.checks)} checks ready"
+    )
+    print()
+    labels = {"ready": "ok", "degraded": "!!", "blocked": "xx"}
+    for check in outcome.checks:
+        print(f"[{labels.get(check.status, '--')}] {check.id:<13} {check.message}")
+        if explain and check.correction:
+            print(f"    Correction: {check.correction}")
+    if outcome.start_question is not None:
+        print()
+        print("Start question")
+        print(f"  {outcome.start_question}")
+    if explain:
+        print()
+        print(f"Available modes: {', '.join(outcome.available_modes) or 'none'}")
+        if outcome.unavailable_modes:
+            print(f"Unavailable modes: {', '.join(outcome.unavailable_modes)}")
+    if outcome.next_actions:
+        print()
+        print("Next action" if len(outcome.next_actions) == 1 else "Next actions")
+        for action in outcome.next_actions:
+            print(f"  {action}")
+    if not explain and outcome.status != "ready":
+        print()
+        print("Details: memory doctor --explain")
+    print("Machine output: memory doctor --json")
+
+
+def _run_doctor_command(
+    *,
+    network: bool,
+    fix: bool,
+    explain: bool,
+    json_output: bool,
+) -> int:
+    outcome = run_doctor(network=network, fix=fix)
+    if json_output:
+        _render_json(
+            _envelope(
+                command="doctor",
+                status=outcome.status,
+                project_id=outcome.project_id,
+                data=outcome.data(),
+                warnings=list(outcome.warnings),
+                errors=list(outcome.errors),
+            )
+        )
+    else:
+        _render_doctor_human(outcome, explain=explain)
+    return outcome.exit_code
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     arguments = parser.parse_args(argv)
@@ -313,6 +402,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             role=arguments.role,
             replace_managed=arguments.replace_managed,
             explain_local_paths=arguments.explain_local_paths,
+            json_output=arguments.json_output,
+        )
+    if arguments.command == "doctor":
+        return _run_doctor_command(
+            network=arguments.network,
+            fix=arguments.fix,
+            explain=arguments.explain,
             json_output=arguments.json_output,
         )
     parser.print_help()
