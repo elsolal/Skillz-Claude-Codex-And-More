@@ -97,6 +97,28 @@ Validation failures use exit code `30`, identify the exact field, and include a
 copyable correction. `--json` always retains the public result envelope schema,
 even when the manifest's own `schema_version` is unsupported.
 
+Map the portable project store to an accessible local vault and generate the
+ignored agent pointers:
+
+```bash
+memory configure --store "project=/absolute/path/to/vault"
+memory configure --store "project=/absolute/path/to/vault" --role owner
+memory configure --store "project=/absolute/path/to/vault" --json
+```
+
+The default role is `collaborator`. A local role is routing context only: it
+never grants filesystem, Git, or remote access. The command creates
+`.agents/memory.local.json`, `.claude/project-memory.md`, and
+`.agents/project-memory.md` with mode `0600` where supported, then protects all
+three through Git's local `info/exclude`, including in linked worktrees.
+
+Generated pointers carry a managed marker. Divergent unmanaged content is
+preserved by default; use `--replace-managed` only after reviewing the local
+file. Re-running the same configuration does not rewrite identical files.
+Missing declared entry pages create the projection but return `degraded` with
+exit code `10`. Absolute paths remain absent from output unless
+`--explain-local-paths` is explicitly requested.
+
 ```bash
 # 1. Initialize a vault
 python scripts/init_vault.py --path ~/vaults/research --topic "LLM interpretability" --tool all
