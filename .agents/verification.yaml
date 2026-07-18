@@ -3,9 +3,9 @@ stack: mixed
 config_fingerprint: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 commands:
   lint: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
-  test: "bash tests/test-install-memory-cli.sh"
+  test: "bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
 testability:
-  harness: shell
+  harness: shell+unittest
   e2e: none
   runtime_verify: none
 absents:
