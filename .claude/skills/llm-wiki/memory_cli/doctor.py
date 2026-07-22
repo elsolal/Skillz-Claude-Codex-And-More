@@ -578,7 +578,10 @@ def run_doctor(
             configure_projection(
                 manifest=manifest,
                 manifest_path=manifest_path,
-                store_assignments=[f"project={projection.stores['project'].root}"],
+                store_assignments=[
+                    f"{name}={store.root}"
+                    for name, store in projection.stores.items()
+                ],
                 principal_role=projection.principal_role,
                 replace_managed=False,
             )

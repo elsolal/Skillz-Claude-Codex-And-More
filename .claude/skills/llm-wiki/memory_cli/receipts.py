@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from typing import Any
 
 from .contracts import (
+    AssemblyStatus,
+    ContextAssembly,
     RetrievalHit,
     RetrievalMode,
     SufficiencyDecision,
@@ -33,6 +35,7 @@ class ContextOutcome:
     fallback_reason_codes: tuple[SufficiencyReason, ...] = ()
     warnings: tuple[dict[str, Any], ...] = ()
     errors: tuple[dict[str, Any], ...] = ()
+    assembly: ContextAssembly | None = None
 
     def data(self) -> dict[str, Any]:
         retrieval: dict[str, Any] = {
@@ -64,7 +67,57 @@ class ContextOutcome:
         }
         if self.decision is not None:
             data["decision"] = _decision_data(self.decision)
+        if self.assembly is not None:
+            metadata = self.assembly.receipt_metadata()
+            data["context"] = {
+                "status": metadata["status"],
+                "estimator_version": metadata["estimator_version"],
+                "budget": {
+                    "target_tokens": metadata["target_tokens"],
+                    "hard_tokens": metadata["hard_tokens"],
+                },
+                "estimated_tokens": metadata["estimated_tokens"],
+                "remaining_target_tokens": metadata["remaining_target_tokens"],
+                "retrieved_count": metadata["retrieved_count"],
+                "read_count": metadata["read_count"],
+                "hard_cap_exceeded": metadata["hard_cap_exceeded"],
+                "risk_reason": metadata["risk_reason"],
+                "reason_codes": metadata["reason_codes"],
+                "sections": [
+                    {
+                        "docid": section.docid,
+                        "collection": section.collection,
+                        "path": section.relative_path.as_posix(),
+                        "title": section.title,
+                        "provenance": section.provenance.value,
+                        "line_start": section.line_start,
+                        "line_end": section.line_end,
+                        "frontmatter": dict(section.frontmatter),
+                        "estimated_tokens": section.estimated_tokens,
+                        "truncated": section.truncated,
+                        "content": section.content,
+                    }
+                    for section in self.assembly.sections
+                ],
+            }
         return data
+
+    def event_metadata(self) -> dict[str, Any] | None:
+        """Return the metadata-only event input; persistence belongs to STORY-011."""
+
+        if self.assembly is None:
+            return None
+        return {
+            "project_id": self.project_id,
+            "mode": self.mode.value,
+            "task_category": self.task_category.value,
+            "route": list(self.route),
+            "duration_ms": self.duration_ms,
+            "freshness": (
+                self.decision.evidence.freshness.value if self.decision else None
+            ),
+            **self.assembly.event_metadata(),
+        }
 
 
 def _decision_data(decision: SufficiencyDecision) -> dict[str, Any]:
@@ -142,26 +195,34 @@ def context_outcome(
     fallback_explicit_decision: bool = False,
     fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
     warnings: tuple[dict[str, Any], ...] = (),
+    assembly: ContextAssembly | None = None,
 ) -> ContextOutcome:
-    exit_code = {
-        SufficiencyStatus.SUFFICIENT: 0,
-        SufficiencyStatus.INSUFFICIENT: 20,
-        SufficiencyStatus.AMBIGUOUS: 21,
-        SufficiencyStatus.BLOCKED: 33,
-    }[decision.status]
+    if assembly is not None and assembly.status is not AssemblyStatus.READY:
+        status = "insufficient"
+        exit_code = 20
+    else:
+        status = decision.status.value
+        exit_code = {
+            SufficiencyStatus.SUFFICIENT: 0,
+            SufficiencyStatus.INSUFFICIENT: 20,
+            SufficiencyStatus.AMBIGUOUS: 21,
+            SufficiencyStatus.BLOCKED: 33,
+        }[decision.status]
+    effective_hits = assembly.retrieved if assembly is not None else hits
     return ContextOutcome(
-        status=decision.status.value,
+        status=status,
         exit_code=exit_code,
         project_id=project_id,
         mode=mode,
         task_category=task_category,
         route=route,
-        retrieval_status=(QmdSearchStatus.READY if hits else retrieval.status),
+        retrieval_status=(QmdSearchStatus.READY if effective_hits else retrieval.status),
         duration_ms=duration_ms,
-        hits=hits,
+        hits=effective_hits,
         decision=decision,
         fallback_used=fallback_used,
         fallback_explicit_decision=fallback_explicit_decision,
         fallback_reason_codes=fallback_reason_codes,
         warnings=warnings,
+        assembly=assembly,
     )

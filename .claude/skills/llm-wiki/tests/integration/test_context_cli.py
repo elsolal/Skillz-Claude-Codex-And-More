@@ -27,16 +27,55 @@ class ContextCliIntegrationTests(unittest.TestCase):
         self.root = Path(self.temp_dir.name)
         self.repo = self.root / "repo"
         self.vault = self.root / "vault"
+        self.shared_vault = self.root / "shared-vault"
         (self.repo / ".agents").mkdir(parents=True)
         (self.vault / "wiki" / "entities").mkdir(parents=True)
+        (self.vault / "wiki" / "concepts").mkdir(parents=True)
+        (self.shared_vault / "wiki" / "sources").mkdir(parents=True)
         (self.vault / "wiki" / "entities" / "project.md").write_text("# Project\n")
+        (self.vault / "wiki" / "entities" / "skillz-claude.md").write_text(
+            "---\ntitle: Skillz-Claude\ncategory: entity\n---\n"
+            "# Skillz-Claude\n\nProject overview.\n\nAgent tooling.\n\n"
+            "Portable workflows.\n\nRepo d'outillage multi-runtime.\n",
+            encoding="utf-8",
+        )
+        (self.vault / "wiki" / "concepts" / "project-memory-workflow.md").write_text(
+            "# Project Memory Workflow\n\n"
+            "Activation.\n\nProjection.\n\nRetrieval.\n\nSufficiency.\n\n"
+            "Budgets.\n\nReceipts.\n\nFreshness.\n\nConflicts.\n\n"
+            "Le codebase reste la source de vérité immédiate.\n",
+            encoding="utf-8",
+        )
+        (self.shared_vault / "wiki" / "entities").mkdir(parents=True)
+        (self.shared_vault / "wiki" / "concepts").mkdir(parents=True)
+        (self.shared_vault / "wiki" / "entities" / "skillz-claude.md").write_text(
+            (self.vault / "wiki" / "entities" / "skillz-claude.md").read_text(),
+            encoding="utf-8",
+        )
+        (self.shared_vault / "wiki" / "concepts" / "project-memory-workflow.md").write_text(
+            (self.vault / "wiki" / "concepts" / "project-memory-workflow.md").read_text(),
+            encoding="utf-8",
+        )
+        (self.shared_vault / "wiki" / "sources" / "shared.md").write_text(
+            "# Shared source\n\nShared context.\n",
+            encoding="utf-8",
+        )
+        (self.vault / "wiki" / "entities" / "oversized.md").write_text(
+            "# Oversized evidence\n\n" + ("critical-data-" * 2400) + "\n",
+            encoding="utf-8",
+        )
         self._write_activation()
         subprocess.run(["git", "init", "-b", "main"], cwd=self.repo, check=True, capture_output=True)
         self.qmd_log = self.root / "qmd-invocations.jsonl"
         self.qmd_log.write_text("")
         self.qmd = self._make_qmd()
 
-    def _write_activation(self, *, role: str = "owner") -> None:
+    def _write_activation(
+        self,
+        *,
+        role: str = "owner",
+        include_fallback_store: bool = True,
+    ) -> None:
         manifest = {
             "schema_version": 1,
             "project": {"id": "skillz-claude", "name": "Skillz-Claude", "owner": "Tests"},
@@ -72,10 +111,13 @@ class ContextCliIntegrationTests(unittest.TestCase):
                 "quality_rubric": ".agents/memory/quality-rubric.json",
             },
         }
+        stores = {"project": {"root": str(self.vault)}}
+        if include_fallback_store:
+            stores["transverse"] = {"root": str(self.shared_vault)}
         projection = {
             "schema_version": 1,
             "principal": {"role": role},
-            "stores": {"project": {"root": str(self.vault)}},
+            "stores": stores,
         }
         (self.repo / ".agents" / "memory.yaml").write_text(json.dumps(manifest))
         (self.repo / ".agents" / "memory.local.json").write_text(json.dumps(projection))
@@ -118,6 +160,10 @@ class ContextCliIntegrationTests(unittest.TestCase):
             "'file': 'qmd://shared-wiki/sources/shared.md', 'title': 'Shared source', "
             "'snippet': '@@ -1,2 @@\\n\\nShared context.'}]))\n"
             "elif mode == 'fallback-empty' and collection == 'shared-wiki': print('[]')\n"
+            "elif mode == 'oversized':\n"
+            "    print(json.dumps([{'docid': '#777777', 'score': 0.91, "
+            "'file': f'qmd://{collection}/entities/oversized.md', 'title': 'Oversized', "
+            "'snippet': '@@ -3,1 @@\\n\\ncritical-data-'}]))\n"
             "else:\n"
             "    with open(fixture, encoding='utf-8') as stream:\n"
             "        print(stream.read().replace('qmd://elsolal-wiki/', f'qmd://{collection}/'))\n"
@@ -175,6 +221,16 @@ class ContextCliIntegrationTests(unittest.TestCase):
         self.assertEqual(invocation["command"], "search")
         self.assertEqual(invocation["collection"], "elsolal-wiki")
         self.assertEqual(len(self.qmd_log.read_text().splitlines()), 1)
+        self.assertEqual(output["data"]["context"]["status"], "ready")
+        self.assertEqual(output["data"]["context"]["retrieved_count"], 2)
+        self.assertEqual(output["data"]["context"]["read_count"], 1)
+        self.assertEqual(output["data"]["context"]["budget"]["target_tokens"], 2500)
+        self.assertEqual(output["data"]["context"]["budget"]["hard_tokens"], 4000)
+        self.assertEqual(
+            output["data"]["context"]["estimator_version"],
+            "utf8_bytes_div_4_v1",
+        )
+        self.assertIn("Repo d'outillage", output["data"]["context"]["sections"][0]["content"])
 
     def test_authorized_fallback_runs_after_project_insufficiency_with_reason_codes(self) -> None:
         result = self._run_cli(
@@ -299,6 +355,47 @@ class ContextCliIntegrationTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("Reason codes", result.stdout)
         self.assertIn("insufficient_coverage", result.stdout)
+
+    def test_hard_cap_requires_an_explicit_risk_reason_in_cli_output(self) -> None:
+        stopped = self._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "security",
+            "--json",
+            "oversized evidence",
+            fake_mode="oversized",
+        )
+        stopped_output = json.loads(stopped.stdout)
+
+        allowed = self._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "security",
+            "--risk-reason",
+            "security",
+            "--json",
+            "oversized evidence",
+            fake_mode="oversized",
+        )
+        allowed_output = json.loads(allowed.stdout)
+
+        self.assertEqual(stopped.returncode, 20, stopped.stderr)
+        self.assertEqual(stopped_output["status"], "insufficient")
+        self.assertEqual(stopped_output["data"]["context"]["status"], "partial")
+        self.assertIn(
+            "hard_cap_reached",
+            stopped_output["data"]["context"]["reason_codes"],
+        )
+        self.assertEqual(allowed.returncode, 0, allowed.stderr)
+        self.assertEqual(allowed_output["status"], "sufficient")
+        self.assertTrue(allowed_output["data"]["context"]["hard_cap_exceeded"])
+        self.assertEqual(allowed_output["data"]["context"]["risk_reason"], "security")
+        self.assertGreater(
+            allowed_output["data"]["context"]["estimated_tokens"],
+            allowed_output["data"]["context"]["budget"]["hard_tokens"],
+        )
 
     def test_query_stdin_is_not_persisted_or_rendered_and_cannot_inject_shell(self) -> None:
         escaped = self.root / "shell-injection"

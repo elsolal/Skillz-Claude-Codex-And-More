@@ -21,6 +21,17 @@ class StoreAssignmentTests(unittest.TestCase):
 
         self.assertEqual(stores, {"project": root})
 
+    def test_parses_an_optional_manifest_declared_fallback_store(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir).resolve()
+
+            stores = parse_store_arguments(
+                [f"project={root}", f"transverse={root}"],
+                allowed_stores={"project", "transverse"},
+            )
+
+        self.assertEqual(stores, {"project": root, "transverse": root})
+
     def test_rejects_missing_relative_unknown_and_duplicate_stores(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir).resolve()

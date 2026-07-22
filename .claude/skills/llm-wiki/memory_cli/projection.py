@@ -60,9 +60,14 @@ class ConfigureOutcome:
         return 10 if self.missing_entry_pages else 0
 
 
-def parse_store_arguments(values: list[str]) -> dict[str, Path]:
+def parse_store_arguments(
+    values: list[str],
+    *,
+    allowed_stores: set[str] | None = None,
+) -> dict[str, Path]:
     """Parse repeated NAME=ABSOLUTE_PATH store assignments for projection V1."""
 
+    allowed = allowed_stores or {"project"}
     stores: dict[str, Path] = {}
     for index, value in enumerate(values):
         name, separator, raw_path = value.partition("=")
@@ -74,12 +79,12 @@ def parse_store_arguments(values: list[str]) -> dict[str, Path]:
                 message="A store assignment is not in the required NAME=PATH form.",
                 correction='Use an assignment such as --store project="/absolute/path/to/vault".',
             )
-        if name != "project":
+        if name not in allowed:
             _error(
                 code="unknown_store",
                 field=field,
                 message="The requested store is not configurable in projection V1.",
-                correction='Use exactly one "project=..." store assignment.',
+                correction="Use the project store or a fallback ID declared by the manifest.",
             )
         if name in stores:
             _error(
@@ -251,15 +256,17 @@ def load_projection(manifest_path: Path) -> MemoryProjection:
         )
     principal = payload["principal"]
     stores = payload["stores"]
+    from .manifest import load_manifest
+
+    manifest = load_manifest(manifest_path)
+    allowed_stores = {"project", *(fallback.id for fallback in manifest.fallbacks)}
     if (
         not isinstance(principal, dict)
         or set(principal) != {"role"}
         or principal["role"] not in {role.value for role in PrincipalRole}
         or not isinstance(stores, dict)
-        or set(stores) != {"project"}
-        or not isinstance(stores["project"], dict)
-        or set(stores["project"]) != {"root"}
-        or not isinstance(stores["project"]["root"], str)
+        or "project" not in stores
+        or not set(stores).issubset(allowed_stores)
     ):
         _error(
             code="projection_invalid",
@@ -267,33 +274,47 @@ def load_projection(manifest_path: Path) -> MemoryProjection:
             message="The local memory projection contains invalid principal or store data.",
             correction="Run memory configure again to regenerate the managed projection.",
         )
-    root = Path(stores["project"]["root"])
-    if not root.is_absolute():
-        _error(
-            code="projection_invalid",
-            field="stores.project.root",
-            message="The configured local store root is not absolute.",
-            correction="Run memory configure again with an absolute project store path.",
-        )
-    try:
-        resolved_root = root.resolve(strict=True)
-    except (OSError, RuntimeError):
-        _error(
-            code="store_access_denied",
-            field="stores.project.root",
-            message="The configured local store is missing or cannot be resolved.",
-            correction="Restore access to the configured vault or run memory configure again.",
-        )
-    if not resolved_root.is_dir() or not os.access(resolved_root, os.R_OK | os.X_OK):
-        _error(
-            code="store_access_denied",
-            field="stores.project.root",
-            message="The configured local store is not readable by the current user.",
-            correction="Restore read and traversal access to the configured vault.",
-        )
+    resolved_stores: dict[str, LocalStoreConfig] = {}
+    for name, store in stores.items():
+        if (
+            not isinstance(store, dict)
+            or set(store) != {"root"}
+            or not isinstance(store["root"], str)
+        ):
+            _error(
+                code="projection_invalid",
+                field=f"stores.{name}",
+                message="The local projection contains an invalid store mapping.",
+                correction="Run memory configure again to regenerate the managed projection.",
+            )
+        root = Path(store["root"])
+        if not root.is_absolute():
+            _error(
+                code="projection_invalid",
+                field=f"stores.{name}.root",
+                message="A configured local store root is not absolute.",
+                correction="Run memory configure again with absolute store paths.",
+            )
+        try:
+            resolved_root = root.resolve(strict=True)
+        except (OSError, RuntimeError):
+            _error(
+                code="store_access_denied",
+                field=f"stores.{name}.root",
+                message="A configured local store is missing or cannot be resolved.",
+                correction="Restore access to the configured vault or run memory configure again.",
+            )
+        if not resolved_root.is_dir() or not os.access(resolved_root, os.R_OK | os.X_OK):
+            _error(
+                code="store_access_denied",
+                field=f"stores.{name}.root",
+                message="A configured local store is not readable by the current user.",
+                correction="Restore read and traversal access to the local vault.",
+            )
+        resolved_stores[name] = LocalStoreConfig(root=resolved_root)
     return MemoryProjection.create(
         principal_role=PrincipalRole(principal["role"]),
-        stores={"project": LocalStoreConfig(root=resolved_root)},
+        stores=resolved_stores,
     )
 
 
@@ -502,7 +523,11 @@ def configure_projection(
 ) -> ConfigureOutcome:
     """Validate and write the local projection as one preflighted operation."""
 
-    store_roots = parse_store_arguments(store_assignments)
+    allowed_stores = {"project", *(fallback.id for fallback in manifest.fallbacks)}
+    store_roots = parse_store_arguments(
+        store_assignments,
+        allowed_stores=allowed_stores,
+    )
     project_root, projection_path, claude_pointer, agents_pointer = projection_paths(
         manifest_path
     )

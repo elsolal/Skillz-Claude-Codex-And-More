@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from pathlib import PurePosixPath
 
 from .contracts import (
     DEFAULT_SUFFICIENCY_THRESHOLDS_VERSION,
@@ -54,6 +55,19 @@ BLOCKING_FRESHNESS_CATEGORIES = {
     TaskCategory.HISTORICAL,
 }
 HISTORICAL_PROVENANCE = {ProvenanceKind.SOURCE, ProvenanceKind.SYNTHESIS}
+
+
+def provenance_for_path(relative_path: PurePosixPath) -> ProvenanceKind:
+    """Classify QMD-relative wiki paths once for retrieval and assembly."""
+
+    first_part = relative_path.parts[0] if relative_path.parts else ""
+    if first_part == "sources":
+        return ProvenanceKind.SOURCE
+    if first_part == "synthesis":
+        return ProvenanceKind.SYNTHESIS
+    if first_part:
+        return ProvenanceKind.PAGE
+    return ProvenanceKind.UNKNOWN
 
 
 def _ordered(reasons: set[SufficiencyReason]) -> tuple[SufficiencyReason, ...]:

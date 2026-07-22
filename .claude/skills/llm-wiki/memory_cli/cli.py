@@ -15,6 +15,7 @@ from .contracts import (
     MemoryManifest,
     PrincipalRole,
     RetrievalMode,
+    RiskReason,
     TaskCategory,
 )
 from .doctor import DoctorOutcome, run_doctor
@@ -57,7 +58,10 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         dest="stores",
         metavar="NAME=PATH",
-        help="Map a logical store to an absolute local root (V1 requires project=PATH).",
+        help=(
+            "Map a logical store to an absolute local root "
+            "(project is required; declared fallback IDs are optional)."
+        ),
     )
     configure_parser.add_argument(
         "--role",
@@ -136,6 +140,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--fallback-on-ambiguous",
         action="store_true",
         help="Explicitly allow an authorized fallback when project evidence is ambiguous.",
+    )
+    context_parser.add_argument(
+        "--risk-reason",
+        choices=[reason.value for reason in RiskReason],
+        help="Authorize a necessary hard-cap overrun with an auditable risk category.",
     )
     context_parser.add_argument(
         "--explain",
@@ -483,6 +492,25 @@ def _render_context_human(outcome: ContextOutcome, *, explain: bool) -> None:
             print(f"Fallback: {fallback_status}{explicit}")
             if fallback_reasons:
                 print(f"Fallback reason codes: {fallback_reasons}")
+    if outcome.assembly is not None:
+        assembly = outcome.assembly
+        print(
+            f"Context: {assembly.status.value} · "
+            f"{len(assembly.retrieved)} retrieved · {len(assembly.sections)} read · "
+            f"~{assembly.estimated_tokens}/{assembly.target_tokens} tokens"
+        )
+        if assembly.hard_cap_exceeded:
+            print(
+                f"Hard cap exceeded: {assembly.hard_tokens} · "
+                f"risk reason {assembly.risk_reason.value}"
+            )
+        for section in assembly.sections:
+            print(
+                f"\n[{section.docid}] {section.relative_path.as_posix()} "
+                f"· lines {section.line_start}-{section.line_end} "
+                f"· {section.estimated_tokens} tokens"
+            )
+            print(section.content.rstrip())
     for warning in outcome.warnings:
         print(f"Warning: {warning['message']}")
         print(f"Correction: {warning['correction']}")
@@ -498,6 +526,7 @@ def _run_context_command(
     task_category: str,
     query: str,
     fallback_on_ambiguous: bool,
+    risk_reason: str | None,
     explain: bool,
     json_output: bool,
 ) -> int:
@@ -507,6 +536,7 @@ def _run_context_command(
             task_category=TaskCategory(task_category),
             query=query,
             fallback_on_ambiguous=fallback_on_ambiguous,
+            risk_reason=RiskReason(risk_reason) if risk_reason else None,
         )
     except (ManifestError, ProjectionError) as error:
         if json_output:
@@ -581,6 +611,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             task_category=arguments.task_category,
             query=query,
             fallback_on_ambiguous=arguments.fallback_on_ambiguous,
+            risk_reason=arguments.risk_reason,
             explain=arguments.explain,
             json_output=arguments.json_output,
         )

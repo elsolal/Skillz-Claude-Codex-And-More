@@ -41,6 +41,39 @@
           }
         ]
       }
+    },
+    "context": {
+      "status": "ready",
+      "estimator_version": "utf8_bytes_div_4_v1",
+      "budget": {
+        "target_tokens": 2500,
+        "hard_tokens": 4000
+      },
+      "estimated_tokens": 14,
+      "remaining_target_tokens": 2486,
+      "retrieved_count": 1,
+      "read_count": 1,
+      "hard_cap_exceeded": false,
+      "risk_reason": null,
+      "reason_codes": [],
+      "sections": [
+        {
+          "docid": "#dfec5e",
+          "collection": "elsolal-wiki",
+          "path": "entities/skillz-claude.md",
+          "title": "Skillz-Claude",
+          "provenance": "page",
+          "line_start": 7,
+          "line_end": 9,
+          "frontmatter": {
+            "title": "Skillz-Claude",
+            "category": "entity"
+          },
+          "estimated_tokens": 14,
+          "truncated": false,
+          "content": "# Skillz-Claude\n\nRepo d’outillage multi-runtime.\n"
+        }
+      ]
     }
   },
   "warnings": [],
