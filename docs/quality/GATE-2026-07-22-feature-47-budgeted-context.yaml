@@ -1,18 +1,18 @@
 # Quality gate for STORY-007 / GitHub issue #47.
 verdict: PASS
 niveau: 3
-tours: 3
+tours: 2
 base: main
-head: 7efb6fb
-diff_hash: "9919b777e55383854aefcda82a46afad56e2c59f194c3a2bdc167e1a2ac4ed94"
+head: 0b49aaf
+diff_hash: "d450b347d04bd79ae25b3ccd0e9dc5e71dade25b8bfd80b205ea685d952d19aa"
 preuve:
   executable:
     lint:
       cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
-      statut: "vert (3/3 tours, exit 0)"
+      statut: "vert (2/2 tours de revalidation release, exit 0)"
     tests:
       cmd: "bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
-      statut: "vert (3/3 tours; installer PASS; 78 tests au tour 1 puis 80 aux deux tours de convergence)"
+      statut: "vert (2/2 tours de revalidation release; installer PASS; 80 tests Python)"
     diff_check:
       cmd: "git diff --check main...HEAD"
       statut: "vert (exit 0)"
@@ -22,6 +22,9 @@ preuve:
   red_green:
     red: "les tests echouaient sur les modules tokens/assembly absents, la projection refusait un fallback declare et le CLI ne rendait ni sections ni budgets ni risk reason"
     green: "80 tests passent apres implementation puis corrections du gate sur hit de titre, racine wiki canonique et provenance centralisee"
+  revalidation_release:
+    cause: "version du runtime alignee de 0.6.0 vers 0.7.0 avant ship"
+    resultat: "deux tours propres sans nouveau P0/P1; hash recalcule sur le diff commite"
   opinion:
     findings:
       total: 4
@@ -72,6 +75,7 @@ decisions_prises_en_ton_nom:
   - "La raison de risque n'apparait dans les metadonnees que si le hard cap a reellement ete depasse."
   - "La projection metadata-only de l'evenement est produite par ContextOutcome, mais sa persistance reste hors scope jusqu'a STORY-011 / issue #51."
   - "La lecture streaming des fichiers exceptionnellement volumineux reste une note P2; elle n'a pas ete ajoutee a ce lot pour ne pas elargir le contrat de STORY-007."
+  - "La version du runtime memory CLI passe de 0.6.0 a 0.7.0, suivant la progression mineure appliquee a chaque story fonctionnelle precedente."
 absents:
   - "no configured typecheck command"
   - "no configured build command"
