@@ -60,6 +60,17 @@ class DocumentResolutionTests(unittest.TestCase):
 
         self.assertEqual(resolved, page.resolve())
 
+    def test_prefers_the_canonical_wiki_root_over_a_same_named_vault_file(self) -> None:
+        canonical = self.root / "wiki" / "entities" / "project.md"
+        canonical.write_text("# Canonical\n", encoding="utf-8")
+        decoy = self.root / "entities" / "project.md"
+        decoy.parent.mkdir(parents=True)
+        decoy.write_text("# Decoy\n", encoding="utf-8")
+
+        resolved = resolve_document(self.root, PurePosixPath("entities/project.md"))
+
+        self.assertEqual(resolved, canonical.resolve())
+
     def test_rejects_traversal_and_symlink_escape_before_reading(self) -> None:
         outside = Path(self.temp_dir.name) / "private.md"
         outside.write_text("private sentinel\n", encoding="utf-8")
@@ -209,6 +220,26 @@ class ContextAssemblyTests(unittest.TestCase):
         )
         self.assertEqual(allowed.event_metadata()["risk_reason"], "security")
         self.assertNotIn("content", allowed.event_metadata())
+
+    def test_heading_hit_cannot_bypass_the_hard_cap_for_its_section_body(self) -> None:
+        content = "# Critical architecture\n\n" + ("large-evidence-" * 80) + "\n"
+        self.write_page("entities/heading-hit.md", content)
+        candidate = (
+            hit("entities/heading-hit.md", docid="#454545", score=0.91, line=1),
+        )
+        budget = BudgetConfig(target_tokens=10, hard_tokens=20)
+
+        stopped = self.assemble(candidate, budget=budget)
+        allowed = self.assemble(
+            candidate,
+            budget=budget,
+            risk_reason=RiskReason.ARCHITECTURE,
+        )
+
+        self.assertEqual(stopped.status, AssemblyStatus.PARTIAL)
+        self.assertEqual(stopped.sections, ())
+        self.assertEqual(allowed.status, AssemblyStatus.READY)
+        self.assertGreater(allowed.estimated_tokens, budget.hard_tokens)
 
     def test_section_limits_match_the_approved_mode_envelopes(self) -> None:
         self.assertEqual(section_limit_for(RetrievalMode.MINIMAL), 1)

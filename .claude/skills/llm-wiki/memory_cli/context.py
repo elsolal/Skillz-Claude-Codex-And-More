@@ -13,7 +13,6 @@ from .contracts import (
     FreshnessStatus,
     MemoryManifest,
     MemoryProjection,
-    ProvenanceKind,
     RetrievalHit,
     RetrievalMode,
     RiskReason,
@@ -82,10 +81,6 @@ def _search(
     )
 
 
-def _provenance(hit: RetrievalHit) -> ProvenanceKind:
-    return provenance_for_path(hit.relative_path)
-
-
 def _evidence(
     *,
     mode: RetrievalMode,
@@ -101,7 +96,7 @@ def _evidence(
             SufficiencyHit(
                 docid=hit.docid,
                 score=hit.score,
-                provenance=_provenance(hit),
+                provenance=provenance_for_path(hit.relative_path),
             )
             for hit in hits
         ),

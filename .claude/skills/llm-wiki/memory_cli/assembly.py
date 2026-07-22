@@ -87,40 +87,32 @@ def resolve_document(root: Path, relative_path: PurePosixPath) -> Path:
             correction="Restore read and traversal access to the local vault.",
         )
 
-    candidates = (
-        resolved_root.joinpath(*relative_path.parts),
-        resolved_root.joinpath("wiki", *relative_path.parts),
-    )
-    for candidate in candidates:
-        try:
-            resolved = candidate.resolve(strict=True)
-        except (OSError, RuntimeError):
-            continue
-        try:
-            resolved.relative_to(resolved_root)
-        except ValueError:
-            _access_error(
-                code="document_outside_root",
-                message="A retrieved document resolves outside its projected local root.",
-                correction="Remove the escaping symlink, update QMD, and retry.",
-            )
-        if not resolved.is_file() or not os.access(resolved, os.R_OK):
-            _access_error(
-                code="document_unavailable",
-                message="A retrieved document is not a readable regular file.",
-                correction="Restore the indexed page or update the QMD collection.",
-            )
-        return resolved
-
-    _access_error(
-        code="document_unavailable",
-        message="A retrieved document is absent from its projected local root.",
-        correction="Update the QMD collection or restore the missing page.",
-    )
-
-
-def _provenance(hit: RetrievalHit) -> ProvenanceKind:
-    return provenance_for_path(hit.relative_path)
+    wiki_root = resolved_root / "wiki"
+    collection_root = wiki_root if wiki_root.is_dir() else resolved_root
+    candidate = collection_root.joinpath(*relative_path.parts)
+    try:
+        resolved = candidate.resolve(strict=True)
+    except (OSError, RuntimeError):
+        _access_error(
+            code="document_unavailable",
+            message="A retrieved document is absent from its projected local root.",
+            correction="Update the QMD collection or restore the missing page.",
+        )
+    try:
+        resolved.relative_to(resolved_root)
+    except ValueError:
+        _access_error(
+            code="document_outside_root",
+            message="A retrieved document resolves outside its projected local root.",
+            correction="Remove the escaping symlink, update QMD, and retry.",
+        )
+    if not resolved.is_file() or not os.access(resolved, os.R_OK):
+        _access_error(
+            code="document_unavailable",
+            message="A retrieved document is not a readable regular file.",
+            correction="Restore the indexed page or update the QMD collection.",
+        )
+    return resolved
 
 
 def _ranked_unique(hits: tuple[RetrievalHit, ...]) -> tuple[RetrievalHit, ...]:
@@ -141,7 +133,7 @@ def _ranked_unique(hits: tuple[RetrievalHit, ...]) -> tuple[RetrievalHit, ...]:
         for item in sorted(
             best_by_path.values(),
             key=lambda item: (
-                confidence[_provenance(item[1])],
+                confidence[provenance_for_path(item[1].relative_path)],
                 -item[1].score,
                 item[0],
             ),
@@ -275,7 +267,7 @@ def _extract_section(hit: RetrievalHit, path: Path) -> _ExtractedSection:
     )
     return _ExtractedSection(
         title=frontmatter.get("title", hit.title),
-        provenance=_provenance(hit),
+        provenance=provenance_for_path(hit.relative_path),
         frontmatter=frontmatter,
         paragraphs=paragraphs,
         essential_index=essential_index,
@@ -300,6 +292,17 @@ def _fit_section(
     mandatory = {extracted.essential_index}
     if HEADING_PATTERN.match(extracted.paragraphs[0].content):
         mandatory.add(0)
+    if HEADING_PATTERN.match(extracted.paragraphs[extracted.essential_index].content):
+        body_index = next(
+            (
+                index
+                for index in range(extracted.essential_index + 1, len(extracted.paragraphs))
+                if HEADING_PATTERN.match(extracted.paragraphs[index].content) is None
+            ),
+            None,
+        )
+        if body_index is not None:
+            mandatory.add(body_index)
     content = _render_paragraphs(extracted.paragraphs, mandatory)
     tokens = estimate_tokens(content)
     if current_tokens + tokens > budget.hard_tokens and risk_reason is None:
@@ -343,7 +346,7 @@ def _decision(
                 SufficiencyHit(
                     docid=hit.docid,
                     score=hit.score,
-                    provenance=_provenance(hit),
+                    provenance=provenance_for_path(hit.relative_path),
                 )
                 for hit in hits
             ),
