@@ -61,6 +61,20 @@ class SufficiencyStatus(str, Enum):
     BLOCKED = "blocked"
 
 
+class AssemblyStatus(str, Enum):
+    READY = "ready"
+    PARTIAL = "partial"
+    INSUFFICIENT = "insufficient"
+
+
+class RiskReason(str, Enum):
+    SECURITY = "security"
+    DATA = "data"
+    ARCHITECTURE = "architecture"
+    PRODUCT = "product"
+    INCIDENT = "incident"
+
+
 class SufficiencyReason(str, Enum):
     NO_RESULT = "no_result"
     BELOW_SCORE = "below_score"
@@ -215,3 +229,93 @@ class SufficiencyDecision:
     reason_codes: tuple[SufficiencyReason, ...]
     thresholds_version: str
     evidence: SufficiencyEvidence
+
+
+@dataclass(frozen=True, slots=True)
+class ContextSection:
+    """A relative, bounded Markdown section actually emitted by the CLI."""
+
+    docid: str
+    collection: str
+    relative_path: PurePosixPath
+    title: str
+    provenance: ProvenanceKind
+    line_start: int
+    line_end: int
+    frontmatter: Mapping[str, str]
+    content: str
+    estimated_tokens: int
+    truncated: bool
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        docid: str,
+        collection: str,
+        relative_path: PurePosixPath,
+        title: str,
+        provenance: ProvenanceKind,
+        line_start: int,
+        line_end: int,
+        frontmatter: dict[str, str],
+        content: str,
+        estimated_tokens: int,
+        truncated: bool,
+    ) -> "ContextSection":
+        return cls(
+            docid=docid,
+            collection=collection,
+            relative_path=relative_path,
+            title=title,
+            provenance=provenance,
+            line_start=line_start,
+            line_end=line_end,
+            frontmatter=MappingProxyType(dict(frontmatter)),
+            content=content,
+            estimated_tokens=estimated_tokens,
+            truncated=truncated,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class ContextAssembly:
+    """Measured context plus a metadata-only projection for later events."""
+
+    status: AssemblyStatus
+    decision: SufficiencyDecision
+    retrieved: tuple[RetrievalHit, ...]
+    sections: tuple[ContextSection, ...]
+    estimator_version: str
+    target_tokens: int
+    hard_tokens: int
+    estimated_tokens: int
+    hard_cap_exceeded: bool
+    risk_reason: RiskReason | None
+    reason_codes: tuple[str, ...] = ()
+
+    def receipt_metadata(self) -> dict[str, object]:
+        return {
+            "status": self.status.value,
+            "estimator_version": self.estimator_version,
+            "target_tokens": self.target_tokens,
+            "hard_tokens": self.hard_tokens,
+            "estimated_tokens": self.estimated_tokens,
+            "remaining_target_tokens": max(
+                self.target_tokens - self.estimated_tokens,
+                0,
+            ),
+            "retrieved_count": len(self.retrieved),
+            "read_count": len(self.sections),
+            "hard_cap_exceeded": self.hard_cap_exceeded,
+            "risk_reason": self.risk_reason.value if self.risk_reason else None,
+            "reason_codes": list(self.reason_codes),
+        }
+
+    def event_metadata(self) -> dict[str, object]:
+        return {
+            **self.receipt_metadata(),
+            "retrieved_docids": [hit.docid for hit in self.retrieved],
+            "read_docids": [section.docid for section in self.sections],
+            "read_paths": [section.relative_path.as_posix() for section in self.sections],
+        }

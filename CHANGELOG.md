@@ -2,6 +2,31 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## [Unreleased] - 2026-07-22
+
+**Budgeted Markdown memory context assembly**
+
+### Added
+- Safe, deterministic context assembly that deduplicates QMD hits, resolves documents beneath projected vault roots, extracts the Markdown section around each hit, and stops as soon as the read subset is sufficient.
+- Versioned `utf8_bytes_div_4_v1` estimation with the approved `minimal`, `project`, and `historical` target/hard envelopes, paragraph-boundary truncation, explicit partial results, and auditable `--risk-reason` overrides.
+- Separate `retrieved` and `read` evidence in human and JSON receipts, including relative paths, line ranges, useful frontmatter, real estimated cost, remaining budget, and metadata-only event projections.
+- Unit, contract, integration, and security coverage for Unicode, large paragraphs, all three budget profiles, early stopping, fallback roots, traversal, symlink escape, heading hits, and hard-cap behavior.
+
+### Changed
+- Portable memory CLI runtime version advanced to `0.7.0`.
+- Local projection V1 keeps `project` mandatory and accepts optional roots keyed by manifest-declared fallback IDs without granting route authorization.
+- `memory context` now materializes sufficient retrieval evidence into bounded sections and exposes `--risk-reason security|data|architecture|product|incident`.
+
+### Fixed
+- Heading matches can no longer count only the title as read while bypassing the hard cap of the section's evidence paragraph.
+- Vault roots containing `wiki/` now resolve QMD-relative paths under that canonical subtree instead of accepting a same-named decoy elsewhere in the vault.
+- Retrieval and assembly share one canonical provenance classifier instead of maintaining pass-through wrappers.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — installer PASS, 80 tests Python OK
+- Level-3 quality gate: PASS after three implementation rounds and two clean release-revalidation rounds, with no remaining P0/P1
+
 ## [Unreleased] - 2026-07-18
 
 **Versioned context sufficiency and authorized fallback**

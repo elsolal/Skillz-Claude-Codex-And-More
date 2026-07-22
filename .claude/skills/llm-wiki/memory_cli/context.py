@@ -6,13 +6,18 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
+from typing import Any
 
+from .assembly import DocumentAccessError, assemble_context
 from .contracts import (
     FreshnessStatus,
-    ProvenanceKind,
+    MemoryManifest,
+    MemoryProjection,
     RetrievalHit,
     RetrievalMode,
+    RiskReason,
     SufficiencyEvidence,
+    SufficiencyDecision,
     SufficiencyHit,
     SufficiencyReason,
     SufficiencyStatus,
@@ -34,7 +39,7 @@ from .qmd_adapter import (
 )
 from .receipts import ContextOutcome, blocked_context, context_outcome
 from .routing import authorized_fallbacks
-from .sufficiency import evaluate_sufficiency, thresholds_for
+from .sufficiency import evaluate_sufficiency, provenance_for_path, thresholds_for
 
 
 MODE_SEARCH_LIMITS: dict[RetrievalMode, int] = {
@@ -44,6 +49,7 @@ MODE_SEARCH_LIMITS: dict[RetrievalMode, int] = {
 }
 QMD_INSTALL_COMMAND = "bun install -g @tobilu/qmd"
 
+
 def _qmd_executable() -> str | None:
     override = os.environ.get("SKILLZ_MEMORY_QMD")
     if override is None:
@@ -52,6 +58,7 @@ def _qmd_executable() -> str | None:
     if not candidate.is_file() or not os.access(candidate, os.X_OK):
         return None
     return override
+
 
 def _search(
     executable: str,
@@ -74,17 +81,6 @@ def _search(
     )
 
 
-def _provenance(hit: RetrievalHit) -> ProvenanceKind:
-    first_part = hit.relative_path.parts[0] if hit.relative_path.parts else ""
-    if first_part == "sources":
-        return ProvenanceKind.SOURCE
-    if first_part == "synthesis":
-        return ProvenanceKind.SYNTHESIS
-    if first_part:
-        return ProvenanceKind.PAGE
-    return ProvenanceKind.UNKNOWN
-
-
 def _evidence(
     *,
     mode: RetrievalMode,
@@ -100,7 +96,7 @@ def _evidence(
             SufficiencyHit(
                 docid=hit.docid,
                 score=hit.score,
-                provenance=_provenance(hit),
+                provenance=provenance_for_path(hit.relative_path),
             )
             for hit in hits
         ),
@@ -165,12 +161,84 @@ def _search_failure(
     )
 
 
+def _materialize_context(
+    *,
+    manifest: MemoryManifest,
+    projection: MemoryProjection,
+    mode: RetrievalMode,
+    task_category: TaskCategory,
+    route: tuple[str, ...],
+    retrieval: QmdSearchOutcome,
+    hits: tuple[RetrievalHit, ...],
+    duration_ms: int,
+    decision: SufficiencyDecision,
+    risk_reason: RiskReason | None,
+    fallback_used: bool = False,
+    fallback_explicit_decision: bool = False,
+    fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
+    warnings: tuple[dict[str, Any], ...] = (),
+) -> ContextOutcome:
+    project_collection = manifest.stores.project.collection
+    collection_roots = {
+        project_collection: projection.stores["project"].root,
+    }
+    for fallback in manifest.fallbacks:
+        local_store = projection.stores.get(fallback.id)
+        if fallback.collection in route and local_store is not None:
+            collection_roots[fallback.collection] = local_store.root
+    try:
+        assembly = assemble_context(
+            hits,
+            mode=mode,
+            task_category=task_category,
+            freshness=decision.evidence.freshness,
+            thresholds_version=decision.thresholds_version,
+            budget=manifest.budgets[mode],
+            collection_roots=collection_roots,
+            risk_reason=risk_reason,
+        )
+    except DocumentAccessError as error:
+        return blocked_context(
+            project_id=manifest.project.id,
+            mode=mode,
+            task_category=task_category,
+            route=route,
+            retrieval_status=QmdSearchStatus.READY,
+            code=error.code,
+            message=error.message,
+            correction=error.correction,
+            exit_code=error.exit_code,
+            decision=decision,
+            hits=hits,
+            duration_ms=duration_ms,
+            fallback_used=fallback_used,
+            fallback_explicit_decision=fallback_explicit_decision,
+            fallback_reason_codes=fallback_reason_codes,
+        )
+    return context_outcome(
+        project_id=manifest.project.id,
+        mode=mode,
+        task_category=task_category,
+        route=route,
+        retrieval=retrieval,
+        hits=hits,
+        duration_ms=duration_ms,
+        decision=decision,
+        fallback_used=fallback_used,
+        fallback_explicit_decision=fallback_explicit_decision,
+        fallback_reason_codes=fallback_reason_codes,
+        warnings=warnings,
+        assembly=assembly,
+    )
+
+
 def run_context(
     *,
     mode: RetrievalMode,
     task_category: TaskCategory,
     query: str,
     fallback_on_ambiguous: bool = False,
+    risk_reason: RiskReason | None = None,
     runner: Runner = subprocess.run,
     timeout_seconds: float = DEFAULT_SEARCH_TIMEOUT_SECONDS,
 ) -> ContextOutcome:
@@ -234,8 +302,9 @@ def run_context(
         )
     )
     if project_decision.status is SufficiencyStatus.SUFFICIENT:
-        return context_outcome(
-            project_id=manifest.project.id,
+        return _materialize_context(
+            manifest=manifest,
+            projection=projection,
             mode=mode,
             task_category=task_category,
             route=route,
@@ -243,6 +312,7 @@ def run_context(
             hits=project_retrieval.hits,
             duration_ms=project_retrieval.duration_ms,
             decision=project_decision,
+            risk_reason=risk_reason,
             warnings=(
                 (
                     {
@@ -336,14 +406,32 @@ def run_context(
             thresholds_version=manifest.policy.sufficiency_thresholds_version,
         )
     )
+    aggregate_hits = project_retrieval.hits + fallback_retrieval.hits
+    aggregate_duration = project_retrieval.duration_ms + fallback_retrieval.duration_ms
+    if fallback_decision.status is SufficiencyStatus.SUFFICIENT:
+        return _materialize_context(
+            manifest=manifest,
+            projection=projection,
+            mode=mode,
+            task_category=task_category,
+            route=route,
+            retrieval=fallback_retrieval,
+            hits=aggregate_hits,
+            duration_ms=aggregate_duration,
+            decision=fallback_decision,
+            risk_reason=risk_reason,
+            fallback_used=True,
+            fallback_explicit_decision=explicit_decision,
+            fallback_reason_codes=project_decision.reason_codes,
+        )
     return context_outcome(
         project_id=manifest.project.id,
         mode=mode,
         task_category=task_category,
         route=route,
         retrieval=fallback_retrieval,
-        hits=project_retrieval.hits + fallback_retrieval.hits,
-        duration_ms=project_retrieval.duration_ms + fallback_retrieval.duration_ms,
+        hits=aggregate_hits,
+        duration_ms=aggregate_duration,
         decision=fallback_decision,
         fallback_used=True,
         fallback_explicit_decision=explicit_decision,

@@ -1,0 +1,87 @@
+# Quality gate for STORY-007 / GitHub issue #47.
+verdict: PASS
+niveau: 3
+tours: 2
+base: main
+head: 0b49aaf
+diff_hash: "d450b347d04bd79ae25b3ccd0e9dc5e71dade25b8bfd80b205ea685d952d19aa"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "vert (2/2 tours de revalidation release, exit 0)"
+    tests:
+      cmd: "bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "vert (2/2 tours de revalidation release; installer PASS; 80 tests Python)"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: "vert (exit 0)"
+    runtime_contract:
+      flow: "manifest + projection multi-racine -> QMD projet/fallback -> suffisance -> sections Markdown bornees -> recu humain/JSON"
+      statut: "vert via faux binaire QMD 0.9.x et vaults temporaires; budgets, fallback, symlinks, Unicode, paragraphes, hard cap et redaction couverts"
+  red_green:
+    red: "les tests echouaient sur les modules tokens/assembly absents, la projection refusait un fallback declare et le CLI ne rendait ni sections ni budgets ni risk reason"
+    green: "80 tests passent apres implementation puis corrections du gate sur hit de titre, racine wiki canonique et provenance centralisee"
+  revalidation_release:
+    cause: "version du runtime alignee de 0.6.0 vers 0.7.0 avant ship"
+    resultat: "deux tours propres sans nouveau P0/P1; hash recalcule sur le diff commite"
+  opinion:
+    findings:
+      total: 4
+      confirmes: 4
+      refutes: 0
+      corriges: 3
+      restants_p0_p1: 0
+      notes_p2_p3: 1
+    registre:
+      - id: ".claude/skills/llm-wiki/memory_cli/assembly.py:correctness:8029fafa"
+        severite: P1
+        statut: corrige
+        resume: "un hit situe sur un titre pouvait etre compte read avec le titre seul et contourner le hard cap de son paragraphe de preuve"
+        preuve: "le paragraphe de corps suivant est maintenant obligatoire; la regression heading-hit prouve partial sans raison et ready avec risk reason"
+      - id: ".claude/skills/llm-wiki/memory_cli/assembly.py:correctness:7ef581db"
+        severite: P1
+        statut: corrige
+        resume: "deux conventions de racine etaient essayees dans un ordre qui pouvait choisir un fichier homonyme hors du sous-arbre wiki canonique"
+        preuve: "wiki/ est prioritaire lorsqu'il existe; la regression avec fichier leurre prouve la resolution canonique"
+      - id: ".claude/skills/llm-wiki/memory_cli/assembly.py:maintainability:e34c0272"
+        severite: P1
+        statut: corrige
+        resume: "context et assembly ajoutaient chacun un wrapper de provenance sans invariant propre"
+        preuve: "les deux consommateurs appellent directement provenance_for_path, unique policy partagee"
+      - id: ".claude/skills/llm-wiki/memory_cli/assembly.py:performance:aa92054a"
+        severite: P2
+        statut: note
+        resume: "l'extraction charge encore le fichier Markdown complet avant de borner la section emise"
+        preuve: "les sorties restent bornees et les gros paragraphes sont testes; une lecture streaming pourra reduire le pic memoire des fichiers exceptionnellement volumineux"
+    lentilles:
+      correctness_security: "aucun P0/P1 restant; traversal, symlink escape, racine canonique, hard cap, fallback autorise et non-divulgation sont couverts"
+      readability: "aucun P0/P1; contrats immuables, assembleur pur et orchestration CLI gardent des responsabilites distinctes"
+      performance: "aucun P0/P1; candidats et sections sont limites, l'arret anticipe est prouve; lecture fichier complet conservee comme note P2"
+      thermo_nuclear: "approve; aucun fichier ne depasse 1000 lignes, aucune couche morte ou cast, provenance centralisee et nouvelle complexite contenue dans assembly.py"
+acceptation:
+  AC1: "vert - tous les hits dedupliques restent retrieved et seules les sections effectivement emises apparaissent dans read"
+  AC2: "vert - les enveloppes minimal 800/1200, project 2500/4000 et historical 6000/9000 ainsi que les limites 1/3/6 sont testees"
+  AC3: "vert - un paragraphe necessaire au-dela du hard cap sans risk reason retourne insufficient/20 avec context.status partial et hard_cap_reached"
+  AC4: "vert - un depassement autorise expose raison et cout reel dans le recu et dans la projection event_metadata sans contenu"
+  AC5: "vert - traversal et symlink hors racine sont refuses avant lecture; un fichier homonyme hors wiki ne peut pas remplacer la page canonique"
+  AC6: "vert - l'assembleur reevalue le gate sur les sections lues et s'arrete des le premier sous-ensemble suffisant en conservant le solde"
+decisions_prises_en_ton_nom:
+  - "La projection locale V1 garde project obligatoire et accepte en plus des racines optionnelles indexees par l'ID des fallbacks declares; cette presence ne vaut jamais autorisation."
+  - "Une racine de vault qui contient wiki/ resout les URI QMD exclusivement sous ce sous-arbre canonique; une racine deja positionnee sur la collection reste acceptee seulement si wiki/ est absent."
+  - "Le frontmatter emis est limite a title, category, summary, tags, sources et updated; les autres champs ne sont pas recopies."
+  - "Le paragraphe contenant le hit et son titre de section sont indivisibles; les paragraphes additionnels ne sont ajoutes que tant que la cible reste respectee."
+  - "Quand la materialisation est partielle, le statut global devient insufficient/20 tandis que la decision de retrieval reste visible separement comme preuve."
+  - "La raison de risque n'apparait dans les metadonnees que si le hard cap a reellement ete depasse."
+  - "La projection metadata-only de l'evenement est produite par ContextOutcome, mais sa persistance reste hors scope jusqu'a STORY-011 / issue #51."
+  - "La lecture streaming des fichiers exceptionnellement volumineux reste une note P2; elle n'a pas ete ajoutee a ce lot pour ne pas elargir le contrat de STORY-007."
+  - "La version du runtime memory CLI passe de 0.6.0 a 0.7.0, suivant la progression mineure appliquee a chaque story fonctionnelle precedente."
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no long-running runtime application surface; subprocess CLI integration tests provide executable proof"
+  - "no real-vault live QMD query because this checkout has no local memory projection; fixture-backed QMD 0.9.x supplies deterministic proof"
+  - "no degraded-without-QMD materialization; reserved for STORY-008 / issue #48"
+  - "no persistent receipt/event store; reserved for STORY-010 and STORY-011 / issues #50-#51"
+  - "no semantic retrieval, model call, model download or network call executed"

@@ -105,6 +105,8 @@ ignored agent pointers:
 ```bash
 memory configure --store "project=/absolute/path/to/vault"
 memory configure --store "project=/absolute/path/to/vault" --role owner
+memory configure --store "project=/path/to/project-vault" \
+  --store "transverse=/path/to/shared-vault"
 memory configure --store "project=/absolute/path/to/vault" --json
 ```
 
@@ -120,6 +122,11 @@ file. Re-running the same configuration does not rewrite identical files.
 Missing declared entry pages create the projection but return `degraded` with
 exit code `10`. Absolute paths remain absent from output unless
 `--explain-local-paths` is explicitly requested.
+
+The `project` root is always required. A fallback root is optional and uses the
+fallback ID declared in the manifest (for example `transverse`). Projecting a
+root does not authorize it: the shared role/category policy must still allow the
+route before QMD or the filesystem is accessed.
 
 Diagnose the resulting activation before starting work:
 
@@ -157,6 +164,8 @@ Retrieve bounded project memory directly from the task:
 ```bash
 memory context --mode project --task-category architecture "How is the CLI structured?"
 memory context --mode project --task-category architecture --explain "How is the CLI structured?"
+memory context --mode project --task-category security \
+  --risk-reason security "Which security decision applies?"
 printf '%s' "private task query" | \
   memory context --mode project --task-category security --query-stdin --json
 ```
@@ -177,6 +186,18 @@ security, data, and historical evidence. Unknown evidence returns
 `--fallback-on-ambiguous` to explicitly allow an otherwise authorized fallback.
 `--explain` prints the same decision profile, evidence, and reason codes already
 present in JSON.
+
+Sufficient retrieval results are resolved beneath their projected local roots,
+deduplicated by collection and relative path, and reduced to the Markdown
+section around each hit. Human and JSON output separate every normalized
+`retrieved` candidate from the sections actually `read`, and expose the
+`utf8_bytes_div_4_v1` estimate against the mode envelope: `800/1200` for
+`minimal`, `2500/4000` for `project`, and `6000/9000` for `historical`.
+Selection stops as soon as the read subset is sufficient. A necessary paragraph
+past the hard cap returns an explicit partial result unless `--risk-reason`
+provides one of `security`, `data`, `architecture`, `product`, or `incident`.
+The accepted reason and real estimated cost are retained in the receipt and the
+metadata-only event projection; event persistence is implemented separately.
 
 The query is never written to an event, receipt field, or temporary file by
 `memory`. JSON and human output expose normalized hit metadata—docid,

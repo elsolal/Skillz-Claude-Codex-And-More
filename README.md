@@ -61,6 +61,7 @@ Start task-aware retrieval with the project collection first:
 
 ```bash
 memory context --mode project --task-category architecture "How is this project structured?"
+memory context --mode project --task-category security --risk-reason security "Which security decision applies?"
 printf '%s' "private task" | memory context --task-category security --query-stdin --json
 ```
 
@@ -71,6 +72,11 @@ the local role and shared manifest policy both allow it. Ambiguous evidence
 requires the explicit `--fallback-on-ambiguous` option; `--explain` shows the
 same reason codes and evidence exposed in JSON. Empty, timeout, invalid-output,
 stale, ambiguous, and missing-QMD states remain distinct outcomes.
+
+When retrieval is sufficient, the CLI emits only the Markdown sections needed
+under the selected mode budget, distinguishes `retrieved` from `read`, and uses
+the versioned `utf8_bytes_div_4_v1` estimate. Hard-cap overruns require an
+explicit, auditable `--risk-reason`.
 
 The CLI requires Python 3.10+ and uses the standard library only. The installer
 does not create a virtual environment or download QMD, a model, or another

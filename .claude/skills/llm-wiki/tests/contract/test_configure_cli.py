@@ -118,6 +118,28 @@ class ConfigureCliContractTests(unittest.TestCase):
         self.assertEqual(output["data"]["principal"]["role"], "owner")
         self.assertEqual(projection["principal"]["role"], "owner")
 
+    def test_optional_fallback_root_is_projected_without_becoming_an_authorization(self) -> None:
+        temp_dir, repo = self.make_repo()
+        self.addCleanup(temp_dir.cleanup)
+        vault = self.make_vault(Path(temp_dir.name))
+        shared_vault = Path(temp_dir.name) / "shared-vault"
+        shared_vault.mkdir()
+
+        result = self.configure(
+            repo,
+            vault,
+            "--store",
+            f"transverse={shared_vault}",
+            "--json",
+        )
+        output = json.loads(result.stdout)
+        projection = json.loads((repo / ".agents" / "memory.local.json").read_text())
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(output["data"]["configured_stores"], ["project", "transverse"])
+        self.assertEqual(projection["stores"]["transverse"]["root"], str(shared_vault.resolve()))
+        self.assertNotIn(str(shared_vault), result.stdout)
+
     def test_explain_local_paths_reveals_paths_only_when_explicitly_requested(self) -> None:
         temp_dir, repo = self.make_repo()
         self.addCleanup(temp_dir.cleanup)
