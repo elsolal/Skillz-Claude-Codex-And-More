@@ -97,8 +97,15 @@ class ConfigureCliContractTests(unittest.TestCase):
 
         self.assertEqual(projection["stores"]["project"]["root"], str(vault.resolve()))
         self.assertEqual(projection["principal"]["role"], "collaborator")
-        self.assertIn("Managed by skillz-memory", claude_pointer.read_text(encoding="utf-8"))
-        self.assertIn("Managed by skillz-memory", agents_pointer.read_text(encoding="utf-8"))
+        claude_pointer_text = claude_pointer.read_text(encoding="utf-8")
+        agents_pointer_text = agents_pointer.read_text(encoding="utf-8")
+        self.assertIn("Managed by skillz-memory", claude_pointer_text)
+        self.assertIn("Managed by skillz-memory", agents_pointer_text)
+        self.assertIn(".agents/memory.yaml", claude_pointer_text)
+        self.assertIn("memory context", claude_pointer_text)
+        self.assertIn("entry_pages", claude_pointer_text)
+        self.assertNotRegex(claude_pointer_text.lower(), r"read .*index.* first")
+        self.assertIn("memory context", agents_pointer_text)
         for local_path in (projection_path, claude_pointer, agents_pointer):
             self.assertEqual(stat.S_IMODE(local_path.stat().st_mode), 0o600)
             ignored = self.run_git(repo, "check-ignore", "-q", str(local_path.relative_to(repo)))

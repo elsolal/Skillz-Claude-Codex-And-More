@@ -1,0 +1,54 @@
+# Quality gate for STORY-009 / GitHub issue #49.
+verdict: PASS
+niveau: 2
+tours: 2
+base: main
+head: 005a53e
+diff_hash: "1eef0a06c42864a6b6a1692a73557faf57791a0046c89e1799d99211d2ec7894"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "vert (2/2 tours, exit 0)"
+    tests:
+      cmd: "bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "vert (2/2 tours; installer multi-runtime PASS; 93 tests Python)"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: "vert (exit 0)"
+    installed_contract:
+      flow: "sources llm-wiki -> install all/update all -> Claude + Codex source-command + OpenCode + Gemini loaders"
+      statut: "vert dans un HOME temporaire; task-first present et formulations index-first obligatoires absentes"
+  red_green:
+    red: "3 contrats ont produit 14 echecs: commandes, skill, librarian, templates et README imposaient encore l'index avant la tache; les routes .agents/memory.yaml, entry_pages et legacy/non-pilot etaient absentes."
+    green: "93 tests passent; les 16 surfaces suivies exposent task-first + degradation bornee, les commandes Claude restent identiques et les sorties installees sont coherentes apres install/update."
+  convergence:
+    statut: "atteinte"
+    preuve: "deux tours consecutifs avec zero nouveau P0/P1 et toutes les preuves executables vertes"
+  opinion:
+    findings:
+      total: 0
+      confirmes: 0
+      refutes: 0
+      corriges: 0
+      restants_p0_p1: 0
+      notes_p2_p3: 0
+    registre: []
+    lentilles:
+      correctness_security: "approve; activation, degradation QMD et compatibilite legacy sont separees; le workflow canonique conserve --query-stdin pour les taches sensibles"
+      readability: "approve; source canonique explicite, deux commandes verrouillees par egalite et artefacts provider verifies apres generation"
+      performance: "approve; seulement des lectures de petits fichiers et assertions d'installation, sans nouveau chemin runtime"
+      thermo_nuclear: "approve; aucun fichier geant, wrapper, cast, branche metier, boundary leak ou abstraction inutile ajoute"
+acceptation:
+  AC1: "vert - tout projet active part de la tache et de .agents/memory.yaml puis utilise memory context sur la collection projet"
+  AC2: "vert - sans QMD, memory context reste la route et seules les entry_pages declarees sous cap sont autorisees"
+  AC3: "vert - Claude, Codex/source-command, OpenCode et Gemini installes sont compares apres install et deux updates"
+  AC4: "vert - sans manifeste, /wiki-query reste legacy/non-pilot, sans appel memory context, recu/evenement memory ni attribution au pilote"
+decisions_prises_en_ton_nom: []
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no long-running runtime application surface; repository distributes shell, Python and Markdown agent tooling"
+  - "no live real-vault QMD query; issue changes routing instructions and generated loaders, while existing fixture-backed CLI behavior was already delivered by issues #47 and #48"
+  - "no committed .agents/memory.yaml pilot activation in this story; activated and legacy instruction branches are covered without converting the repository into a pilot"

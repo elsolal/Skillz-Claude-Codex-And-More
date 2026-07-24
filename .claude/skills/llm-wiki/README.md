@@ -222,6 +222,20 @@ downloads a model, or invokes `qmd update`/`embed`. The default search timeout
 is eight seconds per route and can never exceed thirty seconds inside the
 adapter.
 
+### Query route selection
+
+`/wiki-query` starts from the task and checks the nearest project activation:
+
+- With `.agents/memory.yaml` and a configured projection, it uses `memory
+  context` against the manifest's project collection. QMD unavailability keeps
+  the same command and activates only the bounded `entry_pages` behavior above.
+- Without `.agents/memory.yaml`, it preserves the standalone vault catalog
+  workflow as an explicit **legacy/non-pilot** route. That route does not invoke
+  `memory context`, emit a memory receipt/event, or count as pilot usage.
+
+This split keeps older vaults usable without allowing their unbounded catalog
+reads to masquerade as evidence from the measured task-first pilot.
+
 ```bash
 # 1. Initialize a vault
 python scripts/init_vault.py --path ~/vaults/research --topic "LLM interpretability" --tool all

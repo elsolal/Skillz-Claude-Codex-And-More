@@ -23,6 +23,29 @@ assert_contains() {
     grep -Fq "$expected" "$file" || fail "Expected '$expected' in $file"
 }
 
+assert_not_contains() {
+    local file="$1"
+    local forbidden="$2"
+    ! grep -Fiq "$forbidden" "$file" || fail "Did not expect '$forbidden' in $file"
+}
+
+assert_task_first_loader() {
+    local file="$1"
+    assert_contains "$file" "memory context"
+    assert_not_contains "$file" "read wiki/index.md first"
+    assert_not_contains "$file" "index-first read"
+}
+
+assert_installed_task_first_contract() {
+    local home="$1"
+    assert_task_first_loader "$home/.claude/skills/llm-wiki/SKILL.md"
+    assert_task_first_loader "$home/.codex/skills/source-command-wiki-query/SKILL.md"
+    assert_task_first_loader "$home/.claude/CLAUDE.md"
+    assert_task_first_loader "$home/.codex/AGENTS.md"
+    assert_task_first_loader "$home/.gemini/GEMINI.md"
+    assert_task_first_loader "$home/.config/opencode/AGENTS.md"
+}
+
 assert_managed_link() {
     local link="$1"
     local expected_target="$2"
@@ -89,6 +112,7 @@ test_install_update_and_uninstall() {
     [ -L "$home/.gemini/skills/llm-wiki" ] || fail "Gemini provider mirror was not installed"
     [ -L "$home/.config/opencode/skills/llm-wiki" ] || fail "OpenCode provider mirror was not installed"
     [ -L "$home/.agents/skills/llm-wiki" ] || fail "Generic agents provider mirror was not installed"
+    assert_installed_task_first_contract "$home"
     assert_absent "$home/unexpected-download-command"
     skillz_output="$(HOME="$home" PATH="$test_path" skillz-memory --version)"
     alias_output="$(HOME="$home" PATH="$test_path" memory --version)"
@@ -99,6 +123,7 @@ test_install_update_and_uninstall() {
     run_installer "$home" "$test_path" "$log" update all
     assert_managed_link "$home/.local/bin/skillz-memory" "$expected_target"
     assert_managed_link "$home/.local/bin/memory" "$expected_target"
+    assert_installed_task_first_contract "$home"
     [ "$(grep -c '^binary:skillz-memory$' "$home/.claude/.skillz-manifest")" -eq 1 ] || \
         fail "skillz-memory manifest entry is not idempotent"
     [ "$(grep -c '^binary:memory$' "$home/.claude/.skillz-manifest")" -eq 1 ] || \

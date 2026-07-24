@@ -92,13 +92,12 @@ When the user asks to capture a useful session:
 
 When the user asks a question:
 
-1. Read `wiki/index.md` first
-2. Pick 3-10 relevant pages across categories
-3. Read them in full
-4. Follow wikilinks opportunistically
-5. Fall back to `wiki_search.py --query <terms>` if needed
-6. Synthesize: direct answer → supporting detail → inline `[[sources/xxx]]` citations → "Related pages"
-7. **Offer to file the answer back** as a new page
+1. Keep the question as the task and check the nearest project for `.agents/memory.yaml`
+2. For an activated project, run `memory context --mode project --task-category <category> "<task>"` against its project collection
+3. If QMD is unavailable, keep using `memory context`; it reads only manifest-declared `entry_pages` under the configured caps
+4. For a vault without `.agents/memory.yaml`, use the catalog workflow as **legacy/non-pilot**; it emits no memory receipt/event and does not count as pilot usage
+5. Synthesize from the selected evidence with inline `[[sources/xxx]]` citations and a "Related pages" section
+6. **Offer to file the answer back** as a new page
 
 ### Lint
 

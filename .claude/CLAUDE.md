@@ -1,13 +1,18 @@
 <!-- PROJECT-MEMORY-START -->
 ## Local Project Memory
 
-Before non-trivial work in this project, read the local memory pointer if it exists:
+Before non-trivial work in this project, start from the task and read the local memory pointer if it exists:
 
 ```text
 .claude/project-memory.md
 ```
 
-This file is the local pointer to durable project memory: related wiki page, long-term vault, QMD collection, and session-capture guidance. Read it first, then inspect the current codebase; the codebase remains the immediate source of truth.
+This file is the local pointer to durable project memory: related wiki page, long-term vault, QMD collection, and session-capture guidance.
+
+- If the nearest project has `.agents/memory.yaml` and a configured projection, run `memory context --mode project --task-category <category> "<task>"` before opening a complete wiki catalog.
+- If QMD is unavailable, keep using `memory context`; its supported degradation reads only manifest-declared `entry_pages` under their caps.
+- If no `.agents/memory.yaml` applies, `/wiki-query` keeps the historical catalog workflow as an explicit legacy/non-pilot route. It emits no `memory` receipt/event and does not count as pilot usage.
+- Then inspect the current codebase; it remains the immediate source of truth.
 
 At the end of useful sessions, capture durable decisions, conventions, solved problems, validation commands, and next steps with `/wiki-capture-session <project>`, then ingest the generated source with `/wiki-ingest raw/session-notes/<filename>.md`.
 

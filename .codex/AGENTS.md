@@ -16,6 +16,10 @@ This folder provides project-local compatibility for OpenAI Codex CLI.
 2. Before using any skill, open its `SKILL.md` and follow that file.
 3. Treat `.claude/` as the single source of truth. Do not duplicate skill logic in this folder.
 
+## Project Memory
+
+Start from the task. When the nearest project has `.agents/memory.yaml`, run `memory context --mode project --task-category <category> "<task>"` against its project collection. Missing QMD stays bounded to the declared `entry_pages`. Without a manifest, `/wiki-query` is a legacy/non-pilot route and emits no memory receipt/event.
+
 ## MCP
 
 Codex MCP servers live in `~/.codex/config.toml` for global installs and `.codex/config.toml` for project templates.
@@ -27,7 +31,7 @@ command = "qmd"
 args = ["mcp"]
 ```
 
-Use `qmd` when `wiki/index.md` is not enough to find project memory.
+`memory context` owns QMD invocation, sufficiency, and authorized fallback for activated projects; do not broaden the route manually.
 
 ## Portable Commands
 
