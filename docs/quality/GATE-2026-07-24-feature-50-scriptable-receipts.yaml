@@ -1,0 +1,62 @@
+# Quality gate for STORY-010 / GitHub issue #50.
+verdict: PASS
+niveau: 3
+tours: 3
+base: main
+head: 1b76af6
+diff_hash: "41798c226fc5de58763d7e4df709eb5dbaf4c1180e7068acc86d6de482fb331a"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "vert (3/3 tours, exit 0)"
+    tests:
+      cmd: "bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "vert (3/3 tours; installer acceptance PASS; 98 tests Python)"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: "vert (exit 0)"
+    runtime_contract:
+      flow: "manifest + projection -> recu initial stderr -> retrieval QMD ou degradation -> recu final humain/JSON stdout"
+      statut: "vert via faux binaire QMD 0.9.x et vaults temporaires; TTY, non-TTY, NO_COLOR, succes, degradation et JSON parseable couverts"
+  red_green:
+    red: "4 nouveaux contrats echouaient: run_context refusait le callback initial, data.receipt etait absent, stderr ne portait aucun recu initial et le resume humain omettait projet, budget, duree et fraicheur."
+    green: "98 tests passent; les deux renderers consomment le meme ContextOutcome, stdout JSON reste un document unique et aucun recu ne contient la requete."
+  convergence:
+    statut: "atteinte"
+    preuve: "le tour 1 a corrige une P1 structurelle; les tours 2 et 3 ont produit zero nouveau P0/P1 avec toutes les preuves executables vertes"
+  opinion:
+    findings:
+      total: 1
+      confirmes: 1
+      refutes: 0
+      corriges: 1
+      restants_p0_p1: 0
+      notes_p2_p3: 0
+    registre:
+      - id: ".claude/skills/llm-wiki/memory_cli/receipts.py:maintainability:298136e5"
+        severite: P1
+        statut: corrige
+        resume: "initial_receipt etait optionnel dans ContextOutcome, permettant de rendre un resultat sans le contrat de recu obligatoire"
+        preuve: "ContextOutcome et ses trois factories exigent maintenant ContextInitialReceipt; run_context le construit une fois et le propage sans wrapper replace"
+    lentilles:
+      correctness_security: "approve; requete absente des objets et sorties, fallback planifie seulement s'il est autorise, stdout JSON unique et statuts/exit codes existants preserves"
+      readability: "approve; renderers humain/JSON extraits de cli.py, objets immuables et ordre des champs verrouille par snapshots contractuels"
+      performance: "approve; une evaluation pure des fallbacks autorises est avancee avant QMD, sans nouvel appel processus, reseau, modele ou lecture de page"
+      thermo_nuclear: "approve apres correction; receipt obligatoire par type, aucun fichier ne franchit 1000 lignes, aucune branche dispersee, cast ou wrapper identitaire ajoute"
+acceptation:
+  AC1: "vert - le callback initial precede toute invocation QMD et affiche projet, mode, categorie, route autorisee et budget sans champ query"
+  AC2: "vert - le recu final separe retrieved, read, tokens estimes, budget, duree, fraicheur et fallback en humain et JSON"
+  AC3: "vert - sufficient, insufficient, ambiguous, degraded et blocked conservent leur statut global; le rendu humain degrade ne contient aucun libelle Memory ready"
+  AC4: "vert - enveloppe schema_version/command/status/project_id/event_id/data/warnings/errors ordonnee; receipt.initial/final et types nullable stables verifies"
+  AC5: "vert - snapshots humains identiques sans ANSI sous NO_COLOR/non-TTY et tous les labels fonctionnels restent presents sur un stream TTY"
+  AC6: "vert - le recu initial et les diagnostics restent sur stderr; stdout --json est parse par json.loads sans caractere parasite"
+decisions_prises_en_ton_nom: []
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no long-running runtime application surface; subprocess CLI integration tests provide executable proof"
+  - "no live real-vault QMD query; fixture-backed QMD 0.9.x and temporary vaults provide deterministic proof"
+  - "no event persistence or generated event id; STORY-011 owns the metadata-only event store and event_id remains null/not recorded"
+  - "no frontend or SEO/GEO surface; design, SEO/GEO and WCAG web lenses are not applicable"
