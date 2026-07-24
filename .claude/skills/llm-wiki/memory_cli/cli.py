@@ -494,10 +494,17 @@ def _render_context_human(outcome: ContextOutcome, *, explain: bool) -> None:
                 print(f"Fallback reason codes: {fallback_reasons}")
     if outcome.assembly is not None:
         assembly = outcome.assembly
+        source = f" · source {assembly.source}"
+        page_limit = (
+            f" · cap {assembly.page_limit} page(s)"
+            if assembly.page_limit is not None
+            else ""
+        )
         print(
             f"Context: {assembly.status.value} · "
             f"{len(assembly.retrieved)} retrieved · {len(assembly.sections)} read · "
             f"~{assembly.estimated_tokens}/{assembly.target_tokens} tokens"
+            f"{source}{page_limit}"
         )
         if assembly.hard_cap_exceeded:
             print(

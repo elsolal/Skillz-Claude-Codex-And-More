@@ -8,7 +8,7 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-from .assembly import DocumentAccessError, assemble_context
+from .assembly import DocumentAccessError, assemble_context, assemble_entry_pages
 from .contracts import (
     FreshnessStatus,
     MemoryManifest,
@@ -37,7 +37,7 @@ from .qmd_adapter import (
     inspect_qmd,
     search_qmd,
 )
-from .receipts import ContextOutcome, blocked_context, context_outcome
+from .receipts import ContextOutcome, blocked_context, context_outcome, degraded_context
 from .routing import authorized_fallbacks
 from .sufficiency import evaluate_sufficiency, provenance_for_path, thresholds_for
 
@@ -104,6 +104,30 @@ def _evidence(
         thresholds_version=thresholds_version,
     )
 
+def _search_failure_details(
+    error: Exception,
+) -> tuple[QmdSearchStatus, str, str, str, int]:
+    if isinstance(error, QmdTimeoutError):
+        return (
+            QmdSearchStatus.TIMEOUT,
+            "qmd_timeout",
+            "The QMD search exceeded its bounded timeout.",
+            "Retry memory context or run memory doctor.",
+            40,
+        )
+    if isinstance(error, QmdOutputError):
+        retrieval_status = QmdSearchStatus.INVALID
+        code = "qmd_invalid_output"
+        message = "The QMD search returned an unsupported result."
+        correction = "Repair or update QMD 0.9.x, then run memory doctor."
+    else:
+        retrieval_status = QmdSearchStatus.ERROR
+        code = "qmd_search_failed"
+        message = "The QMD search failed."
+        correction = "Run memory doctor, then retry the context command."
+    return retrieval_status, code, message, correction, 40
+
+
 def _search_failure(
     error: Exception,
     *,
@@ -116,33 +140,7 @@ def _search_failure(
     fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
     explicit_decision: bool = False,
 ) -> ContextOutcome:
-    if isinstance(error, QmdTimeoutError):
-        return blocked_context(
-            project_id=project_id,
-            mode=mode,
-            task_category=task_category,
-            route=route,
-            retrieval_status=QmdSearchStatus.TIMEOUT,
-            code="qmd_timeout",
-            message="The QMD search exceeded its bounded timeout.",
-            correction="Retry memory context or run memory doctor.",
-            exit_code=40,
-            hits=hits,
-            duration_ms=duration_ms,
-            fallback_used=len(route) > 1,
-            fallback_explicit_decision=explicit_decision,
-            fallback_reason_codes=fallback_reason_codes,
-        )
-    if isinstance(error, QmdOutputError):
-        retrieval_status = QmdSearchStatus.INVALID
-        code = "qmd_invalid_output"
-        message = "The QMD search returned an unsupported result."
-        correction = "Repair or update QMD 0.9.x, then run memory doctor."
-    else:
-        retrieval_status = QmdSearchStatus.ERROR
-        code = "qmd_search_failed"
-        message = "The QMD search failed."
-        correction = "Run memory doctor, then retry the context command."
+    retrieval_status, code, message, correction, exit_code = _search_failure_details(error)
     return blocked_context(
         project_id=project_id,
         mode=mode,
@@ -152,12 +150,84 @@ def _search_failure(
         code=code,
         message=message,
         correction=correction,
-        exit_code=40,
+        exit_code=exit_code,
         hits=hits,
         duration_ms=duration_ms,
         fallback_used=len(route) > 1,
         fallback_explicit_decision=explicit_decision,
         fallback_reason_codes=fallback_reason_codes,
+    )
+
+
+def _local_entry_page_fallback(
+    *,
+    manifest: MemoryManifest,
+    projection: MemoryProjection,
+    mode: RetrievalMode,
+    task_category: TaskCategory,
+    route: tuple[str, ...],
+    retrieval_status: QmdSearchStatus,
+    code: str,
+    message: str,
+    correction: str,
+    duration_ms: int | None = None,
+) -> ContextOutcome:
+    if mode is RetrievalMode.HISTORICAL:
+        return blocked_context(
+            project_id=manifest.project.id,
+            mode=mode,
+            task_category=task_category,
+            route=route,
+            retrieval_status=retrieval_status,
+            code=code,
+            message=message,
+            correction=correction,
+            exit_code=31,
+            duration_ms=duration_ms,
+        )
+
+    assembly, issues = assemble_entry_pages(
+        manifest.stores.project.entry_pages,
+        mode=mode,
+        budget=manifest.budgets[mode],
+        root=projection.stores["project"].root,
+    )
+    if not assembly.sections:
+        return blocked_context(
+            project_id=manifest.project.id,
+            mode=mode,
+            task_category=task_category,
+            route=route,
+            retrieval_status=retrieval_status,
+            code="entry_pages_unavailable",
+            message="QMD is unavailable and no bounded project entry page can be read.",
+            correction=(
+                "Restore a declared entry page or repair QMD, then retry memory context."
+            ),
+            exit_code=32,
+            duration_ms=duration_ms,
+        )
+
+    return degraded_context(
+        project_id=manifest.project.id,
+        mode=mode,
+        task_category=task_category,
+        route=route,
+        retrieval_status=retrieval_status,
+        code=code,
+        message=message,
+        correction=correction,
+        duration_ms=duration_ms,
+        assembly=assembly,
+        warnings=tuple(
+            {
+                "code": issue.code,
+                "path": issue.relative_path.as_posix(),
+                "message": issue.message,
+                "correction": issue.correction,
+            }
+            for issue in issues
+        ),
     )
 
 
@@ -251,8 +321,9 @@ def run_context(
     route = (project_collection,)
     executable = _qmd_executable()
     if executable is None:
-        return blocked_context(
-            project_id=manifest.project.id,
+        return _local_entry_page_fallback(
+            manifest=manifest,
+            projection=projection,
             mode=mode,
             task_category=task_category,
             route=route,
@@ -260,7 +331,6 @@ def run_context(
             code="qmd_missing",
             message="QMD is required for project retrieval but is unavailable.",
             correction=QMD_INSTALL_COMMAND,
-            exit_code=31,
         )
 
     try:
@@ -274,12 +344,17 @@ def run_context(
             timeout_seconds=timeout_seconds,
         )
     except (QmdTimeoutError, QmdOutputError, QmdInvocationError) as error:
-        return _search_failure(
-            error,
-            project_id=manifest.project.id,
+        retrieval_status, code, message, correction, _ = _search_failure_details(error)
+        return _local_entry_page_fallback(
+            manifest=manifest,
+            projection=projection,
             mode=mode,
             task_category=task_category,
             route=route,
+            retrieval_status=retrieval_status,
+            code=code,
+            message=message,
+            correction=correction,
         )
 
     try:
