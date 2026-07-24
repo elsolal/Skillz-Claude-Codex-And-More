@@ -462,8 +462,10 @@ class ContextCliIntegrationTests(unittest.TestCase):
                     ["elsolal-wiki", "shared-wiki"],
                 )
                 self.assertTrue(output["data"]["fallback"]["used"])
+                self.assertEqual(len(output["data"]["retrieval"]["hits"]), 1)
                 if read_count:
                     self.assertEqual(output["data"]["context"]["source"], "entry_pages")
+                    self.assertEqual(output["data"]["context"]["retrieved_count"], 1)
                     self.assertEqual(output["data"]["context"]["read_count"], read_count)
                 else:
                     self.assertNotIn("context", output["data"])

@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -138,6 +139,7 @@ def _local_entry_page_fallback(
     code: str,
     message: str,
     correction: str,
+    hits: tuple[RetrievalHit, ...] = (),
     duration_ms: int | None = None,
     fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
     explicit_decision: bool = False,
@@ -154,6 +156,7 @@ def _local_entry_page_fallback(
             message=message,
             correction=correction,
             exit_code=31,
+            hits=hits,
             duration_ms=duration_ms,
             fallback_used=fallback_used,
             fallback_explicit_decision=explicit_decision,
@@ -166,6 +169,8 @@ def _local_entry_page_fallback(
         budget=manifest.budgets[mode],
         root=projection.stores["project"].root,
     )
+    if hits:
+        assembly = replace(assembly, retrieved=hits)
     if not assembly.sections:
         return blocked_context(
             project_id=manifest.project.id,
@@ -179,6 +184,7 @@ def _local_entry_page_fallback(
                 "Restore a declared entry page or repair QMD, then retry memory context."
             ),
             exit_code=32,
+            hits=hits,
             duration_ms=duration_ms,
             fallback_used=fallback_used,
             fallback_explicit_decision=explicit_decision,
@@ -194,6 +200,7 @@ def _local_entry_page_fallback(
         code=code,
         message=message,
         correction=correction,
+        hits=hits,
         duration_ms=duration_ms,
         fallback_used=fallback_used,
         fallback_explicit_decision=explicit_decision,
@@ -451,6 +458,7 @@ def run_context(
             code=code,
             message=message,
             correction=correction,
+            hits=project_retrieval.hits,
             duration_ms=project_retrieval.duration_ms,
             fallback_reason_codes=project_decision.reason_codes,
             explicit_decision=explicit_decision,
