@@ -4,6 +4,28 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## [Unreleased] - 2026-07-24
 
+**Metadata-only memory events and project-scoped retention**
+
+### Added
+- A closed `context_completed` event V1 contract with unique IDs, timestamps, project and route metadata, relative document paths, retrieval scores, measured reads, token budgets, duration, freshness, statuses, and reason codes.
+- Private monthly JSONL storage under the XDG/Skillz state directory with restrictive POSIX permissions, project-level locking, compact append, `fsync`, symlink escape refusal, and concurrency-safe unique IDs.
+- `memory purge [--force] [--json]` for manifest-driven retention or immediate removal of detailed events belonging only to the current project.
+- Unit, contract, and subprocess integration coverage for privacy rejection before mutation, permissions, 24 concurrent writers, corrupted tails, strict JSON, retention boundaries, forced purge, project isolation, and telemetry failure behavior.
+
+### Changed
+- Every completed `memory context` attempt now persists exactly one metadata-only event and returns the same non-null `event_id`; pre-retrieval manifest or projection failures remain unjournaled.
+- Context remains available when telemetry integrity fails, while `event_id` stays null, the error is explicit, and the process returns exit `50`.
+- Event readers preserve the valid prefix only for a physically unterminated final line; complete malformed records, duplicate keys, non-standard constants, unknown fields, sensitive keys, secret-shaped values, and absolute paths fail closed.
+
+### Fixed
+- Event storage reuses the manifest path discovered before retrieval, avoiding a late rediscovery race that could discard already-retrieved context.
+- Monthly retention rewrites and forced deletion now share the same project lock as append operations, preventing mixed lines and cross-project mutation.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — installer PASS, 136 tests Python OK on Python 3.12.7
+- Level-3 quality gate: PASS after four rounds, two confirmed P1 findings corrected, and two consecutive clean rounds
+
 **Scriptable initial and final memory receipts**
 
 ### Added
