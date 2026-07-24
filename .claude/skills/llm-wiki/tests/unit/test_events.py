@@ -375,7 +375,7 @@ class EventContractUnitTests(unittest.TestCase):
         self.assertEqual(reconciled.status, "ready")
         self.assertGreaterEqual(directory_fsyncs, 1)
 
-    def test_cross_month_debt_action_reconciles_directory_fsync_failure(self) -> None:
+    def test_expired_snooze_replay_reconciles_directory_fsync_failure(self) -> None:
         evidence = self.repo / "current-contract.py"
         evidence.write_text("CURRENT = True\n", encoding="utf-8")
         parent = build_context_event(
@@ -415,14 +415,20 @@ class EventContractUnitTests(unittest.TestCase):
         arguments = {
             "project_id": "skillz-claude",
             "parent_event_id": finish.conflict_event["event_id"],
-            "action": DebtAction.FIX,
+            "action": DebtAction.SNOOZE,
             "reason": None,
-            "snooze_until": None,
+            "snooze_until": "2026-08-02",
             "state_dir": self.state_dir,
             "project_root": self.repo,
             "occurred_at": datetime(2026, 8, 1, 10, tzinfo=timezone.utc),
         }
-        with patch("memory_cli.events.os.fsync", side_effect=fail_directory_fsync):
+        with (
+            patch("memory_cli.conflicts.datetime") as conflicts_datetime,
+            patch("memory_cli.events.os.fsync", side_effect=fail_directory_fsync),
+        ):
+            conflicts_datetime.now.return_value = datetime(
+                2026, 8, 1, tzinfo=timezone.utc
+            )
             uncertain = append_memory_debt_action(**arguments)
 
         self.assertEqual(
@@ -437,7 +443,16 @@ class EventContractUnitTests(unittest.TestCase):
                 directory_fsyncs += 1
             real_fsync(descriptor)
 
-        with patch("memory_cli.events.os.fsync", side_effect=track_directory_fsync):
+        with (
+            patch("memory_cli.conflicts.datetime") as conflicts_datetime,
+            patch(
+                "memory_cli.events.os.fsync",
+                side_effect=track_directory_fsync,
+            ),
+        ):
+            conflicts_datetime.now.return_value = datetime(
+                2026, 8, 2, tzinfo=timezone.utc
+            )
             with self.assertRaises(EventIntegrityError) as raised:
                 append_memory_debt_action(**arguments)
 

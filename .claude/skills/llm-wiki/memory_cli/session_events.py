@@ -17,6 +17,7 @@ from .contracts import (
     ConflictCategory,
     ConflictEvidenceType,
     ConflictRisk,
+    DEBT_ACTION_POLICY_VERSION,
     DebtAction,
 )
 
@@ -314,17 +315,16 @@ def append_memory_debt_action(
                     f"Open debt event is duplicated: {parent_event_id}.",
                     "Inspect or purge the affected local project telemetry.",
                 )
-            event = build_memory_debt_action_event(
-                parents[0],
-                action=action,
-                reason=reason,
-                snooze_until=snooze_until,
-                occurred_at=occurred_at,
-            )
             if reviewed_actions:
+                requested_payload = {
+                    "debt_action_policy_version": DEBT_ACTION_POLICY_VERSION,
+                    "action": action.value,
+                    "reason": reason,
+                    "snooze_until": snooze_until,
+                }
                 if (
                     len(reviewed_actions) == 1
-                    and reviewed_actions[0]["payload"] == event["payload"]
+                    and reviewed_actions[0]["payload"] == requested_payload
                 ):
                     replay_diagnostics = event_store._fsync_directory(project_dir)
                     if replay_diagnostics:
@@ -338,6 +338,13 @@ def append_memory_debt_action(
                     f"Memory debt is already reviewed: {parent_event_id}.",
                     "Reuse the existing immutable debt action.",
                 )
+            event = build_memory_debt_action_event(
+                parents[0],
+                action=action,
+                reason=reason,
+                snooze_until=snooze_until,
+                occurred_at=occurred_at,
+            )
             append_diagnostics = event_store._append_event_line(
                 event_store._event_path(project_dir, event), event
             )
