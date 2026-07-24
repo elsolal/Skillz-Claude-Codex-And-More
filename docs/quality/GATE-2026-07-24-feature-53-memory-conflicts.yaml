@@ -1,0 +1,111 @@
+# Quality gate for STORY-013 / GitHub issue #53.
+verdict: CONCERNS
+niveau: 3
+tours: 4
+base: main
+head: 7229180dc67c
+diff_hash: "bd8eaae00dd19ee1527bb0e3c25d32c263aeb343ae746f2181c898d8734e0c35"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "vert (4/4 tours, exit 0)"
+    tests:
+      cmd: "PATH=/Users/aymeric/miniconda3/bin:$PATH bash tests/test-install-memory-cli.sh && PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "vert (4/4 tours; installer acceptance PASS; 194, 194, 195 puis 196 tests Python)"
+    diff_check:
+      cmd: "git diff --check"
+      statut: "vert avant chaque commit de correction"
+    runtime_contract:
+      flow: "memory context -> memory finish avec usage_attested + memory_conflict atomiques -> recu humain/JSON -> memory finish con_... avec memory_debt_action append-only"
+      statut: "vert via faux QMD 0.9.x, worktrees/vaults/state dirs temporaires, snapshots et huit revues concurrentes"
+  red_green:
+    red: "les tests d'acceptation echouaient sur memory_cli.conflicts absent et sur les options --conflict-* inconnues (argparse exit 2)"
+    green: "196 tests passent; precedence repository, matrice de risque, brouillon metadata-only, absence d'ecriture wiki et trois actions sont prouves"
+  convergence:
+    statut: "non atteinte dans la borne"
+    preuve: "nouveaux P1 confirmes aux tours 1, 2 et 3; tour 4 sans nouveau P0-P3, mais un seul tour propre consecutif avant le plafond de quatre"
+  opinion:
+    findings:
+      total: 10
+      confirmes: 8
+      refutes: 2
+      corriges_p0_p1: 4
+      restants_p0_p1: 0
+      notes_p2_p3: 4
+    registre:
+      - id: ".claude/skills/llm-wiki/memory_cli/conflicts.py:security:13cc04a9"
+        severite: P1
+        statut: corrige
+        resume: "une chaine libre ou un chemin inexistant pouvait etre persiste comme preuve repo relative"
+        preuve: "la persistance exige maintenant un fichier regulier existant dont la resolution canonique reste dans le worktree; regressions texte libre, absent et symlink externe couvertes"
+      - id: ".claude/skills/llm-wiki/memory_cli/receipts.py:api:195ec77d"
+        severite: P1
+        statut: refute
+        resume: "le mode conflit retourne un event_id con_ a la racine plutot que att_"
+        preuve: "le chemin historique sans conflit reste inchange; le nouveau mode opt-in documente con_ comme identifiant de dette et l'expose aussi dans data.conflict.debt.id"
+      - id: ".claude/skills/llm-wiki/memory_cli/cli.py:readability:4e0b5327"
+        severite: P2
+        statut: note
+        resume: "l'aide positionnelle de finish decrit seulement un context event alors que --debt-action attend un conflit con_"
+        preuve: "le README documente les deux commandes; l'aide argparse devra etre alignee lors d'un prochain lot"
+      - id: ".claude/skills/llm-wiki/memory_cli/session_events.py:readability:75201800"
+        severite: P3
+        statut: note
+        resume: "le message de correction parle de toutes les options --conflict-* alors que deux flags ont un autre prefixe"
+        preuve: "erreur stable et sans effet comportemental; enumerer les cinq flags lors d'un prochain polish"
+      - id: ".claude/skills/llm-wiki/memory_cli/events.py:readability:3b907498"
+        severite: P3
+        statut: note
+        resume: "la correction commune d'identifiant invalide nomme toujours build_context_event"
+        preuve: "validation correcte; seul le conseil de debug devrait devenir neutre ou specifique au type"
+      - id: ".claude/skills/llm-wiki/memory_cli/session_events.py:performance:588cc205"
+        severite: P2
+        statut: note
+        resume: "lookup parent et doublon relisent les JSONL retenus sous verrou exclusif"
+        preuve: "cout lineaire confirme mais volumes pilotes faibles; une indexation atomique devient pertinente seulement avec des volumes mesures plus eleves"
+      - id: ".claude/skills/llm-wiki/memory_cli/session_events.py:atomicity:b74382e9"
+        severite: P1
+        statut: corrige
+        resume: "une ecriture partielle pouvait conserver usage_attested sans memory_conflict et rendre la reprise impossible"
+        preuve: "la paire passe par temp file, fsync fichier, replace atomique et fsync repertoire; echec pre-replace laisse le journal intact et retryable"
+      - id: ".claude/skills/llm-wiki/memory_cli/render_human.py:api:86672880"
+        severite: P1
+        statut: corrige
+        resume: "le recu humain omettait continue, inspect et prepare_patch presents dans le JSON et l'UX approuvee"
+        preuve: "bloc Actions [c]/[i]/[p] ajoute et snapshot contractuel mis a jour"
+      - id: ".claude/skills/llm-wiki/memory_cli/events.py:durability:8da55116"
+        severite: P1
+        statut: corrige
+        resume: "un echec du fsync repertoire apres replace publiait le batch mais retournait seulement exit 50, puis retry parent_already_attested"
+        preuve: "diagnostic de durabilite incertaine conserve les IDs; replay exact reconcilie les payloads et reutilise les evenements, replay different refuse"
+      - id: ".claude/skills/llm-wiki/memory_cli/events.py:maintainability:6fb907e1"
+        severite: P1
+        statut: refute
+        resume: "events.py atteint 1010 lignes et collabore dans les deux sens avec conflicts/session_events"
+        preuve: "le seuil est reel mais l'extraction est substantielle, le graphe d'import reste chargeable dans les deux sens et une nouvelle facade ajouterait une couche sans simplification prouvee; reevaluer au prochain workflow relationnel"
+    lentilles:
+      correctness_security: "approve apres quatre corrections P1 contre-verifiees; aucun nouveau finding au tour 4"
+      readability: "approve final; actions humaines alignees, deux notes de message et une note d'aide non bloquantes"
+      performance: "approve avec note P2; scans lineaires sous verrou acceptables aux volumes pilotes actuels"
+      thermo_nuclear: "finding P1 de boundary refute par contre-verification; risque residuel du seuil 1010 a surveiller sans refactor impose"
+acceptation:
+  AC1: "vert - precedence repository et references memory/repository relatives dans les recus humain et JSON"
+  AC2: "vert - seule la combinaison high + product/architecture/security/data produit requires_human true et exit 21"
+  AC3: "vert - conflit faible et dette ouverte persistent avec exit 0 sans bloquer le contexte"
+  AC4: "vert - conflit/draft metadata-only; texte libre, secret-shape, chemin absolu, absent ou hors worktree refuses; hashes des vaults inchanges"
+  AC5: "vert - fix, ignore --reason et snooze --until persistent un unique memory_debt_action; concurrence et replay couverts"
+decisions_prises_en_ton_nom:
+  - "La preuve repository doit maintenant designer un fichier regulier existant dont la cible canonique reste dans le worktree, au-dela de la simple syntaxe relative validee au plan."
+  - "La paire usage_attested + memory_conflict est publiee par remplacement atomique du JSONL mensuel au lieu de deux appends logiques."
+  - "Un echec de fsync repertoire apres publication retourne le recu avec diagnostic/exit 50; une relance identique reconcilie le batch, une relance differente est bloquee."
+  - "Les notes P2/P3 d'aide CLI, de messages de correction et de scan lineaire ne sont pas corrigees dans la boucle afin d'eviter le scope creep."
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no long-running runtime application surface; subprocess CLI integration tests provide executable behavior proof"
+  - "no live real-vault QMD query; fixture-backed QMD 0.9.x and temporary vaults provide deterministic proof"
+  - "the shell resolves Apple Python 3.9.6 by default; verification prepended Miniconda Python 3.12.7 to satisfy the documented Python >=3.10 contract"
+  - "no frontend or SEO/GEO surface; design, SEO/GEO and WCAG web lenses are not applicable"
+  - "two consecutive clean review rounds were not reached within the level-3 four-round cap"
