@@ -54,6 +54,7 @@ class ContextOutcome:
     retrieval_status: QmdSearchStatus
     duration_ms: int | None
     hits: tuple[RetrievalHit, ...]
+    initial_receipt: ContextInitialReceipt
     decision: SufficiencyDecision | None = None
     fallback_used: bool = False
     fallback_explicit_decision: bool = False
@@ -61,7 +62,6 @@ class ContextOutcome:
     warnings: tuple[dict[str, Any], ...] = ()
     errors: tuple[dict[str, Any], ...] = ()
     assembly: ContextAssembly | None = None
-    initial_receipt: ContextInitialReceipt | None = None
     event_id: str | None = None
 
     def data(self) -> dict[str, Any]:
@@ -129,11 +129,10 @@ class ContextOutcome:
                     for section in self.assembly.sections
                 ],
             }
-        if self.initial_receipt is not None:
-            data["receipt"] = {
-                "initial": self.initial_receipt.data(),
-                "final": self.final_receipt_data(),
-            }
+        data["receipt"] = {
+            "initial": self.initial_receipt.data(),
+            "final": self.final_receipt_data(),
+        }
         return data
 
     def final_receipt_data(self) -> dict[str, Any]:
@@ -141,11 +140,7 @@ class ContextOutcome:
         retrieved = len(assembly.retrieved) if assembly is not None else len(self.hits)
         read = len(assembly.sections) if assembly is not None else 0
         estimated_tokens = assembly.estimated_tokens if assembly is not None else 0
-        budget_tokens = (
-            self.initial_receipt.target_tokens
-            if self.initial_receipt is not None
-            else (assembly.target_tokens if assembly is not None else None)
-        )
+        budget_tokens = self.initial_receipt.target_tokens
         freshness = (
             self.decision.evidence.freshness.value
             if self.decision is not None
@@ -215,6 +210,7 @@ def blocked_context(
     message: str,
     correction: str,
     exit_code: int,
+    initial_receipt: ContextInitialReceipt,
     decision: SufficiencyDecision | None = None,
     hits: tuple[RetrievalHit, ...] = (),
     duration_ms: int | None = None,
@@ -232,6 +228,7 @@ def blocked_context(
         retrieval_status=retrieval_status,
         duration_ms=duration_ms,
         hits=hits,
+        initial_receipt=initial_receipt,
         decision=decision,
         fallback_used=fallback_used,
         fallback_explicit_decision=fallback_explicit_decision,
@@ -257,6 +254,7 @@ def degraded_context(
     message: str,
     correction: str,
     assembly: ContextAssembly,
+    initial_receipt: ContextInitialReceipt,
     hits: tuple[RetrievalHit, ...] = (),
     duration_ms: int | None = None,
     fallback_used: bool = False,
@@ -276,6 +274,7 @@ def degraded_context(
         retrieval_status=retrieval_status,
         duration_ms=duration_ms,
         hits=hits,
+        initial_receipt=initial_receipt,
         fallback_used=fallback_used,
         fallback_explicit_decision=fallback_explicit_decision,
         fallback_reason_codes=fallback_reason_codes,
@@ -301,6 +300,7 @@ def context_outcome(
     hits: tuple[RetrievalHit, ...],
     duration_ms: int,
     decision: SufficiencyDecision,
+    initial_receipt: ContextInitialReceipt,
     fallback_used: bool = False,
     fallback_explicit_decision: bool = False,
     fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
@@ -329,6 +329,7 @@ def context_outcome(
         retrieval_status=(QmdSearchStatus.READY if effective_hits else retrieval.status),
         duration_ms=duration_ms,
         hits=effective_hits,
+        initial_receipt=initial_receipt,
         decision=decision,
         fallback_used=fallback_used,
         fallback_explicit_decision=fallback_explicit_decision,

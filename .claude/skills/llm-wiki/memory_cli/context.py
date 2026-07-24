@@ -146,6 +146,7 @@ def _local_entry_page_fallback(
     code: str,
     message: str,
     correction: str,
+    initial_receipt: ContextInitialReceipt,
     hits: tuple[RetrievalHit, ...] = (),
     duration_ms: int | None = None,
     fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
@@ -163,6 +164,7 @@ def _local_entry_page_fallback(
             message=message,
             correction=correction,
             exit_code=31,
+            initial_receipt=initial_receipt,
             hits=hits,
             duration_ms=duration_ms,
             fallback_used=fallback_used,
@@ -191,6 +193,7 @@ def _local_entry_page_fallback(
                 "Restore a declared entry page or repair QMD, then retry memory context."
             ),
             exit_code=32,
+            initial_receipt=initial_receipt,
             hits=hits,
             duration_ms=duration_ms,
             fallback_used=fallback_used,
@@ -213,6 +216,7 @@ def _local_entry_page_fallback(
         fallback_explicit_decision=explicit_decision,
         fallback_reason_codes=fallback_reason_codes,
         assembly=assembly,
+        initial_receipt=initial_receipt,
         warnings=tuple(
             {
                 "code": issue.code,
@@ -237,6 +241,7 @@ def _materialize_context(
     duration_ms: int,
     decision: SufficiencyDecision,
     risk_reason: RiskReason | None,
+    initial_receipt: ContextInitialReceipt,
     fallback_used: bool = False,
     fallback_explicit_decision: bool = False,
     fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
@@ -272,6 +277,7 @@ def _materialize_context(
             message=error.message,
             correction=error.correction,
             exit_code=error.exit_code,
+            initial_receipt=initial_receipt,
             decision=decision,
             hits=hits,
             duration_ms=duration_ms,
@@ -288,6 +294,7 @@ def _materialize_context(
         hits=hits,
         duration_ms=duration_ms,
         decision=decision,
+        initial_receipt=initial_receipt,
         fallback_used=fallback_used,
         fallback_explicit_decision=fallback_explicit_decision,
         fallback_reason_codes=fallback_reason_codes,
@@ -336,12 +343,9 @@ def run_context(
     if on_initial_receipt is not None:
         on_initial_receipt(initial_receipt)
 
-    def completed(outcome: ContextOutcome) -> ContextOutcome:
-        return replace(outcome, initial_receipt=initial_receipt)
-
     executable = _qmd_executable()
     if executable is None:
-        return completed(_local_entry_page_fallback(
+        return _local_entry_page_fallback(
             manifest=manifest,
             projection=projection,
             mode=mode,
@@ -351,7 +355,8 @@ def run_context(
             code="qmd_missing",
             message="QMD is required for project retrieval but is unavailable.",
             correction=QMD_INSTALL_COMMAND,
-        ))
+            initial_receipt=initial_receipt,
+        )
 
     try:
         project_retrieval = _search(
@@ -365,7 +370,7 @@ def run_context(
         )
     except (QmdTimeoutError, QmdOutputError, QmdInvocationError) as error:
         retrieval_status, code, message, correction = _search_failure_details(error)
-        return completed(_local_entry_page_fallback(
+        return _local_entry_page_fallback(
             manifest=manifest,
             projection=projection,
             mode=mode,
@@ -375,7 +380,8 @@ def run_context(
             code=code,
             message=message,
             correction=correction,
-        ))
+            initial_receipt=initial_receipt,
+        )
 
     try:
         qmd_status = inspect_qmd(
@@ -397,7 +403,7 @@ def run_context(
         )
     )
     if project_decision.status is SufficiencyStatus.SUFFICIENT:
-        return completed(_materialize_context(
+        return _materialize_context(
             manifest=manifest,
             projection=projection,
             mode=mode,
@@ -408,6 +414,7 @@ def run_context(
             duration_ms=project_retrieval.duration_ms,
             decision=project_decision,
             risk_reason=risk_reason,
+            initial_receipt=initial_receipt,
             warnings=(
                 (
                     {
@@ -419,13 +426,13 @@ def run_context(
                 if SufficiencyReason.STALE in project_decision.reason_codes
                 else ()
             ),
-        ))
+        )
 
     if (
         project_decision.status is SufficiencyStatus.AMBIGUOUS
         and not fallback_on_ambiguous
     ):
-        return completed(context_outcome(
+        return context_outcome(
             project_id=manifest.project.id,
             mode=mode,
             task_category=task_category,
@@ -434,10 +441,11 @@ def run_context(
             hits=project_retrieval.hits,
             duration_ms=project_retrieval.duration_ms,
             decision=project_decision,
-        ))
+            initial_receipt=initial_receipt,
+        )
 
     if not fallbacks:
-        return completed(context_outcome(
+        return context_outcome(
             project_id=manifest.project.id,
             mode=mode,
             task_category=task_category,
@@ -446,6 +454,7 @@ def run_context(
             hits=project_retrieval.hits,
             duration_ms=project_retrieval.duration_ms,
             decision=project_decision,
+            initial_receipt=initial_receipt,
             warnings=(
                 {
                     "code": "fallback_not_authorized",
@@ -459,7 +468,7 @@ def run_context(
                     ),
                 },
             ),
-        ))
+        )
 
     fallback = fallbacks[0]
     route = (project_collection, fallback.collection)
@@ -476,7 +485,7 @@ def run_context(
         )
     except (QmdTimeoutError, QmdOutputError, QmdInvocationError) as error:
         retrieval_status, code, message, correction = _search_failure_details(error)
-        return completed(_local_entry_page_fallback(
+        return _local_entry_page_fallback(
             manifest=manifest,
             projection=projection,
             mode=mode,
@@ -490,7 +499,8 @@ def run_context(
             duration_ms=project_retrieval.duration_ms,
             fallback_reason_codes=project_decision.reason_codes,
             explicit_decision=explicit_decision,
-        ))
+            initial_receipt=initial_receipt,
+        )
 
     fallback_decision = evaluate_sufficiency(
         _evidence(
@@ -504,7 +514,7 @@ def run_context(
     aggregate_hits = project_retrieval.hits + fallback_retrieval.hits
     aggregate_duration = project_retrieval.duration_ms + fallback_retrieval.duration_ms
     if fallback_decision.status is SufficiencyStatus.SUFFICIENT:
-        return completed(_materialize_context(
+        return _materialize_context(
             manifest=manifest,
             projection=projection,
             mode=mode,
@@ -515,11 +525,12 @@ def run_context(
             duration_ms=aggregate_duration,
             decision=fallback_decision,
             risk_reason=risk_reason,
+            initial_receipt=initial_receipt,
             fallback_used=True,
             fallback_explicit_decision=explicit_decision,
             fallback_reason_codes=project_decision.reason_codes,
-        ))
-    return completed(context_outcome(
+        )
+    return context_outcome(
         project_id=manifest.project.id,
         mode=mode,
         task_category=task_category,
@@ -528,7 +539,8 @@ def run_context(
         hits=aggregate_hits,
         duration_ms=aggregate_duration,
         decision=fallback_decision,
+        initial_receipt=initial_receipt,
         fallback_used=True,
         fallback_explicit_decision=explicit_decision,
         fallback_reason_codes=project_decision.reason_codes,
-    ))
+    )
