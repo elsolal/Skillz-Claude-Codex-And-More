@@ -183,9 +183,14 @@ def append_usage_attestation(
             events_to_append = [event]
             if conflict_event is not None:
                 events_to_append.append(conflict_event)
-            event_store._append_event_lines(
-                event_store._event_path(project_dir, event), events_to_append
-            )
+                event_store.append_event_batch_atomically(
+                    event_store._event_path(project_dir, event),
+                    events_to_append,
+                )
+            else:
+                event_store._append_event_line(
+                    event_store._event_path(project_dir, event), event
+                )
     except OSError as error:
         raise event_store._error(
             "event_store_unavailable",

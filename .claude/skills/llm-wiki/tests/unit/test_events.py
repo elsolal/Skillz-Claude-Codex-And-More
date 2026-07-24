@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 
 SKILL_ROOT = Path(__file__).resolve().parents[2]
@@ -16,6 +17,7 @@ sys.path.insert(0, str(SKILL_ROOT))
 from memory_cli.events import (  # noqa: E402
     EventIntegrityError,
     append_event,
+    append_event_batch_atomically,
     build_context_event,
     build_usage_attestation_event,
     purge_project_events,
@@ -204,6 +206,47 @@ class EventContractUnitTests(unittest.TestCase):
         self.assertEqual(action["parent_event_id"], conflict["event_id"])
         self.assertEqual(action["payload"]["action"], "ignore")
         self.assertEqual(action["payload"]["reason"], "not_actionable")
+
+    def test_related_event_batch_is_all_or_nothing_and_retryable(self) -> None:
+        parent = build_context_event(context_metadata(), occurred_at=NOW)
+        event_path = append_event(
+            parent,
+            state_dir=self.state_dir,
+            project_root=self.repo,
+        )
+        attestation = build_usage_attestation_event(
+            parent,
+            used=("#a1b2c3",),
+            cited=(),
+            citation_only=(),
+            impact_codes=(),
+            occurred_at=NOW,
+        )
+        conflict = build_memory_conflict_event(
+            parent,
+            memory_docid="#a1b2c3",
+            repository_path="src/current-contract.py",
+            evidence_type=ConflictEvidenceType.CONTRACT,
+            category=ConflictCategory.ARCHITECTURE,
+            risk=ConflictRisk.HIGH,
+            prepare_debt=True,
+            occurred_at=NOW,
+        )
+
+        with patch("memory_cli.events.os.replace", side_effect=OSError("disk full")):
+            with self.assertRaises(OSError):
+                append_event_batch_atomically(
+                    event_path,
+                    (attestation, conflict),
+                )
+
+        self.assertEqual(read_event_file(event_path).events, (parent,))
+
+        append_event_batch_atomically(event_path, (attestation, conflict))
+        self.assertEqual(
+            [event["event_type"] for event in read_event_file(event_path).events],
+            ["context_completed", "usage_attested", "memory_conflict"],
+        )
 
     def test_attested_docids_must_be_retrieved_and_citations_justified(self) -> None:
         parent = build_context_event(context_metadata(), occurred_at=NOW)

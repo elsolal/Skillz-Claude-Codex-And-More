@@ -223,8 +223,11 @@ is explicitly set, otherwise `$XDG_STATE_HOME/skillz-memory`, then
 `~/.local/state/skillz-memory`. A state directory resolving inside the current
 project is refused with exit `50`. On POSIX, state/project directories are
 restricted to `0700` and JSONL/lock files to `0600`. Events are partitioned as
-`events/<project-id>/YYYY-MM.jsonl`, appended under a project lock as one compact
-JSON line, and `fsync`ed before success is reported.
+`events/<project-id>/YYYY-MM.jsonl`. Unit events append under a project lock as
+one compact JSON line and are `fsync`ed before success is reported. The related
+`usage_attested` + `memory_conflict` pair is published through a same-directory
+temporary file, file `fsync`, atomic replace, and directory `fsync`, so a failed
+finish exposes either both new events or neither.
 
 The common V1 root allowlist is `schema_version`, `event_id`, `event_type`,
 `occurred_at`, `project_id`, and `payload`. The child events `usage_attested`,

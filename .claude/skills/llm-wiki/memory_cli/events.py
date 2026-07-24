@@ -885,9 +885,42 @@ def _write_events_atomically(path: Path, events: Sequence[Mapping[str, object]])
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(temporary, path)
+        if os.name == "posix":
+            directory_flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+            directory = os.open(path.parent, directory_flags)
+            try:
+                os.fsync(directory)
+            finally:
+                os.close(directory)
     finally:
         if temporary.exists():
             temporary.unlink()
+
+
+def append_event_batch_atomically(
+    path: Path, events: Sequence[Mapping[str, object]]
+) -> None:
+    """Publish a related event batch wholly before or wholly after one replace."""
+
+    if not events:
+        raise _error(
+            "event_schema_invalid",
+            "An atomic event batch cannot be empty.",
+            "Provide the related validated events that must publish together.",
+        )
+    for event in events:
+        validate_event(event)
+    existing: tuple[dict[str, Any], ...] = ()
+    if path.exists() or path.is_symlink():
+        result = read_event_file(path)
+        if result.diagnostics:
+            raise _error(
+                "event_log_truncated",
+                "The target event log has an incomplete final line.",
+                "Run memory purge before appending a related event batch.",
+            )
+        existing = result.events
+    _write_events_atomically(path, (*existing, *events))
 
 
 def purge_project_events(
