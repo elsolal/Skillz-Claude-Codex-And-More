@@ -19,6 +19,8 @@ from .contracts import IMPACT_TAXONOMY_VERSION, ImpactCode
 EVENT_SCHEMA_VERSION = 1
 EVENT_TYPE_CONTEXT_COMPLETED = "context_completed"
 EVENT_TYPE_USAGE_ATTESTED = "usage_attested"
+EVENT_TYPE_MEMORY_CONFLICT = "memory_conflict"
+EVENT_TYPE_MEMORY_DEBT_ACTION = "memory_debt_action"
 EVENT_EXIT_CODE = 50
 
 _CONTEXT_ROOT_KEYS = (
@@ -66,6 +68,8 @@ _READ_KEYS = ("docid", "collection", "path")
 _PROJECT_ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
 _CONTEXT_EVENT_ID = re.compile(r"^mem_\d{8}T\d{12}Z_[0-9a-f]{16}$")
 _ATTESTATION_EVENT_ID = re.compile(r"^att_\d{8}T\d{12}Z_[0-9a-f]{16}$")
+_CONFLICT_EVENT_ID = re.compile(r"^con_\d{8}T\d{12}Z_[0-9a-f]{16}$")
+_DEBT_ACTION_EVENT_ID = re.compile(r"^deb_\d{8}T\d{12}Z_[0-9a-f]{16}$")
 _DOCID = re.compile(r"^#[A-Za-z0-9._:-]+$")
 _WINDOWS_ABSOLUTE_PATH = re.compile(r"^[A-Za-z]:[\\/]")
 _SENSITIVE_KEY = re.compile(
@@ -138,13 +142,6 @@ class EventIntegrityError(RuntimeError):
 @dataclass(frozen=True, slots=True)
 class EventReadResult:
     events: tuple[dict[str, Any], ...]
-    diagnostics: tuple[dict[str, str], ...] = ()
-
-
-@dataclass(frozen=True, slots=True)
-class UsageAttestationResult:
-    parent_event: dict[str, Any]
-    event: dict[str, Any]
     diagnostics: tuple[dict[str, str], ...] = ()
 
 
@@ -401,11 +398,17 @@ def validate_event(event: Mapping[str, object]) -> None:
     elif event_type == EVENT_TYPE_USAGE_ATTESTED:
         _expect_exact_keys(event, _ATTESTATION_ROOT_KEYS, "event")
         event_id_pattern = _ATTESTATION_EVENT_ID
+    elif event_type == EVENT_TYPE_MEMORY_CONFLICT:
+        _expect_exact_keys(event, _ATTESTATION_ROOT_KEYS, "event")
+        event_id_pattern = _CONFLICT_EVENT_ID
+    elif event_type == EVENT_TYPE_MEMORY_DEBT_ACTION:
+        _expect_exact_keys(event, _ATTESTATION_ROOT_KEYS, "event")
+        event_id_pattern = _DEBT_ACTION_EVENT_ID
     else:
         raise _error(
             "event_schema_invalid",
             "Unsupported event type.",
-            "Use context_completed or usage_attested for V1 events.",
+            "Use a documented metadata-only V1 event type.",
         )
     if event["schema_version"] != EVENT_SCHEMA_VERSION:
         raise _error(
@@ -447,6 +450,50 @@ def validate_event(event: Mapping[str, object]) -> None:
                 "Build the event through build_usage_attestation_event().",
             )
         _validate_attestation_payload(payload)
+        return
+
+    if event_type == EVENT_TYPE_MEMORY_CONFLICT:
+        parent_event_id = _expect_string(
+            event["parent_event_id"], "event.parent_event_id"
+        )
+        if parent_event_id is None or not _CONTEXT_EVENT_ID.fullmatch(parent_event_id):
+            raise _error(
+                "event_schema_invalid",
+                "Conflict parent must identify a context_completed event.",
+                "Use the event_id returned by memory context.",
+            )
+        payload = event["payload"]
+        if not isinstance(payload, Mapping):
+            raise _error(
+                "event_schema_invalid",
+                "Conflict payload must be an object.",
+                "Build the conflict through memory finish.",
+            )
+        from .conflicts import validate_conflict_payload
+
+        validate_conflict_payload(payload)
+        return
+
+    if event_type == EVENT_TYPE_MEMORY_DEBT_ACTION:
+        parent_event_id = _expect_string(
+            event["parent_event_id"], "event.parent_event_id"
+        )
+        if parent_event_id is None or not _CONFLICT_EVENT_ID.fullmatch(parent_event_id):
+            raise _error(
+                "event_schema_invalid",
+                "Debt action parent must identify a memory_conflict event.",
+                "Use an open debt ID returned by memory finish.",
+            )
+        payload = event["payload"]
+        if not isinstance(payload, Mapping):
+            raise _error(
+                "event_schema_invalid",
+                "Debt action payload must be an object.",
+                "Build the action through memory finish.",
+            )
+        from .conflicts import validate_debt_action_payload
+
+        validate_debt_action_payload(payload)
         return
 
     payload = event["payload"]
@@ -698,9 +745,12 @@ def _event_path(project_dir: Path, event: Mapping[str, object]) -> Path:
     return project_dir / f"{occurred_at:%Y-%m}.jsonl"
 
 
-def _append_event_line(event_path: Path, event: Mapping[str, object]) -> None:
-    encoded = (
+def _append_event_lines(
+    event_path: Path, events: Sequence[Mapping[str, object]]
+) -> None:
+    encoded = "".join(
         json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n"
+        for event in events
     ).encode("utf-8")
     _ensure_private_directory(event_path.parent)
     flags = os.O_WRONLY | os.O_CREAT | os.O_APPEND | getattr(os, "O_NOFOLLOW", 0)
@@ -717,6 +767,10 @@ def _append_event_line(event_path: Path, event: Mapping[str, object]) -> None:
         os.close(descriptor)
 
 
+def _append_event_line(event_path: Path, event: Mapping[str, object]) -> None:
+    _append_event_lines(event_path, (event,))
+
+
 def append_event(
     event: Mapping[str, object],
     *,
@@ -729,8 +783,8 @@ def append_event(
     if event["event_type"] != EVENT_TYPE_CONTEXT_COMPLETED:
         raise _error(
             "usage_attestation_requires_parent_lookup",
-            "Usage attestations cannot use the generic event append path.",
-            "Use append_usage_attestation() for atomic parent validation and append.",
+            "Child events cannot use the generic event append path.",
+            "Use the relationship-specific append function for atomic parent validation.",
         )
     root = _validate_storage_location(state_dir or resolve_state_dir(), project_root)
     project_dir = _project_directory(root, str(event["project_id"]))
@@ -748,95 +802,6 @@ def append_event(
             "Restore access to the private memory state directory, then retry.",
         ) from error
     return event_path
-
-
-def append_usage_attestation(
-    *,
-    project_id: str,
-    parent_event_id: str,
-    used: Sequence[str],
-    cited: Sequence[str],
-    citation_only: Sequence[str],
-    impact_codes: Sequence[str],
-    state_dir: Path | None = None,
-    project_root: Path | None = None,
-    occurred_at: datetime | None = None,
-) -> UsageAttestationResult:
-    """Lookup, validate and append one attestation under one project lock."""
-
-    if not _PROJECT_ID.fullmatch(project_id):
-        raise _error(
-            "event_schema_invalid",
-            "Attestation project ID is invalid.",
-            "Use the project ID from the nearest validated memory manifest.",
-        )
-    if not _CONTEXT_EVENT_ID.fullmatch(parent_event_id):
-        raise _error(
-            "parent_event_invalid",
-            "Parent event ID must identify a context_completed event.",
-            "Use the event_id returned by memory context.",
-        )
-    root = _validate_storage_location(state_dir or resolve_state_dir(), project_root)
-    project_dir = _project_directory(root, project_id)
-    lock_path = root / "events" / f".{project_id}.lock"
-    try:
-        _ensure_private_directory(root)
-        with _project_lock(lock_path):
-            parents: list[dict[str, Any]] = []
-            already_attested = False
-            diagnostics: list[dict[str, str]] = []
-            if project_dir.exists():
-                for path in sorted(project_dir.glob("*.jsonl")):
-                    result = read_event_file(path)
-                    diagnostics.extend(result.diagnostics)
-                    for stored_event in result.events:
-                        if stored_event["event_id"] == parent_event_id:
-                            parents.append(stored_event)
-                        if (
-                            stored_event["event_type"] == EVENT_TYPE_USAGE_ATTESTED
-                            and stored_event["parent_event_id"] == parent_event_id
-                        ):
-                            already_attested = True
-            if diagnostics:
-                raise _error(
-                    "event_log_truncated",
-                    "The project event log has an incomplete final line.",
-                    "Run memory purge before appending an attestation.",
-                )
-            if not parents:
-                raise _error(
-                    "parent_event_not_found",
-                    f"Parent context event was not found: {parent_event_id}.",
-                    "Use a retained event_id from memory context in the current project.",
-                )
-            if len(parents) != 1:
-                raise _error(
-                    "parent_event_ambiguous",
-                    f"Parent context event is duplicated: {parent_event_id}.",
-                    "Inspect or purge the affected local project telemetry.",
-                )
-            if already_attested:
-                raise _error(
-                    "parent_already_attested",
-                    f"Parent context event is already attested: {parent_event_id}.",
-                    "Reuse the existing immutable attestation instead of appending another.",
-                )
-            event = build_usage_attestation_event(
-                parents[0],
-                used=used,
-                cited=cited,
-                citation_only=citation_only,
-                impact_codes=impact_codes,
-                occurred_at=occurred_at,
-            )
-            _append_event_line(_event_path(project_dir, event), event)
-    except OSError as error:
-        raise _error(
-            "event_store_unavailable",
-            "The usage attestation could not be persisted safely.",
-            "Restore access to the private memory state directory, then retry.",
-        ) from error
-    return UsageAttestationResult(parents[0], event)
 
 
 def read_event_file(path: Path) -> EventReadResult:

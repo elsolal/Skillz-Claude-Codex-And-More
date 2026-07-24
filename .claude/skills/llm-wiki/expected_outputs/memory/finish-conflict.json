@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "command": "finish",
+  "status": "conflict",
+  "project_id": "skillz-claude",
+  "event_id": "<event-id>",
+  "data": {
+    "parent_event_id": "<parent-event-id>",
+    "measured": {
+      "status": "sufficient",
+      "retrieved": 2,
+      "read": 1,
+      "estimated_tokens": 27,
+      "budget_tokens": 2500,
+      "duration_ms": "<duration>",
+      "freshness": "fresh",
+      "fallback": {
+        "used": false,
+        "reason_codes": []
+      }
+    },
+    "attested": {
+      "impact_taxonomy_version": "impact-v1",
+      "used": [
+        "#dfec5e"
+      ],
+      "cited": [],
+      "citation_only": [],
+      "impact_codes": []
+    },
+    "conflict": {
+      "risk": "high",
+      "category": "architecture",
+      "precedence": "repository",
+      "requires_human": true,
+      "memory": {
+        "docid": "#dfec5e",
+        "path": "entities/skillz-claude.md"
+      },
+      "repository": {
+        "path": ".claude/project-memory.md",
+        "evidence_type": "contract"
+      },
+      "debt": {
+        "id": "<event-id>",
+        "status": "open",
+        "draft": "metadata_only"
+      },
+      "next_actions": [
+        "continue",
+        "inspect",
+        "prepare_patch"
+      ]
+    }
+  },
+  "warnings": [],
+  "errors": []
+}

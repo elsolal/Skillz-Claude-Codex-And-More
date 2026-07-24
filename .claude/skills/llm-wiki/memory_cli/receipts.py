@@ -51,10 +51,22 @@ class FinishOutcome:
     project_id: str
     parent_event: dict[str, Any]
     attestation_event: dict[str, Any]
+    conflict_event: dict[str, Any] | None = None
 
     @property
     def event_id(self) -> str:
-        return str(self.attestation_event["event_id"])
+        event = self.conflict_event or self.attestation_event
+        return str(event["event_id"])
+
+    @property
+    def status(self) -> str:
+        return "conflict" if self.conflict_event is not None else "ready"
+
+    @property
+    def exit_code(self) -> int:
+        if self.conflict_event is None:
+            return 0
+        return 21 if self.conflict_event["payload"]["requires_human"] else 0
 
     @property
     def parent_event_id(self) -> str:
@@ -87,10 +99,60 @@ class FinishOutcome:
         }
 
     def data(self) -> dict[str, Any]:
-        return {
+        data = {
             "parent_event_id": self.parent_event_id,
             "measured": self.measured_data(),
             "attested": self.attested_data(),
+        }
+        if self.conflict_event is not None:
+            data["conflict"] = self.conflict_data()
+        return data
+
+    def conflict_data(self) -> dict[str, Any]:
+        if self.conflict_event is None:
+            raise ValueError("Finish outcome has no conflict event")
+        payload = self.conflict_event["payload"]
+        debt = payload["debt"]
+        return {
+            "risk": payload["risk"],
+            "category": payload["category"],
+            "precedence": payload["precedence"],
+            "requires_human": payload["requires_human"],
+            "memory": dict(payload["memory"]),
+            "repository": dict(payload["repository"]),
+            "debt": (
+                {"id": self.event_id, **dict(debt)} if debt is not None else None
+            ),
+            "next_actions": list(payload["next_actions"]),
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class DebtActionOutcome:
+    project_id: str
+    parent_event: dict[str, Any]
+    action_event: dict[str, Any]
+
+    @property
+    def event_id(self) -> str:
+        return str(self.action_event["event_id"])
+
+    @property
+    def debt_id(self) -> str:
+        return str(self.parent_event["event_id"])
+
+    def action_data(self) -> dict[str, Any]:
+        payload = self.action_event["payload"]
+        return {
+            "action": payload["action"],
+            "reason": payload["reason"],
+            "snooze_until": payload["snooze_until"],
+        }
+
+    def data(self) -> dict[str, Any]:
+        return {
+            "debt_id": self.debt_id,
+            "debt_action": self.action_data(),
         }
 
 

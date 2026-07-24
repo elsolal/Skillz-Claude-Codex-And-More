@@ -6,7 +6,7 @@ import json
 from typing import Any, TextIO
 
 from .contracts import PUBLIC_SCHEMA_VERSION
-from .receipts import ContextOutcome, FinishOutcome
+from .receipts import ContextOutcome, DebtActionOutcome, FinishOutcome
 
 
 def context_envelope(outcome: ContextOutcome) -> dict[str, Any]:
@@ -37,7 +37,7 @@ def finish_envelope(outcome: FinishOutcome) -> dict[str, Any]:
     return {
         "schema_version": PUBLIC_SCHEMA_VERSION,
         "command": "finish",
-        "status": "ready",
+        "status": outcome.status,
         "project_id": outcome.project_id,
         "event_id": outcome.event_id,
         "data": outcome.data(),
@@ -50,6 +50,30 @@ def render_finish_json(outcome: FinishOutcome, *, stream: TextIO) -> None:
     print(
         json.dumps(
             finish_envelope(outcome),
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ),
+        file=stream,
+    )
+
+
+def debt_action_envelope(outcome: DebtActionOutcome) -> dict[str, Any]:
+    return {
+        "schema_version": PUBLIC_SCHEMA_VERSION,
+        "command": "finish",
+        "status": "ready",
+        "project_id": outcome.project_id,
+        "event_id": outcome.event_id,
+        "data": outcome.data(),
+        "warnings": [],
+        "errors": [],
+    }
+
+
+def render_debt_action_json(outcome: DebtActionOutcome, *, stream: TextIO) -> None:
+    print(
+        json.dumps(
+            debt_action_envelope(outcome),
             ensure_ascii=False,
             separators=(",", ":"),
         ),

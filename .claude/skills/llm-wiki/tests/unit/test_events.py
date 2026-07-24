@@ -23,6 +23,16 @@ from memory_cli.events import (  # noqa: E402
     resolve_state_dir,
     validate_event,
 )
+from memory_cli.conflicts import (  # noqa: E402
+    build_memory_conflict_event,
+    build_memory_debt_action_event,
+)
+from memory_cli.contracts import (  # noqa: E402
+    ConflictCategory,
+    ConflictEvidenceType,
+    ConflictRisk,
+    DebtAction,
+)
 
 
 NOW = datetime(2026, 7, 24, 12, 30, tzinfo=timezone.utc)
@@ -154,6 +164,46 @@ class EventContractUnitTests(unittest.TestCase):
                 "impact_codes": ["project_convention_applied"],
             },
         )
+
+    def test_conflict_and_debt_action_events_are_closed_and_linked(self) -> None:
+        parent = build_context_event(
+            context_metadata(),
+            occurred_at=NOW,
+            event_id="mem_20260724T123000000000Z_0123456789abcdef",
+        )
+        conflict = build_memory_conflict_event(
+            parent,
+            memory_docid="#a1b2c3",
+            repository_path="src/current-contract.py",
+            evidence_type=ConflictEvidenceType.CONTRACT,
+            category=ConflictCategory.ARCHITECTURE,
+            risk=ConflictRisk.HIGH,
+            prepare_debt=True,
+            occurred_at=NOW,
+            event_id="con_20260724T123000000000Z_0123456789abcdef",
+        )
+
+        self.assertEqual(conflict["event_type"], "memory_conflict")
+        self.assertEqual(conflict["parent_event_id"], parent["event_id"])
+        self.assertEqual(conflict["payload"]["precedence"], "repository")
+        self.assertTrue(conflict["payload"]["requires_human"])
+        self.assertEqual(
+            conflict["payload"]["memory"],
+            {"docid": "#a1b2c3", "path": "wiki/entities/skillz-claude.md"},
+        )
+
+        action = build_memory_debt_action_event(
+            conflict,
+            action=DebtAction.IGNORE,
+            reason="not_actionable",
+            snooze_until=None,
+            occurred_at=NOW,
+            event_id="deb_20260724T123000000000Z_0123456789abcdef",
+        )
+        self.assertEqual(action["event_type"], "memory_debt_action")
+        self.assertEqual(action["parent_event_id"], conflict["event_id"])
+        self.assertEqual(action["payload"]["action"], "ignore")
+        self.assertEqual(action["payload"]["reason"], "not_actionable")
 
     def test_attested_docids_must_be_retrieved_and_citations_justified(self) -> None:
         parent = build_context_event(context_metadata(), occurred_at=NOW)

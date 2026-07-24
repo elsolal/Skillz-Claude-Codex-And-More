@@ -30,6 +30,25 @@ class FinishReceiptContractTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         return str(json.loads(result.stdout)["event_id"])
 
+    def _conflict_arguments(self, parent_id: str) -> tuple[str, ...]:
+        return (
+            "finish",
+            parent_id,
+            "--used",
+            "#dfec5e",
+            "--conflict-docid",
+            "#dfec5e",
+            "--repo-evidence",
+            ".claude/project-memory.md",
+            "--evidence-type",
+            "contract",
+            "--conflict-category",
+            "architecture",
+            "--conflict-risk",
+            "high",
+            "--prepare-debt",
+        )
+
     def test_json_receipt_separates_measured_and_attested_fields(self) -> None:
         parent_id = self._context_event_id()
         result = self.fixture._run_memory_cli(
@@ -108,6 +127,42 @@ class FinishReceiptContractTests(unittest.TestCase):
         self.assertEqual(
             receipt_snapshot,
             (EXPECTED / "finish-receipt-human.txt").read_text(),
+        )
+
+    def test_high_conflict_json_receipt_is_stable_and_requires_human(self) -> None:
+        parent_id = self._context_event_id()
+        result = self.fixture._run_memory_cli(
+            *self._conflict_arguments(parent_id), "--json"
+        )
+        output = json.loads(result.stdout)
+
+        self.assertEqual(result.returncode, 21, result.stderr)
+        self.assertEqual(output["status"], "conflict")
+        self.assertTrue(output["data"]["conflict"]["requires_human"])
+        self.assertEqual(output["data"]["conflict"]["precedence"], "repository")
+        output["event_id"] = "<event-id>"
+        output["data"]["parent_event_id"] = "<parent-event-id>"
+        output["data"]["measured"]["duration_ms"] = "<duration>"
+        output["data"]["conflict"]["debt"]["id"] = "<event-id>"
+        self.assertEqual(
+            output,
+            json.loads((EXPECTED / "finish-conflict.json").read_text()),
+        )
+
+    def test_high_conflict_human_receipt_names_precedence_and_open_debt(self) -> None:
+        parent_id = self._context_event_id()
+        result = self.fixture._run_memory_cli(*self._conflict_arguments(parent_id))
+
+        self.assertEqual(result.returncode, 21, result.stderr)
+        receipt_snapshot = re.sub(
+            r"con_\d{8}T\d{12}Z_[0-9a-f]{16}",
+            "<event-id>",
+            result.stdout,
+        )
+        receipt_snapshot = re.sub(r"\d+ms$", "<duration>", receipt_snapshot, flags=re.M)
+        self.assertEqual(
+            receipt_snapshot,
+            (EXPECTED / "finish-conflict-human.txt").read_text(),
         )
 
 
