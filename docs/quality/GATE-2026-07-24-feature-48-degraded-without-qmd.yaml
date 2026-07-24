@@ -1,10 +1,14 @@
 # Quality gate for STORY-008 / GitHub issue #48.
-verdict: CONCERNS
+verdict: WAIVED
 niveau: 2
 tours: 3
 base: main
 head: f3e426d
 diff_hash: "44b1bde9e1e2320650c96f92acb2a0918285904e1fe94b818fac28cbcdfa8446"
+waiver:
+  accepted_by: "user"
+  accepted_at: "2026-07-24"
+  reason: "The user selected ship after the handoff explicitly identified that a waiver was required. The concern is limited to the level-2 convergence rule: rounds 1 and 2 each fixed a P1, round 3 was clean, all executable evidence is green, and zero P0/P1 findings remain."
 preuve:
   executable:
     lint:
