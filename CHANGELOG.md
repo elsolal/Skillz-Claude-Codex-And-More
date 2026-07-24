@@ -4,6 +4,27 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## [Unreleased] - 2026-07-24
 
+**Attested memory usage, citations, and impact**
+
+### Added
+- `memory finish <parent-event-id>` with repeatable `--used`, `--cited`, `--citation-only`, and `--impact-code` options for one immutable, project-scoped `usage_attested` event.
+- Versioned `impact-v1` codes for applied conventions, reused decisions, avoided known problems, reused validation commands, and reused next steps.
+- Human and JSON final receipts that reconstruct CLI-measured context separately from agent-attested usage, citations, and impact.
+- Unit, contract, snapshot, privacy, subprocess, and eight-process concurrency coverage for parent lookup, invalid docids, empty attestations, duplicate finish attempts, and citation-only evidence.
+
+### Changed
+- Event validation now dispatches on the closed `context_completed` and `usage_attested` schemas while preserving the metadata-only privacy boundary.
+- Parent lookup, relationship validation, duplicate detection, and child append execute under one project lock; only one finish can attest a context event.
+
+### Fixed
+- Malformed attestation lists now return the stable event-integrity error contract instead of leaking a Python `TypeError`.
+- Generic event append can no longer bypass parent lookup for usage attestations.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — installer PASS, 165 tests Python OK on Python 3.12.7
+- Level-2 quality gate: PASS after three rounds, two confirmed P1 findings corrected, and two consecutive clean rounds
+
 **Metadata-only memory events and project-scoped retention**
 
 ### Added

@@ -13,12 +13,15 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterator, Mapping, Sequence
 
+from .contracts import IMPACT_TAXONOMY_VERSION, ImpactCode
+
 
 EVENT_SCHEMA_VERSION = 1
 EVENT_TYPE_CONTEXT_COMPLETED = "context_completed"
+EVENT_TYPE_USAGE_ATTESTED = "usage_attested"
 EVENT_EXIT_CODE = 50
 
-_ROOT_KEYS = (
+_CONTEXT_ROOT_KEYS = (
     "schema_version",
     "event_id",
     "event_type",
@@ -26,7 +29,16 @@ _ROOT_KEYS = (
     "project_id",
     "payload",
 )
-_PAYLOAD_KEYS = (
+_ATTESTATION_ROOT_KEYS = (
+    "schema_version",
+    "event_id",
+    "event_type",
+    "occurred_at",
+    "project_id",
+    "parent_event_id",
+    "payload",
+)
+_CONTEXT_PAYLOAD_KEYS = (
     "mode",
     "task_category",
     "status",
@@ -41,11 +53,19 @@ _PAYLOAD_KEYS = (
     "fallback_reason_codes",
     "risk_reason",
 )
+_ATTESTATION_PAYLOAD_KEYS = (
+    "impact_taxonomy_version",
+    "used",
+    "cited",
+    "citation_only",
+    "impact_codes",
+)
 _RETRIEVED_KEYS = ("docid", "collection", "path", "score")
 _READ_KEYS = ("docid", "collection", "path")
 
 _PROJECT_ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
-_EVENT_ID = re.compile(r"^mem_\d{8}T\d{12}Z_[0-9a-f]{16}$")
+_CONTEXT_EVENT_ID = re.compile(r"^mem_\d{8}T\d{12}Z_[0-9a-f]{16}$")
+_ATTESTATION_EVENT_ID = re.compile(r"^att_\d{8}T\d{12}Z_[0-9a-f]{16}$")
 _DOCID = re.compile(r"^#[A-Za-z0-9._:-]+$")
 _WINDOWS_ABSOLUTE_PATH = re.compile(r"^[A-Za-z]:[\\/]")
 _SENSITIVE_KEY = re.compile(
@@ -122,6 +142,13 @@ class EventReadResult:
 
 
 @dataclass(frozen=True, slots=True)
+class UsageAttestationResult:
+    parent_event: dict[str, Any]
+    event: dict[str, Any]
+    diagnostics: tuple[dict[str, str], ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
 class PurgeOutcome:
     project_id: str
     retention_days: int
@@ -185,9 +212,9 @@ def _parse_time(value: object) -> datetime:
     return _as_utc(parsed)
 
 
-def _new_event_id(occurred_at: datetime) -> str:
+def _new_event_id(occurred_at: datetime, *, prefix: str = "mem") -> str:
     timestamp = _as_utc(occurred_at).strftime("%Y%m%dT%H%M%S%fZ")
-    return f"mem_{timestamp}_{uuid.uuid4().hex[:16]}"
+    return f"{prefix}_{timestamp}_{uuid.uuid4().hex[:16]}"
 
 
 def _expect_exact_keys(value: Mapping[str, object], expected: Sequence[str], field: str) -> None:
@@ -291,11 +318,95 @@ def _validate_relative_path(value: object, field: str) -> None:
         )
 
 
+def _ordered_unique(values: Sequence[str]) -> list[str]:
+    return list(dict.fromkeys(values))
+
+
+def _validate_docid_list(value: object, field: str) -> list[str]:
+    if not isinstance(value, list):
+        raise _error(
+            "event_schema_invalid",
+            f"{field} must be a docid list.",
+            "Use repeated CLI options with normalized QMD docids.",
+        )
+    for docid in value:
+        if not isinstance(docid, str) or not _DOCID.fullmatch(docid):
+            raise _error(
+                "event_schema_invalid",
+                f"{field} contains an invalid docid.",
+                "Use normalized QMD docids beginning with #.",
+            )
+    if len(value) != len(set(value)):
+        raise _error(
+            "event_schema_invalid",
+            f"{field} must not contain duplicate docids.",
+            "Deduplicate the attested docids before append.",
+        )
+    return value
+
+
+def _validate_attestation_payload(payload: Mapping[str, object]) -> None:
+    _expect_exact_keys(payload, _ATTESTATION_PAYLOAD_KEYS, "event.payload")
+    if payload["impact_taxonomy_version"] != IMPACT_TAXONOMY_VERSION:
+        raise _error(
+            "event_schema_invalid",
+            "Unknown impact taxonomy version.",
+            f"Use {IMPACT_TAXONOMY_VERSION} for V1 usage attestations.",
+        )
+    used = set(_validate_docid_list(payload["used"], "event.payload.used"))
+    cited = set(_validate_docid_list(payload["cited"], "event.payload.cited"))
+    citation_only = set(
+        _validate_docid_list(payload["citation_only"], "event.payload.citation_only")
+    )
+    if not citation_only <= cited:
+        invalid = sorted(citation_only - cited)
+        raise _error(
+            "citation_only_not_cited",
+            f"citation_only docids must also be cited: {', '.join(invalid)}.",
+            "Add each citation-only docid to --cited.",
+        )
+    unjustified = cited - used - citation_only
+    if unjustified:
+        raise _error(
+            "citation_not_used",
+            f"Cited docids must be used or marked citation_only: {', '.join(sorted(unjustified))}.",
+            "Add the docid to --used or justify it with --citation-only.",
+        )
+    impact_codes = payload["impact_codes"]
+    allowed_impacts = {code.value for code in ImpactCode}
+    if not isinstance(impact_codes, list) or not all(
+        isinstance(code, str) and code in allowed_impacts for code in impact_codes
+    ):
+        raise _error(
+            "event_schema_invalid",
+            "Impact codes must be a unique impact-v1 code list.",
+            "Use a documented impact-v1 code or leave impact codes empty.",
+        )
+    if len(impact_codes) != len(set(impact_codes)):
+        raise _error(
+            "event_schema_invalid",
+            "Impact codes must not contain duplicates.",
+            "Deduplicate impact codes before append.",
+        )
+
+
 def validate_event(event: Mapping[str, object]) -> None:
     """Reject any field or value outside the closed metadata-only V1 contract."""
 
     _scan_privacy(event)
-    _expect_exact_keys(event, _ROOT_KEYS, "event")
+    event_type = event.get("event_type")
+    if event_type == EVENT_TYPE_CONTEXT_COMPLETED:
+        _expect_exact_keys(event, _CONTEXT_ROOT_KEYS, "event")
+        event_id_pattern = _CONTEXT_EVENT_ID
+    elif event_type == EVENT_TYPE_USAGE_ATTESTED:
+        _expect_exact_keys(event, _ATTESTATION_ROOT_KEYS, "event")
+        event_id_pattern = _ATTESTATION_EVENT_ID
+    else:
+        raise _error(
+            "event_schema_invalid",
+            "Unsupported event type.",
+            "Use context_completed or usage_attested for V1 events.",
+        )
     if event["schema_version"] != EVENT_SCHEMA_VERSION:
         raise _error(
             "event_schema_invalid",
@@ -303,17 +414,11 @@ def validate_event(event: Mapping[str, object]) -> None:
             "Use metadata-only event schema version 1.",
         )
     event_id = _expect_string(event["event_id"], "event.event_id")
-    if event_id is None or not _EVENT_ID.fullmatch(event_id):
+    if event_id is None or not event_id_pattern.fullmatch(event_id):
         raise _error(
             "event_schema_invalid",
             "Event ID does not match the V1 unique identifier contract.",
             "Generate the event ID through build_context_event().",
-        )
-    if event["event_type"] != EVENT_TYPE_CONTEXT_COMPLETED:
-        raise _error(
-            "event_schema_invalid",
-            "Unsupported event type.",
-            "Use context_completed for retrieval events.",
         )
     _parse_time(event["occurred_at"])
     project_id = _expect_string(event["project_id"], "event.project_id")
@@ -324,6 +429,26 @@ def validate_event(event: Mapping[str, object]) -> None:
             "Use the validated project ID from the nearest memory manifest.",
         )
 
+    if event_type == EVENT_TYPE_USAGE_ATTESTED:
+        parent_event_id = _expect_string(
+            event["parent_event_id"], "event.parent_event_id"
+        )
+        if parent_event_id is None or not _CONTEXT_EVENT_ID.fullmatch(parent_event_id):
+            raise _error(
+                "event_schema_invalid",
+                "Parent event ID must identify a context_completed event.",
+                "Use the event_id returned by memory context.",
+            )
+        payload = event["payload"]
+        if not isinstance(payload, Mapping):
+            raise _error(
+                "event_schema_invalid",
+                "Event payload must be an object.",
+                "Build the event through build_usage_attestation_event().",
+            )
+        _validate_attestation_payload(payload)
+        return
+
     payload = event["payload"]
     if not isinstance(payload, Mapping):
         raise _error(
@@ -331,7 +456,7 @@ def validate_event(event: Mapping[str, object]) -> None:
             "Event payload must be an object.",
             "Build the event through build_context_event().",
         )
-    _expect_exact_keys(payload, _PAYLOAD_KEYS, "event.payload")
+    _expect_exact_keys(payload, _CONTEXT_PAYLOAD_KEYS, "event.payload")
     if payload["mode"] not in _MODES:
         raise _error("event_schema_invalid", "Invalid retrieval mode.", "Use a V1 retrieval mode.")
     if payload["task_category"] not in _TASK_CATEGORIES:
@@ -399,7 +524,7 @@ def build_context_event(
 ) -> dict[str, object]:
     """Build and validate one immutable context_completed event."""
 
-    expected_metadata = ("project_id", *_PAYLOAD_KEYS)
+    expected_metadata = ("project_id", *_CONTEXT_PAYLOAD_KEYS)
     if len(metadata) != len(expected_metadata) or set(metadata) != set(expected_metadata):
         raise _error(
             "event_schema_invalid",
@@ -413,7 +538,64 @@ def build_context_event(
         "event_type": EVENT_TYPE_CONTEXT_COMPLETED,
         "occurred_at": _format_time(timestamp),
         "project_id": metadata["project_id"],
-        "payload": {key: metadata[key] for key in _PAYLOAD_KEYS},
+        "payload": {key: metadata[key] for key in _CONTEXT_PAYLOAD_KEYS},
+    }
+    validate_event(event)
+    return event
+
+
+def build_usage_attestation_event(
+    parent_event: Mapping[str, object],
+    *,
+    used: Sequence[str],
+    cited: Sequence[str],
+    citation_only: Sequence[str],
+    impact_codes: Sequence[str],
+    occurred_at: datetime | None = None,
+    event_id: str | None = None,
+) -> dict[str, object]:
+    """Build one immutable attestation after validating it against its parent."""
+
+    validate_event(parent_event)
+    if parent_event["event_type"] != EVENT_TYPE_CONTEXT_COMPLETED:
+        raise _error(
+            "parent_event_invalid",
+            "Usage attestations require a context_completed parent.",
+            "Use the event_id returned by memory context.",
+        )
+    parent_payload = parent_event["payload"]
+    assert isinstance(parent_payload, Mapping)
+    retrieved = {
+        str(hit["docid"])
+        for hit in parent_payload["retrieved"]
+        if isinstance(hit, Mapping)
+    }
+    normalized_used = _ordered_unique(used)
+    normalized_cited = _ordered_unique(cited)
+    normalized_citation_only = _ordered_unique(citation_only)
+    normalized_impacts = _ordered_unique(impact_codes)
+    unknown = sorted((set(normalized_used) | set(normalized_cited)) - retrieved)
+    if unknown:
+        raise _error(
+            "attested_docid_not_retrieved",
+            f"Attested docids were not retrieved by the parent: {', '.join(unknown)}.",
+            "Attest only docids present in the parent context event.",
+        )
+    timestamp = _as_utc(occurred_at or _utc_now())
+    event: dict[str, object] = {
+        "schema_version": EVENT_SCHEMA_VERSION,
+        "event_id": event_id or _new_event_id(timestamp, prefix="att"),
+        "event_type": EVENT_TYPE_USAGE_ATTESTED,
+        "occurred_at": _format_time(timestamp),
+        "project_id": parent_event["project_id"],
+        "parent_event_id": parent_event["event_id"],
+        "payload": {
+            "impact_taxonomy_version": IMPACT_TAXONOMY_VERSION,
+            "used": normalized_used,
+            "cited": normalized_cited,
+            "citation_only": normalized_citation_only,
+            "impact_codes": normalized_impacts,
+        },
     }
     validate_event(event)
     return event
@@ -516,6 +698,25 @@ def _event_path(project_dir: Path, event: Mapping[str, object]) -> Path:
     return project_dir / f"{occurred_at:%Y-%m}.jsonl"
 
 
+def _append_event_line(event_path: Path, event: Mapping[str, object]) -> None:
+    encoded = (
+        json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n"
+    ).encode("utf-8")
+    _ensure_private_directory(event_path.parent)
+    flags = os.O_WRONLY | os.O_CREAT | os.O_APPEND | getattr(os, "O_NOFOLLOW", 0)
+    descriptor = os.open(event_path, flags, 0o600)
+    try:
+        if os.name == "posix":
+            os.fchmod(descriptor, 0o600)
+        view = memoryview(encoded)
+        while view:
+            written = os.write(descriptor, view)
+            view = view[written:]
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
 def append_event(
     event: Mapping[str, object],
     *,
@@ -525,30 +726,21 @@ def append_event(
     """Validate before mutation, then append one compact and fsynced JSON line."""
 
     validate_event(event)
+    if event["event_type"] != EVENT_TYPE_CONTEXT_COMPLETED:
+        raise _error(
+            "usage_attestation_requires_parent_lookup",
+            "Usage attestations cannot use the generic event append path.",
+            "Use append_usage_attestation() for atomic parent validation and append.",
+        )
     root = _validate_storage_location(state_dir or resolve_state_dir(), project_root)
     project_dir = _project_directory(root, str(event["project_id"]))
     event_path = _event_path(project_dir, event)
     lock_path = root / "events" / f".{event['project_id']}.lock"
-    encoded = (
-        json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n"
-    ).encode("utf-8")
 
     try:
         _ensure_private_directory(root)
         with _project_lock(lock_path):
-            _ensure_private_directory(event_path.parent)
-            flags = os.O_WRONLY | os.O_CREAT | os.O_APPEND | getattr(os, "O_NOFOLLOW", 0)
-            descriptor = os.open(event_path, flags, 0o600)
-            try:
-                if os.name == "posix":
-                    os.fchmod(descriptor, 0o600)
-                view = memoryview(encoded)
-                while view:
-                    written = os.write(descriptor, view)
-                    view = view[written:]
-                os.fsync(descriptor)
-            finally:
-                os.close(descriptor)
+            _append_event_line(event_path, event)
     except OSError as error:
         raise _error(
             "event_store_unavailable",
@@ -556,6 +748,95 @@ def append_event(
             "Restore access to the private memory state directory, then retry.",
         ) from error
     return event_path
+
+
+def append_usage_attestation(
+    *,
+    project_id: str,
+    parent_event_id: str,
+    used: Sequence[str],
+    cited: Sequence[str],
+    citation_only: Sequence[str],
+    impact_codes: Sequence[str],
+    state_dir: Path | None = None,
+    project_root: Path | None = None,
+    occurred_at: datetime | None = None,
+) -> UsageAttestationResult:
+    """Lookup, validate and append one attestation under one project lock."""
+
+    if not _PROJECT_ID.fullmatch(project_id):
+        raise _error(
+            "event_schema_invalid",
+            "Attestation project ID is invalid.",
+            "Use the project ID from the nearest validated memory manifest.",
+        )
+    if not _CONTEXT_EVENT_ID.fullmatch(parent_event_id):
+        raise _error(
+            "parent_event_invalid",
+            "Parent event ID must identify a context_completed event.",
+            "Use the event_id returned by memory context.",
+        )
+    root = _validate_storage_location(state_dir or resolve_state_dir(), project_root)
+    project_dir = _project_directory(root, project_id)
+    lock_path = root / "events" / f".{project_id}.lock"
+    try:
+        _ensure_private_directory(root)
+        with _project_lock(lock_path):
+            parents: list[dict[str, Any]] = []
+            already_attested = False
+            diagnostics: list[dict[str, str]] = []
+            if project_dir.exists():
+                for path in sorted(project_dir.glob("*.jsonl")):
+                    result = read_event_file(path)
+                    diagnostics.extend(result.diagnostics)
+                    for stored_event in result.events:
+                        if stored_event["event_id"] == parent_event_id:
+                            parents.append(stored_event)
+                        if (
+                            stored_event["event_type"] == EVENT_TYPE_USAGE_ATTESTED
+                            and stored_event["parent_event_id"] == parent_event_id
+                        ):
+                            already_attested = True
+            if diagnostics:
+                raise _error(
+                    "event_log_truncated",
+                    "The project event log has an incomplete final line.",
+                    "Run memory purge before appending an attestation.",
+                )
+            if not parents:
+                raise _error(
+                    "parent_event_not_found",
+                    f"Parent context event was not found: {parent_event_id}.",
+                    "Use a retained event_id from memory context in the current project.",
+                )
+            if len(parents) != 1:
+                raise _error(
+                    "parent_event_ambiguous",
+                    f"Parent context event is duplicated: {parent_event_id}.",
+                    "Inspect or purge the affected local project telemetry.",
+                )
+            if already_attested:
+                raise _error(
+                    "parent_already_attested",
+                    f"Parent context event is already attested: {parent_event_id}.",
+                    "Reuse the existing immutable attestation instead of appending another.",
+                )
+            event = build_usage_attestation_event(
+                parents[0],
+                used=used,
+                cited=cited,
+                citation_only=citation_only,
+                impact_codes=impact_codes,
+                occurred_at=occurred_at,
+            )
+            _append_event_line(_event_path(project_dir, event), event)
+    except OSError as error:
+        raise _error(
+            "event_store_unavailable",
+            "The usage attestation could not be persisted safely.",
+            "Restore access to the private memory state directory, then retry.",
+        ) from error
+    return UsageAttestationResult(parents[0], event)
 
 
 def read_event_file(path: Path) -> EventReadResult:

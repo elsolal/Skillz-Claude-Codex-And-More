@@ -17,9 +17,11 @@ from memory_cli.events import (  # noqa: E402
     EventIntegrityError,
     append_event,
     build_context_event,
+    build_usage_attestation_event,
     purge_project_events,
     read_event_file,
     resolve_state_dir,
+    validate_event,
 )
 
 
@@ -110,6 +112,117 @@ class EventContractUnitTests(unittest.TestCase):
         serialized = json.dumps(event)
         for forbidden in ("query", "prompt", "response", "snippet", "transcript"):
             self.assertNotIn(forbidden, serialized.lower())
+
+    def test_usage_attestation_v1_is_closed_versioned_and_linked(self) -> None:
+        parent = build_context_event(
+            context_metadata(),
+            occurred_at=NOW,
+            event_id="mem_20260724T123000000000Z_0123456789abcdef",
+        )
+
+        event = build_usage_attestation_event(
+            parent,
+            used=("#a1b2c3", "#a1b2c3"),
+            cited=("#a1b2c3",),
+            citation_only=(),
+            impact_codes=("project_convention_applied",),
+            occurred_at=NOW,
+            event_id="att_20260724T123000000000Z_fedcba9876543210",
+        )
+
+        self.assertEqual(
+            list(event),
+            [
+                "schema_version",
+                "event_id",
+                "event_type",
+                "occurred_at",
+                "project_id",
+                "parent_event_id",
+                "payload",
+            ],
+        )
+        self.assertEqual(event["event_type"], "usage_attested")
+        self.assertEqual(event["parent_event_id"], parent["event_id"])
+        self.assertEqual(
+            event["payload"],
+            {
+                "impact_taxonomy_version": "impact-v1",
+                "used": ["#a1b2c3"],
+                "cited": ["#a1b2c3"],
+                "citation_only": [],
+                "impact_codes": ["project_convention_applied"],
+            },
+        )
+
+    def test_attested_docids_must_be_retrieved_and_citations_justified(self) -> None:
+        parent = build_context_event(context_metadata(), occurred_at=NOW)
+
+        with self.assertRaisesRegex(EventIntegrityError, "#missing"):
+            build_usage_attestation_event(
+                parent,
+                used=("#missing",),
+                cited=(),
+                citation_only=(),
+                impact_codes=(),
+                occurred_at=NOW,
+            )
+
+        with self.assertRaisesRegex(EventIntegrityError, "#a1b2c3"):
+            build_usage_attestation_event(
+                parent,
+                used=(),
+                cited=("#a1b2c3",),
+                citation_only=(),
+                impact_codes=(),
+                occurred_at=NOW,
+            )
+
+        event = build_usage_attestation_event(
+            parent,
+            used=(),
+            cited=("#a1b2c3",),
+            citation_only=("#a1b2c3",),
+            impact_codes=(),
+            occurred_at=NOW,
+        )
+        self.assertEqual(event["payload"]["citation_only"], ["#a1b2c3"])
+
+    def test_malformed_attestation_lists_raise_stable_integrity_errors(self) -> None:
+        parent = build_context_event(context_metadata(), occurred_at=NOW)
+        event = build_usage_attestation_event(
+            parent,
+            used=(),
+            cited=(),
+            citation_only=(),
+            impact_codes=(),
+            occurred_at=NOW,
+        )
+        event["payload"]["used"] = [{}]
+
+        with self.assertRaises(EventIntegrityError) as raised:
+            validate_event(event)
+
+        self.assertEqual(raised.exception.code, "event_schema_invalid")
+
+    def test_generic_append_cannot_bypass_attestation_parent_lookup(self) -> None:
+        parent = build_context_event(context_metadata(), occurred_at=NOW)
+        event = build_usage_attestation_event(
+            parent,
+            used=(),
+            cited=(),
+            citation_only=(),
+            impact_codes=(),
+            occurred_at=NOW,
+        )
+
+        with self.assertRaises(EventIntegrityError) as raised:
+            append_event(event, state_dir=self.state_dir, project_root=self.repo)
+
+        self.assertEqual(
+            raised.exception.code, "usage_attestation_requires_parent_lookup"
+        )
+        self.assertFalse(any(self.state_dir.rglob("*.jsonl")))
 
     def test_state_dir_precedence_and_posix_default(self) -> None:
         home = self.root / "home"

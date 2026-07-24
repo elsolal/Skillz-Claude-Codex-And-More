@@ -15,6 +15,7 @@ from memory_cli.events import (  # noqa: E402
     EventIntegrityError,
     append_event,
     build_context_event,
+    build_usage_attestation_event,
 )
 from unit.test_events import context_metadata  # noqa: E402
 
@@ -77,6 +78,21 @@ class MetadataOnlyEventContractTests(unittest.TestCase):
             with self.subTest(value=value):
                 event = copy.deepcopy(self.event)
                 event["payload"]["route"] = [value]
+                self.assert_rejected_without_append(event)
+
+    def test_usage_attestations_keep_the_same_privacy_boundary(self) -> None:
+        attestation = build_usage_attestation_event(
+            self.event,
+            used=("#a1b2c3",),
+            cited=(),
+            citation_only=(),
+            impact_codes=(),
+            occurred_at=NOW,
+        )
+        for key in ("query", "prompt", "response", "transcript", "snippet", "body"):
+            with self.subTest(key=key):
+                event = copy.deepcopy(attestation)
+                event["payload"][key] = "private user material"
                 self.assert_rejected_without_append(event)
 
 
