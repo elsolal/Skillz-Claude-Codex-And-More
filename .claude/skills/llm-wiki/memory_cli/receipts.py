@@ -71,6 +71,8 @@ class ContextOutcome:
             metadata = self.assembly.receipt_metadata()
             data["context"] = {
                 "status": metadata["status"],
+                "source": metadata["source"],
+                "page_limit": metadata["page_limit"],
                 "estimator_version": metadata["estimator_version"],
                 "budget": {
                     "target_tokens": metadata["target_tokens"],
@@ -178,6 +180,51 @@ def blocked_context(
                 "correction": correction,
             },
         ),
+    )
+
+
+def degraded_context(
+    *,
+    project_id: str,
+    mode: RetrievalMode,
+    task_category: TaskCategory,
+    route: tuple[str, ...],
+    retrieval_status: QmdSearchStatus,
+    code: str,
+    message: str,
+    correction: str,
+    assembly: ContextAssembly,
+    hits: tuple[RetrievalHit, ...] = (),
+    duration_ms: int | None = None,
+    fallback_used: bool = False,
+    fallback_explicit_decision: bool = False,
+    fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
+    warnings: tuple[dict[str, Any], ...] = (),
+) -> ContextOutcome:
+    """Return usable bounded local context while exposing reduced coverage."""
+
+    return ContextOutcome(
+        status="degraded",
+        exit_code=10,
+        project_id=project_id,
+        mode=mode,
+        task_category=task_category,
+        route=route,
+        retrieval_status=retrieval_status,
+        duration_ms=duration_ms,
+        hits=hits,
+        fallback_used=fallback_used,
+        fallback_explicit_decision=fallback_explicit_decision,
+        fallback_reason_codes=fallback_reason_codes,
+        warnings=(
+            {
+                "code": code,
+                "message": message,
+                "correction": correction,
+            },
+            *warnings,
+        ),
+        assembly=assembly,
     )
 
 

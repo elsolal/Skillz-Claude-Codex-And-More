@@ -12,7 +12,9 @@ sys.path.insert(0, str(SKILL_ROOT))
 from memory_cli.assembly import (  # noqa: E402
     DocumentAccessError,
     assemble_context,
+    assemble_entry_pages,
     resolve_document,
+    resolve_entry_page,
     section_limit_for,
 )
 from memory_cli.contracts import (  # noqa: E402
@@ -276,6 +278,67 @@ class ContextAssemblyTests(unittest.TestCase):
                 self.assertEqual(outcome.status, AssemblyStatus.READY)
                 self.assertEqual(outcome.target_tokens, budget.target_tokens)
                 self.assertEqual(outcome.hard_tokens, budget.hard_tokens)
+
+    def test_entry_pages_preserve_manifest_order_without_claiming_qmd_retrieval(self) -> None:
+        paths = tuple(
+            PurePosixPath(f"wiki/entities/page-{index}.md") for index in range(1, 5)
+        )
+        for path in paths:
+            page = self.root.joinpath(*path.parts)
+            page.write_text(f"# Page {page.stem}\n\nDeclared context.\n", encoding="utf-8")
+
+        outcome, issues = assemble_entry_pages(
+            paths,
+            mode=RetrievalMode.PROJECT,
+            budget=BudgetConfig(target_tokens=2500, hard_tokens=4000),
+            root=self.root,
+        )
+
+        self.assertEqual(issues, ())
+        self.assertEqual(outcome.source, "entry_pages")
+        self.assertEqual(outcome.page_limit, 3)
+        self.assertEqual(outcome.retrieved, ())
+        self.assertEqual(
+            [section.relative_path for section in outcome.sections],
+            list(paths[:3]),
+        )
+        self.assertTrue(all(section.docid is None for section in outcome.sections))
+
+    def test_entry_pages_report_missing_and_symlink_escape_without_reading_outside(self) -> None:
+        valid = PurePosixPath("wiki/entities/project.md")
+        missing = PurePosixPath("wiki/entities/missing.md")
+        escaped = PurePosixPath("wiki/entities/escaped.md")
+        self.write_page("entities/project.md", "# Project\n\nSafe context.\n")
+        outside = Path(self.temp_dir.name) / "private.md"
+        outside.write_text("private sentinel\n", encoding="utf-8")
+        self.root.joinpath(*escaped.parts).symlink_to(outside)
+
+        outcome, issues = assemble_entry_pages(
+            (valid, missing, escaped),
+            mode=RetrievalMode.PROJECT,
+            budget=BudgetConfig(target_tokens=2500, hard_tokens=4000),
+            root=self.root,
+        )
+
+        self.assertEqual([section.relative_path for section in outcome.sections], [valid])
+        self.assertEqual(
+            [(issue.relative_path, issue.code) for issue in issues],
+            [
+                (missing, "entry_page_unavailable"),
+                (escaped, "entry_page_outside_root"),
+            ],
+        )
+        self.assertNotIn("private sentinel", outcome.sections[0].content)
+
+    def test_entry_page_resolution_is_relative_to_store_root(self) -> None:
+        page = self.write_page("entities/project.md", "# Project\n")
+
+        resolved = resolve_entry_page(
+            self.root,
+            PurePosixPath("wiki/entities/project.md"),
+        )
+
+        self.assertEqual(resolved, page.resolve())
 
 
 if __name__ == "__main__":

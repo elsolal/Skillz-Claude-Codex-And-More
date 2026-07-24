@@ -1,0 +1,82 @@
+# Quality gate for STORY-008 / GitHub issue #48.
+verdict: WAIVED
+niveau: 2
+tours: 3
+base: main
+head: f3e426d
+diff_hash: "44b1bde9e1e2320650c96f92acb2a0918285904e1fe94b818fac28cbcdfa8446"
+waiver:
+  accepted_by: "user"
+  accepted_at: "2026-07-24"
+  reason: "The user selected ship after the handoff explicitly identified that a waiver was required. The concern is limited to the level-2 convergence rule: rounds 1 and 2 each fixed a P1, round 3 was clean, all executable evidence is green, and zero P0/P1 findings remain."
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "vert (3/3 tours, exit 0)"
+    tests:
+      cmd: "bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "vert (3/3 tours; installer PASS; 90 tests Python)"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: "vert (exit 0)"
+    runtime_contract:
+      flow: "manifest + projection -> panne QMD projet ou fallback -> pages d'entree bornees -> recu humain/JSON"
+      statut: "vert via faux binaire QMD 0.9.x et vaults temporaires; modes minimal/project/historical, caps, budgets, pages partielles, symlink escape et absence d'invocation implicite couverts"
+  red_green:
+    red: "17 tests d'integration produisaient 6 echecs et 1 erreur: QMD absent/non executable/timeout/invalid restait bloque en 31/40, aucun contexte local n'etait emis et zero page valide ne retournait pas 32"
+    green: "90 tests passent; minimal/project degradent en 10 avec pages bornees, historical bloque en 31 et zero page lisible bloque en 32"
+  convergence:
+    statut: "borne atteinte"
+    raison: "les tours 1 et 2 ont chacun confirme puis corrige une P1; le tour 3 est propre mais le gate exige deux tours propres consecutifs pour PASS"
+  opinion:
+    findings:
+      total: 3
+      confirmes: 2
+      refutes: 1
+      corriges: 2
+      restants_p0_p1: 0
+      notes_p2_p3: 0
+    registre:
+      - id: ".claude/skills/llm-wiki/memory_cli/context.py:correctness:fallback-search-exit"
+        severite: P1
+        statut: corrige
+        resume: "une panne QMD sur la deuxieme collection retournait encore 40 au lieu de degrader minimal/project et de bloquer historical en 31"
+        preuve: "le chemin de fallback delegue maintenant a la policy locale unique; le test parametre les trois modes apres insuffisance projet"
+      - id: ".claude/skills/llm-wiki/memory_cli/receipts.py:correctness:project-hits-lost"
+        severite: P1
+        statut: corrige
+        resume: "le recu local effacait les hits projet reels lorsque seule la recherche QMD transverse echouait"
+        preuve: "les hits projet restent retrieved tandis que les pages locales restent read avec docid null; la regression verifie les deux compteurs"
+      - id: ".claude/skills/llm-wiki/memory_cli/assembly.py:maintainability:duplicate-resolvers"
+        severite: P3
+        statut: refute
+        resume: "les controles communs de resolve_document et resolve_entry_page semblaient duplicatifs"
+        preuve: "les bases et politiques divergent: URI QMD sous wiki/ contre chemin manifeste relatif au store; une abstraction exigerait davantage de parametres et n'est justifiee que si un troisieme resolver apparait"
+    lentilles:
+      correctness_security: "aucun P0/P1 restant; traversal, symlink escape, caps, codes de sortie, routes partielles, non-divulgation et absence de lecture large sont couverts"
+      readability: "aucun P0/P1; orchestration, assemblage local, contrats et rendu gardent des responsabilites distinctes"
+      performance: "aucun P0/P1; une ou trois pages declarees maximum, budgets hard respectes et aucune commande externe additionnelle"
+      thermo_nuclear: "approve; aucun fichier ne depasse 1000 lignes, aucune couche morte ou branche dispersee, et la duplication de resolvers est refutee comme dette structurelle"
+acceptation:
+  AC1: "vert - minimal sans QMD emet une page maximum, source entry_pages, statut degraded et exit 10"
+  AC2: "vert - project considere les trois premieres pages declarees maximum, preserve leur ordre et reste sous le hard budget"
+  AC3: "vert - historical sans QMD utilisable ne rend aucun contexte de succes et retourne exit 31, y compris si la panne survient sur la deuxieme collection"
+  AC4: "vert - page absente ou symlink hors racine signalee par chemin relatif; aucune quatrieme page, index, scan de vault ou fallback implicite ne la remplace"
+  AC5: "vert - QMD absent/non executable ne declenche aucune invocation; aucun modele, telechargement, update/embed, reseau ou ecriture de page"
+decisions_prises_en_ton_nom:
+  - "Zero page d'entree lisible retourne blocked/32, car degraded/10 signifie que le travail reste utilisable."
+  - "Une recherche QMD valide mais vide reste insufficient/20; seule une indisponibilite technique active les pages d'entree."
+  - "Timeout, sortie invalide et echec d'invocation degradent minimal/project en 10; historical retourne 31."
+  - "Le cap s'applique aux premieres declarations du manifeste: une page invalide est signalee mais n'est pas remplacee par une declaration ulterieure hors cap."
+  - "Une page locale est read avec docid null et source entry_pages; aucun hit QMD synthetique n'est fabrique."
+  - "Si la recherche projet a produit des hits avant une panne transverse, ces hits restent retrieved tandis que seules les pages locales sont read."
+  - "Une tentative de fallback transverse en echec reste visible par la route et fallback.used, sans exposer de contenu transverse."
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no long-running runtime application surface; subprocess CLI integration tests provide executable proof"
+  - "no live real-vault QMD query; fixture-backed QMD 0.9.x and temporary vaults provide deterministic proof"
+  - "no semantic retrieval, model call, model download or network call executed"
+  - "no two consecutive clean review rounds within the level-2 cap; one additional clean re-run is required for PASS"

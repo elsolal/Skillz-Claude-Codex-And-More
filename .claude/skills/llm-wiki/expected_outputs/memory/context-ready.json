@@ -44,6 +44,8 @@
     },
     "context": {
       "status": "ready",
+      "source": "qmd",
+      "page_limit": null,
       "estimator_version": "utf8_bytes_div_4_v1",
       "budget": {
         "target_tokens": 2500,

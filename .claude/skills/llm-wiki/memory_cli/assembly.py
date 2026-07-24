@@ -49,6 +49,16 @@ class DocumentAccessError(Exception):
         self.correction = correction
 
 
+@dataclass(frozen=True, slots=True)
+class EntryPageIssue:
+    """A declared local entry page that could not safely contribute context."""
+
+    relative_path: PurePosixPath
+    code: str
+    message: str
+    correction: str
+
+
 def _access_error(*, code: str, message: str, correction: str) -> NoReturn:
     raise DocumentAccessError(code=code, message=message, correction=correction)
 
@@ -111,6 +121,61 @@ def resolve_document(root: Path, relative_path: PurePosixPath) -> Path:
             code="document_unavailable",
             message="A retrieved document is not a readable regular file.",
             correction="Restore the indexed page or update the QMD collection.",
+        )
+    return resolved
+
+
+def resolve_entry_page(root: Path, relative_path: PurePosixPath) -> Path:
+    """Resolve a manifest-declared page relative to its projected store root."""
+
+    raw_path = relative_path.as_posix()
+    if (
+        relative_path.is_absolute()
+        or not relative_path.parts
+        or "\\" in raw_path
+        or any(part in {"", ".", ".."} for part in relative_path.parts)
+    ):
+        _access_error(
+            code="entry_page_outside_root",
+            message="A declared entry page falls outside its projected local root.",
+            correction="Repair the shared manifest entry page and retry memory context.",
+        )
+    try:
+        resolved_root = root.resolve(strict=True)
+    except (OSError, RuntimeError):
+        _access_error(
+            code="entry_page_root_unavailable",
+            message="The projected entry-page root is unavailable.",
+            correction="Restore the local vault or run memory configure again.",
+        )
+    if not resolved_root.is_dir() or not os.access(resolved_root, os.R_OK | os.X_OK):
+        _access_error(
+            code="entry_page_root_unavailable",
+            message="The projected entry-page root cannot be traversed safely.",
+            correction="Restore read and traversal access to the local vault.",
+        )
+    candidate = resolved_root.joinpath(*relative_path.parts)
+    try:
+        resolved = candidate.resolve(strict=True)
+    except (OSError, RuntimeError):
+        _access_error(
+            code="entry_page_unavailable",
+            message="A declared entry page is absent from its projected local root.",
+            correction="Restore the missing page or update the shared manifest through review.",
+        )
+    try:
+        resolved.relative_to(resolved_root)
+    except ValueError:
+        _access_error(
+            code="entry_page_outside_root",
+            message="A declared entry page resolves outside its projected local root.",
+            correction="Remove the escaping symlink or update the shared manifest through review.",
+        )
+    if not resolved.is_file() or not os.access(resolved, os.R_OK):
+        _access_error(
+            code="entry_page_unavailable",
+            message="A declared entry page is not a readable regular file.",
+            correction="Restore the page or update the shared manifest through review.",
         )
     return resolved
 
@@ -271,6 +336,39 @@ def _extract_section(hit: RetrievalHit, path: Path) -> _ExtractedSection:
         frontmatter=frontmatter,
         paragraphs=paragraphs,
         essential_index=essential_index,
+    )
+
+
+def _extract_entry_page(relative_path: PurePosixPath, path: Path) -> _ExtractedSection:
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        _access_error(
+            code="entry_page_unavailable",
+            message="A declared entry page could not be read as UTF-8 Markdown.",
+            correction="Repair the page encoding or update the shared manifest through review.",
+        )
+    lines = text.splitlines()
+    frontmatter, body_start = _frontmatter(lines)
+    paragraphs = _paragraphs(lines[body_start:], offset=body_start)
+    if not paragraphs:
+        _access_error(
+            code="entry_page_empty",
+            message="A declared entry page contains no readable Markdown content.",
+            correction="Add bounded project context or update the shared manifest through review.",
+        )
+    collection_path = (
+        PurePosixPath(*relative_path.parts[1:])
+        if relative_path.parts[:1] == ("wiki",)
+        else relative_path
+    )
+    heading = HEADING_PATTERN.match(paragraphs[0].content)
+    return _ExtractedSection(
+        title=frontmatter.get("title", heading.group(2) if heading else path.stem),
+        provenance=provenance_for_path(collection_path),
+        frontmatter=frontmatter,
+        paragraphs=paragraphs,
+        essential_index=0,
     )
 
 
@@ -458,4 +556,97 @@ def assemble_context(
         hard_cap_exceeded=hard_cap_exceeded,
         risk_reason=risk_reason if hard_cap_exceeded else None,
         reason_codes=reason_codes,
+    )
+
+
+def assemble_entry_pages(
+    entry_pages: tuple[PurePosixPath, ...],
+    *,
+    mode: RetrievalMode,
+    budget: BudgetConfig,
+    root: Path,
+) -> tuple[ContextAssembly, tuple[EntryPageIssue, ...]]:
+    """Read only the first manifest-declared pages allowed by the current mode."""
+
+    if mode is RetrievalMode.HISTORICAL:
+        raise ValueError("historical mode requires QMD retrieval")
+
+    page_limit = section_limit_for(mode)
+    sections: list[ContextSection] = []
+    issues: list[EntryPageIssue] = []
+    estimated_tokens = 0
+
+    for relative_path in entry_pages[:page_limit]:
+        try:
+            path = resolve_entry_page(root, relative_path)
+            extracted = _extract_entry_page(relative_path, path)
+            fitted = _fit_section(
+                extracted,
+                current_tokens=estimated_tokens,
+                budget=budget,
+                risk_reason=None,
+            )
+            if fitted is None:
+                issues.append(
+                    EntryPageIssue(
+                        relative_path=relative_path,
+                        code="entry_page_budget_exceeded",
+                        message="A declared entry page cannot fit inside the hard token budget.",
+                        correction="Reduce the page or update the approved memory budget through review.",
+                    )
+                )
+                continue
+        except DocumentAccessError as error:
+            issues.append(
+                EntryPageIssue(
+                    relative_path=relative_path,
+                    code=error.code,
+                    message=error.message,
+                    correction=error.correction,
+                )
+            )
+            continue
+
+        content, line_start, line_end, truncated, _ = fitted
+        section_tokens = estimate_tokens(content)
+        collection_path = (
+            PurePosixPath(*relative_path.parts[1:])
+            if relative_path.parts[:1] == ("wiki",)
+            else relative_path
+        )
+        sections.append(
+            ContextSection.create(
+                docid=None,
+                collection="entry_pages",
+                relative_path=relative_path,
+                title=extracted.title,
+                provenance=provenance_for_path(collection_path),
+                line_start=line_start,
+                line_end=line_end,
+                frontmatter=extracted.frontmatter,
+                content=content,
+                estimated_tokens=section_tokens,
+                truncated=truncated,
+            )
+        )
+        estimated_tokens += section_tokens
+
+    reason_codes = tuple(dict.fromkeys(issue.code for issue in issues))
+    return (
+        ContextAssembly(
+            status=AssemblyStatus.READY if sections else AssemblyStatus.INSUFFICIENT,
+            decision=None,
+            retrieved=(),
+            sections=tuple(sections),
+            estimator_version=ESTIMATOR_VERSION,
+            target_tokens=budget.target_tokens,
+            hard_tokens=budget.hard_tokens,
+            estimated_tokens=estimated_tokens,
+            hard_cap_exceeded=False,
+            risk_reason=None,
+            source="entry_pages",
+            page_limit=page_limit,
+            reason_codes=reason_codes,
+        ),
+        tuple(issues),
     )

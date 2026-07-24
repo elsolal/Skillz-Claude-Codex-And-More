@@ -235,7 +235,7 @@ class SufficiencyDecision:
 class ContextSection:
     """A relative, bounded Markdown section actually emitted by the CLI."""
 
-    docid: str
+    docid: str | None
     collection: str
     relative_path: PurePosixPath
     title: str
@@ -251,7 +251,7 @@ class ContextSection:
     def create(
         cls,
         *,
-        docid: str,
+        docid: str | None,
         collection: str,
         relative_path: PurePosixPath,
         title: str,
@@ -283,7 +283,7 @@ class ContextAssembly:
     """Measured context plus a metadata-only projection for later events."""
 
     status: AssemblyStatus
-    decision: SufficiencyDecision
+    decision: SufficiencyDecision | None
     retrieved: tuple[RetrievalHit, ...]
     sections: tuple[ContextSection, ...]
     estimator_version: str
@@ -292,6 +292,8 @@ class ContextAssembly:
     estimated_tokens: int
     hard_cap_exceeded: bool
     risk_reason: RiskReason | None
+    source: str = "qmd"
+    page_limit: int | None = None
     reason_codes: tuple[str, ...] = ()
 
     def receipt_metadata(self) -> dict[str, object]:
@@ -309,6 +311,8 @@ class ContextAssembly:
             "read_count": len(self.sections),
             "hard_cap_exceeded": self.hard_cap_exceeded,
             "risk_reason": self.risk_reason.value if self.risk_reason else None,
+            "source": self.source,
+            "page_limit": self.page_limit,
             "reason_codes": list(self.reason_codes),
         }
 
@@ -316,6 +320,6 @@ class ContextAssembly:
         return {
             **self.receipt_metadata(),
             "retrieved_docids": [hit.docid for hit in self.retrieved],
-            "read_docids": [section.docid for section in self.sections],
+            "read_docids": [section.docid for section in self.sections if section.docid is not None],
             "read_paths": [section.relative_path.as_posix() for section in self.sections],
         }

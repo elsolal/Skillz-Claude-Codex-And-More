@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "command": "context",
+  "status": "degraded",
+  "project_id": "skillz-claude",
+  "event_id": null,
+  "data": {
+    "mode": "minimal",
+    "task_category": "general",
+    "route": ["elsolal-wiki"],
+    "retrieval": {
+      "status": "error",
+      "hits": []
+    },
+    "fallback": {
+      "used": false,
+      "explicit_decision": false,
+      "reason_codes": []
+    },
+    "context": {
+      "status": "ready",
+      "source": "entry_pages",
+      "page_limit": 1,
+      "estimator_version": "utf8_bytes_div_4_v1",
+      "budget": {
+        "target_tokens": 800,
+        "hard_tokens": 1200
+      },
+      "estimated_tokens": 3,
+      "remaining_target_tokens": 797,
+      "retrieved_count": 0,
+      "read_count": 1,
+      "hard_cap_exceeded": false,
+      "risk_reason": null,
+      "reason_codes": [],
+      "sections": [
+        {
+          "docid": null,
+          "collection": "entry_pages",
+          "path": "wiki/entities/project.md",
+          "title": "Project",
+          "provenance": "page",
+          "line_start": 1,
+          "line_end": 1,
+          "frontmatter": {},
+          "estimated_tokens": 3,
+          "truncated": false,
+          "content": "# Project\n"
+        }
+      ]
+    }
+  },
+  "warnings": [
+    {
+      "code": "qmd_missing",
+      "message": "QMD is required for project retrieval but is unavailable.",
+      "correction": "bun install -g @tobilu/qmd"
+    }
+  ],
+  "errors": []
+}

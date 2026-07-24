@@ -19,6 +19,7 @@ or to verify the scripts behave correctly end-to-end.
 | degraded `memory configure --json` | `memory/configure-degraded.json` |
 | `memory doctor --json` | `memory/doctor-ready.json` |
 | `memory context --json` | `memory/context-ready.json` |
+| degraded `memory context --json` without QMD | `memory/context-degraded.json` |
 
 These were captured against a small 2-page example vault (one concept page and
 one source page, both with proper frontmatter). Paths have been anonymized to

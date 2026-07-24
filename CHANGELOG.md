@@ -2,6 +2,29 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## [Unreleased] - 2026-07-24
+
+**Bounded degraded memory context without QMD**
+
+### Added
+- Local entry-page context for `minimal` and `project` when QMD is missing, non-executable, timed out, or otherwise unusable, capped at one and three manifest-declared pages respectively.
+- Explicit degraded receipts with `source: entry_pages`, page and token limits, relative-path warnings, `retrieved`/`read` separation, and a copyable QMD repair action.
+- Unit, integration, contract, and security coverage for missing/non-executable QMD, primary and transverse retrieval failures, partial entry pages, hard budgets, traversal, and symlink escape.
+
+### Changed
+- `historical` now consistently returns `blocked`/`31` for an unusable QMD dependency, including failures on an authorized transverse route.
+- A valid empty QMD search remains `insufficient`/`20`; local degradation is reserved for technical unavailability and never scans undeclared pages or downloads a model.
+- Local entry pages are represented as `read` sections with no synthetic QMD docid, while any real project hits obtained before a transverse failure remain visible as `retrieved` evidence.
+
+### Fixed
+- Authorized fallback search failures now use the same mode-aware degradation policy as primary project-search failures instead of returning exit `40` unconditionally.
+- Project hits are no longer discarded when the transverse QMD route fails and bounded local pages provide the final context.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — installer PASS, 90 tests Python OK on Python 3.12.7
+- Level-2 quality gate: `WAIVED` only for the convergence-round limit; all executable evidence is green and no P0/P1 finding remains
+
 ## [Unreleased] - 2026-07-22
 
 **Budgeted Markdown memory context assembly**

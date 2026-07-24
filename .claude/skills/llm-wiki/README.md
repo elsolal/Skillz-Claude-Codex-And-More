@@ -170,8 +170,8 @@ printf '%s' "private task query" | \
   memory context --mode project --task-category security --query-stdin --json
 ```
 
-`context` always calls `qmd search --json` against the manifest's project
-collection first, with an argument array and no shell interpolation. The
+When QMD is available, `context` calls `qmd search --json` against the
+manifest's project collection first, with an argument array and no shell interpolation. The
 versioned `qmd-0.9-v1` sufficiency gate evaluates score, coverage, collection
 freshness, path provenance, mode, and task category. It stops immediately on a
 sufficient project result. Otherwise it may query one manifest fallback only
@@ -207,10 +207,20 @@ QMD still receives it transiently as its required positional process argument.
 
 A sufficient retrieval returns `sufficient`/`0`. Incomplete evidence returns
 `insufficient`/`20`; ambiguity requiring an explicit decision returns `21`, and
-blocking freshness returns `33`. Missing QMD returns `blocked`/`31`; timeout,
-invalid JSON, oversized output, and other engine failures return `blocked`/`40`
-with a specific retrieval status and correction. The default timeout is eight
-seconds per route and can never exceed thirty seconds inside the adapter.
+blocking freshness returns `33`. When QMD is missing, non-executable, timed out,
+or otherwise unusable, `minimal` reads at most the first declared project entry
+page and `project` reads at most the first three. At least one safe page returns
+`degraded`/`10` with `source: entry_pages`, `retrieved_count: 0`, the page cap,
+the actual read count, the token budget, every skipped relative path, and the
+QMD repair command. No valid bounded page returns `blocked`/`32`.
+
+`historical` never uses this local fallback and returns `blocked`/`31` when QMD
+is unavailable. A successful QMD search with zero hits remains
+`insufficient`/`20`; it is not rewritten as an engine failure. The fallback
+never scans the vault, opens an undeclared index, queries a transverse store,
+downloads a model, or invokes `qmd update`/`embed`. The default search timeout
+is eight seconds per route and can never exceed thirty seconds inside the
+adapter.
 
 ```bash
 # 1. Initialize a vault
