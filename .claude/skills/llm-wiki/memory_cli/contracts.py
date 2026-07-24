@@ -318,8 +318,26 @@ class ContextAssembly:
 
     def event_metadata(self) -> dict[str, object]:
         return {
-            **self.receipt_metadata(),
-            "retrieved_docids": [hit.docid for hit in self.retrieved],
-            "read_docids": [section.docid for section in self.sections if section.docid is not None],
-            "read_paths": [section.relative_path.as_posix() for section in self.sections],
+            "retrieved": [
+                {
+                    "docid": hit.docid,
+                    "collection": hit.collection,
+                    "path": hit.relative_path.as_posix(),
+                    "score": hit.score,
+                }
+                for hit in self.retrieved
+            ],
+            "read": [
+                {
+                    "docid": section.docid,
+                    "collection": section.collection,
+                    "path": section.relative_path.as_posix(),
+                }
+                for section in self.sections
+            ],
+            "estimated_context_tokens": self.estimated_tokens,
+            "estimated_tokens": self.estimated_tokens,
+            "estimator_version": self.estimator_version,
+            "budget_tokens": self.target_tokens,
+            "risk_reason": self.risk_reason.value if self.risk_reason else None,
         }

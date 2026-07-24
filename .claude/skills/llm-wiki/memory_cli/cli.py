@@ -6,6 +6,7 @@ import argparse
 import json
 import sys
 from collections.abc import Sequence
+from dataclasses import replace
 from typing import Any
 
 from . import __version__
@@ -19,6 +20,13 @@ from .contracts import (
     TaskCategory,
 )
 from .doctor import DoctorOutcome, run_doctor
+from .events import (
+    EventIntegrityError,
+    append_event,
+    build_context_event,
+    purge_project_events,
+    resolve_state_dir,
+)
 from .manifest import ManifestError, discover_manifest, load_manifest, load_nearest_manifest
 from .projection import ConfigureOutcome, ProjectionError, configure_projection
 from .render_human import render_context_final, render_context_initial
@@ -153,6 +161,21 @@ def build_parser() -> argparse.ArgumentParser:
         help="Show sufficiency evidence, reason codes and fallback decisions.",
     )
     context_parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit the stable machine-readable result envelope.",
+    )
+    purge_parser = commands.add_parser(
+        "purge",
+        help="Apply retention or remove current-project memory event detail.",
+    )
+    purge_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Immediately remove all event detail for the current project.",
+    )
+    purge_parser.add_argument(
         "--json",
         action="store_true",
         dest="json_output",
@@ -469,6 +492,7 @@ def _run_context_command(
     json_output: bool,
 ) -> int:
     try:
+        manifest_path = discover_manifest()
         outcome = run_context(
             mode=RetrievalMode(mode),
             task_category=TaskCategory(task_category),
@@ -497,11 +521,78 @@ def _run_context_command(
             print(f"Correction: {error.correction}")
         return error.exit_code
 
+    try:
+        event = build_context_event(outcome.event_metadata())
+        append_event(
+            event,
+            state_dir=resolve_state_dir(),
+            project_root=manifest_path.parent.parent,
+        )
+        outcome = replace(outcome, event_id=str(event["event_id"]))
+    except EventIntegrityError as error:
+        outcome = replace(
+            outcome,
+            exit_code=error.exit_code,
+            errors=(*outcome.errors, error.as_dict()),
+        )
+
     if json_output:
         render_context_json(outcome, stream=sys.stdout)
     else:
         render_context_final(outcome, explain=explain, stream=sys.stdout)
     return outcome.exit_code
+
+
+def _run_purge_command(*, force: bool, json_output: bool) -> int:
+    project_id: str | None = None
+    try:
+        manifest_path = discover_manifest()
+        manifest = load_manifest(manifest_path)
+        project_id = manifest.project.id
+        outcome = purge_project_events(
+            project_id,
+            retention_days=manifest.policy.retention_days,
+            force=force,
+            state_dir=resolve_state_dir(),
+            project_root=manifest_path.parent.parent,
+        )
+    except (ManifestError, EventIntegrityError) as error:
+        if json_output:
+            _render_json(
+                _envelope(
+                    command="purge",
+                    status="blocked",
+                    project_id=project_id,
+                    data={},
+                    errors=[error.as_dict()],
+                )
+            )
+        else:
+            print(f"[blocked] memory purge · {error.code}")
+            print(error.message)
+            print(f"Correction: {error.correction}")
+        return error.exit_code
+
+    if json_output:
+        _render_json(
+            _envelope(
+                command="purge",
+                status="ready",
+                project_id=project_id,
+                data=outcome.data(),
+            )
+        )
+    else:
+        mode = "forced" if force else "retention"
+        print(f"Memory purge · {project_id} · {mode}")
+        print(f"Deleted: {outcome.deleted_events} event(s)")
+        print(f"Retained: {outcome.retained_events} event(s)")
+        if outcome.corrupted_files:
+            print(
+                "Warning: "
+                f"{outcome.corrupted_files} truncated file(s) were rewritten from their valid prefix."
+            )
+    return 0
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -522,6 +613,11 @@ def main(argv: Sequence[str] | None = None) -> int:
             network=arguments.network,
             fix=arguments.fix,
             explain=arguments.explain,
+            json_output=arguments.json_output,
+        )
+    if arguments.command == "purge":
+        return _run_purge_command(
+            force=arguments.force,
             json_output=arguments.json_output,
         )
     if arguments.command == "context":

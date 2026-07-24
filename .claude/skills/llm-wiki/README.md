@@ -197,7 +197,7 @@ Selection stops as soon as the read subset is sufficient. A necessary paragraph
 past the hard cap returns an explicit partial result unless `--risk-reason`
 provides one of `security`, `data`, `architecture`, `product`, or `incident`.
 The accepted reason and real estimated cost are retained in the receipt and the
-metadata-only event projection; event persistence is implemented separately.
+metadata-only event projection.
 
 The query is never written to an event, receipt field, or temporary file by
 `memory`. JSON and human output expose normalized hit metadata—docid,
@@ -211,8 +211,49 @@ planned route, and the selected budget; it never contains the query. The final
 human receipt on stdout separates `retrieved`, `read`, estimated tokens,
 duration, freshness, and fallback state. JSON stdout remains one parseable
 document and exposes the same values under `data.receipt.initial` and
-`data.receipt.final`. `event_id` remains `null` until metadata-only event
-persistence is enabled by the following story.
+`data.receipt.final`. Every completed retrieval attempt is projected once onto
+the closed event V1 contract and appended locally. The returned `event_id`
+matches the persisted line; manifest or projection failures that occur before
+retrieval starts are not journaled.
+
+### Metadata-only event storage and purge
+
+Context events live outside the project under `SKILLZ_MEMORY_STATE_DIR` when it
+is explicitly set, otherwise `$XDG_STATE_HOME/skillz-memory`, then
+`~/.local/state/skillz-memory`. A state directory resolving inside the current
+project is refused with exit `50`. On POSIX, state/project directories are
+restricted to `0700` and JSONL/lock files to `0600`. Events are partitioned as
+`events/<project-id>/YYYY-MM.jsonl`, appended under a project lock as one compact
+JSON line, and `fsync`ed before success is reported.
+
+The V1 root allowlist is exactly `schema_version`, `event_id`, `event_type`,
+`occurred_at`, `project_id`, and `payload`. A `context_completed` payload is
+limited to:
+
+- `mode`, `task_category`, `status`, and the collection-only `route`;
+- normalized `retrieved` entries containing `docid`, `collection`, relative
+  `path`, and numeric `score`;
+- emitted `read` entries containing `docid`, `collection`, and relative `path`;
+- `estimated_context_tokens`, `estimator_version`, `budget_tokens`,
+  `duration_ms`, and `freshness`;
+- `fallback_reason_codes` and `risk_reason`.
+
+Unknown fields and content-bearing or sensitive keys are refused before any
+filesystem mutation. Queries, prompts, responses, transcripts, snippets, page
+bodies, absolute paths, credential keys, and recognized secret-shaped values
+produce exit `50`. Arbitrary secret detection is not claimed: the closed
+structural allowlist is the primary privacy boundary.
+
+`memory purge` removes only events older than the current manifest's
+`policy.retention_days` for the current project. `memory purge --force` removes
+all detailed events for that project immediately; neither form accepts an
+arbitrary project ID. A truncated final JSONL line is diagnosed and ignored by
+readers, and purge rewrites the valid prefix under the same lock. Another
+project's event directory is never read or changed.
+
+If event validation or persistence fails, the functional context remains in
+stdout, `event_id` stays `null`, the telemetry error is explicit, and the
+process returns `50` rather than presenting the run as fully measured.
 
 A sufficient retrieval returns `sufficient`/`0`. Incomplete evidence returns
 `insufficient`/`20`; ambiguity requiring an explicit decision returns `21`, and

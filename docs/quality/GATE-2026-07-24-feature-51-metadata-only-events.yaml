@@ -1,0 +1,69 @@
+# Quality gate for STORY-011 / GitHub issue #51.
+verdict: PASS
+niveau: 3
+tours: 4
+base: main
+head: 1210961
+diff_hash: "b2f864d6ed51647ff3e5d4774ecec2967afbb43df498aadef1f799b45c990253"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "vert (4/4 tours, exit 0)"
+    tests:
+      cmd: "PATH=/Users/aymeric/miniconda3/bin:$PATH bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "vert (4/4 tours; installer acceptance PASS; 133 puis 135 puis 136 puis 136 tests Python)"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: "vert (4/4 tours, exit 0)"
+    runtime_contract:
+      flow: "memory context -> projection metadata-only -> append JSONL prive -> event_id; memory purge -> retention ou suppression forcee du projet courant"
+      statut: "vert via faux QMD 0.9.x, vaults/state dirs temporaires, 24 processus concurrents, corruption de tail, permissions POSIX, isolation projet et sorties humain/JSON"
+  red_green:
+    red: "les nouveaux tests echouaient a l'import car memory_cli.events, la persistance event_id et memory purge n'existaient pas"
+    green: "136 tests passent; chaque retrieval demarre produit au plus un evenement valide, les contenus interdits sont refuses avant mutation et la purge reste bornee au projet courant"
+  convergence:
+    statut: "atteinte"
+    preuve: "les tours 1 et 2 ont chacun corrige un P1 confirme; les tours 3 et 4 ont produit zero nouveau P0/P1 avec toutes les preuves executables vertes"
+  opinion:
+    findings:
+      total: 2
+      confirmes: 2
+      refutes: 0
+      corriges: 2
+      restants_p0_p1: 0
+      notes_p2_p3: 0
+    registre:
+      - id: ".claude/skills/llm-wiki/memory_cli/events.py:integrity:c1b85ec8"
+        severite: P1
+        statut: corrige
+        resume: "le lecteur acceptait les cles JSON dupliquees et confondait toute derniere ligne invalide avec une ecriture tronquee"
+        preuve: "le parseur refuse desormais doublons et constantes non standard; seule une derniere ligne non terminee est ignoree avec diagnostic"
+      - id: ".claude/skills/llm-wiki/memory_cli/cli.py:reliability:94454ba2"
+        severite: P1
+        statut: corrige
+        resume: "le CLI rediscoverait le manifeste apres retrieval et pouvait perdre le rendu sur une suppression concurrente"
+        preuve: "le chemin preflight est conserve avant run_context et reutilise pour borner le state dir; une regression verrouille un seul appel"
+    lentilles:
+      correctness_security: "approve apres corrections; schema ferme, scanner avant mutation, chemins relatifs, state dir hors projet, symlinks refuses, append/purge verrouilles et exit 50 explicite"
+      readability: "approve; ContextOutcome possede la projection mesuree, events.py possede validation/stockage/retention et cli.py ne garde que l'orchestration"
+      performance: "approve; scan borne a un petit evenement, append O_APPEND sous verrou projet et fsync requis; purge ne parcourt que les fichiers mensuels du projet courant"
+      thermo_nuclear: "approve; aucun fichier ne depasse 1000 lignes, pas de casts/wrappers identitaires ni de branches dispersees, et le module events.py correspond a la frontiere canonique de l'architecture"
+acceptation:
+  AC1: "vert - event V1 documente et ferme: ID/temps/projet, route, hits avec scores/chemins relatifs, read, tokens, duree, fraicheur, statut et reason codes uniquement"
+  AC2: "vert - query/prompt/response/transcript/snippet/body, cles sensibles, chemins absolus et valeurs secret-shaped sont refuses avant toute creation JSONL avec exit 50"
+  AC3: "vert - precedence SKILLZ_MEMORY_STATE_DIR/XDG/POSIX, state dir hors worktree, repertoires 0700 et fichiers/locks 0600 sur POSIX"
+  AC4: "vert - 24 processus concurrents produisent 24 lignes JSON completes et 24 event IDs uniques"
+  AC5: "vert - une derniere ligne non terminee est diagnostiquee et ignoree; le prefixe valide reste lisible, les autres corruptions bloquent"
+  AC6: "vert - retention et --force ne ciblent que le project_id du manifeste; les evenements frais et les autres projets sont preserves selon le mode"
+decisions_prises_en_ton_nom:
+  - "Le gate a rendu le lecteur JSON strict: doublons et constantes non standard bloquent; seule une derniere ligne physiquement non terminee est recuperable."
+  - "Le gate a conserve la racine du manifeste decouverte avant retrieval afin qu'une disparition concurrente du fichier ne supprime pas le contexte fonctionnel deja obtenu."
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no long-running runtime application surface; subprocess CLI integration tests provide executable behavior proof"
+  - "no live real-vault QMD query; fixture-backed QMD 0.9.x and temporary vaults provide deterministic proof"
+  - "the shell resolves Apple Python 3.9.6 by default; verification prepended Miniconda Python 3.12.7 to PATH to satisfy the package's documented Python >=3.10 runtime contract"
+  - "no frontend or SEO/GEO surface; design, SEO/GEO and WCAG web lenses are not applicable"

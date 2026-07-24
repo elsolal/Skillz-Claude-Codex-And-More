@@ -16,6 +16,7 @@ from .contracts import (
     TaskCategory,
 )
 from .qmd_adapter import QmdSearchOutcome, QmdSearchStatus
+from .tokens import ESTIMATOR_VERSION
 
 
 @dataclass(frozen=True, slots=True)
@@ -162,21 +163,47 @@ class ContextOutcome:
             },
         }
 
-    def event_metadata(self) -> dict[str, Any] | None:
-        """Return the metadata-only event input; persistence belongs to STORY-011."""
+    def event_metadata(self) -> dict[str, Any]:
+        """Project every completed retrieval onto the closed event V1 contract."""
 
-        if self.assembly is None:
-            return None
+        if self.assembly is not None:
+            measured = self.assembly.event_metadata()
+        else:
+            measured = {
+                "retrieved": [
+                    {
+                        "docid": hit.docid,
+                        "collection": hit.collection,
+                        "path": hit.relative_path.as_posix(),
+                        "score": hit.score,
+                    }
+                    for hit in self.hits
+                ],
+                "read": [],
+                "estimated_context_tokens": 0,
+                "estimator_version": ESTIMATOR_VERSION,
+                "budget_tokens": self.initial_receipt.target_tokens,
+                "risk_reason": None,
+            }
         return {
             "project_id": self.project_id,
             "mode": self.mode.value,
             "task_category": self.task_category.value,
+            "status": self.status,
             "route": list(self.route),
+            "retrieved": measured["retrieved"],
+            "read": measured["read"],
+            "estimated_context_tokens": measured["estimated_context_tokens"],
+            "estimator_version": measured["estimator_version"],
+            "budget_tokens": measured["budget_tokens"],
             "duration_ms": self.duration_ms,
             "freshness": (
-                self.decision.evidence.freshness.value if self.decision else None
+                self.decision.evidence.freshness.value if self.decision else "unknown"
             ),
-            **self.assembly.event_metadata(),
+            "fallback_reason_codes": [
+                reason.value for reason in self.fallback_reason_codes
+            ],
+            "risk_reason": measured["risk_reason"],
         }
 
 

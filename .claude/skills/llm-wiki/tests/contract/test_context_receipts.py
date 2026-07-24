@@ -96,7 +96,7 @@ class ContextReceiptContractTests(unittest.TestCase):
                 "errors",
             ],
         )
-        self.assertIsNone(output["event_id"])
+        self.assertRegex(output["event_id"], r"^mem_\d{8}T\d{12}Z_[0-9a-f]{16}$")
         self.assertEqual(list(output["data"]["receipt"]), ["initial", "final"])
         self.assertEqual(
             output["data"]["receipt"]["initial"],
@@ -153,6 +153,11 @@ class ContextReceiptContractTests(unittest.TestCase):
         receipt_snapshot = re.sub(
             r"\d+ms$", "<duration>", receipt_snapshot, flags=re.MULTILINE
         )
+        receipt_snapshot = re.sub(
+            r"event mem_\d{8}T\d{12}Z_[0-9a-f]{16}",
+            "event <event-id>",
+            receipt_snapshot,
+        )
         self.assertEqual(
             receipt_snapshot,
             (EXPECTED / "context-receipts-human.txt").read_text(),
@@ -191,9 +196,9 @@ class ContextReceiptContractTests(unittest.TestCase):
         )
 
         self.assertEqual(result.returncode, 10, result.stderr)
-        self.assertEqual(
+        self.assertRegex(
             result.stdout.splitlines()[0],
-            "Memory degraded · project-only · event not recorded",
+            r"^Memory degraded · project-only · event mem_\d{8}T\d{12}Z_[0-9a-f]{16}$",
         )
         self.assertNotIn("Memory ready", result.stdout)
         self.assertIn("Freshness: unknown", result.stdout)

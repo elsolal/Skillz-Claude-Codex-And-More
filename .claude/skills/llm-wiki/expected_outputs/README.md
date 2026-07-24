@@ -21,6 +21,7 @@ or to verify the scripts behave correctly end-to-end.
 | `memory context --json` | `memory/context-ready.json` |
 | degraded `memory context --json` without QMD | `memory/context-degraded.json` |
 | initial and final human context receipts | `memory/context-receipts-human.txt` |
+| `memory purge --json` with fresh project events | `memory/purge-ready.json` |
 
 These were captured against a small 2-page example vault (one concept page and
 one source page, both with proper frontmatter). Paths have been anonymized to
