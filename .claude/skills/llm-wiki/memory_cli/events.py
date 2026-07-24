@@ -154,6 +154,15 @@ class PurgeOutcome:
     retained_events: int
     removed_files: int
     corrupted_files: int
+    diagnostics: tuple[dict[str, str], ...] = ()
+
+    @property
+    def status(self) -> str:
+        return "degraded" if self.diagnostics else "ready"
+
+    @property
+    def exit_code(self) -> int:
+        return 50 if self.diagnostics else 0
 
     def data(self) -> dict[str, object]:
         return {
@@ -276,7 +285,12 @@ def _scan_privacy(value: object, *, field: str = "event") -> None:
                 f"{field} contains an absolute path.",
                 "Store only normalized paths relative to the declared memory root.",
             )
-        if any(pattern.search(value) for pattern in _SECRET_VALUES):
+        secret_candidates = (value, *PurePosixPath(value).parts)
+        if any(
+            pattern.search(candidate)
+            for candidate in secret_candidates
+            for pattern in _SECRET_VALUES
+        ):
             raise _error(
                 "event_privacy_violation",
                 f"{field} contains a secret-shaped value.",
@@ -747,7 +761,7 @@ def _event_path(project_dir: Path, event: Mapping[str, object]) -> Path:
 
 def _append_event_lines(
     event_path: Path, events: Sequence[Mapping[str, object]]
-) -> None:
+) -> tuple[dict[str, str], ...]:
     encoded = "".join(
         json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n"
         for event in events
@@ -765,10 +779,13 @@ def _append_event_lines(
         os.fsync(descriptor)
     finally:
         os.close(descriptor)
+    return _fsync_directory(event_path.parent)
 
 
-def _append_event_line(event_path: Path, event: Mapping[str, object]) -> None:
-    _append_event_lines(event_path, (event,))
+def _append_event_line(
+    event_path: Path, event: Mapping[str, object]
+) -> tuple[dict[str, str], ...]:
+    return _append_event_lines(event_path, (event,))
 
 
 def append_event(
@@ -794,7 +811,14 @@ def append_event(
     try:
         _ensure_private_directory(root)
         with _project_lock(lock_path):
-            _append_event_line(event_path, event)
+            diagnostics = _append_event_line(event_path, event)
+            if diagnostics:
+                diagnostic = diagnostics[0]
+                raise _error(
+                    diagnostic["code"],
+                    diagnostic["message"],
+                    diagnostic["correction"],
+                )
     except OSError as error:
         raise _error(
             "event_store_unavailable",
@@ -871,6 +895,33 @@ def read_event_file(path: Path) -> EventReadResult:
     return EventReadResult(tuple(events), tuple(diagnostics))
 
 
+def _fsync_directory(path: Path) -> tuple[dict[str, str], ...]:
+    if os.name != "posix":
+        return ()
+    try:
+        directory_flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+        directory = os.open(path, directory_flags)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    except OSError:
+        return (
+            {
+                "code": "event_directory_fsync_failed",
+                "message": (
+                    "The event update is visible, but directory durability "
+                    "could not be confirmed."
+                ),
+                "correction": (
+                    "Retry the same operation to reconcile the visible "
+                    "immutable state."
+                ),
+            },
+        )
+    return ()
+
+
 def _write_events_atomically(
     path: Path, events: Sequence[Mapping[str, object]]
 ) -> tuple[dict[str, str], ...]:
@@ -888,28 +939,7 @@ def _write_events_atomically(
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(temporary, path)
-        if os.name == "posix":
-            try:
-                directory_flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
-                directory = os.open(path.parent, directory_flags)
-                try:
-                    os.fsync(directory)
-                finally:
-                    os.close(directory)
-            except OSError:
-                diagnostics.append(
-                    {
-                        "code": "event_directory_fsync_failed",
-                        "message": (
-                            "The related events are visible, but directory durability "
-                            "could not be confirmed."
-                        ),
-                        "correction": (
-                            "Retry the same memory finish arguments to reconcile the "
-                            "published immutable batch."
-                        ),
-                    }
-                )
+        diagnostics.extend(_fsync_directory(path.parent))
     finally:
         if temporary.exists():
             temporary.unlink()
@@ -968,11 +998,26 @@ def purge_project_events(
     root = _validate_storage_location(state_dir or resolve_state_dir(), project_root)
     project_dir = _project_directory(root, project_id)
     if not project_dir.exists():
-        return PurgeOutcome(project_id, retention_days, force, 0, 0, 0, 0)
+        diagnostics = (
+            _fsync_directory(project_dir.parent)
+            if project_dir.parent.exists()
+            else ()
+        )
+        return PurgeOutcome(
+            project_id,
+            retention_days,
+            force,
+            0,
+            0,
+            0,
+            0,
+            diagnostics,
+        )
 
     lock_path = root / "events" / f".{project_id}.lock"
     cutoff = _as_utc(now or _utc_now()) - timedelta(days=retention_days)
     deleted_events = retained_events = removed_files = corrupted_files = 0
+    diagnostics: list[dict[str, str]] = []
     try:
         with _project_lock(lock_path):
             for path in sorted(project_dir.glob("*.jsonl")):
@@ -993,6 +1038,10 @@ def purge_project_events(
                     removed_files += 1
             if project_dir.exists() and not any(project_dir.iterdir()):
                 project_dir.rmdir()
+            durability_directory = (
+                project_dir if project_dir.exists() else project_dir.parent
+            )
+            diagnostics.extend(_fsync_directory(durability_directory))
     except OSError as error:
         raise _error(
             "event_store_unavailable",
@@ -1007,4 +1056,5 @@ def purge_project_events(
         retained_events=retained_events,
         removed_files=removed_files,
         corrupted_files=corrupted_files,
+        diagnostics=tuple(diagnostics),
     )

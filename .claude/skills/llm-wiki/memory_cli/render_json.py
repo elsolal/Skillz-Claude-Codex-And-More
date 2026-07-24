@@ -61,12 +61,12 @@ def debt_action_envelope(outcome: DebtActionOutcome) -> dict[str, Any]:
     return {
         "schema_version": PUBLIC_SCHEMA_VERSION,
         "command": "finish",
-        "status": "ready",
+        "status": outcome.status,
         "project_id": outcome.project_id,
         "event_id": outcome.event_id,
         "data": outcome.data(),
         "warnings": [],
-        "errors": [],
+        "errors": list(outcome.diagnostics),
     }
 
 

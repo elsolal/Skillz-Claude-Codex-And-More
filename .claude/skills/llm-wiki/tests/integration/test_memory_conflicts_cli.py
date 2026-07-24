@@ -170,9 +170,18 @@ class MemoryConflictsCliIntegrationTests(unittest.TestCase):
         event_file = next(self.fixture.state_dir.rglob("*.jsonl"))
         self.assertEqual(len(event_file.read_text().splitlines()), 1)
 
+        secret_path = (
+            self.fixture.repo
+            / "evidence"
+            / "sk-proj-abcdefghijklmnopqrstuvwxyz1234567890"
+        )
+        secret_path.parent.mkdir(parents=True, exist_ok=True)
+        secret_path.write_text("secret-shaped filename\n", encoding="utf-8")
+
         for invalid_reference in (
             "user said password hunter2 and this is raw transcript material",
             "docs/not-present.md",
+            "evidence/sk-proj-abcdefghijklmnopqrstuvwxyz1234567890",
         ):
             with self.subTest(repository_path=invalid_reference):
                 invalid_reference_result = self.fixture._run_memory_cli(

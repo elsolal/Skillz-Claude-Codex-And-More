@@ -168,30 +168,52 @@ def append_usage_attestation(
                     occurred_at=finish_time,
                 )
             if attestations:
-                if (
-                    not has_conflict
-                    or len(attestations) != 1
-                    or len(conflicts) != 1
-                    or conflict_event is None
-                ):
+                if not has_conflict:
+                    if (
+                        len(attestations) == 1
+                        and not conflicts
+                        and attestations[0]["payload"] == event["payload"]
+                    ):
+                        replay_diagnostics = event_store._fsync_directory(project_dir)
+                        if replay_diagnostics:
+                            return UsageAttestationResult(
+                                parents[0],
+                                attestations[0],
+                                diagnostics=replay_diagnostics,
+                            )
                     raise event_store._error(
                         "parent_already_attested",
                         f"Parent context event is already attested: {parent_event_id}.",
                         "Reuse the existing immutable attestation instead of appending another.",
                     )
-                if (
-                    attestations[0]["payload"] != event["payload"]
-                    or conflicts[0]["payload"] != conflict_event["payload"]
-                ):
+                valid_replay_shape = (
+                    len(attestations) == 1
+                    and len(conflicts) == 1
+                    and conflict_event is not None
+                )
+                if not valid_replay_shape:
+                    raise event_store._error(
+                        "parent_already_attested",
+                        f"Parent context event is already attested: {parent_event_id}.",
+                        "Reuse the existing immutable attestation instead of appending another.",
+                    )
+                conflict_mismatch = bool(
+                    has_conflict
+                    and conflict_event is not None
+                    and conflicts[0]["payload"] != conflict_event["payload"]
+                )
+                if attestations[0]["payload"] != event["payload"] or conflict_mismatch:
                     raise event_store._error(
                         "finish_replay_mismatch",
                         "Stored finish events do not match the requested immutable replay.",
                         "Retry with the original structured finish arguments.",
                     )
+                replay_diagnostics = event_store._fsync_directory(project_dir)
                 return UsageAttestationResult(
                     parents[0],
                     attestations[0],
-                    conflict_event=conflicts[0],
+                    diagnostics=replay_diagnostics,
+                    conflict_event=conflicts[0] if conflicts else None,
                 )
             if conflicts:
                 raise event_store._error(
@@ -208,7 +230,7 @@ def append_usage_attestation(
                     events_to_append,
                 )
             else:
-                event_store._append_event_line(
+                batch_diagnostics = event_store._append_event_line(
                     event_store._event_path(project_dir, event), event
                 )
     except OSError as error:
@@ -259,7 +281,7 @@ def append_memory_debt_action(
         event_store._ensure_private_directory(root)
         with event_store._project_lock(lock_path):
             parents: list[dict[str, Any]] = []
-            already_reviewed = False
+            reviewed_actions: list[dict[str, Any]] = []
             diagnostics: list[dict[str, str]] = []
             if project_dir.exists():
                 for path in sorted(project_dir.glob("*.jsonl")):
@@ -273,7 +295,7 @@ def append_memory_debt_action(
                             == event_store.EVENT_TYPE_MEMORY_DEBT_ACTION
                             and stored_event["parent_event_id"] == parent_event_id
                         ):
-                            already_reviewed = True
+                            reviewed_actions.append(stored_event)
             if diagnostics:
                 raise event_store._error(
                     "event_log_truncated",
@@ -292,12 +314,6 @@ def append_memory_debt_action(
                     f"Open debt event is duplicated: {parent_event_id}.",
                     "Inspect or purge the affected local project telemetry.",
                 )
-            if already_reviewed:
-                raise event_store._error(
-                    "debt_already_reviewed",
-                    f"Memory debt is already reviewed: {parent_event_id}.",
-                    "Reuse the existing immutable debt action.",
-                )
             event = build_memory_debt_action_event(
                 parents[0],
                 action=action,
@@ -305,7 +321,24 @@ def append_memory_debt_action(
                 snooze_until=snooze_until,
                 occurred_at=occurred_at,
             )
-            event_store._append_event_line(
+            if reviewed_actions:
+                if (
+                    len(reviewed_actions) == 1
+                    and reviewed_actions[0]["payload"] == event["payload"]
+                ):
+                    replay_diagnostics = event_store._fsync_directory(project_dir)
+                    if replay_diagnostics:
+                        return DebtActionResult(
+                            parents[0],
+                            reviewed_actions[0],
+                            diagnostics=replay_diagnostics,
+                        )
+                raise event_store._error(
+                    "debt_already_reviewed",
+                    f"Memory debt is already reviewed: {parent_event_id}.",
+                    "Reuse the existing immutable debt action.",
+                )
+            append_diagnostics = event_store._append_event_line(
                 event_store._event_path(project_dir, event), event
             )
     except OSError as error:
@@ -314,4 +347,4 @@ def append_memory_debt_action(
             "The memory debt action could not be persisted safely.",
             "Restore access to the private memory state directory, then retry.",
         ) from error
-    return DebtActionResult(parents[0], event)
+    return DebtActionResult(parents[0], event, diagnostics=append_diagnostics)

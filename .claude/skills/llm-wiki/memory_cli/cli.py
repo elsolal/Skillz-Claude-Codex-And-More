@@ -678,9 +678,10 @@ def _run_purge_command(*, force: bool, json_output: bool) -> int:
         _render_json(
             _envelope(
                 command="purge",
-                status="ready",
+                status=outcome.status,
                 project_id=project_id,
                 data=outcome.data(),
+                errors=list(outcome.diagnostics),
             )
         )
     else:
@@ -693,7 +694,10 @@ def _run_purge_command(*, force: bool, json_output: bool) -> int:
                 "Warning: "
                 f"{outcome.corrupted_files} truncated file(s) were rewritten from their valid prefix."
             )
-    return 0
+        for diagnostic in outcome.diagnostics:
+            print(f"Error: {diagnostic['message']}")
+            print(f"Correction: {diagnostic['correction']}")
+    return outcome.exit_code
 
 
 def _run_finish_command(
@@ -751,12 +755,13 @@ def _run_finish_command(
                 project_id=project_id,
                 parent_event=action_result.parent_event,
                 action_event=action_result.event,
+                diagnostics=action_result.diagnostics,
             )
             if json_output:
                 render_debt_action_json(action_outcome, stream=sys.stdout)
             else:
                 render_debt_action_human(action_outcome, stream=sys.stdout)
-            return 0
+            return action_outcome.exit_code
         if reason is not None or snooze_until is not None:
             raise EventIntegrityError(
                 code="finish_mode_invalid",

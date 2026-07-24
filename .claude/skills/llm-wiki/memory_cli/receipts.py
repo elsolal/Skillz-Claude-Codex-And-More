@@ -135,6 +135,15 @@ class DebtActionOutcome:
     project_id: str
     parent_event: dict[str, Any]
     action_event: dict[str, Any]
+    diagnostics: tuple[dict[str, str], ...] = ()
+
+    @property
+    def status(self) -> str:
+        return "degraded" if self.diagnostics else "ready"
+
+    @property
+    def exit_code(self) -> int:
+        return 50 if self.diagnostics else 0
 
     @property
     def event_id(self) -> str:

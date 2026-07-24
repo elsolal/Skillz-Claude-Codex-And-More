@@ -35,7 +35,10 @@ from memory_cli.contracts import (  # noqa: E402
     ConflictRisk,
     DebtAction,
 )
-from memory_cli.session_events import append_usage_attestation  # noqa: E402
+from memory_cli.session_events import (  # noqa: E402
+    append_memory_debt_action,
+    append_usage_attestation,
+)
 
 
 NOW = datetime(2026, 7, 24, 12, 30, tzinfo=timezone.utc)
@@ -308,6 +311,143 @@ class EventContractUnitTests(unittest.TestCase):
                 **{**arguments, "conflict_risk": ConflictRisk.LOW}
             )
         self.assertEqual(raised.exception.code, "finish_replay_mismatch")
+
+    def test_purge_reports_directory_fsync_failure_after_visible_rewrite(self) -> None:
+        old_event = build_context_event(
+            context_metadata(),
+            occurred_at=datetime(2026, 6, 1, 10, tzinfo=timezone.utc),
+        )
+        fresh_event = build_context_event(
+            context_metadata(),
+            occurred_at=datetime(2026, 6, 25, 10, tzinfo=timezone.utc),
+        )
+        event_path = append_event(
+            old_event,
+            state_dir=self.state_dir,
+            project_root=self.repo,
+        )
+        append_event(
+            fresh_event,
+            state_dir=self.state_dir,
+            project_root=self.repo,
+        )
+        real_fsync = os.fsync
+
+        def fail_directory_fsync(descriptor: int) -> None:
+            if stat.S_ISDIR(os.fstat(descriptor).st_mode):
+                raise OSError("directory durability unavailable")
+            real_fsync(descriptor)
+
+        with patch("memory_cli.events.os.fsync", side_effect=fail_directory_fsync):
+            outcome = purge_project_events(
+                "skillz-claude",
+                retention_days=30,
+                state_dir=self.state_dir,
+                project_root=self.repo,
+                now=datetime(2026, 7, 24, tzinfo=timezone.utc),
+            )
+
+        self.assertEqual(outcome.status, "degraded")
+        self.assertEqual(outcome.exit_code, 50)
+        self.assertEqual(
+            outcome.diagnostics[0]["code"],
+            "event_directory_fsync_failed",
+        )
+        self.assertEqual(read_event_file(event_path).events, (fresh_event,))
+
+        directory_fsyncs = 0
+
+        def track_directory_fsync(descriptor: int) -> None:
+            nonlocal directory_fsyncs
+            if stat.S_ISDIR(os.fstat(descriptor).st_mode):
+                directory_fsyncs += 1
+            real_fsync(descriptor)
+
+        with patch("memory_cli.events.os.fsync", side_effect=track_directory_fsync):
+            reconciled = purge_project_events(
+                "skillz-claude",
+                retention_days=30,
+                state_dir=self.state_dir,
+                project_root=self.repo,
+                now=datetime(2026, 7, 24, tzinfo=timezone.utc),
+            )
+
+        self.assertEqual(reconciled.status, "ready")
+        self.assertGreaterEqual(directory_fsyncs, 1)
+
+    def test_cross_month_debt_action_reconciles_directory_fsync_failure(self) -> None:
+        evidence = self.repo / "current-contract.py"
+        evidence.write_text("CURRENT = True\n", encoding="utf-8")
+        parent = build_context_event(
+            context_metadata(),
+            occurred_at=datetime(2026, 7, 20, 10, tzinfo=timezone.utc),
+        )
+        append_event(
+            parent,
+            state_dir=self.state_dir,
+            project_root=self.repo,
+        )
+        finish = append_usage_attestation(
+            project_id="skillz-claude",
+            parent_event_id=parent["event_id"],
+            used=("#a1b2c3",),
+            cited=(),
+            citation_only=(),
+            impact_codes=(),
+            conflict_docid="#a1b2c3",
+            repository_path="current-contract.py",
+            evidence_type=ConflictEvidenceType.CONTRACT,
+            conflict_category=ConflictCategory.ARCHITECTURE,
+            conflict_risk=ConflictRisk.HIGH,
+            prepare_debt=True,
+            state_dir=self.state_dir,
+            project_root=self.repo,
+            occurred_at=datetime(2026, 7, 20, 11, tzinfo=timezone.utc),
+        )
+        assert finish.conflict_event is not None
+        real_fsync = os.fsync
+
+        def fail_directory_fsync(descriptor: int) -> None:
+            if stat.S_ISDIR(os.fstat(descriptor).st_mode):
+                raise OSError("directory durability unavailable")
+            real_fsync(descriptor)
+
+        arguments = {
+            "project_id": "skillz-claude",
+            "parent_event_id": finish.conflict_event["event_id"],
+            "action": DebtAction.FIX,
+            "reason": None,
+            "snooze_until": None,
+            "state_dir": self.state_dir,
+            "project_root": self.repo,
+            "occurred_at": datetime(2026, 8, 1, 10, tzinfo=timezone.utc),
+        }
+        with patch("memory_cli.events.os.fsync", side_effect=fail_directory_fsync):
+            uncertain = append_memory_debt_action(**arguments)
+
+        self.assertEqual(
+            uncertain.diagnostics[0]["code"],
+            "event_directory_fsync_failed",
+        )
+        directory_fsyncs = 0
+
+        def track_directory_fsync(descriptor: int) -> None:
+            nonlocal directory_fsyncs
+            if stat.S_ISDIR(os.fstat(descriptor).st_mode):
+                directory_fsyncs += 1
+            real_fsync(descriptor)
+
+        with patch("memory_cli.events.os.fsync", side_effect=track_directory_fsync):
+            with self.assertRaises(EventIntegrityError) as raised:
+                append_memory_debt_action(**arguments)
+
+        self.assertEqual(raised.exception.code, "debt_already_reviewed")
+        self.assertGreaterEqual(directory_fsyncs, 1)
+        august_path = (
+            self.state_dir / "events" / "skillz-claude" / "2026-08.jsonl"
+        )
+        august_events = read_event_file(august_path).events
+        self.assertEqual(august_events[0]["event_id"], uncertain.event["event_id"])
 
     def test_attested_docids_must_be_retrieved_and_citations_justified(self) -> None:
         parent = build_context_event(context_metadata(), occurred_at=NOW)

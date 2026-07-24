@@ -191,4 +191,7 @@ def render_debt_action_human(
         print(f"Snooze until: {action['snooze_until']}", file=stream)
     print(f"Event: {outcome.event_id}", file=stream)
     print("Shared memory: unchanged", file=stream)
+    for diagnostic in outcome.diagnostics:
+        print(f"Error: {diagnostic['message']}", file=stream)
+        print(f"Correction: {diagnostic['correction']}", file=stream)
     print("Machine output: memory finish --json", file=stream)
