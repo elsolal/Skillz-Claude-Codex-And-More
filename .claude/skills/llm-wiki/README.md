@@ -205,6 +205,15 @@ collection, relative path, title, score, and snippet line—but omit the raw que
 and snippet text. `--query-stdin` keeps sensitive input out of shell history;
 QMD still receives it transiently as its required positional process argument.
 
+Once the route is known, `context` writes an initial receipt to stderr before
+starting QMD. It contains only project, mode, task category, the authorized
+planned route, and the selected budget; it never contains the query. The final
+human receipt on stdout separates `retrieved`, `read`, estimated tokens,
+duration, freshness, and fallback state. JSON stdout remains one parseable
+document and exposes the same values under `data.receipt.initial` and
+`data.receipt.final`. `event_id` remains `null` until metadata-only event
+persistence is enabled by the following story.
+
 A sufficient retrieval returns `sufficient`/`0`. Incomplete evidence returns
 `insufficient`/`20`; ambiguity requiring an explicit decision returns `21`, and
 blocking freshness returns `33`. When QMD is missing, non-executable, timed out,

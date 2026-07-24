@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+from collections.abc import Callable
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
@@ -38,7 +39,13 @@ from .qmd_adapter import (
     inspect_qmd,
     search_qmd,
 )
-from .receipts import ContextOutcome, blocked_context, context_outcome, degraded_context
+from .receipts import (
+    ContextInitialReceipt,
+    ContextOutcome,
+    blocked_context,
+    context_outcome,
+    degraded_context,
+)
 from .routing import authorized_fallbacks
 from .sufficiency import evaluate_sufficiency, provenance_for_path, thresholds_for
 
@@ -298,6 +305,7 @@ def run_context(
     risk_reason: RiskReason | None = None,
     runner: Runner = subprocess.run,
     timeout_seconds: float = DEFAULT_SEARCH_TIMEOUT_SECONDS,
+    on_initial_receipt: Callable[[ContextInitialReceipt], None] | None = None,
 ) -> ContextOutcome:
     """Search project first, stop when sufficient, and authorize any fallback."""
 
@@ -306,9 +314,34 @@ def run_context(
     projection = load_projection(manifest_path)
     project_collection = manifest.stores.project.collection
     route = (project_collection,)
+    fallbacks = authorized_fallbacks(
+        manifest,
+        principal_role=projection.principal_role,
+        task_category=task_category,
+    )
+    planned_route = (
+        (project_collection, fallbacks[0].collection)
+        if fallbacks
+        else route
+    )
+    budget = manifest.budgets[mode]
+    initial_receipt = ContextInitialReceipt(
+        project_id=manifest.project.id,
+        mode=mode,
+        task_category=task_category,
+        planned_route=planned_route,
+        target_tokens=budget.target_tokens,
+        hard_tokens=budget.hard_tokens,
+    )
+    if on_initial_receipt is not None:
+        on_initial_receipt(initial_receipt)
+
+    def completed(outcome: ContextOutcome) -> ContextOutcome:
+        return replace(outcome, initial_receipt=initial_receipt)
+
     executable = _qmd_executable()
     if executable is None:
-        return _local_entry_page_fallback(
+        return completed(_local_entry_page_fallback(
             manifest=manifest,
             projection=projection,
             mode=mode,
@@ -318,7 +351,7 @@ def run_context(
             code="qmd_missing",
             message="QMD is required for project retrieval but is unavailable.",
             correction=QMD_INSTALL_COMMAND,
-        )
+        ))
 
     try:
         project_retrieval = _search(
@@ -332,7 +365,7 @@ def run_context(
         )
     except (QmdTimeoutError, QmdOutputError, QmdInvocationError) as error:
         retrieval_status, code, message, correction = _search_failure_details(error)
-        return _local_entry_page_fallback(
+        return completed(_local_entry_page_fallback(
             manifest=manifest,
             projection=projection,
             mode=mode,
@@ -342,7 +375,7 @@ def run_context(
             code=code,
             message=message,
             correction=correction,
-        )
+        ))
 
     try:
         qmd_status = inspect_qmd(
@@ -364,7 +397,7 @@ def run_context(
         )
     )
     if project_decision.status is SufficiencyStatus.SUFFICIENT:
-        return _materialize_context(
+        return completed(_materialize_context(
             manifest=manifest,
             projection=projection,
             mode=mode,
@@ -386,13 +419,13 @@ def run_context(
                 if SufficiencyReason.STALE in project_decision.reason_codes
                 else ()
             ),
-        )
+        ))
 
     if (
         project_decision.status is SufficiencyStatus.AMBIGUOUS
         and not fallback_on_ambiguous
     ):
-        return context_outcome(
+        return completed(context_outcome(
             project_id=manifest.project.id,
             mode=mode,
             task_category=task_category,
@@ -401,15 +434,10 @@ def run_context(
             hits=project_retrieval.hits,
             duration_ms=project_retrieval.duration_ms,
             decision=project_decision,
-        )
+        ))
 
-    fallbacks = authorized_fallbacks(
-        manifest,
-        principal_role=projection.principal_role,
-        task_category=task_category,
-    )
     if not fallbacks:
-        return context_outcome(
+        return completed(context_outcome(
             project_id=manifest.project.id,
             mode=mode,
             task_category=task_category,
@@ -431,7 +459,7 @@ def run_context(
                     ),
                 },
             ),
-        )
+        ))
 
     fallback = fallbacks[0]
     route = (project_collection, fallback.collection)
@@ -448,7 +476,7 @@ def run_context(
         )
     except (QmdTimeoutError, QmdOutputError, QmdInvocationError) as error:
         retrieval_status, code, message, correction = _search_failure_details(error)
-        return _local_entry_page_fallback(
+        return completed(_local_entry_page_fallback(
             manifest=manifest,
             projection=projection,
             mode=mode,
@@ -462,7 +490,7 @@ def run_context(
             duration_ms=project_retrieval.duration_ms,
             fallback_reason_codes=project_decision.reason_codes,
             explicit_decision=explicit_decision,
-        )
+        ))
 
     fallback_decision = evaluate_sufficiency(
         _evidence(
@@ -476,7 +504,7 @@ def run_context(
     aggregate_hits = project_retrieval.hits + fallback_retrieval.hits
     aggregate_duration = project_retrieval.duration_ms + fallback_retrieval.duration_ms
     if fallback_decision.status is SufficiencyStatus.SUFFICIENT:
-        return _materialize_context(
+        return completed(_materialize_context(
             manifest=manifest,
             projection=projection,
             mode=mode,
@@ -490,8 +518,8 @@ def run_context(
             fallback_used=True,
             fallback_explicit_decision=explicit_decision,
             fallback_reason_codes=project_decision.reason_codes,
-        )
-    return context_outcome(
+        ))
+    return completed(context_outcome(
         project_id=manifest.project.id,
         mode=mode,
         task_category=task_category,
@@ -503,4 +531,4 @@ def run_context(
         fallback_used=True,
         fallback_explicit_decision=explicit_decision,
         fallback_reason_codes=project_decision.reason_codes,
-    )
+    ))

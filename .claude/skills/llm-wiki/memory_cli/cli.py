@@ -21,7 +21,8 @@ from .contracts import (
 from .doctor import DoctorOutcome, run_doctor
 from .manifest import ManifestError, discover_manifest, load_manifest, load_nearest_manifest
 from .projection import ConfigureOutcome, ProjectionError, configure_projection
-from .receipts import ContextOutcome
+from .render_human import render_context_final, render_context_initial
+from .render_json import render_context_json
 
 
 MAX_QUERY_CHARACTERS = 16 * 1024
@@ -457,76 +458,6 @@ def _run_doctor_command(
     return outcome.exit_code
 
 
-def _render_context_human(outcome: ContextOutcome, *, explain: bool) -> None:
-    retrieval = outcome.retrieval_status.value
-    print(
-        f"[{outcome.status}] memory context · {retrieval} · "
-        f"route {' -> '.join(outcome.route)}"
-    )
-    if outcome.hits:
-        for hit in outcome.hits:
-            print(
-                f"  {hit.docid}  {hit.relative_path.as_posix()}  "
-                f"score {hit.score:g} · line {hit.snippet_line}"
-            )
-    if outcome.decision is not None:
-        reasons = ", ".join(reason.value for reason in outcome.decision.reason_codes)
-        print(f"Reason codes: {reasons or 'none'}")
-        if explain:
-            print(
-                "Decision: "
-                f"{outcome.decision.status.value} · "
-                f"thresholds {outcome.decision.thresholds_version} · "
-                f"freshness {outcome.decision.evidence.freshness.value}"
-            )
-            for hit in outcome.decision.evidence.hits:
-                print(
-                    f"  {hit.docid} · score {hit.score:g} · "
-                    f"provenance {hit.provenance.value}"
-                )
-            fallback_reasons = ", ".join(
-                reason.value for reason in outcome.fallback_reason_codes
-            )
-            fallback_status = "used" if outcome.fallback_used else "not used"
-            explicit = " · explicit" if outcome.fallback_explicit_decision else ""
-            print(f"Fallback: {fallback_status}{explicit}")
-            if fallback_reasons:
-                print(f"Fallback reason codes: {fallback_reasons}")
-    if outcome.assembly is not None:
-        assembly = outcome.assembly
-        source = f" · source {assembly.source}"
-        page_limit = (
-            f" · cap {assembly.page_limit} page(s)"
-            if assembly.page_limit is not None
-            else ""
-        )
-        print(
-            f"Context: {assembly.status.value} · "
-            f"{len(assembly.retrieved)} retrieved · {len(assembly.sections)} read · "
-            f"~{assembly.estimated_tokens}/{assembly.target_tokens} tokens"
-            f"{source}{page_limit}"
-        )
-        if assembly.hard_cap_exceeded:
-            print(
-                f"Hard cap exceeded: {assembly.hard_tokens} · "
-                f"risk reason {assembly.risk_reason.value}"
-            )
-        for section in assembly.sections:
-            print(
-                f"\n[{section.docid}] {section.relative_path.as_posix()} "
-                f"· lines {section.line_start}-{section.line_end} "
-                f"· {section.estimated_tokens} tokens"
-            )
-            print(section.content.rstrip())
-    for warning in outcome.warnings:
-        print(f"Warning: {warning['message']}")
-        print(f"Correction: {warning['correction']}")
-    for error in outcome.errors:
-        print(f"Error: {error['message']}")
-        print(f"Correction: {error['correction']}")
-    print("Machine output: memory context --json")
-
-
 def _run_context_command(
     *,
     mode: str,
@@ -544,6 +475,10 @@ def _run_context_command(
             query=query,
             fallback_on_ambiguous=fallback_on_ambiguous,
             risk_reason=RiskReason(risk_reason) if risk_reason else None,
+            on_initial_receipt=lambda receipt: render_context_initial(
+                receipt,
+                stream=sys.stderr,
+            ),
         )
     except (ManifestError, ProjectionError) as error:
         if json_output:
@@ -563,18 +498,9 @@ def _run_context_command(
         return error.exit_code
 
     if json_output:
-        _render_json(
-            _envelope(
-                command="context",
-                status=outcome.status,
-                project_id=outcome.project_id,
-                data=outcome.data(),
-                warnings=list(outcome.warnings),
-                errors=list(outcome.errors),
-            )
-        )
+        render_context_json(outcome, stream=sys.stdout)
     else:
-        _render_context_human(outcome, explain=explain)
+        render_context_final(outcome, explain=explain, stream=sys.stdout)
     return outcome.exit_code
 
 

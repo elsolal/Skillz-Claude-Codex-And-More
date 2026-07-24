@@ -19,6 +19,31 @@ from .qmd_adapter import QmdSearchOutcome, QmdSearchStatus
 
 
 @dataclass(frozen=True, slots=True)
+class ContextInitialReceipt:
+    """Route and budget known before retrieval starts; never contains the query."""
+
+    project_id: str
+    mode: RetrievalMode
+    task_category: TaskCategory
+    planned_route: tuple[str, ...]
+    target_tokens: int
+    hard_tokens: int
+
+    def data(self) -> dict[str, Any]:
+        return {
+            "project_id": self.project_id,
+            "mode": self.mode.value,
+            "task_category": self.task_category.value,
+            "planned_route": list(self.planned_route),
+            "budget": {
+                "target_tokens": self.target_tokens,
+                "hard_tokens": self.hard_tokens,
+            },
+            "status": "retrieving",
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class ContextOutcome:
     status: str
     exit_code: int
@@ -36,6 +61,8 @@ class ContextOutcome:
     warnings: tuple[dict[str, Any], ...] = ()
     errors: tuple[dict[str, Any], ...] = ()
     assembly: ContextAssembly | None = None
+    initial_receipt: ContextInitialReceipt | None = None
+    event_id: str | None = None
 
     def data(self) -> dict[str, Any]:
         retrieval: dict[str, Any] = {
@@ -102,7 +129,43 @@ class ContextOutcome:
                     for section in self.assembly.sections
                 ],
             }
+        if self.initial_receipt is not None:
+            data["receipt"] = {
+                "initial": self.initial_receipt.data(),
+                "final": self.final_receipt_data(),
+            }
         return data
+
+    def final_receipt_data(self) -> dict[str, Any]:
+        assembly = self.assembly
+        retrieved = len(assembly.retrieved) if assembly is not None else len(self.hits)
+        read = len(assembly.sections) if assembly is not None else 0
+        estimated_tokens = assembly.estimated_tokens if assembly is not None else 0
+        budget_tokens = (
+            self.initial_receipt.target_tokens
+            if self.initial_receipt is not None
+            else (assembly.target_tokens if assembly is not None else None)
+        )
+        freshness = (
+            self.decision.evidence.freshness.value
+            if self.decision is not None
+            else "unknown"
+        )
+        return {
+            "status": self.status,
+            "retrieved": retrieved,
+            "read": read,
+            "estimated_tokens": estimated_tokens,
+            "budget_tokens": budget_tokens,
+            "duration_ms": self.duration_ms,
+            "freshness": freshness,
+            "fallback": {
+                "used": self.fallback_used,
+                "reason_codes": [
+                    reason.value for reason in self.fallback_reason_codes
+                ],
+            },
+        }
 
     def event_metadata(self) -> dict[str, Any] | None:
         """Return the metadata-only event input; persistence belongs to STORY-011."""
