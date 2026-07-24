@@ -29,6 +29,7 @@ class ContextCliIntegrationTests(unittest.TestCase):
         self.repo = self.root / "repo"
         self.vault = self.root / "vault"
         self.shared_vault = self.root / "shared-vault"
+        self.state_dir = self.root / "state"
         (self.repo / ".agents").mkdir(parents=True)
         (self.vault / "wiki" / "entities").mkdir(parents=True)
         (self.vault / "wiki" / "concepts").mkdir(parents=True)
@@ -189,6 +190,7 @@ class ContextCliIntegrationTests(unittest.TestCase):
             {
                 "PYTHONPATH": str(SKILL_ROOT),
                 "SKILLZ_MEMORY_QMD": str(qmd if qmd is not None else self.qmd),
+                "SKILLZ_MEMORY_STATE_DIR": str(self.state_dir),
                 "FAKE_QMD_MODE": fake_mode,
                 "FAKE_QMD_FRESHNESS": freshness,
             }
@@ -199,6 +201,29 @@ class ContextCliIntegrationTests(unittest.TestCase):
             cwd=self.repo,
             env=environment,
             input=stdin,
+            check=False,
+            text=True,
+            capture_output=True,
+        )
+
+    def _run_memory_cli(
+        self,
+        *arguments: str,
+        extra_env: dict[str, str] | None = None,
+    ) -> subprocess.CompletedProcess[str]:
+        environment = os.environ.copy()
+        environment.update(
+            {
+                "PYTHONPATH": str(SKILL_ROOT),
+                "SKILLZ_MEMORY_QMD": str(self.qmd),
+                "SKILLZ_MEMORY_STATE_DIR": str(self.state_dir),
+            }
+        )
+        environment.update(extra_env or {})
+        return subprocess.run(
+            [sys.executable, "-m", "memory_cli", *arguments],
+            cwd=self.repo,
+            env=environment,
             check=False,
             text=True,
             capture_output=True,
@@ -230,6 +255,8 @@ class ContextCliIntegrationTests(unittest.TestCase):
         self.assertIsNone(output["data"]["context"]["sections"][0]["docid"])
         self.assertEqual(output["warnings"][0]["code"], "qmd_missing")
         self.assertEqual(self.qmd_log.read_text(), "")
+        self.assertRegex(output["event_id"], r"^mem_\d{8}T\d{12}Z_[0-9a-f]{16}$")
+        output["event_id"] = "<event-id>"
         self.assertEqual(
             output,
             json.loads((EXPECTED / "context-degraded.json").read_text()),
@@ -615,7 +642,11 @@ class ContextCliIntegrationTests(unittest.TestCase):
         self.assertNotIn(query, result.stdout)
         self.assertNotIn(query, result.stderr)
         self.assertNotIn(query, serialized_files)
-        self.assertEqual(files_after, files_before)
+        added_files = files_after - files_before
+        self.assertEqual(len([path for path in added_files if path.suffix == ".jsonl"]), 1)
+        self.assertTrue(
+            all(self.state_dir == path or self.state_dir in path.parents for path in added_files)
+        )
         self.assertFalse(escaped.exists())
         invocation = json.loads(self.qmd_log.read_text().splitlines()[0])
         self.assertEqual(invocation["query_sha256"], hashlib.sha256(query.encode()).hexdigest())

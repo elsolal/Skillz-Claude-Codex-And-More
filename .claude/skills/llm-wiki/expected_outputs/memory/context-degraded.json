@@ -3,7 +3,7 @@
   "command": "context",
   "status": "degraded",
   "project_id": "skillz-claude",
-  "event_id": null,
+  "event_id": "<event-id>",
   "data": {
     "mode": "minimal",
     "task_category": "general",
