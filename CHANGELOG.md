@@ -4,6 +4,22 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## [Unreleased] - 2026-07-24
 
+**Task-first `llm-wiki` workflow alignment**
+
+### Added
+- Static instruction contracts covering the canonical query workflow, commands, librarian, vault templates, generated project-memory pointers, setup scripts, and Claude/Codex/OpenCode/Gemini loaders.
+- Install/update acceptance checks proving that the generated Codex `source-command-wiki-query` skill and every provider loader retain the task-first contract.
+
+### Changed
+- Activated projects now start from the task and `.agents/memory.yaml`, then use `memory context` against the declared project collection before any complete wiki catalog.
+- Missing QMD keeps the same `memory context` route and degrades only to manifest-declared `entry_pages` under the existing mode caps.
+- Vaults without a memory manifest retain `/wiki-query` as an explicit legacy/non-pilot catalog route that emits no `memory` receipt/event and does not count as pilot usage.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — installer PASS, 93 tests Python OK
+- Level-2 quality gate: PASS after two consecutive clean rounds with no P0-P3 finding
+
 **Bounded degraded memory context without QMD**
 
 ### Added
