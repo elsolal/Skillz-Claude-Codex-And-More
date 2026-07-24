@@ -105,7 +105,7 @@ alias wiki-search='python ~/.claude/skills/llm-wiki/scripts/wiki_search.py --vau
 
 ## QMD MCP exposure
 
-QMD exposes the wiki as a local MCP server. Use it when `wiki/index.md` is not enough and you need lexical, vector, or hybrid retrieval across the vault.
+QMD exposes the wiki as a local MCP server. For a project activated by `.agents/memory.yaml`, invoke it through `memory context` so the task, project collection, sufficiency policy, budget, and authorized fallback stay consistent across tools. If QMD is unavailable, the same command degrades only to declared `entry_pages`. Direct catalog search remains a legacy/non-pilot option for vaults without a manifest.
 
 Claude Code:
 

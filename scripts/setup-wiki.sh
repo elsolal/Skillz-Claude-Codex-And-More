@@ -192,7 +192,9 @@ $WIKI_BLOCK_BEGIN
 - Vault memoire : \`$VAULT_PATH\`
 - QMD collection : \`$QMD_COLLECTION\`
 - Source de verite : skill \`llm-wiki\` + commands \`/wiki-init\`, \`/wiki-ingest\`, \`/wiki-query\`, \`/wiki-lint\`, \`/wiki-log\`, \`/wiki-capture-session\`.
-- Pour interroger la memoire, lire d'abord \`wiki/index.md\`, puis les pages pertinentes ; utiliser \`qmd\` si l'index ne suffit plus.
+- Pour interroger la memoire d'un projet active par \`.agents/memory.yaml\`, partir de la tache puis utiliser \`memory context --mode project --task-category <category> "<task>"\` sur la collection projet.
+- Si QMD est indisponible, conserver \`memory context\` : sa degradation reste bornee aux \`entry_pages\` declarees par le manifeste.
+- Sans \`.agents/memory.yaml\`, \`/wiki-query\` conserve le parcours catalogue historique en mode legacy/non-pilot, sans recu/evenement \`memory\` ni attribution au pilote.
 - Quand un projet existe sous le repertoire de travail, lire son pointeur local avant tout travail non trivial : \`.claude/project-memory.md\` (Claude Code) ou \`.agents/project-memory.md\` (autres agents). Ces fichiers contiennent des chemins machine-specific et doivent rester ignores par Git ; publier seulement une doc de setup portable si le repo est partage.
 - Tableau de bord projets : \`wiki/synthesis/dev-projects-overview.md\`.
 - Pour sauvegarder une session utile, \`/wiki-capture-session\` peut creer un nouveau fichier dans \`raw/session-notes/\`, puis utiliser \`/wiki-ingest\`.

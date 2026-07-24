@@ -340,9 +340,11 @@ def _render_claude_pointer(
 
 Before non-trivial work:
 1. Read this file.
-2. Read the relevant wiki index, synthesis, and entity pages.
-3. Use QMD if those pages are insufficient.
-4. Re-check the live project repo before acting; memory is historical context, not immediate truth.
+2. Keep the current work request as the task and verify `.agents/memory.yaml`.
+3. Run `memory context --mode project --task-category <category> "<task>"` against the declared project collection.
+4. Consume only the returned `read` sections. If QMD is unavailable, `memory context` uses only the manifest-declared `entry_pages` under their configured caps.
+5. Do not preload a complete wiki index or scan the vault before this bounded route.
+6. Re-check the live project repo before acting; memory is historical context, not immediate truth.
 
 The local principal role never grants filesystem, Git, or remote access.
 Shared policy and actual permissions remain authoritative.
@@ -362,6 +364,8 @@ Memory vault: `{store.root}`
 QMD collection: `{manifest.stores.project.collection}`
 Memory repo: `{manifest.stores.project.remote}`
 Principal role: `{projection.principal_role.value}`
+
+For non-trivial work, keep the request as the task and run `memory context --mode project --task-category <category> "<task>"`. If QMD is unavailable, the command stays bounded to the `.agents/memory.yaml` `entry_pages`; do not scan the vault or preload a complete index.
 
 The local principal role never grants filesystem, Git, or remote access.
 

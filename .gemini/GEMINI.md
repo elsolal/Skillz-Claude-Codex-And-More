@@ -16,6 +16,10 @@ This folder provides project-local compatibility for Google Gemini CLI.
 2. Before using any skill, open its `SKILL.md` and follow that file.
 3. Treat `.claude/` as the single source of truth. Do not duplicate skill logic in this folder.
 
+## Project Memory
+
+Start from the task. When the nearest project has `.agents/memory.yaml`, run `memory context --mode project --task-category <category> "<task>"` against its project collection. Missing QMD stays bounded to the declared `entry_pages`. Without a manifest, `/wiki-query` is a legacy/non-pilot route and emits no memory receipt/event.
+
 ## Portable Commands
 
 These Gemini commands load the shared workflow skills:

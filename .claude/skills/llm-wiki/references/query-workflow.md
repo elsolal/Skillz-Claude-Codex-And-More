@@ -4,44 +4,51 @@ The flow the LLM follows when the user runs `/wiki-query <question>` or dispatch
 
 ## Core principle
 
-**Read `index.md` first, then drill in.** Do NOT grep the entire wiki on every query — the index is there precisely so you don't have to.
+**Start from the task and the nearest project memory contract.** An activated project retrieves through `memory context`; a standalone vault without `.agents/memory.yaml` keeps the historical wiki workflow as an explicit legacy/non-pilot route.
 
-## Step-by-step
+## Route selection
 
-### 1. Read `index.md`
+### 1. Identify the task and activation
 
-The index is the catalog. Scan it and pick the 3-10 pages most likely to contain the answer. Pick across categories: a good query usually pulls from `synthesis/` for the big picture, `concepts/` for definitions, `sources/` for evidence, and `entities/` for context.
+Keep the user's question as the task. From the project repository, look for the nearest `.agents/memory.yaml` and its local projection. Do not preload a complete wiki index before choosing the route.
 
-### 2. Read the picked pages
+### 2. Activated project: use `memory context`
 
-Read them in full. These are short, curated, and already cross-referenced. The wiki has done the hard work for you.
-
-### 3. Follow wikilinks opportunistically
-
-If a read page points to another page that's clearly relevant, follow it. Don't follow blindly — stop when you have enough.
-
-### 4. Fall back to search if needed
-
-If the index doesn't surface the right page, use:
+When `.agents/memory.yaml` is present and configured, choose the narrowest suitable mode and task category, then retrieve from the declared project collection first:
 
 ```bash
-python scripts/wiki_search.py --vault . --query "<terms>" --limit 5
+memory context --mode project --task-category <category> "<task>"
 ```
 
-BM25 search over wiki pages. Standard library only. Use when:
-- The index is stale (flag this to the user — it means lint time)
-- The user asks about something niche that doesn't have its own page yet
-- You're doing a sweeping search across many pages
+Use `--query-stdin` for sensitive task text. Consume the returned `read` sections and receipt; do not reopen every `retrieved` candidate. The CLI owns sufficiency, budget enforcement, freshness, provenance, and any authorized fallback.
 
-### 5. Synthesize the answer
+If QMD is unavailable, keep using `memory context`. For `minimal` and `project`, it degrades only to the manifest-declared `entry_pages` under their one-page or three-page caps. It never scans the vault or opens an undeclared full index. `historical` reports that QMD is required.
+
+If activation is invalid, report the `memory doctor` correction instead of silently switching to a broader route.
+
+### 3. Vault without a manifest: legacy/non-pilot query
+
+When no `.agents/memory.yaml` applies, preserve the historical `/wiki-query` behavior:
+
+1. Open `wiki/index.md` as the standalone vault catalog.
+2. Pick 3-10 relevant pages across `synthesis/`, `concepts/`, `sources/`, `entities/`, and `comparisons/`.
+3. Read those pages, follow relevant wikilinks, and stop when the answer is supported.
+4. If needed, run `python scripts/wiki_search.py --vault . --query "<terms>" --limit 5`.
+
+This route is explicitly **legacy/non-pilot**. It does not invoke `memory context`, create a memory receipt/event, or count toward pilot usage. Do not describe it as evidence produced by the bounded retrieval pilot.
+
+## Synthesize the answer
 
 Compose the answer as:
+
 - A direct answer in 1-3 sentences
 - Supporting detail, organized thematically
 - **Inline citations** using wikilinks to source pages: `[[sources/monosemanticity]]`
 - **A "Related pages" section** at the end with 3-5 wikilinks
 
-### 6. Offer to re-file
+If the selected route does not provide enough evidence, say so. Do not invent content or broaden beyond the manifest policy.
+
+## Offer to re-file
 
 **Every good answer is a candidate wiki page.** At the end of the answer, ask:
 
@@ -49,17 +56,14 @@ Compose the answer as:
 > `wiki/comparisons/sae-vs-probing.md` — or I can append it to an existing page._
 
 If the user says yes:
+
 - Pick the right category (most often `comparisons/` or `synthesis/`)
 - Use the appropriate template
 - Add frontmatter with `category`, `summary`, `sources` (count of cited sources), `updated`
 - Update `index.md`
 - Append to `log.md` with `op: create` and the question as the title
 
-This is how the wiki compounds — explorations don't disappear into chat history.
-
 ## Output formats
-
-Not every query wants a markdown answer. Offer the user:
 
 - **Markdown page** (default) — filed back as a wiki page
 - **Comparison table** — for "A vs B" questions
@@ -69,8 +73,9 @@ Not every query wants a markdown answer. Offer the user:
 
 ## Anti-patterns
 
-- ❌ Read every page in the wiki on every query → use the index
-- ❌ Answer without citations → every claim must link to a page
-- ❌ Create a new page for a one-off trivial question → only file back answers worth keeping
-- ❌ Invent content not in the wiki → if you don't know, say so and suggest a new source to ingest
+- ❌ Preload a complete index before checking `.agents/memory.yaml`
+- ❌ Bypass `memory context` because QMD is unavailable
+- ❌ Attribute a legacy/non-pilot query to the bounded memory pilot
+- ❌ Answer without citations
+- ❌ Invent content not present in the selected evidence
 - ❌ Skip the `log.md` entry when filing an answer back

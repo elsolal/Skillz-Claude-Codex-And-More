@@ -547,7 +547,7 @@ Capability groups, all auto-triggered from skill descriptions.
 
 ## Obsidian LLM Wiki — second-brain memory
 
-A persistent, interlinked knowledge base that grows across sessions, inspired by [Karpathy's LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Sources are read once, integrated into a shared Obsidian vault, kept up to date by the agent. The agent reads `wiki/index.md` first, drills into pages, and synthesizes answers — instead of re-deriving everything via RAG on every query.
+A persistent, interlinked knowledge base that grows across sessions, inspired by [Karpathy's LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Sources are read once, integrated into a shared Obsidian vault, and kept up to date by the agent. Activated projects start from the task and retrieve through `memory context` against their declared project collection; missing QMD stays bounded to manifest `entry_pages`. Standalone vaults without `.agents/memory.yaml` retain the historical catalog workflow as an explicit legacy/non-pilot route.
 
 > **Built on top of [`alirezarezvani/claude-skills`](https://github.com/alirezarezvani/claude-skills) (MIT) — see [`skills/ATTRIBUTION.md`](./skills/ATTRIBUTION.md).**
 

@@ -1,11 +1,11 @@
 ---
 name: wiki-query
-description: Query the LLM Wiki — reads index.md first, drills into 3-10 relevant pages, synthesizes an answer with inline [[wikilink]] citations, and offers to file the answer back as a new comparison or synthesis page. Usage /wiki-query question
+description: Query project memory task-first through memory context, with a bounded entry_pages degradation path and an explicit legacy/non-pilot route for vaults without .agents/memory.yaml. Usage /wiki-query question
 ---
 
 # /wiki-query
 
-Ask the wiki a question. The librarian reads `index.md` first, picks relevant pages across categories, synthesizes an answer with citations, and offers to file the answer back into the wiki so your explorations compound.
+Ask project memory a question. The librarian starts from the task and selects the route from the nearest `.agents/memory.yaml` instead of preloading a complete wiki catalog.
 
 ## Usage
 
@@ -13,18 +13,21 @@ Ask the wiki a question. The librarian reads `index.md` first, picks relevant pa
 /wiki-query "<your question>"
 /wiki-query "what does the wiki say about sparse autoencoders?"
 /wiki-query "compare monosemanticity and polysemanticity across my sources"
-/wiki-query "which sources disagree on scaling laws?"
-/wiki-query "give me a comparison table of SAE vs linear probing"
 ```
 
 ## What happens
 
-1. **Index-first read** — reads `wiki/index.md` to find relevant pages
-2. **Drill-in** — reads 3-10 pages in full (synthesis + concepts + sources + entities)
-3. **Follow links** — opportunistically follows wikilinks between pages
-4. **Fallback search** — if the index isn't enough, runs `scripts/wiki_search.py` (BM25)
-5. **Synthesize** — composes a direct answer + supporting detail + inline `[[sources/xxx]]` citations + "Related pages" section
-6. **Offer to file back** — asks whether to save this as a new wiki page (usually in `comparisons/` or `synthesis/`)
+### Activated project
+
+1. Keep the question as the task and detect the nearest `.agents/memory.yaml` plus local projection.
+2. Run `memory context --mode project --task-category <category> "<task>"` against the declared project collection.
+3. Consume only the returned `read` sections and preserve their receipt/provenance.
+4. If QMD is unavailable, let `memory context` degrade to the declared `entry_pages` caps; never open an undeclared full index.
+5. Synthesize with inline `[[wikilink]]` citations and offer to file substantive answers back.
+
+### Vault without `.agents/memory.yaml`
+
+Use the historical catalog-and-pages workflow documented in `references/query-workflow.md`. Mark it **legacy/non-pilot**: it does not call `memory context`, emit a memory receipt/event, or count as pilot usage.
 
 ## Output formats
 
@@ -48,9 +51,11 @@ This command dispatches the `wiki-librarian` sub-agent. See `agents/wiki-librari
 
 ## Rules
 
-- **Read the index first.** No grep-everything.
-- **Every claim cites a page** with a `[[wikilink]]`.
-- **Offer to file the answer back** — but only for substantive answers worth keeping.
+- Start from the task and project collection for activated repositories.
+- Do not bypass `memory context` when QMD is missing; its bounded `entry_pages` path is the supported degradation.
+- Never attribute the legacy/non-pilot path to the bounded retrieval pilot.
+- Every substantive claim cites a page with a `[[wikilink]]`.
+- Offer to file back only answers worth keeping.
 
 ## Skill Reference
 

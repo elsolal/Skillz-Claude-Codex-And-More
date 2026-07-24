@@ -50,7 +50,7 @@ vault/
 ## Three core operations
 
 1. **Ingest** — LLM reads a source, discusses takeaways with you, writes a source summary, updates 10-15 relevant pages, updates index, appends to log. See `references/ingest-workflow.md`.
-2. **Query** — LLM reads `index.md` first, drills into relevant pages, synthesizes with citations. Good answers get **filed back into the wiki** so explorations compound. See `references/query-workflow.md`.
+2. **Query** — LLM starts from the task and the nearest `.agents/memory.yaml`. Activated projects use `memory context` against the project collection; QMD failures degrade only to declared `entry_pages`. Vaults without a manifest keep an explicit legacy/non-pilot catalog route. Good answers get **filed back into the wiki** so explorations compound. See `references/query-workflow.md`.
 3. **Lint** — Health check: contradictions, stale claims, orphan pages, missing cross-refs, concepts mentioned but lacking their own page, data gaps to fill with web search. See `references/lint-workflow.md`.
 
 ## Quick start
@@ -89,7 +89,7 @@ python scripts/init_vault.py --path ~/vaults/research --topic "LLM interpretabil
 |---|---|
 | `wiki-ingestor` | Delegated ingest flow — reads source, proposes updates, applies after your approval |
 | `wiki-linter` | Runs the health-check workflow independently, reports findings |
-| `wiki-librarian` | Answers queries using index-first search, synthesizes with citations |
+| `wiki-librarian` | Answers task-first through `memory context`, with a legacy/non-pilot route for standalone vaults |
 
 ## Python tools (`scripts/`)
 
