@@ -178,6 +178,41 @@ class EventContractUnitTests(unittest.TestCase):
 
         self.assertEqual(raised.exception.code, "event_log_corrupt")
 
+    def test_complete_malformed_final_line_is_not_treated_as_truncation(self) -> None:
+        event = build_context_event(context_metadata(), occurred_at=NOW)
+        event_path = append_event(
+            event,
+            state_dir=self.state_dir,
+            project_root=self.repo,
+        )
+        with event_path.open("a", encoding="utf-8") as stream:
+            stream.write('{"schema_version":1,broken}\n')
+
+        with self.assertRaises(EventIntegrityError) as raised:
+            read_event_file(event_path)
+
+        self.assertEqual(raised.exception.code, "event_log_corrupt")
+
+    def test_duplicate_json_keys_are_rejected_instead_of_silently_overwritten(self) -> None:
+        event = build_context_event(context_metadata(), occurred_at=NOW)
+        event_path = append_event(
+            event,
+            state_dir=self.state_dir,
+            project_root=self.repo,
+        )
+        serialized = json.dumps(event, separators=(",", ":"))
+        duplicated = serialized.replace(
+            '"project_id":"skillz-claude"',
+            '"project_id":"private-shadow","project_id":"skillz-claude"',
+            1,
+        )
+        event_path.write_text(duplicated + "\n", encoding="utf-8")
+
+        with self.assertRaises(EventIntegrityError) as raised:
+            read_event_file(event_path)
+
+        self.assertEqual(raised.exception.code, "event_log_corrupt")
+
     def test_retention_and_force_purge_are_project_isolated(self) -> None:
         old = datetime(2026, 5, 1, 12, tzinfo=timezone.utc)
         fresh = datetime(2026, 7, 20, 12, tzinfo=timezone.utc)

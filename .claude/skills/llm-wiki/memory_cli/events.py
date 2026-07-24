@@ -260,6 +260,19 @@ def _scan_privacy(value: object, *, field: str = "event") -> None:
             )
 
 
+def _strict_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate event key: {key}")
+        result[key] = value
+    return result
+
+
+def _reject_json_constant(value: str) -> None:
+    raise ValueError(f"non-standard JSON constant: {value}")
+
+
 def _validate_relative_path(value: object, field: str) -> None:
     path = _expect_string(value, field)
     assert path is not None
@@ -555,7 +568,8 @@ def read_event_file(path: Path) -> EventReadResult:
             "Restore a private physical JSONL file beneath the project event directory.",
         )
     try:
-        lines = path.read_text(encoding="utf-8").splitlines()
+        serialized = path.read_text(encoding="utf-8")
+        lines = serialized.splitlines()
     except (OSError, UnicodeError) as error:
         raise _error(
             "event_log_unreadable",
@@ -567,9 +581,13 @@ def read_event_file(path: Path) -> EventReadResult:
     diagnostics: list[dict[str, str]] = []
     for index, line in enumerate(lines):
         try:
-            raw = json.loads(line)
+            raw = json.loads(
+                line,
+                object_pairs_hook=_strict_json_object,
+                parse_constant=_reject_json_constant,
+            )
         except json.JSONDecodeError as error:
-            if index == len(lines) - 1:
+            if index == len(lines) - 1 and not serialized.endswith("\n"):
                 diagnostics.append(
                     {
                         "code": "truncated_event_tail",
@@ -581,6 +599,12 @@ def read_event_file(path: Path) -> EventReadResult:
             raise _error(
                 "event_log_corrupt",
                 "A non-final event line is invalid; the log prefix is not trustworthy.",
+                "Inspect or purge the affected local project telemetry.",
+            ) from error
+        except ValueError as error:
+            raise _error(
+                "event_log_corrupt",
+                "An event line is not strict JSON.",
                 "Inspect or purge the affected local project telemetry.",
             ) from error
         if not isinstance(raw, dict):
