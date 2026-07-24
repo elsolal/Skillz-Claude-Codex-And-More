@@ -19,6 +19,31 @@ from .qmd_adapter import QmdSearchOutcome, QmdSearchStatus
 
 
 @dataclass(frozen=True, slots=True)
+class ContextInitialReceipt:
+    """Route and budget known before retrieval starts; never contains the query."""
+
+    project_id: str
+    mode: RetrievalMode
+    task_category: TaskCategory
+    planned_route: tuple[str, ...]
+    target_tokens: int
+    hard_tokens: int
+
+    def data(self) -> dict[str, Any]:
+        return {
+            "project_id": self.project_id,
+            "mode": self.mode.value,
+            "task_category": self.task_category.value,
+            "planned_route": list(self.planned_route),
+            "budget": {
+                "target_tokens": self.target_tokens,
+                "hard_tokens": self.hard_tokens,
+            },
+            "status": "retrieving",
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class ContextOutcome:
     status: str
     exit_code: int
@@ -29,6 +54,7 @@ class ContextOutcome:
     retrieval_status: QmdSearchStatus
     duration_ms: int | None
     hits: tuple[RetrievalHit, ...]
+    initial_receipt: ContextInitialReceipt
     decision: SufficiencyDecision | None = None
     fallback_used: bool = False
     fallback_explicit_decision: bool = False
@@ -36,6 +62,7 @@ class ContextOutcome:
     warnings: tuple[dict[str, Any], ...] = ()
     errors: tuple[dict[str, Any], ...] = ()
     assembly: ContextAssembly | None = None
+    event_id: str | None = None
 
     def data(self) -> dict[str, Any]:
         retrieval: dict[str, Any] = {
@@ -102,7 +129,38 @@ class ContextOutcome:
                     for section in self.assembly.sections
                 ],
             }
+        data["receipt"] = {
+            "initial": self.initial_receipt.data(),
+            "final": self.final_receipt_data(),
+        }
         return data
+
+    def final_receipt_data(self) -> dict[str, Any]:
+        assembly = self.assembly
+        retrieved = len(assembly.retrieved) if assembly is not None else len(self.hits)
+        read = len(assembly.sections) if assembly is not None else 0
+        estimated_tokens = assembly.estimated_tokens if assembly is not None else 0
+        budget_tokens = self.initial_receipt.target_tokens
+        freshness = (
+            self.decision.evidence.freshness.value
+            if self.decision is not None
+            else "unknown"
+        )
+        return {
+            "status": self.status,
+            "retrieved": retrieved,
+            "read": read,
+            "estimated_tokens": estimated_tokens,
+            "budget_tokens": budget_tokens,
+            "duration_ms": self.duration_ms,
+            "freshness": freshness,
+            "fallback": {
+                "used": self.fallback_used,
+                "reason_codes": [
+                    reason.value for reason in self.fallback_reason_codes
+                ],
+            },
+        }
 
     def event_metadata(self) -> dict[str, Any] | None:
         """Return the metadata-only event input; persistence belongs to STORY-011."""
@@ -152,6 +210,7 @@ def blocked_context(
     message: str,
     correction: str,
     exit_code: int,
+    initial_receipt: ContextInitialReceipt,
     decision: SufficiencyDecision | None = None,
     hits: tuple[RetrievalHit, ...] = (),
     duration_ms: int | None = None,
@@ -169,6 +228,7 @@ def blocked_context(
         retrieval_status=retrieval_status,
         duration_ms=duration_ms,
         hits=hits,
+        initial_receipt=initial_receipt,
         decision=decision,
         fallback_used=fallback_used,
         fallback_explicit_decision=fallback_explicit_decision,
@@ -194,6 +254,7 @@ def degraded_context(
     message: str,
     correction: str,
     assembly: ContextAssembly,
+    initial_receipt: ContextInitialReceipt,
     hits: tuple[RetrievalHit, ...] = (),
     duration_ms: int | None = None,
     fallback_used: bool = False,
@@ -213,6 +274,7 @@ def degraded_context(
         retrieval_status=retrieval_status,
         duration_ms=duration_ms,
         hits=hits,
+        initial_receipt=initial_receipt,
         fallback_used=fallback_used,
         fallback_explicit_decision=fallback_explicit_decision,
         fallback_reason_codes=fallback_reason_codes,
@@ -238,6 +300,7 @@ def context_outcome(
     hits: tuple[RetrievalHit, ...],
     duration_ms: int,
     decision: SufficiencyDecision,
+    initial_receipt: ContextInitialReceipt,
     fallback_used: bool = False,
     fallback_explicit_decision: bool = False,
     fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
@@ -266,6 +329,7 @@ def context_outcome(
         retrieval_status=(QmdSearchStatus.READY if effective_hits else retrieval.status),
         duration_ms=duration_ms,
         hits=effective_hits,
+        initial_receipt=initial_receipt,
         decision=decision,
         fallback_used=fallback_used,
         fallback_explicit_decision=fallback_explicit_decision,

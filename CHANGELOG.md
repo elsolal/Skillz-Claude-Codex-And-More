@@ -4,6 +4,22 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## [Unreleased] - 2026-07-24
 
+**Scriptable initial and final memory receipts**
+
+### Added
+- An initial `memory context` receipt on stderr that exposes project, mode, task category, authorized planned route, and budget before retrieval without rendering the query.
+- Dedicated human and JSON context renderers consuming the same immutable result contract, with contractual snapshots for TTY, non-TTY, `NO_COLOR`, successful, degraded, and machine-readable outputs.
+- Stable `data.receipt.initial` and `data.receipt.final` JSON sections separating `retrieved`, `read`, estimated tokens, duration, freshness, fallback state, and the nullable event identifier reserved for metadata-only persistence.
+
+### Changed
+- Human context output now leads with the real global state and measured receipt, so degraded, insufficient, ambiguous, or blocked outcomes cannot be masked by a success label.
+- Every renderable `ContextOutcome` now requires its initial receipt by construction, while JSON stdout remains a single parseable document and progress stays on stderr.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `bash tests/test-install-memory-cli.sh && python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — installer PASS, 98 tests Python OK
+- Level-3 quality gate: PASS after three rounds, one confirmed P1 corrected, and two consecutive clean rounds
+
 **Task-first `llm-wiki` workflow alignment**
 
 ### Added

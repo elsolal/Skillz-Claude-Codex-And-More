@@ -48,6 +48,32 @@
           "content": "# Project\n"
         }
       ]
+    },
+    "receipt": {
+      "initial": {
+        "project_id": "skillz-claude",
+        "mode": "minimal",
+        "task_category": "general",
+        "planned_route": ["elsolal-wiki"],
+        "budget": {
+          "target_tokens": 800,
+          "hard_tokens": 1200
+        },
+        "status": "retrieving"
+      },
+      "final": {
+        "status": "degraded",
+        "retrieved": 0,
+        "read": 1,
+        "estimated_tokens": 3,
+        "budget_tokens": 800,
+        "duration_ms": null,
+        "freshness": "unknown",
+        "fallback": {
+          "used": false,
+          "reason_codes": []
+        }
+      }
     }
   },
   "warnings": [

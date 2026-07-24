@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+from collections.abc import Callable
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
@@ -38,7 +39,13 @@ from .qmd_adapter import (
     inspect_qmd,
     search_qmd,
 )
-from .receipts import ContextOutcome, blocked_context, context_outcome, degraded_context
+from .receipts import (
+    ContextInitialReceipt,
+    ContextOutcome,
+    blocked_context,
+    context_outcome,
+    degraded_context,
+)
 from .routing import authorized_fallbacks
 from .sufficiency import evaluate_sufficiency, provenance_for_path, thresholds_for
 
@@ -139,6 +146,7 @@ def _local_entry_page_fallback(
     code: str,
     message: str,
     correction: str,
+    initial_receipt: ContextInitialReceipt,
     hits: tuple[RetrievalHit, ...] = (),
     duration_ms: int | None = None,
     fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
@@ -156,6 +164,7 @@ def _local_entry_page_fallback(
             message=message,
             correction=correction,
             exit_code=31,
+            initial_receipt=initial_receipt,
             hits=hits,
             duration_ms=duration_ms,
             fallback_used=fallback_used,
@@ -184,6 +193,7 @@ def _local_entry_page_fallback(
                 "Restore a declared entry page or repair QMD, then retry memory context."
             ),
             exit_code=32,
+            initial_receipt=initial_receipt,
             hits=hits,
             duration_ms=duration_ms,
             fallback_used=fallback_used,
@@ -206,6 +216,7 @@ def _local_entry_page_fallback(
         fallback_explicit_decision=explicit_decision,
         fallback_reason_codes=fallback_reason_codes,
         assembly=assembly,
+        initial_receipt=initial_receipt,
         warnings=tuple(
             {
                 "code": issue.code,
@@ -230,6 +241,7 @@ def _materialize_context(
     duration_ms: int,
     decision: SufficiencyDecision,
     risk_reason: RiskReason | None,
+    initial_receipt: ContextInitialReceipt,
     fallback_used: bool = False,
     fallback_explicit_decision: bool = False,
     fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
@@ -265,6 +277,7 @@ def _materialize_context(
             message=error.message,
             correction=error.correction,
             exit_code=error.exit_code,
+            initial_receipt=initial_receipt,
             decision=decision,
             hits=hits,
             duration_ms=duration_ms,
@@ -281,6 +294,7 @@ def _materialize_context(
         hits=hits,
         duration_ms=duration_ms,
         decision=decision,
+        initial_receipt=initial_receipt,
         fallback_used=fallback_used,
         fallback_explicit_decision=fallback_explicit_decision,
         fallback_reason_codes=fallback_reason_codes,
@@ -298,6 +312,7 @@ def run_context(
     risk_reason: RiskReason | None = None,
     runner: Runner = subprocess.run,
     timeout_seconds: float = DEFAULT_SEARCH_TIMEOUT_SECONDS,
+    on_initial_receipt: Callable[[ContextInitialReceipt], None] | None = None,
 ) -> ContextOutcome:
     """Search project first, stop when sufficient, and authorize any fallback."""
 
@@ -306,6 +321,28 @@ def run_context(
     projection = load_projection(manifest_path)
     project_collection = manifest.stores.project.collection
     route = (project_collection,)
+    fallbacks = authorized_fallbacks(
+        manifest,
+        principal_role=projection.principal_role,
+        task_category=task_category,
+    )
+    planned_route = (
+        (project_collection, fallbacks[0].collection)
+        if fallbacks
+        else route
+    )
+    budget = manifest.budgets[mode]
+    initial_receipt = ContextInitialReceipt(
+        project_id=manifest.project.id,
+        mode=mode,
+        task_category=task_category,
+        planned_route=planned_route,
+        target_tokens=budget.target_tokens,
+        hard_tokens=budget.hard_tokens,
+    )
+    if on_initial_receipt is not None:
+        on_initial_receipt(initial_receipt)
+
     executable = _qmd_executable()
     if executable is None:
         return _local_entry_page_fallback(
@@ -318,6 +355,7 @@ def run_context(
             code="qmd_missing",
             message="QMD is required for project retrieval but is unavailable.",
             correction=QMD_INSTALL_COMMAND,
+            initial_receipt=initial_receipt,
         )
 
     try:
@@ -342,6 +380,7 @@ def run_context(
             code=code,
             message=message,
             correction=correction,
+            initial_receipt=initial_receipt,
         )
 
     try:
@@ -375,6 +414,7 @@ def run_context(
             duration_ms=project_retrieval.duration_ms,
             decision=project_decision,
             risk_reason=risk_reason,
+            initial_receipt=initial_receipt,
             warnings=(
                 (
                     {
@@ -401,13 +441,9 @@ def run_context(
             hits=project_retrieval.hits,
             duration_ms=project_retrieval.duration_ms,
             decision=project_decision,
+            initial_receipt=initial_receipt,
         )
 
-    fallbacks = authorized_fallbacks(
-        manifest,
-        principal_role=projection.principal_role,
-        task_category=task_category,
-    )
     if not fallbacks:
         return context_outcome(
             project_id=manifest.project.id,
@@ -418,6 +454,7 @@ def run_context(
             hits=project_retrieval.hits,
             duration_ms=project_retrieval.duration_ms,
             decision=project_decision,
+            initial_receipt=initial_receipt,
             warnings=(
                 {
                     "code": "fallback_not_authorized",
@@ -462,6 +499,7 @@ def run_context(
             duration_ms=project_retrieval.duration_ms,
             fallback_reason_codes=project_decision.reason_codes,
             explicit_decision=explicit_decision,
+            initial_receipt=initial_receipt,
         )
 
     fallback_decision = evaluate_sufficiency(
@@ -487,6 +525,7 @@ def run_context(
             duration_ms=aggregate_duration,
             decision=fallback_decision,
             risk_reason=risk_reason,
+            initial_receipt=initial_receipt,
             fallback_used=True,
             fallback_explicit_decision=explicit_decision,
             fallback_reason_codes=project_decision.reason_codes,
@@ -500,6 +539,7 @@ def run_context(
         hits=aggregate_hits,
         duration_ms=aggregate_duration,
         decision=fallback_decision,
+        initial_receipt=initial_receipt,
         fallback_used=True,
         fallback_explicit_decision=explicit_decision,
         fallback_reason_codes=project_decision.reason_codes,

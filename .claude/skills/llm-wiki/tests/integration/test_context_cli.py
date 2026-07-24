@@ -182,6 +182,7 @@ class ContextCliIntegrationTests(unittest.TestCase):
         fake_mode: str = "ready",
         freshness: str = "fresh",
         qmd: Path | None = None,
+        extra_env: dict[str, str] | None = None,
     ) -> subprocess.CompletedProcess[str]:
         environment = os.environ.copy()
         environment.update(
@@ -192,6 +193,7 @@ class ContextCliIntegrationTests(unittest.TestCase):
                 "FAKE_QMD_FRESHNESS": freshness,
             }
         )
+        environment.update(extra_env or {})
         return subprocess.run(
             [sys.executable, "-m", "memory_cli", "context", *arguments],
             cwd=self.repo,
