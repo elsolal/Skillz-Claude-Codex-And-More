@@ -77,8 +77,8 @@ def append_usage_attestation(
         event_store._ensure_private_directory(root)
         with event_store._project_lock(lock_path):
             parents: list[dict[str, Any]] = []
-            already_attested = False
-            already_conflicted = False
+            attestations: list[dict[str, Any]] = []
+            conflicts: list[dict[str, Any]] = []
             diagnostics: list[dict[str, str]] = []
             if project_dir.exists():
                 for path in sorted(project_dir.glob("*.jsonl")):
@@ -92,13 +92,13 @@ def append_usage_attestation(
                             == event_store.EVENT_TYPE_USAGE_ATTESTED
                             and stored_event["parent_event_id"] == parent_event_id
                         ):
-                            already_attested = True
+                            attestations.append(stored_event)
                         if (
                             stored_event["event_type"]
                             == event_store.EVENT_TYPE_MEMORY_CONFLICT
                             and stored_event["parent_event_id"] == parent_event_id
                         ):
-                            already_conflicted = True
+                            conflicts.append(stored_event)
             if diagnostics:
                 raise event_store._error(
                     "event_log_truncated",
@@ -116,12 +116,6 @@ def append_usage_attestation(
                     "parent_event_ambiguous",
                     f"Parent context event is duplicated: {parent_event_id}.",
                     "Inspect or purge the affected local project telemetry.",
-                )
-            if already_attested:
-                raise event_store._error(
-                    "parent_already_attested",
-                    f"Parent context event is already attested: {parent_event_id}.",
-                    "Reuse the existing immutable attestation instead of appending another.",
                 )
             conflict_values = (
                 conflict_docid,
@@ -143,13 +137,6 @@ def append_usage_attestation(
                     "An open debt requires a declared memory conflict.",
                     "Use --prepare-debt together with every --conflict-* option.",
                 )
-            if has_conflict and already_conflicted:
-                raise event_store._error(
-                    "parent_already_conflicted",
-                    f"Parent context event already has a conflict: {parent_event_id}.",
-                    "Reuse the existing immutable conflict event.",
-                )
-
             finish_time = occurred_at or event_store._utc_now()
             event = event_store.build_usage_attestation_event(
                 parents[0],
@@ -180,10 +167,43 @@ def append_usage_attestation(
                     prepare_debt=prepare_debt,
                     occurred_at=finish_time,
                 )
+            if attestations:
+                if (
+                    not has_conflict
+                    or len(attestations) != 1
+                    or len(conflicts) != 1
+                    or conflict_event is None
+                ):
+                    raise event_store._error(
+                        "parent_already_attested",
+                        f"Parent context event is already attested: {parent_event_id}.",
+                        "Reuse the existing immutable attestation instead of appending another.",
+                    )
+                if (
+                    attestations[0]["payload"] != event["payload"]
+                    or conflicts[0]["payload"] != conflict_event["payload"]
+                ):
+                    raise event_store._error(
+                        "finish_replay_mismatch",
+                        "Stored finish events do not match the requested immutable replay.",
+                        "Retry with the original structured finish arguments.",
+                    )
+                return UsageAttestationResult(
+                    parents[0],
+                    attestations[0],
+                    conflict_event=conflicts[0],
+                )
+            if conflicts:
+                raise event_store._error(
+                    "parent_already_conflicted",
+                    f"Parent context event already has a conflict: {parent_event_id}.",
+                    "Inspect the inconsistent local event chain before retrying.",
+                )
             events_to_append = [event]
+            batch_diagnostics: tuple[dict[str, str], ...] = ()
             if conflict_event is not None:
                 events_to_append.append(conflict_event)
-                event_store.append_event_batch_atomically(
+                batch_diagnostics = event_store.append_event_batch_atomically(
                     event_store._event_path(project_dir, event),
                     events_to_append,
                 )
@@ -200,6 +220,7 @@ def append_usage_attestation(
     return UsageAttestationResult(
         parents[0],
         event,
+        diagnostics=batch_diagnostics,
         conflict_event=conflict_event,
     )
 

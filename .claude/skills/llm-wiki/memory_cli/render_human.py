@@ -165,6 +165,17 @@ def render_finish_human(outcome: FinishOutcome, *, stream: TextIO) -> None:
                 f"Debt: {conflict['debt']['id']} · open metadata-only draft",
                 file=stream,
             )
+        action_labels = {
+            "continue": "[c] continue with repository evidence",
+            "inspect": "[i] inspect both sources",
+            "prepare_patch": "[p] prepare a source-backed memory patch",
+        }
+        print("Actions:", file=stream)
+        for action in conflict["next_actions"]:
+            print(f"  {action_labels[action]}", file=stream)
+    for diagnostic in outcome.diagnostics:
+        print(f"Error: {diagnostic['message']}", file=stream)
+        print(f"Correction: {diagnostic['correction']}", file=stream)
     print("Machine output: memory finish --json", file=stream)
 
 

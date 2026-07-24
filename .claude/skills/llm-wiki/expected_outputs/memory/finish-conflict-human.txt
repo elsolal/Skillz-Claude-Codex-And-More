@@ -9,4 +9,8 @@ Repository: .claude/project-memory.md · contract
 Decision: repository evidence takes precedence
 Human arbitration: yes
 Debt: <event-id> · open metadata-only draft
+Actions:
+  [c] continue with repository evidence
+  [i] inspect both sources
+  [p] prepare a source-backed memory patch
 Machine output: memory finish --json

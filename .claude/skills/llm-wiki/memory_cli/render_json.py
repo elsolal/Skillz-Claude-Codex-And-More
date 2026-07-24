@@ -42,7 +42,7 @@ def finish_envelope(outcome: FinishOutcome) -> dict[str, Any]:
         "event_id": outcome.event_id,
         "data": outcome.data(),
         "warnings": [],
-        "errors": [],
+        "errors": list(outcome.diagnostics),
     }
 
 

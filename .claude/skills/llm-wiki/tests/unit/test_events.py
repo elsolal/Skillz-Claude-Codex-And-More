@@ -35,6 +35,7 @@ from memory_cli.contracts import (  # noqa: E402
     ConflictRisk,
     DebtAction,
 )
+from memory_cli.session_events import append_usage_attestation  # noqa: E402
 
 
 NOW = datetime(2026, 7, 24, 12, 30, tzinfo=timezone.utc)
@@ -247,6 +248,66 @@ class EventContractUnitTests(unittest.TestCase):
             [event["event_type"] for event in read_event_file(event_path).events],
             ["context_completed", "usage_attested", "memory_conflict"],
         )
+
+    def test_post_replace_fsync_failure_returns_ids_and_reconciles_retry(self) -> None:
+        evidence = self.repo / "current-contract.py"
+        evidence.write_text("CURRENT = True\n", encoding="utf-8")
+        parent = build_context_event(context_metadata(), occurred_at=NOW)
+        event_path = append_event(
+            parent,
+            state_dir=self.state_dir,
+            project_root=self.repo,
+        )
+        real_fsync = os.fsync
+
+        def fail_directory_fsync(descriptor: int) -> None:
+            if stat.S_ISDIR(os.fstat(descriptor).st_mode):
+                raise OSError("directory durability unavailable")
+            real_fsync(descriptor)
+
+        arguments = {
+            "project_id": "skillz-claude",
+            "parent_event_id": parent["event_id"],
+            "used": ("#a1b2c3",),
+            "cited": (),
+            "citation_only": (),
+            "impact_codes": (),
+            "conflict_docid": "#a1b2c3",
+            "repository_path": "current-contract.py",
+            "evidence_type": ConflictEvidenceType.CONTRACT,
+            "conflict_category": ConflictCategory.ARCHITECTURE,
+            "conflict_risk": ConflictRisk.HIGH,
+            "prepare_debt": True,
+            "state_dir": self.state_dir,
+            "project_root": self.repo,
+            "occurred_at": NOW,
+        }
+        with patch("memory_cli.events.os.fsync", side_effect=fail_directory_fsync):
+            uncertain = append_usage_attestation(**arguments)
+
+        self.assertEqual(
+            uncertain.diagnostics[0]["code"],
+            "event_directory_fsync_failed",
+        )
+        self.assertEqual(
+            [event["event_type"] for event in read_event_file(event_path).events],
+            ["context_completed", "usage_attested", "memory_conflict"],
+        )
+
+        reconciled = append_usage_attestation(**arguments)
+        self.assertEqual(reconciled.diagnostics, ())
+        self.assertEqual(reconciled.event["event_id"], uncertain.event["event_id"])
+        self.assertEqual(
+            reconciled.conflict_event["event_id"],
+            uncertain.conflict_event["event_id"],
+        )
+        self.assertEqual(len(read_event_file(event_path).events), 3)
+
+        with self.assertRaises(EventIntegrityError) as raised:
+            append_usage_attestation(
+                **{**arguments, "conflict_risk": ConflictRisk.LOW}
+            )
+        self.assertEqual(raised.exception.code, "finish_replay_mismatch")
 
     def test_attested_docids_must_be_retrieved_and_citations_justified(self) -> None:
         parent = build_context_event(context_metadata(), occurred_at=NOW)

@@ -805,6 +805,7 @@ def _run_finish_command(
         parent_event=result.parent_event,
         attestation_event=result.event,
         conflict_event=result.conflict_event,
+        diagnostics=result.diagnostics,
     )
     if json_output:
         render_finish_json(outcome, stream=sys.stdout)

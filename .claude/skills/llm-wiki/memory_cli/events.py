@@ -871,10 +871,13 @@ def read_event_file(path: Path) -> EventReadResult:
     return EventReadResult(tuple(events), tuple(diagnostics))
 
 
-def _write_events_atomically(path: Path, events: Sequence[Mapping[str, object]]) -> None:
+def _write_events_atomically(
+    path: Path, events: Sequence[Mapping[str, object]]
+) -> tuple[dict[str, str], ...]:
     _ensure_private_directory(path.parent)
     descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
     temporary = Path(temporary_name)
+    diagnostics: list[dict[str, str]] = []
     try:
         if os.name == "posix":
             os.fchmod(descriptor, 0o600)
@@ -886,20 +889,36 @@ def _write_events_atomically(path: Path, events: Sequence[Mapping[str, object]])
             os.fsync(stream.fileno())
         os.replace(temporary, path)
         if os.name == "posix":
-            directory_flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
-            directory = os.open(path.parent, directory_flags)
             try:
-                os.fsync(directory)
-            finally:
-                os.close(directory)
+                directory_flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+                directory = os.open(path.parent, directory_flags)
+                try:
+                    os.fsync(directory)
+                finally:
+                    os.close(directory)
+            except OSError:
+                diagnostics.append(
+                    {
+                        "code": "event_directory_fsync_failed",
+                        "message": (
+                            "The related events are visible, but directory durability "
+                            "could not be confirmed."
+                        ),
+                        "correction": (
+                            "Retry the same memory finish arguments to reconcile the "
+                            "published immutable batch."
+                        ),
+                    }
+                )
     finally:
         if temporary.exists():
             temporary.unlink()
+    return tuple(diagnostics)
 
 
 def append_event_batch_atomically(
     path: Path, events: Sequence[Mapping[str, object]]
-) -> None:
+) -> tuple[dict[str, str], ...]:
     """Publish a related event batch wholly before or wholly after one replace."""
 
     if not events:
@@ -920,7 +939,7 @@ def append_event_batch_atomically(
                 "Run memory purge before appending a related event batch.",
             )
         existing = result.events
-    _write_events_atomically(path, (*existing, *events))
+    return _write_events_atomically(path, (*existing, *events))
 
 
 def purge_project_events(

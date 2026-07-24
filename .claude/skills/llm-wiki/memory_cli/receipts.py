@@ -52,6 +52,7 @@ class FinishOutcome:
     parent_event: dict[str, Any]
     attestation_event: dict[str, Any]
     conflict_event: dict[str, Any] | None = None
+    diagnostics: tuple[dict[str, str], ...] = ()
 
     @property
     def event_id(self) -> str:
@@ -64,6 +65,8 @@ class FinishOutcome:
 
     @property
     def exit_code(self) -> int:
+        if self.diagnostics:
+            return 50
         if self.conflict_event is None:
             return 0
         return 21 if self.conflict_event["payload"]["requires_human"] else 0
