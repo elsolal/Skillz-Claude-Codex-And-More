@@ -17,6 +17,11 @@ class FinishReceiptContractTests(unittest.TestCase):
         )
         self.fixture.setUp()
         self.addCleanup(self.fixture.doCleanups)
+        (self.fixture.repo / ".claude").mkdir()
+        (self.fixture.repo / ".claude" / "project-memory.md").write_text(
+            "Repository-first memory contract.\n",
+            encoding="utf-8",
+        )
 
     def _context_event_id(self) -> str:
         result = self.fixture._run_cli(

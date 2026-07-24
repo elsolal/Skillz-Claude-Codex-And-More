@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from datetime import date, datetime, timezone
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 from typing import Any, Mapping
 
 from .contracts import (
@@ -92,6 +92,40 @@ def normalize_relative_path(value: object, *, field: str) -> str:
             "Remove absolute roots and traversal from the evidence reference.",
         )
     return normalized.as_posix()
+
+
+def validate_repository_evidence_path(
+    value: object, *, project_root: Path | None
+) -> str:
+    """Require one existing regular repository file without symlink escape."""
+
+    normalized = normalize_relative_path(value, field="conflict.repository.path")
+    if project_root is None:
+        raise _error(
+            "repository_evidence_unverifiable",
+            "Repository evidence requires the current project root.",
+            "Declare conflicts through memory finish from an activated repository.",
+        )
+    try:
+        canonical_root = project_root.resolve(strict=True)
+        candidate = project_root.joinpath(*PurePosixPath(normalized).parts)
+        canonical_candidate = candidate.resolve(strict=True)
+    except (OSError, RuntimeError) as error:
+        raise _error(
+            "repository_evidence_not_found",
+            f"Repository evidence does not identify an existing file: {normalized}.",
+            "Reference an existing regular file inside the current repository.",
+        ) from error
+    if (
+        canonical_root not in canonical_candidate.parents
+        or not canonical_candidate.is_file()
+    ):
+        raise _error(
+            "repository_evidence_invalid",
+            f"Repository evidence is not a regular file inside the project: {normalized}.",
+            "Reference an existing regular file that resolves within the repository.",
+        )
+    return normalized
 
 
 def requires_human(*, category: ConflictCategory, risk: ConflictRisk) -> bool:

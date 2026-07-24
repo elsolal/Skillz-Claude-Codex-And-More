@@ -24,6 +24,11 @@ class MemoryConflictsCliIntegrationTests(unittest.TestCase):
         )
         self.fixture.setUp()
         self.addCleanup(self.fixture.doCleanups)
+        (self.fixture.repo / ".claude").mkdir()
+        (self.fixture.repo / ".claude" / "project-memory.md").write_text(
+            "Repository-first memory contract.\n",
+            encoding="utf-8",
+        )
 
     def _context_event_id(self) -> str:
         result = self.fixture._run_cli(
@@ -164,6 +169,33 @@ class MemoryConflictsCliIntegrationTests(unittest.TestCase):
         self.assertEqual(invalid_path.returncode, 50, invalid_path.stderr)
         event_file = next(self.fixture.state_dir.rglob("*.jsonl"))
         self.assertEqual(len(event_file.read_text().splitlines()), 1)
+
+        for invalid_reference in (
+            "user said password hunter2 and this is raw transcript material",
+            "docs/not-present.md",
+        ):
+            with self.subTest(repository_path=invalid_reference):
+                invalid_reference_result = self.fixture._run_memory_cli(
+                    "finish",
+                    parent_id,
+                    "--conflict-docid",
+                    "#dfec5e",
+                    "--repo-evidence",
+                    invalid_reference,
+                    "--evidence-type",
+                    "contract",
+                    "--conflict-category",
+                    "architecture",
+                    "--conflict-risk",
+                    "high",
+                    "--json",
+                )
+                self.assertEqual(
+                    invalid_reference_result.returncode,
+                    50,
+                    invalid_reference_result.stderr,
+                )
+                self.assertEqual(len(event_file.read_text().splitlines()), 1)
 
         conflict = self._declare_conflict(category="general", risk="low")
         conflict_id = str(json.loads(conflict.stdout)["event_id"])

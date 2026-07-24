@@ -11,6 +11,7 @@ from . import events as event_store
 from .conflicts import (
     build_memory_conflict_event,
     build_memory_debt_action_event,
+    validate_repository_evidence_path,
 )
 from .contracts import (
     ConflictCategory,
@@ -165,6 +166,10 @@ def append_usage_attestation(
                 assert evidence_type is not None
                 assert conflict_category is not None
                 assert conflict_risk is not None
+                repository_path = validate_repository_evidence_path(
+                    repository_path,
+                    project_root=project_root,
+                )
                 conflict_event = build_memory_conflict_event(
                     parents[0],
                     memory_docid=conflict_docid,
