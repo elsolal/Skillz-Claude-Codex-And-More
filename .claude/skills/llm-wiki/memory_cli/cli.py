@@ -13,6 +13,7 @@ from . import __version__
 from .context import run_context
 from .contracts import (
     PUBLIC_SCHEMA_VERSION,
+    ImpactCode,
     MemoryManifest,
     PrincipalRole,
     RetrievalMode,
@@ -23,14 +24,16 @@ from .doctor import DoctorOutcome, run_doctor
 from .events import (
     EventIntegrityError,
     append_event,
+    append_usage_attestation,
     build_context_event,
     purge_project_events,
     resolve_state_dir,
 )
 from .manifest import ManifestError, discover_manifest, load_manifest, load_nearest_manifest
 from .projection import ConfigureOutcome, ProjectionError, configure_projection
-from .render_human import render_context_final, render_context_initial
-from .render_json import render_context_json
+from .receipts import FinishOutcome
+from .render_human import render_context_final, render_context_initial, render_finish_human
+from .render_json import render_context_json, render_finish_json
 
 
 MAX_QUERY_CHARACTERS = 16 * 1024
@@ -161,6 +164,48 @@ def build_parser() -> argparse.ArgumentParser:
         help="Show sufficiency evidence, reason codes and fallback decisions.",
     )
     context_parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit the stable machine-readable result envelope.",
+    )
+    finish_parser = commands.add_parser(
+        "finish",
+        help="Append usage, citations and impact attested for a context event.",
+    )
+    finish_parser.add_argument(
+        "parent_event_id",
+        help="The event_id returned by memory context.",
+    )
+    finish_parser.add_argument(
+        "--used",
+        action="append",
+        default=[],
+        metavar="DOCID",
+        help="Declare a retrieved docid that influenced the work; repeat as needed.",
+    )
+    finish_parser.add_argument(
+        "--cited",
+        action="append",
+        default=[],
+        metavar="DOCID",
+        help="Declare a retrieved docid cited in the final output; repeat as needed.",
+    )
+    finish_parser.add_argument(
+        "--citation-only",
+        action="append",
+        default=[],
+        metavar="DOCID",
+        help="Justify a cited docid that did not influence the work; repeat as needed.",
+    )
+    finish_parser.add_argument(
+        "--impact-code",
+        action="append",
+        default=[],
+        choices=[code.value for code in ImpactCode],
+        help="Attest one impact-v1 outcome; repeat as needed.",
+    )
+    finish_parser.add_argument(
         "--json",
         action="store_true",
         dest="json_output",
@@ -595,6 +640,59 @@ def _run_purge_command(*, force: bool, json_output: bool) -> int:
     return 0
 
 
+def _run_finish_command(
+    *,
+    parent_event_id: str,
+    used: Sequence[str],
+    cited: Sequence[str],
+    citation_only: Sequence[str],
+    impact_codes: Sequence[str],
+    json_output: bool,
+) -> int:
+    project_id: str | None = None
+    try:
+        manifest_path = discover_manifest()
+        manifest = load_manifest(manifest_path)
+        project_id = manifest.project.id
+        result = append_usage_attestation(
+            project_id=project_id,
+            parent_event_id=parent_event_id,
+            used=used,
+            cited=cited,
+            citation_only=citation_only,
+            impact_codes=impact_codes,
+            state_dir=resolve_state_dir(),
+            project_root=manifest_path.parent.parent,
+        )
+    except (ManifestError, EventIntegrityError) as error:
+        if json_output:
+            _render_json(
+                _envelope(
+                    command="finish",
+                    status="blocked",
+                    project_id=project_id,
+                    data={"parent_event_id": parent_event_id},
+                    errors=[error.as_dict()],
+                )
+            )
+        else:
+            print(f"[blocked] memory finish · {error.code}")
+            print(error.message)
+            print(f"Correction: {error.correction}")
+        return error.exit_code
+
+    outcome = FinishOutcome(
+        project_id=project_id,
+        parent_event=result.parent_event,
+        attestation_event=result.event,
+    )
+    if json_output:
+        render_finish_json(outcome, stream=sys.stdout)
+    else:
+        render_finish_human(outcome, stream=sys.stdout)
+    return 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     arguments = parser.parse_args(argv)
@@ -613,6 +711,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             network=arguments.network,
             fix=arguments.fix,
             explain=arguments.explain,
+            json_output=arguments.json_output,
+        )
+    if arguments.command == "finish":
+        return _run_finish_command(
+            parent_event_id=arguments.parent_event_id,
+            used=arguments.used,
+            cited=arguments.cited,
+            citation_only=arguments.citation_only,
+            impact_codes=arguments.impact_code,
             json_output=arguments.json_output,
         )
     if arguments.command == "purge":

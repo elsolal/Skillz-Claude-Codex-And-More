@@ -44,6 +44,135 @@ class EventStoreCliIntegrationTests(unittest.TestCase):
         self.assertEqual(events[0]["event_id"], output["event_id"])
         self.assertNotIn("private query", event_files[0].read_text())
 
+    def test_finish_appends_one_attestation_without_mutating_parent(self) -> None:
+        context = self.fixture._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "architecture",
+            "--json",
+            "attested context",
+        )
+        parent_id = json.loads(context.stdout)["event_id"]
+        event_file = next(self.fixture.state_dir.rglob("*.jsonl"))
+        parent_line = event_file.read_text().splitlines()[0]
+
+        finish = self.fixture._run_memory_cli(
+            "finish",
+            parent_id,
+            "--used",
+            "#dfec5e",
+            "--cited",
+            "#dfec5e",
+            "--impact-code",
+            "project_convention_applied",
+            "--json",
+        )
+        output = json.loads(finish.stdout)
+        lines = event_file.read_text().splitlines()
+        attestation = json.loads(lines[1])
+
+        self.assertEqual(finish.returncode, 0, finish.stderr)
+        self.assertEqual(lines[0], parent_line)
+        self.assertEqual(len(lines), 2)
+        self.assertEqual(attestation["event_type"], "usage_attested")
+        self.assertEqual(attestation["parent_event_id"], parent_id)
+        self.assertRegex(output["event_id"], r"^att_\d{8}T\d{12}Z_[0-9a-f]{16}$")
+        self.assertEqual(output["data"]["measured"]["retrieved"], 2)
+        self.assertEqual(output["data"]["attested"]["used"], ["#dfec5e"])
+        self.assertEqual(
+            output["data"]["attested"]["impact_codes"],
+            ["project_convention_applied"],
+        )
+
+    def test_finish_rejects_unknown_docid_and_second_attestation_without_append(self) -> None:
+        context = self.fixture._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "architecture",
+            "--json",
+            "single attestation",
+        )
+        parent_id = json.loads(context.stdout)["event_id"]
+        event_file = next(self.fixture.state_dir.rglob("*.jsonl"))
+
+        invalid = self.fixture._run_memory_cli(
+            "finish", parent_id, "--used", "#missing", "--json"
+        )
+        invalid_output = json.loads(invalid.stdout)
+        self.assertEqual(invalid.returncode, 50)
+        self.assertIn("#missing", invalid_output["errors"][0]["message"])
+        self.assertEqual(len(event_file.read_text().splitlines()), 1)
+
+        first = self.fixture._run_memory_cli("finish", parent_id, "--json")
+        duplicate = self.fixture._run_memory_cli("finish", parent_id, "--json")
+        duplicate_output = json.loads(duplicate.stdout)
+        self.assertEqual(first.returncode, 0, first.stderr)
+        self.assertEqual(duplicate.returncode, 50)
+        self.assertEqual(
+            duplicate_output["errors"][0]["code"], "parent_already_attested"
+        )
+        self.assertEqual(len(event_file.read_text().splitlines()), 2)
+
+    def test_finish_accepts_structured_citation_only(self) -> None:
+        context = self.fixture._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "architecture",
+            "--json",
+            "citation-only context",
+        )
+        parent_id = json.loads(context.stdout)["event_id"]
+
+        finish = self.fixture._run_memory_cli(
+            "finish",
+            parent_id,
+            "--cited",
+            "#dfec5e",
+            "--citation-only",
+            "#dfec5e",
+            "--json",
+        )
+        output = json.loads(finish.stdout)
+
+        self.assertEqual(finish.returncode, 0, finish.stderr)
+        self.assertEqual(output["data"]["attested"]["used"], [])
+        self.assertEqual(output["data"]["attested"]["cited"], ["#dfec5e"])
+        self.assertEqual(
+            output["data"]["attested"]["citation_only"], ["#dfec5e"]
+        )
+
+    def test_concurrent_finish_allows_exactly_one_attestation(self) -> None:
+        context = self.fixture._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "architecture",
+            "--json",
+            "concurrent finish",
+        )
+        parent_id = json.loads(context.stdout)["event_id"]
+
+        def run_finish(_: int) -> subprocess.CompletedProcess[str]:
+            return self.fixture._run_memory_cli("finish", parent_id, "--json")
+
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            results = list(executor.map(run_finish, range(8)))
+
+        self.assertEqual(sum(result.returncode == 0 for result in results), 1)
+        self.assertTrue(
+            all(result.returncode in {0, 50} for result in results), results
+        )
+        event_file = next(self.fixture.state_dir.rglob("*.jsonl"))
+        events = [json.loads(line) for line in event_file.read_text().splitlines()]
+        self.assertEqual(len(events), 2)
+        self.assertEqual(
+            [event["event_type"] for event in events],
+            ["context_completed", "usage_attested"],
+        )
+
     def test_context_reuses_the_preflight_manifest_path_for_event_storage(self) -> None:
         initial = ContextInitialReceipt(
             project_id="skillz-claude",

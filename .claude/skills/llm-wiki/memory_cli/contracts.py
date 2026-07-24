@@ -12,6 +12,7 @@ from typing import Mapping
 PUBLIC_SCHEMA_VERSION = 1
 MANIFEST_SCHEMA_VERSION = 1
 DEFAULT_SUFFICIENCY_THRESHOLDS_VERSION = "qmd-0.9-v1"
+IMPACT_TAXONOMY_VERSION = "impact-v1"
 
 
 class RetrievalMode(str, Enum):
@@ -73,6 +74,14 @@ class RiskReason(str, Enum):
     ARCHITECTURE = "architecture"
     PRODUCT = "product"
     INCIDENT = "incident"
+
+
+class ImpactCode(str, Enum):
+    PROJECT_CONVENTION_APPLIED = "project_convention_applied"
+    HISTORICAL_DECISION_REUSED = "historical_decision_reused"
+    KNOWN_PROBLEM_AVOIDED = "known_problem_avoided"
+    VALIDATION_COMMAND_REUSED = "validation_command_reused"
+    NEXT_STEP_REUSED = "next_step_reused"
 
 
 class SufficiencyReason(str, Enum):
