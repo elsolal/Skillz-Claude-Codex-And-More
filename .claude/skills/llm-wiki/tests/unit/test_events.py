@@ -21,6 +21,7 @@ from memory_cli.events import (  # noqa: E402
     purge_project_events,
     read_event_file,
     resolve_state_dir,
+    validate_event,
 )
 
 
@@ -186,6 +187,42 @@ class EventContractUnitTests(unittest.TestCase):
             occurred_at=NOW,
         )
         self.assertEqual(event["payload"]["citation_only"], ["#a1b2c3"])
+
+    def test_malformed_attestation_lists_raise_stable_integrity_errors(self) -> None:
+        parent = build_context_event(context_metadata(), occurred_at=NOW)
+        event = build_usage_attestation_event(
+            parent,
+            used=(),
+            cited=(),
+            citation_only=(),
+            impact_codes=(),
+            occurred_at=NOW,
+        )
+        event["payload"]["used"] = [{}]
+
+        with self.assertRaises(EventIntegrityError) as raised:
+            validate_event(event)
+
+        self.assertEqual(raised.exception.code, "event_schema_invalid")
+
+    def test_generic_append_cannot_bypass_attestation_parent_lookup(self) -> None:
+        parent = build_context_event(context_metadata(), occurred_at=NOW)
+        event = build_usage_attestation_event(
+            parent,
+            used=(),
+            cited=(),
+            citation_only=(),
+            impact_codes=(),
+            occurred_at=NOW,
+        )
+
+        with self.assertRaises(EventIntegrityError) as raised:
+            append_event(event, state_dir=self.state_dir, project_root=self.repo)
+
+        self.assertEqual(
+            raised.exception.code, "usage_attestation_requires_parent_lookup"
+        )
+        self.assertFalse(any(self.state_dir.rglob("*.jsonl")))
 
     def test_state_dir_precedence_and_posix_default(self) -> None:
         home = self.root / "home"

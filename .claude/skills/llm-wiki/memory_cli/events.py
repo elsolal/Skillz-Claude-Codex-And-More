@@ -329,12 +329,6 @@ def _validate_docid_list(value: object, field: str) -> list[str]:
             f"{field} must be a docid list.",
             "Use repeated CLI options with normalized QMD docids.",
         )
-    if len(value) != len(set(value)):
-        raise _error(
-            "event_schema_invalid",
-            f"{field} must not contain duplicate docids.",
-            "Deduplicate the attested docids before append.",
-        )
     for docid in value:
         if not isinstance(docid, str) or not _DOCID.fullmatch(docid):
             raise _error(
@@ -342,6 +336,12 @@ def _validate_docid_list(value: object, field: str) -> list[str]:
                 f"{field} contains an invalid docid.",
                 "Use normalized QMD docids beginning with #.",
             )
+    if len(value) != len(set(value)):
+        raise _error(
+            "event_schema_invalid",
+            f"{field} must not contain duplicate docids.",
+            "Deduplicate the attested docids before append.",
+        )
     return value
 
 
@@ -374,15 +374,19 @@ def _validate_attestation_payload(payload: Mapping[str, object]) -> None:
         )
     impact_codes = payload["impact_codes"]
     allowed_impacts = {code.value for code in ImpactCode}
-    if (
-        not isinstance(impact_codes, list)
-        or len(impact_codes) != len(set(impact_codes))
-        or not all(isinstance(code, str) and code in allowed_impacts for code in impact_codes)
+    if not isinstance(impact_codes, list) or not all(
+        isinstance(code, str) and code in allowed_impacts for code in impact_codes
     ):
         raise _error(
             "event_schema_invalid",
             "Impact codes must be a unique impact-v1 code list.",
             "Use a documented impact-v1 code or leave impact codes empty.",
+        )
+    if len(impact_codes) != len(set(impact_codes)):
+        raise _error(
+            "event_schema_invalid",
+            "Impact codes must not contain duplicates.",
+            "Deduplicate impact codes before append.",
         )
 
 
@@ -722,6 +726,12 @@ def append_event(
     """Validate before mutation, then append one compact and fsynced JSON line."""
 
     validate_event(event)
+    if event["event_type"] != EVENT_TYPE_CONTEXT_COMPLETED:
+        raise _error(
+            "usage_attestation_requires_parent_lookup",
+            "Usage attestations cannot use the generic event append path.",
+            "Use append_usage_attestation() for atomic parent validation and append.",
+        )
     root = _validate_storage_location(state_dir or resolve_state_dir(), project_root)
     project_dir = _project_directory(root, str(event["project_id"]))
     event_path = _event_path(project_dir, event)
