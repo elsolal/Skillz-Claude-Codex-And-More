@@ -492,6 +492,7 @@ def _run_context_command(
     json_output: bool,
 ) -> int:
     try:
+        manifest_path = discover_manifest()
         outcome = run_context(
             mode=RetrievalMode(mode),
             task_category=TaskCategory(task_category),
@@ -521,7 +522,6 @@ def _run_context_command(
         return error.exit_code
 
     try:
-        manifest_path = discover_manifest()
         event = build_context_event(outcome.event_metadata())
         append_event(
             event,

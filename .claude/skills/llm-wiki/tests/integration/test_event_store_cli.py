@@ -7,8 +7,13 @@ import sys
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from unittest.mock import patch
 
 from integration.test_context_cli import ContextCliIntegrationTests, SKILL_ROOT
+from memory_cli import cli as memory_cli
+from memory_cli.contracts import RetrievalMode, TaskCategory
+from memory_cli.qmd_adapter import QmdSearchStatus
+from memory_cli.receipts import ContextInitialReceipt, ContextOutcome
 
 
 class EventStoreCliIntegrationTests(unittest.TestCase):
@@ -38,6 +43,52 @@ class EventStoreCliIntegrationTests(unittest.TestCase):
         self.assertEqual(len(events), 1)
         self.assertEqual(events[0]["event_id"], output["event_id"])
         self.assertNotIn("private query", event_files[0].read_text())
+
+    def test_context_reuses_the_preflight_manifest_path_for_event_storage(self) -> None:
+        initial = ContextInitialReceipt(
+            project_id="skillz-claude",
+            mode=RetrievalMode.HISTORICAL,
+            task_category=TaskCategory.HISTORICAL,
+            planned_route=("elsolal-wiki",),
+            target_tokens=6000,
+            hard_tokens=9000,
+        )
+        outcome = ContextOutcome(
+            status="blocked",
+            exit_code=31,
+            project_id="skillz-claude",
+            mode=RetrievalMode.HISTORICAL,
+            task_category=TaskCategory.HISTORICAL,
+            route=("elsolal-wiki",),
+            retrieval_status=QmdSearchStatus.ERROR,
+            duration_ms=None,
+            hits=(),
+            initial_receipt=initial,
+        )
+        manifest_path = self.fixture.repo / ".agents" / "memory.yaml"
+
+        with (
+            patch.object(
+                memory_cli,
+                "discover_manifest",
+                side_effect=[manifest_path, AssertionError("manifest rediscovered")],
+            ) as discovery,
+            patch.object(memory_cli, "run_context", return_value=outcome),
+            patch.object(memory_cli, "append_event"),
+            patch.object(memory_cli, "render_context_json"),
+        ):
+            exit_code = memory_cli._run_context_command(
+                mode="historical",
+                task_category="historical",
+                query="history",
+                fallback_on_ambiguous=False,
+                risk_reason=None,
+                explain=False,
+                json_output=True,
+            )
+
+        self.assertEqual(exit_code, 31)
+        self.assertEqual(discovery.call_count, 1)
 
     def test_completed_insufficient_and_blocked_attempts_are_also_recorded(self) -> None:
         insufficient = self.fixture._run_cli(
