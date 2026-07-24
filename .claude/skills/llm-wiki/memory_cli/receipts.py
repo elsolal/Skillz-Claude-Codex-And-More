@@ -195,6 +195,9 @@ def degraded_context(
     correction: str,
     assembly: ContextAssembly,
     duration_ms: int | None = None,
+    fallback_used: bool = False,
+    fallback_explicit_decision: bool = False,
+    fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
     warnings: tuple[dict[str, Any], ...] = (),
 ) -> ContextOutcome:
     """Return usable bounded local context while exposing reduced coverage."""
@@ -209,6 +212,9 @@ def degraded_context(
         retrieval_status=retrieval_status,
         duration_ms=duration_ms,
         hits=(),
+        fallback_used=fallback_used,
+        fallback_explicit_decision=fallback_explicit_decision,
+        fallback_reason_codes=fallback_reason_codes,
         warnings=(
             {
                 "code": code,

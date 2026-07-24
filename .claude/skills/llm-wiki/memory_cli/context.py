@@ -106,14 +106,13 @@ def _evidence(
 
 def _search_failure_details(
     error: Exception,
-) -> tuple[QmdSearchStatus, str, str, str, int]:
+) -> tuple[QmdSearchStatus, str, str, str]:
     if isinstance(error, QmdTimeoutError):
         return (
             QmdSearchStatus.TIMEOUT,
             "qmd_timeout",
             "The QMD search exceeded its bounded timeout.",
             "Retry memory context or run memory doctor.",
-            40,
         )
     if isinstance(error, QmdOutputError):
         retrieval_status = QmdSearchStatus.INVALID
@@ -125,38 +124,7 @@ def _search_failure_details(
         code = "qmd_search_failed"
         message = "The QMD search failed."
         correction = "Run memory doctor, then retry the context command."
-    return retrieval_status, code, message, correction, 40
-
-
-def _search_failure(
-    error: Exception,
-    *,
-    project_id: str,
-    mode: RetrievalMode,
-    task_category: TaskCategory,
-    route: tuple[str, ...],
-    hits: tuple[RetrievalHit, ...] = (),
-    duration_ms: int | None = None,
-    fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
-    explicit_decision: bool = False,
-) -> ContextOutcome:
-    retrieval_status, code, message, correction, exit_code = _search_failure_details(error)
-    return blocked_context(
-        project_id=project_id,
-        mode=mode,
-        task_category=task_category,
-        route=route,
-        retrieval_status=retrieval_status,
-        code=code,
-        message=message,
-        correction=correction,
-        exit_code=exit_code,
-        hits=hits,
-        duration_ms=duration_ms,
-        fallback_used=len(route) > 1,
-        fallback_explicit_decision=explicit_decision,
-        fallback_reason_codes=fallback_reason_codes,
-    )
+    return retrieval_status, code, message, correction
 
 
 def _local_entry_page_fallback(
@@ -171,7 +139,10 @@ def _local_entry_page_fallback(
     message: str,
     correction: str,
     duration_ms: int | None = None,
+    fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
+    explicit_decision: bool = False,
 ) -> ContextOutcome:
+    fallback_used = len(route) > 1
     if mode is RetrievalMode.HISTORICAL:
         return blocked_context(
             project_id=manifest.project.id,
@@ -184,6 +155,9 @@ def _local_entry_page_fallback(
             correction=correction,
             exit_code=31,
             duration_ms=duration_ms,
+            fallback_used=fallback_used,
+            fallback_explicit_decision=explicit_decision,
+            fallback_reason_codes=fallback_reason_codes,
         )
 
     assembly, issues = assemble_entry_pages(
@@ -206,6 +180,9 @@ def _local_entry_page_fallback(
             ),
             exit_code=32,
             duration_ms=duration_ms,
+            fallback_used=fallback_used,
+            fallback_explicit_decision=explicit_decision,
+            fallback_reason_codes=fallback_reason_codes,
         )
 
     return degraded_context(
@@ -218,6 +195,9 @@ def _local_entry_page_fallback(
         message=message,
         correction=correction,
         duration_ms=duration_ms,
+        fallback_used=fallback_used,
+        fallback_explicit_decision=explicit_decision,
+        fallback_reason_codes=fallback_reason_codes,
         assembly=assembly,
         warnings=tuple(
             {
@@ -344,7 +324,7 @@ def run_context(
             timeout_seconds=timeout_seconds,
         )
     except (QmdTimeoutError, QmdOutputError, QmdInvocationError) as error:
-        retrieval_status, code, message, correction, _ = _search_failure_details(error)
+        retrieval_status, code, message, correction = _search_failure_details(error)
         return _local_entry_page_fallback(
             manifest=manifest,
             projection=projection,
@@ -460,13 +440,17 @@ def run_context(
             timeout_seconds=timeout_seconds,
         )
     except (QmdTimeoutError, QmdOutputError, QmdInvocationError) as error:
-        return _search_failure(
-            error,
-            project_id=manifest.project.id,
+        retrieval_status, code, message, correction = _search_failure_details(error)
+        return _local_entry_page_fallback(
+            manifest=manifest,
+            projection=projection,
             mode=mode,
             task_category=task_category,
             route=route,
-            hits=project_retrieval.hits,
+            retrieval_status=retrieval_status,
+            code=code,
+            message=message,
+            correction=correction,
             duration_ms=project_retrieval.duration_ms,
             fallback_reason_codes=project_decision.reason_codes,
             explicit_decision=explicit_decision,

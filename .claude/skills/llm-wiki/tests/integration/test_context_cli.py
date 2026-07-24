@@ -153,7 +153,7 @@ class ContextCliIntegrationTests(unittest.TestCase):
             "mode = os.environ.get('FAKE_QMD_MODE', 'ready')\n"
             "if mode == 'empty': print('[]')\n"
             "elif mode == 'invalid': print('{not-json')\n"
-            "elif mode in {'fallback', 'fallback-empty'} and collection == 'elsolal-wiki':\n"
+            "elif mode in {'fallback', 'fallback-empty', 'fallback-error'} and collection == 'elsolal-wiki':\n"
             "    print(json.dumps([{'docid': '#600000', 'score': 0.60, "
             "'file': 'qmd://elsolal-wiki/entities/project.md', 'title': 'Project', "
             "'snippet': '@@ -1,2 @@\\n\\nProject context.'}]))\n"
@@ -162,6 +162,8 @@ class ContextCliIntegrationTests(unittest.TestCase):
             "'file': 'qmd://shared-wiki/sources/shared.md', 'title': 'Shared source', "
             "'snippet': '@@ -1,2 @@\\n\\nShared context.'}]))\n"
             "elif mode == 'fallback-empty' and collection == 'shared-wiki': print('[]')\n"
+            "elif mode == 'fallback-error' and collection == 'shared-wiki':\n"
+            "    print('fallback unavailable', file=sys.stderr); raise SystemExit(2)\n"
             "elif mode == 'oversized':\n"
             "    print(json.dumps([{'docid': '#777777', 'score': 0.91, "
             "'file': f'qmd://{collection}/entities/oversized.md', 'title': 'Oversized', "
@@ -431,6 +433,40 @@ class ContextCliIntegrationTests(unittest.TestCase):
         self.assertEqual(output["data"]["retrieval"]["status"], "ready")
         self.assertEqual(len(output["data"]["retrieval"]["hits"]), 1)
         self.assertEqual(output["data"]["decision"]["reason_codes"], ["no_result"])
+
+    def test_fallback_search_failure_uses_local_pages_or_blocks_historical(self) -> None:
+        cases = (
+            ("minimal", "architecture", 10, "degraded", 1),
+            ("project", "architecture", 10, "degraded", 1),
+            ("historical", "historical", 31, "blocked", 0),
+        )
+
+        for mode, task_category, exit_code, status, read_count in cases:
+            with self.subTest(mode=mode):
+                self.qmd_log.write_text("")
+                result = self._run_cli(
+                    "--mode",
+                    mode,
+                    "--task-category",
+                    task_category,
+                    "--json",
+                    "cross-project decision",
+                    fake_mode="fallback-error",
+                )
+                output = json.loads(result.stdout)
+
+                self.assertEqual(result.returncode, exit_code, result.stderr)
+                self.assertEqual(output["status"], status)
+                self.assertEqual(
+                    output["data"]["route"],
+                    ["elsolal-wiki", "shared-wiki"],
+                )
+                self.assertTrue(output["data"]["fallback"]["used"])
+                if read_count:
+                    self.assertEqual(output["data"]["context"]["source"], "entry_pages")
+                    self.assertEqual(output["data"]["context"]["read_count"], read_count)
+                else:
+                    self.assertNotIn("context", output["data"])
 
     def test_policy_denial_never_calls_or_reveals_transverse_collection(self) -> None:
         denied_cases = (
