@@ -1,0 +1,5 @@
+Memory final · event <event-id>
+Measured: 2 retrieved · 1 read · ~27/2500 tokens · <duration>
+Attested: 0 used · 0 cited
+Impact: none observed
+Machine output: memory finish --json

@@ -45,6 +45,56 @@ class ContextInitialReceipt:
 
 
 @dataclass(frozen=True, slots=True)
+class FinishOutcome:
+    """Consolidated view over immutable measured and attested events."""
+
+    project_id: str
+    parent_event: dict[str, Any]
+    attestation_event: dict[str, Any]
+
+    @property
+    def event_id(self) -> str:
+        return str(self.attestation_event["event_id"])
+
+    @property
+    def parent_event_id(self) -> str:
+        return str(self.parent_event["event_id"])
+
+    def measured_data(self) -> dict[str, Any]:
+        payload = self.parent_event["payload"]
+        return {
+            "status": payload["status"],
+            "retrieved": len(payload["retrieved"]),
+            "read": len(payload["read"]),
+            "estimated_tokens": payload["estimated_context_tokens"],
+            "budget_tokens": payload["budget_tokens"],
+            "duration_ms": payload["duration_ms"],
+            "freshness": payload["freshness"],
+            "fallback": {
+                "used": bool(payload["fallback_reason_codes"]),
+                "reason_codes": list(payload["fallback_reason_codes"]),
+            },
+        }
+
+    def attested_data(self) -> dict[str, Any]:
+        payload = self.attestation_event["payload"]
+        return {
+            "impact_taxonomy_version": payload["impact_taxonomy_version"],
+            "used": list(payload["used"]),
+            "cited": list(payload["cited"]),
+            "citation_only": list(payload["citation_only"]),
+            "impact_codes": list(payload["impact_codes"]),
+        }
+
+    def data(self) -> dict[str, Any]:
+        return {
+            "parent_event_id": self.parent_event_id,
+            "measured": self.measured_data(),
+            "attested": self.attested_data(),
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class ContextOutcome:
     status: str
     exit_code: int

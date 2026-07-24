@@ -226,9 +226,9 @@ restricted to `0700` and JSONL/lock files to `0600`. Events are partitioned as
 `events/<project-id>/YYYY-MM.jsonl`, appended under a project lock as one compact
 JSON line, and `fsync`ed before success is reported.
 
-The V1 root allowlist is exactly `schema_version`, `event_id`, `event_type`,
-`occurred_at`, `project_id`, and `payload`. A `context_completed` payload is
-limited to:
+The common V1 root allowlist is `schema_version`, `event_id`, `event_type`,
+`occurred_at`, `project_id`, and `payload`. A `usage_attested` event adds only
+`parent_event_id`. A `context_completed` payload is limited to:
 
 - `mode`, `task_category`, `status`, and the collection-only `route`;
 - normalized `retrieved` entries containing `docid`, `collection`, relative
@@ -243,6 +243,44 @@ filesystem mutation. Queries, prompts, responses, transcripts, snippets, page
 bodies, absolute paths, credential keys, and recognized secret-shaped values
 produce exit `50`. Arbitrary secret detection is not claimed: the closed
 structural allowlist is the primary privacy boundary.
+
+### Usage attestation and final receipt
+
+`memory finish <parent-event-id>` appends one immutable `usage_attested` event
+for an event returned by `memory context`. The lookup is scoped to the nearest
+manifest's project. Parent lookup, relationship validation, duplicate detection,
+and append all run under the same project lock, so concurrent calls cannot
+double-attest a context event.
+
+Use repeated options to declare metadata-only evidence:
+
+```bash
+memory finish mem_... \
+  --used '#dfec5e' \
+  --cited '#dfec5e' \
+  --impact-code validation_command_reused
+```
+
+Every `--used` and `--cited` docid must appear in the parent's `retrieved`
+entries. A cited docid must also be `used`, unless the same docid is passed to
+`--citation-only`; this enum-like marker is the only structured V1 justification
+and stores no free text. Repeated values are deduplicated in first-seen order.
+A second attestation for the same parent is refused with exit `50` rather than
+inflating usage counts.
+
+The payload records `impact_taxonomy_version: impact-v1` and accepts only:
+
+- `project_convention_applied`;
+- `historical_decision_reused`;
+- `known_problem_avoided`;
+- `validation_command_reused`;
+- `next_step_reused`.
+
+All lists may be empty. This records that no influence was observed and renders
+`Attested: 0 used · 0 cited` plus `Impact: none observed`; it is never described
+as product success. Human and JSON receipts reconstruct measured fields from the
+immutable parent and attested fields from the child, with explicit `Measured`
+and `Attested` labels.
 
 `memory purge` removes only events older than the current manifest's
 `policy.retention_days` for the current project. `memory purge --force` removes

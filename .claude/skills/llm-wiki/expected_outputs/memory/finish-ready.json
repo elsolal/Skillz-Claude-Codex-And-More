@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "command": "finish",
+  "status": "ready",
+  "project_id": "skillz-claude",
+  "event_id": "<event-id>",
+  "data": {
+    "parent_event_id": "<parent-event-id>",
+    "measured": {
+      "status": "sufficient",
+      "retrieved": 2,
+      "read": 1,
+      "estimated_tokens": 27,
+      "budget_tokens": 2500,
+      "duration_ms": "<duration>",
+      "freshness": "fresh",
+      "fallback": {
+        "used": false,
+        "reason_codes": []
+      }
+    },
+    "attested": {
+      "impact_taxonomy_version": "impact-v1",
+      "used": ["#dfec5e"],
+      "cited": ["#dfec5e"],
+      "citation_only": [],
+      "impact_codes": ["validation_command_reused"]
+    }
+  },
+  "warnings": [],
+  "errors": []
+}

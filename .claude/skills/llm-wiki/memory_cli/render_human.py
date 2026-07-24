@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TextIO
 
-from .receipts import ContextInitialReceipt, ContextOutcome
+from .receipts import ContextInitialReceipt, ContextOutcome, FinishOutcome
 
 
 def render_context_initial(receipt: ContextInitialReceipt, *, stream: TextIO) -> None:
@@ -109,3 +109,30 @@ def render_context_final(
         print(f"Error: {error['message']}", file=stream)
         print(f"Correction: {error['correction']}", file=stream)
     print("Machine output: memory context --json", file=stream)
+
+
+def render_finish_human(outcome: FinishOutcome, *, stream: TextIO) -> None:
+    measured = outcome.measured_data()
+    attested = outcome.attested_data()
+    duration = (
+        f"{measured['duration_ms']}ms"
+        if measured["duration_ms"] is not None
+        else "duration unavailable"
+    )
+    impact = (
+        " · ".join(code.replace("_", " ") for code in attested["impact_codes"])
+        or "none observed"
+    )
+
+    print(f"Memory final · event {outcome.event_id}", file=stream)
+    print(
+        f"Measured: {measured['retrieved']} retrieved · {measured['read']} read · "
+        f"~{measured['estimated_tokens']}/{measured['budget_tokens']} tokens · {duration}",
+        file=stream,
+    )
+    print(
+        f"Attested: {len(attested['used'])} used · {len(attested['cited'])} cited",
+        file=stream,
+    )
+    print(f"Impact: {impact}", file=stream)
+    print("Machine output: memory finish --json", file=stream)
