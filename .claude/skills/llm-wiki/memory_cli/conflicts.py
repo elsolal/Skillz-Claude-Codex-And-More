@@ -113,7 +113,7 @@ def validate_repository_evidence_path(
     except (OSError, RuntimeError) as error:
         raise _error(
             "repository_evidence_not_found",
-            f"Repository evidence does not identify an existing file: {normalized}.",
+            "Repository evidence does not identify an existing file.",
             "Reference an existing regular file inside the current repository.",
         ) from error
     if (
@@ -122,7 +122,7 @@ def validate_repository_evidence_path(
     ):
         raise _error(
             "repository_evidence_invalid",
-            f"Repository evidence is not a regular file inside the project: {normalized}.",
+            "Repository evidence is not a regular file inside the project.",
             "Reference an existing regular file that resolves within the repository.",
         )
     return normalized

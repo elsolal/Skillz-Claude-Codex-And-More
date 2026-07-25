@@ -181,6 +181,7 @@ class MemoryConflictsCliIntegrationTests(unittest.TestCase):
         for invalid_reference in (
             "user said password hunter2 and this is raw transcript material",
             "docs/not-present.md",
+            "sk-proj-abcdefghijklmnopqrstuvwxyz1234567890",
             "evidence/sk-proj-abcdefghijklmnopqrstuvwxyz1234567890",
         ):
             with self.subTest(repository_path=invalid_reference):
@@ -203,6 +204,10 @@ class MemoryConflictsCliIntegrationTests(unittest.TestCase):
                     invalid_reference_result.returncode,
                     50,
                     invalid_reference_result.stderr,
+                )
+                self.assertNotIn(
+                    invalid_reference,
+                    invalid_reference_result.stdout + invalid_reference_result.stderr,
                 )
                 self.assertEqual(len(event_file.read_text().splitlines()), 1)
 
