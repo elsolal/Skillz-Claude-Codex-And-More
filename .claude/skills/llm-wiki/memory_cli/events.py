@@ -686,6 +686,31 @@ def _ensure_private_directory(path: Path) -> None:
         path.chmod(0o700)
 
 
+def _durably_prepare_event_directories(
+    root: Path, project_dir: Path
+) -> tuple[dict[str, str], ...]:
+    """Create and persist every directory entry needed by the event log."""
+
+    events_root = root / "events"
+    private_directories = {root, events_root, project_dir}
+    directories = (*reversed(root.parents), root, events_root, project_dir)
+    seen: set[Path] = set()
+    for directory in directories:
+        if directory == directory.parent or directory in seen:
+            continue
+        seen.add(directory)
+        if directory in private_directories:
+            _ensure_private_directory(directory)
+        elif not directory.exists():
+            directory.mkdir(mode=0o700)
+            if os.name == "posix":
+                directory.chmod(0o700)
+        diagnostics = _fsync_directory(directory.parent)
+        if diagnostics:
+            return diagnostics
+    return ()
+
+
 def _validate_storage_location(state_dir: Path, project_root: Path | None) -> Path:
     if not state_dir.is_absolute():
         raise _error(
@@ -812,7 +837,21 @@ def append_event(
     lock_path = root / "events" / f".{event['project_id']}.lock"
 
     try:
-        _ensure_private_directory(root)
+        bootstrap_diagnostics = _durably_prepare_event_directories(
+            root, project_dir
+        )
+        if bootstrap_diagnostics:
+            raise _error(
+                "event_store_unavailable",
+                (
+                    "The private event directory could not be made durable "
+                    "before persistence."
+                ),
+                (
+                    "Restore durable storage, then retry; no event was "
+                    "acknowledged."
+                ),
+            )
         with _project_lock(lock_path):
             diagnostics = _append_event_line(event_path, event)
             if diagnostics:

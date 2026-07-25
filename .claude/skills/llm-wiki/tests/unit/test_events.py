@@ -253,6 +253,68 @@ class EventContractUnitTests(unittest.TestCase):
             ["context_completed", "usage_attested", "memory_conflict"],
         )
 
+    def test_first_append_durably_prepares_every_directory_entry(self) -> None:
+        nested_state = self.root / "missing" / "nested" / "state"
+        parent = build_context_event(context_metadata(), occurred_at=NOW)
+        fsynced_directories: list[Path] = []
+
+        def track_directory_fsync(path: Path) -> tuple[dict[str, str], ...]:
+            fsynced_directories.append(path)
+            return ()
+
+        with patch(
+            "memory_cli.events._fsync_directory",
+            side_effect=track_directory_fsync,
+        ):
+            event_path = append_event(
+                parent,
+                state_dir=nested_state,
+                project_root=self.repo,
+            )
+
+        resolved_state = nested_state.resolve()
+        expected_barriers = {
+            self.root.resolve(),
+            resolved_state.parent.parent,
+            resolved_state.parent,
+            resolved_state,
+            resolved_state / "events",
+            resolved_state / "events" / "skillz-claude",
+        }
+        self.assertTrue(expected_barriers.issubset(set(fsynced_directories)))
+        self.assertEqual(read_event_file(event_path).events, (parent,))
+
+    def test_bootstrap_fsync_failure_precedes_event_acknowledgement(self) -> None:
+        parent = build_context_event(context_metadata(), occurred_at=NOW)
+        diagnostic = (
+            {
+                "code": "event_directory_fsync_failed",
+                "message": "Directory durability unavailable.",
+                "correction": "Retry.",
+            },
+        )
+
+        with patch(
+            "memory_cli.events._fsync_directory",
+            return_value=diagnostic,
+        ):
+            with self.assertRaises(EventIntegrityError) as raised:
+                append_event(
+                    parent,
+                    state_dir=self.state_dir,
+                    project_root=self.repo,
+                )
+
+        self.assertEqual(raised.exception.code, "event_store_unavailable")
+        self.assertEqual(list(self.state_dir.rglob("*.jsonl")), [])
+
+        event_path = append_event(
+            parent,
+            state_dir=self.state_dir,
+            project_root=self.repo,
+        )
+        self.assertEqual(read_event_file(event_path).events, (parent,))
+
     def test_post_replace_fsync_failure_returns_ids_and_reconciles_retry(self) -> None:
         evidence = self.repo / "current-contract.py"
         evidence.write_text("CURRENT = True\n", encoding="utf-8")
