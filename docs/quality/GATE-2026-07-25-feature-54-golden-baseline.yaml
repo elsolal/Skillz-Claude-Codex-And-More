@@ -1,0 +1,110 @@
+# Quality gate de STORY-014 / GitHub issue #54.
+verdict: PASS
+niveau: 3
+tours: 4
+base: main
+head: 1e61d6d93b50218f17c4eb43a50c44cd20dafeb9
+diff_hash: "46a5a4a94ea4309b50077da298f60234306ac38f602bc4aa4801f86149aae5ce"
+
+preuve:
+  executable:
+    red:
+      cmd: "PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_golden*.py'"
+      statut: "RED attendu avant implementation: ModuleNotFoundError: memory_cli.golden"
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "PASS au head 1e61d6d (exit 0)"
+    tests:
+      cmd: "PATH=/Users/aymeric/miniconda3/bin:$PATH bash tests/test-install-memory-cli.sh && PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "PASS au head 1e61d6d; installer acceptance PASS; 215 tests Python en 59.977s puis preuve repetee en 58.564s"
+    compile:
+      cmd: "PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m compileall -q .claude/skills/llm-wiki/memory_cli"
+      statut: "PASS au head 1e61d6d"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: "PASS au head 1e61d6d"
+    runtime_contract:
+      flow: "golden v1 -> preflight baseline index-first -> huit recherches bornees -> metriques appariees -> run JSON prive immutable"
+      statut: "PASS via QMD fixture, vault temporaire, snapshot JSON, permissions POSIX, collisions et injections de fautes post-publication"
+  convergence:
+    statut: "atteinte"
+    preuve: "les tours 3 et 4 n'ont confirme aucun nouveau P0/P1; le P2 du tour 3 a aussi ete corrige avant la preuve finale"
+    tour_1: "cinq constats examines; quatre P1 confirmes puis corriges par 87949c8"
+    tour_2: "un P1 post-publication confirme puis corrige par 21982a7"
+    tour_3: "aucun nouveau P0/P1; un P2 de fermeture de descripteur confirme puis corrige par 1e61d6d"
+    tour_4: "aucun nouveau P0/P1; preuves completes et lentille thermo-nuclear propres"
+  opinion:
+    findings:
+      total: 8
+      confirmes: 6
+      refutes: 2
+      corriges_p0_p1: 5
+      restants_p0_p1: 0
+      notes_p2_p3: 1
+    registre:
+      - id: ".claude/skills/llm-wiki/memory_cli/cli.py:api:golden-config-exit"
+        severite: P1
+        statut: corrige
+        commit: 87949c8
+        resume: "les erreurs de contrat golden utilisaient par defaut le code runtime 32 au lieu du code configuration 30"
+      - id: ".claude/skills/llm-wiki/memory_cli/golden.py:atomicity:replace-collision"
+        severite: P1
+        statut: corrige
+        commit: 87949c8
+        resume: "os.replace pouvait ecraser un run immutable lors d'une collision concurrente"
+      - id: ".claude/skills/llm-wiki/memory_cli/golden.py:durability:published-fsync"
+        severite: P1
+        statut: corrige
+        commit: 87949c8
+        resume: "un echec fsync repertoire masquait l'identite d'un run deja visible"
+      - id: ".claude/skills/llm-wiki/memory_cli/events.py:maintainability:identity-wrappers"
+        severite: P1
+        statut: corrige
+        commit: 87949c8
+        resume: "quatre wrappers identitaires dupliquaient les primitives du state dir"
+      - id: ".claude/skills/llm-wiki/memory_cli/golden.py:durability:post-publish-cleanup"
+        severite: P1
+        statut: corrige
+        commit: 21982a7
+        resume: "chmod ou nettoyage temporaire pouvait annoncer blocked apres publication du run"
+      - id: ".claude/skills/llm-wiki/memory_cli/golden.py:resources:chmod-descriptor"
+        severite: P2
+        statut: corrige
+        commit: 1e61d6d
+        resume: "un echec fchmod avant os.fdopen pouvait conserver le descripteur temporaire jusqu'a la fin du processus"
+      - id: ".claude/skills/llm-wiki/memory_cli/golden.py:performance:baseline-reread"
+        severite: P2
+        statut: refute
+        resume: "la relecture de l'index par cas est bornee a huit petits cas et preserve la mesure appariée sans cache implicite"
+      - id: ".claude/skills/llm-wiki/memory_cli/golden.py:maintainability:module-size"
+        severite: P1
+        statut: refute
+        resume: "le module de 794 lignes reste une frontiere coherente schema-execution-metriques-stockage imposee par le contrat golden v1"
+    lentilles:
+      correctness_security: "schema ferme, huit cas prevalides, chemins confines, requetes absentes de la projection et publication immutable couvertes"
+      readability: "primitives state dir publiques reutilisees sans wrappers; sorties humaines et JSON partagent GoldenTestOutcome"
+      performance: "huit recherches sequentielles et 3-10 pages baseline par cas sont intentionnellement bornees pour la reproductibilite"
+      thermo_nuclear: "aucun P0/P1 structurel restant; orchestration golden centralisee et contrats de rendu/tests separes"
+
+acceptation:
+  AC1: "vert - schema golden v1 ferme, exactement huit cas et IDs uniques; fixtures deterministes"
+  AC2: "vert - meme requete nettoyee en memoire, meme estimateur utf8_bytes_div_4_v1 et memes attentes"
+  AC3: "vert - presence et rang de premiere route, fallback, docids et contexte estime calcules par cas"
+  AC4: "vert - seuls IDs, rangs, docids et metriques sont persistés dans runs/<project>/<run-id>.json en mode prive"
+  AC5: "vert - jeu incomplet, schema inconnu ou baseline absente bloque avant tout appel QMD et toute mutation du state dir"
+
+decisions_prises_en_ton_nom:
+  - "Les primitives generiques du state dir ont ete promues en API publique dans events.py au lieu d'ajouter des wrappers identitaires, afin que events et runs partagent les memes garde-fous."
+  - "La publication immutable des runs utilise un hard link atomique depuis le fichier temporaire plutot que os.replace, afin qu'une collision ne puisse jamais ecraser un run existant."
+  - "Les erreurs post-publication de durabilite ou de nettoyage conservent le run_id visible et deviennent des diagnostics avec exit 50."
+
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no live real-vault QMD query; deterministic fixtures and temporary vaults used"
+  - "default Apple Python is 3.9; verification used Miniconda Python 3.12 for Python >=3.10"
+  - "no frontend or SEO/GEO surface"
+  - "holdouts and final-answer quality are intentionally deferred to STORY-015 / issue #55"
+
+conclusion: "PASS: comparaison golden/baseline reproductible, metadata-only et immutable; deux tours consecutifs sans nouveau P0/P1, aucun P0/P1 restant."
