@@ -297,6 +297,7 @@ class EventContractUnitTests(unittest.TestCase):
             ["context_completed", "usage_attested", "memory_conflict"],
         )
 
+        evidence.unlink()
         reconciled = append_usage_attestation(**arguments)
         self.assertEqual(reconciled.diagnostics, ())
         self.assertEqual(reconciled.event["event_id"], uncertain.event["event_id"])
@@ -374,6 +375,31 @@ class EventContractUnitTests(unittest.TestCase):
 
         self.assertEqual(reconciled.status, "ready")
         self.assertGreaterEqual(directory_fsyncs, 1)
+
+    def test_force_purge_removes_abandoned_atomic_temporary_file(self) -> None:
+        event = build_context_event(context_metadata(), occurred_at=NOW)
+        event_path = append_event(
+            event,
+            state_dir=self.state_dir,
+            project_root=self.repo,
+        )
+        abandoned = event_path.with_name(f".{event_path.name}.crashcopy")
+        abandoned.write_bytes(event_path.read_bytes())
+
+        outcome = purge_project_events(
+            "skillz-claude",
+            retention_days=30,
+            force=True,
+            state_dir=self.state_dir,
+            project_root=self.repo,
+            now=NOW,
+        )
+
+        self.assertEqual(outcome.status, "ready")
+        self.assertEqual(outcome.deleted_events, 1)
+        self.assertEqual(outcome.removed_files, 2)
+        self.assertFalse(event_path.exists())
+        self.assertFalse(abandoned.exists())
 
     def test_expired_snooze_replay_reconciles_directory_fsync_failure(self) -> None:
         evidence = self.repo / "current-contract.py"

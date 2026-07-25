@@ -66,6 +66,9 @@ _RETRIEVED_KEYS = ("docid", "collection", "path", "score")
 _READ_KEYS = ("docid", "collection", "path")
 
 _PROJECT_ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
+_ATOMIC_TEMP_FILE = re.compile(
+    r"^\.\d{4}-(?:0[1-9]|1[0-2])\.jsonl\.[A-Za-z0-9_-]+$"
+)
 _CONTEXT_EVENT_ID = re.compile(r"^mem_\d{8}T\d{12}Z_[0-9a-f]{16}$")
 _ATTESTATION_EVENT_ID = re.compile(r"^att_\d{8}T\d{12}Z_[0-9a-f]{16}$")
 _CONFLICT_EVENT_ID = re.compile(r"^con_\d{8}T\d{12}Z_[0-9a-f]{16}$")
@@ -1034,6 +1037,12 @@ def purge_project_events(
                     if len(retained) != len(result.events) or result.diagnostics:
                         _write_events_atomically(path, retained)
                 else:
+                    path.unlink(missing_ok=True)
+                    removed_files += 1
+            for path in sorted(project_dir.iterdir()):
+                if _ATOMIC_TEMP_FILE.fullmatch(path.name) and (
+                    path.is_file() or path.is_symlink()
+                ):
                     path.unlink(missing_ok=True)
                     removed_files += 1
             if project_dir.exists() and not any(project_dir.iterdir()):

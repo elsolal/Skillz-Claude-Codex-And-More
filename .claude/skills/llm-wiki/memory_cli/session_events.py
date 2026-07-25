@@ -154,10 +154,6 @@ def append_usage_attestation(
                 assert evidence_type is not None
                 assert conflict_category is not None
                 assert conflict_risk is not None
-                repository_path = validate_repository_evidence_path(
-                    repository_path,
-                    project_root=project_root,
-                )
                 conflict_event = build_memory_conflict_event(
                     parents[0],
                     memory_docid=conflict_docid,
@@ -225,6 +221,10 @@ def append_usage_attestation(
             events_to_append = [event]
             batch_diagnostics: tuple[dict[str, str], ...] = ()
             if conflict_event is not None:
+                validate_repository_evidence_path(
+                    repository_path,
+                    project_root=project_root,
+                )
                 events_to_append.append(conflict_event)
                 batch_diagnostics = event_store.append_event_batch_atomically(
                     event_store._event_path(project_dir, event),
