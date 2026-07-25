@@ -45,6 +45,29 @@ class ContextInitialReceipt:
 
 
 @dataclass(frozen=True, slots=True)
+class GoldenTestOutcome:
+    """Metadata-only paired retrieval result shared by both renderers."""
+
+    status: str
+    exit_code: int
+    project_id: str
+    run_id: str
+    occurred_at: str
+    estimator_version: str
+    cases: tuple[dict[str, Any], ...]
+    aggregate: dict[str, float]
+    warnings: tuple[dict[str, str], ...] = ()
+    errors: tuple[dict[str, str], ...] = ()
+
+    def data(self) -> dict[str, Any]:
+        return {
+            "estimator_version": self.estimator_version,
+            "cases": [dict(case) for case in self.cases],
+            "aggregate": dict(self.aggregate),
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class FinishOutcome:
     """Consolidated view over immutable measured and attested events."""
 

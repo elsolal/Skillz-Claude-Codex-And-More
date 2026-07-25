@@ -6,7 +6,12 @@ import json
 from typing import Any, TextIO
 
 from .contracts import PUBLIC_SCHEMA_VERSION
-from .receipts import ContextOutcome, DebtActionOutcome, FinishOutcome
+from .receipts import (
+    ContextOutcome,
+    DebtActionOutcome,
+    FinishOutcome,
+    GoldenTestOutcome,
+)
 
 
 def context_envelope(outcome: ContextOutcome) -> dict[str, Any]:
@@ -74,6 +79,30 @@ def render_debt_action_json(outcome: DebtActionOutcome, *, stream: TextIO) -> No
     print(
         json.dumps(
             debt_action_envelope(outcome),
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ),
+        file=stream,
+    )
+
+
+def golden_test_envelope(outcome: GoldenTestOutcome) -> dict[str, Any]:
+    return {
+        "schema_version": PUBLIC_SCHEMA_VERSION,
+        "command": "test",
+        "status": outcome.status,
+        "project_id": outcome.project_id,
+        "run_id": outcome.run_id,
+        "data": outcome.data(),
+        "warnings": list(outcome.warnings),
+        "errors": list(outcome.errors),
+    }
+
+
+def render_golden_test_json(outcome: GoldenTestOutcome, *, stream: TextIO) -> None:
+    print(
+        json.dumps(
+            golden_test_envelope(outcome),
             ensure_ascii=False,
             separators=(",", ":"),
         ),

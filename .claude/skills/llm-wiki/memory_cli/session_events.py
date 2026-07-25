@@ -69,13 +69,13 @@ def append_usage_attestation(
             "Parent event ID must identify a context_completed event.",
             "Use the event_id returned by memory context.",
         )
-    root = event_store._validate_storage_location(
+    root = event_store.validate_state_directory(
         state_dir or event_store.resolve_state_dir(), project_root
     )
     project_dir = event_store._project_directory(root, project_id)
     lock_path = root / "events" / f".{project_id}.lock"
     try:
-        event_store._ensure_private_directory(root)
+        event_store.ensure_private_state_directory(root)
         with event_store._project_lock(lock_path):
             parents: list[dict[str, Any]] = []
             attestations: list[dict[str, Any]] = []
@@ -171,7 +171,7 @@ def append_usage_attestation(
                         and not conflicts
                         and attestations[0]["payload"] == event["payload"]
                     ):
-                        replay_diagnostics = event_store._fsync_directory(project_dir)
+                        replay_diagnostics = event_store.fsync_state_directory(project_dir)
                         if replay_diagnostics:
                             return UsageAttestationResult(
                                 parents[0],
@@ -205,7 +205,7 @@ def append_usage_attestation(
                         "Stored finish events do not match the requested immutable replay.",
                         "Retry with the original structured finish arguments.",
                     )
-                replay_diagnostics = event_store._fsync_directory(project_dir)
+                replay_diagnostics = event_store.fsync_state_directory(project_dir)
                 return UsageAttestationResult(
                     parents[0],
                     attestations[0],
@@ -273,13 +273,13 @@ def append_memory_debt_action(
             "Debt action parent must identify a memory_conflict event.",
             "Use an open debt ID returned by memory finish.",
         )
-    root = event_store._validate_storage_location(
+    root = event_store.validate_state_directory(
         state_dir or event_store.resolve_state_dir(), project_root
     )
     project_dir = event_store._project_directory(root, project_id)
     lock_path = root / "events" / f".{project_id}.lock"
     try:
-        event_store._ensure_private_directory(root)
+        event_store.ensure_private_state_directory(root)
         with event_store._project_lock(lock_path):
             parents: list[dict[str, Any]] = []
             reviewed_actions: list[dict[str, Any]] = []
@@ -326,7 +326,7 @@ def append_memory_debt_action(
                     len(reviewed_actions) == 1
                     and reviewed_actions[0]["payload"] == requested_payload
                 ):
-                    replay_diagnostics = event_store._fsync_directory(project_dir)
+                    replay_diagnostics = event_store.fsync_state_directory(project_dir)
                     if replay_diagnostics:
                         return DebtActionResult(
                             parents[0],

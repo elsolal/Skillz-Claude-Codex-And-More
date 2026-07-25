@@ -259,7 +259,7 @@ def _expect_non_negative_int(value: object, field: str, *, nullable: bool = Fals
     return value
 
 
-def _scan_privacy(value: object, *, field: str = "event") -> None:
+def scan_metadata_privacy(value: object, *, field: str = "event") -> None:
     if isinstance(value, Mapping):
         for raw_key, child in value.items():
             if not isinstance(raw_key, str):
@@ -275,11 +275,11 @@ def _scan_privacy(value: object, *, field: str = "event") -> None:
                     f"Event field {raw_key!r} is forbidden by the metadata-only contract.",
                     "Remove content-bearing and sensitive fields before append.",
                 )
-            _scan_privacy(child, field=f"{field}.{raw_key}")
+            scan_metadata_privacy(child, field=f"{field}.{raw_key}")
         return
     if isinstance(value, (list, tuple)):
         for index, child in enumerate(value):
-            _scan_privacy(child, field=f"{field}[{index}]")
+            scan_metadata_privacy(child, field=f"{field}[{index}]")
         return
     if isinstance(value, str):
         if value.startswith("/") or value.startswith("\\\\") or _WINDOWS_ABSOLUTE_PATH.match(value):
@@ -407,7 +407,7 @@ def _validate_attestation_payload(payload: Mapping[str, object]) -> None:
 def validate_event(event: Mapping[str, object]) -> None:
     """Reject any field or value outside the closed metadata-only V1 contract."""
 
-    _scan_privacy(event)
+    scan_metadata_privacy(event)
     event_type = event.get("event_type")
     if event_type == EVENT_TYPE_CONTEXT_COMPLETED:
         _expect_exact_keys(event, _CONTEXT_ROOT_KEYS, "event")
@@ -680,7 +680,7 @@ def resolve_state_dir(
     return (home or Path.home()) / ".local" / "state" / "skillz-memory"
 
 
-def _ensure_private_directory(path: Path) -> None:
+def ensure_private_state_directory(path: Path) -> None:
     path.mkdir(mode=0o700, parents=True, exist_ok=True)
     if os.name == "posix":
         path.chmod(0o700)
@@ -700,18 +700,18 @@ def _durably_prepare_event_directories(
             continue
         seen.add(directory)
         if directory in private_directories:
-            _ensure_private_directory(directory)
+            ensure_private_state_directory(directory)
         elif not directory.exists():
             directory.mkdir(mode=0o700)
             if os.name == "posix":
                 directory.chmod(0o700)
-        diagnostics = _fsync_directory(directory.parent)
+        diagnostics = fsync_state_directory(directory.parent)
         if diagnostics:
             return diagnostics
     return ()
 
 
-def _validate_storage_location(state_dir: Path, project_root: Path | None) -> Path:
+def validate_state_directory(state_dir: Path, project_root: Path | None) -> Path:
     if not state_dir.is_absolute():
         raise _error(
             "state_dir_not_absolute",
@@ -732,7 +732,7 @@ def _validate_storage_location(state_dir: Path, project_root: Path | None) -> Pa
 
 @contextmanager
 def _project_lock(path: Path) -> Iterator[None]:
-    _ensure_private_directory(path.parent)
+    ensure_private_state_directory(path.parent)
     flags = os.O_RDWR | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0)
     descriptor = os.open(path, flags, 0o600)
     try:
@@ -794,7 +794,7 @@ def _append_event_lines(
         json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n"
         for event in events
     ).encode("utf-8")
-    _ensure_private_directory(event_path.parent)
+    ensure_private_state_directory(event_path.parent)
     flags = os.O_WRONLY | os.O_CREAT | os.O_APPEND | getattr(os, "O_NOFOLLOW", 0)
     descriptor = os.open(event_path, flags, 0o600)
     try:
@@ -807,7 +807,7 @@ def _append_event_lines(
         os.fsync(descriptor)
     finally:
         os.close(descriptor)
-    return _fsync_directory(event_path.parent)
+    return fsync_state_directory(event_path.parent)
 
 
 def _append_event_line(
@@ -831,7 +831,7 @@ def append_event(
             "Child events cannot use the generic event append path.",
             "Use the relationship-specific append function for atomic parent validation.",
         )
-    root = _validate_storage_location(state_dir or resolve_state_dir(), project_root)
+    root = validate_state_directory(state_dir or resolve_state_dir(), project_root)
     project_dir = _project_directory(root, str(event["project_id"]))
     event_path = _event_path(project_dir, event)
     lock_path = root / "events" / f".{event['project_id']}.lock"
@@ -940,7 +940,7 @@ def read_event_file(path: Path) -> EventReadResult:
     return EventReadResult(tuple(events), tuple(diagnostics))
 
 
-def _fsync_directory(path: Path) -> tuple[dict[str, str], ...]:
+def fsync_state_directory(path: Path) -> tuple[dict[str, str], ...]:
     if os.name != "posix":
         return ()
     try:
@@ -970,7 +970,7 @@ def _fsync_directory(path: Path) -> tuple[dict[str, str], ...]:
 def _write_events_atomically(
     path: Path, events: Sequence[Mapping[str, object]]
 ) -> tuple[dict[str, str], ...]:
-    _ensure_private_directory(path.parent)
+    ensure_private_state_directory(path.parent)
     descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
     temporary = Path(temporary_name)
     diagnostics: list[dict[str, str]] = []
@@ -984,7 +984,7 @@ def _write_events_atomically(
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(temporary, path)
-        diagnostics.extend(_fsync_directory(path.parent))
+        diagnostics.extend(fsync_state_directory(path.parent))
     finally:
         if temporary.exists():
             temporary.unlink()
@@ -1040,11 +1040,11 @@ def purge_project_events(
             "Retention must be a positive number of days.",
             "Use policy.retention_days from the validated memory manifest.",
         )
-    root = _validate_storage_location(state_dir or resolve_state_dir(), project_root)
+    root = validate_state_directory(state_dir or resolve_state_dir(), project_root)
     project_dir = _project_directory(root, project_id)
     if not project_dir.exists():
         diagnostics = (
-            _fsync_directory(project_dir.parent)
+            fsync_state_directory(project_dir.parent)
             if project_dir.parent.exists()
             else ()
         )
@@ -1118,7 +1118,7 @@ def purge_project_events(
             durability_directory = (
                 project_dir if project_dir.exists() else project_dir.parent
             )
-            diagnostics.extend(_fsync_directory(durability_directory))
+            diagnostics.extend(fsync_state_directory(durability_directory))
     except OSError as error:
         raise _error(
             "event_store_unavailable",

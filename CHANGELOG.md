@@ -4,6 +4,32 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## [Unreleased] - 2026-07-25
 
+**Golden retrieval and reproducible index-first baseline**
+
+### Added
+- `memory test` with exactly eight validated golden V1 cases, paired bounded-project and explicit `index-first` execution, and stable human/JSON aggregate receipts.
+- Retrieval hit rate, fallback rate, expected-evidence ranks/docids, paired context estimates, and median context reduction using `utf8_bytes_div_4_v1` on both routes.
+- Deterministic golden fixtures, versioned expected output, and unit, contract, integration, privacy, permission, collision, and injected-durability coverage.
+- Private metadata-only run records under `runs/<project-id>/<run-id>.json`, with immutable IDs and restrictive POSIX permissions.
+
+### Changed
+- Portable memory CLI runtime version advanced to `0.8.0`.
+- Generic state-directory validation, privacy scanning, permission, and directory-durability primitives are shared publicly by event and golden-run storage.
+- Golden suites are fully preflighted before the first QMD invocation; unknown schemas, incomplete sets, unsafe paths, missing expectations, and unavailable baseline pages fail before state mutation.
+
+### Fixed
+- Immutable run publication now uses an atomic hard link so concurrent run-ID collisions cannot overwrite an existing record.
+- Post-publication durability or temporary-cleanup failures retain the visible `run_id`, return explicit exit `50` diagnostics, and never misreport the run as absent.
+- Temporary run descriptors close deterministically when permission setup fails.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `PATH=/Users/aymeric/miniconda3/bin:$PATH bash tests/test-install-memory-cli.sh` — installer acceptance PASS
+- `PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — 215 tests Python OK in 59.840s
+- Level-3 quality gate: PASS after four rounds and two consecutive rounds without a new P0/P1
+
+## [Unreleased] - 2026-07-25
+
 **Memory conflict signaling and reviewable debt**
 
 ### Added

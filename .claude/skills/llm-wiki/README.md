@@ -216,6 +216,42 @@ the closed event V1 contract and appended locally. The returned `event_id`
 matches the persisted line; manifest or projection failures that occur before
 retrieval starts are not journaled.
 
+### Golden retrieval and index-first baseline
+
+`memory test` loads the manifest's `golden.visible_path`, validates the complete
+file before invoking QMD, and runs exactly eight visible cases:
+
+```bash
+memory test
+memory test --json
+```
+
+Golden V1 is strict JSON with root keys `schema_version` and `cases`. Every case
+has a stable lowercase `id`, one human-sanitized single-line `query`, a
+`task_category`, page/source expectations, and an explicit baseline of 3-10
+pages. All paths are relative POSIX Markdown paths beneath `wiki/`; source
+expectations stay beneath `wiki/sources/`. Every expected artifact must appear
+in the baseline replay.
+
+The baseline always reads the complete `wiki/index.md`, then the declared pages
+in their versioned order. The bounded adapter receives the byte-identical query
+in memory and measures expected evidence on its first project route, before any
+fallback. Both sides use `utf8_bytes_div_4_v1`. Aggregate output contains:
+
+- expected-artifact retrieval hit rate on the bounded first route;
+- bounded fallback rate across the eight cases;
+- median paired context reduction versus the index-first baseline.
+
+Each completed run is atomically persisted outside the worktree as
+`runs/<project-id>/<run-id>.json`, with private `0700` directories and `0600`
+files on POSIX. The run contains only case IDs, metrics and docids plus its
+schema/run/project/time/estimator metadata. Queries, prompts, snippets, page
+content, responses, absolute paths and secret-shaped values are rejected by the
+common metadata-only scanner. The command does not emit eight
+`context_completed` events. The JSON stdout envelope is the aggregate export;
+holdouts and independently recorded answer quality belong to the later quality
+gate workflow.
+
 ### Metadata-only event storage and purge
 
 Context events live outside the project under `SKILLZ_MEMORY_STATE_DIR` when it

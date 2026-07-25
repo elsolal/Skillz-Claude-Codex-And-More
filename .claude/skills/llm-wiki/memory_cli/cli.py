@@ -32,6 +32,7 @@ from .events import (
     purge_project_events,
     resolve_state_dir,
 )
+from .golden import GoldenContractError, persist_golden_run, run_golden_test
 from .manifest import ManifestError, discover_manifest, load_manifest, load_nearest_manifest
 from .projection import ConfigureOutcome, ProjectionError, configure_projection
 from .receipts import DebtActionOutcome, FinishOutcome
@@ -40,11 +41,13 @@ from .render_human import (
     render_context_initial,
     render_debt_action_human,
     render_finish_human,
+    render_golden_test_human,
 )
 from .render_json import (
     render_context_json,
     render_debt_action_json,
     render_finish_json,
+    render_golden_test_json,
 )
 from .session_events import append_memory_debt_action, append_usage_attestation
 
@@ -281,6 +284,16 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         dest="json_output",
         help="Emit the stable machine-readable result envelope.",
+    )
+    test_parser = commands.add_parser(
+        "test",
+        help="Run the eight visible golden cases against index-first and bounded retrieval.",
+    )
+    test_parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit the stable metadata-only aggregate result envelope.",
     )
     return parser
 
@@ -705,6 +718,51 @@ def _run_purge_command(*, force: bool, json_output: bool) -> int:
     return outcome.exit_code
 
 
+def _run_test_command(*, json_output: bool) -> int:
+    project_id: str | None = None
+    try:
+        manifest_path = discover_manifest()
+        manifest = load_manifest(manifest_path)
+        project_id = manifest.project.id
+        outcome = run_golden_test(manifest_path)
+        _, persistence_diagnostics = persist_golden_run(
+            outcome,
+            state_dir=resolve_state_dir(),
+            project_root=manifest_path.parent.parent,
+        )
+        if persistence_diagnostics:
+            outcome = replace(
+                outcome,
+                exit_code=50,
+                errors=(*outcome.errors, *persistence_diagnostics),
+            )
+    except (ManifestError, ProjectionError, GoldenContractError) as error:
+        if json_output:
+            _render_json(
+                {
+                    "schema_version": PUBLIC_SCHEMA_VERSION,
+                    "command": "test",
+                    "status": "blocked",
+                    "project_id": project_id,
+                    "run_id": None,
+                    "data": {},
+                    "warnings": [],
+                    "errors": [error.as_dict()],
+                }
+            )
+        else:
+            print(f"[blocked] memory test · {error.code}")
+            print(error.message)
+            print(f"Correction: {error.correction}")
+        return error.exit_code
+
+    if json_output:
+        render_golden_test_json(outcome, stream=sys.stdout)
+    else:
+        render_golden_test_human(outcome, stream=sys.stdout)
+    return outcome.exit_code
+
+
 def _run_finish_command(
     *,
     parent_event_id: str,
@@ -867,6 +925,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             force=arguments.force,
             json_output=arguments.json_output,
         )
+    if arguments.command == "test":
+        return _run_test_command(json_output=arguments.json_output)
     if arguments.command == "context":
         if arguments.query_stdin and arguments.query is not None:
             parser.error("context accepts either a query argument or --query-stdin, not both")
