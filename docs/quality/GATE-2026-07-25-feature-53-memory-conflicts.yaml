@@ -1,0 +1,183 @@
+# Re-gate de ship pour STORY-013 / GitHub issue #53.
+verdict: CONCERNS
+niveau: 3
+tours: 4
+base: main
+head: 3fed975994f166aca0acd132101ff101696a3563
+diff_hash: "6b71d62b498ec79d59a176df123de601597dc35f12f4ca6f5396b3bbd5548590"
+gate_precedent: "docs/quality/GATE-2026-07-24-feature-53-memory-conflicts.yaml"
+
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "PASS au head 3fed975 (exit 0)"
+    tests:
+      cmd: "PATH=/Users/aymeric/miniconda3/bin:$PATH bash tests/test-install-memory-cli.sh && PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "PASS au head 3fed975; installer acceptance PASS; 203 tests Python en 48.261s"
+    diff_check:
+      cmd: "git diff --check"
+      statut: "PASS avant le commit final"
+    runtime_contract:
+      flow: "memory context -> journal durable -> memory finish atomique -> conflit/dette -> purge"
+      statut: "PASS via fixtures QMD, stores temporaires, concurrence et injections de fautes fsync"
+  convergence:
+    statut: "non atteinte dans la borne"
+    preuve: "un nouveau P1 confirme a ete trouve puis corrige a chacun des quatre tours; aucun P0/P1 connu ne reste, mais deux tours propres consecutifs n'ont pas ete observes"
+    tour_1: "P1 retention graph: corrige par e3be05b"
+    tour_2: "P1 finish receipt diagnostics: corrige par 03f44b6"
+    tour_3: "P1 context receipt event ID: corrige par 6c8aeaf"
+    tour_4: "P1 first-store directory durability: corrige par 3fed975"
+  opinion:
+    findings:
+      total: 24
+      confirmes: 22
+      refutes: 2
+      corriges_p0_p1: 16
+      restants_p0_p1: 0
+      notes_p2_p3: 6
+    registre:
+      herite_du_gate_precedent:
+        - id: ".claude/skills/llm-wiki/memory_cli/conflicts.py:security:13cc04a9"
+          severite: P1
+          statut: corrige
+          resume: "preuve repository non canonique ou inexistante"
+        - id: ".claude/skills/llm-wiki/memory_cli/receipts.py:api:195ec77d"
+          severite: P1
+          statut: refute
+          resume: "event_id con_ racine en mode conflit"
+        - id: ".claude/skills/llm-wiki/memory_cli/cli.py:readability:4e0b5327"
+          severite: P2
+          statut: note
+          resume: "aide positionnelle finish incomplete pour con_"
+        - id: ".claude/skills/llm-wiki/memory_cli/session_events.py:readability:75201800"
+          severite: P3
+          statut: note
+          resume: "wording des options conflict a polir"
+        - id: ".claude/skills/llm-wiki/memory_cli/events.py:readability:3b907498"
+          severite: P3
+          statut: note
+          resume: "conseil de debug d'identifiant trop specifique"
+        - id: ".claude/skills/llm-wiki/memory_cli/session_events.py:performance:588cc205"
+          severite: P2
+          statut: note
+          resume: "lookup lineaire des JSONL sous verrou"
+        - id: ".claude/skills/llm-wiki/memory_cli/session_events.py:atomicity:b74382e9"
+          severite: P1
+          statut: corrige
+          resume: "usage_attested pouvait etre visible sans memory_conflict"
+        - id: ".claude/skills/llm-wiki/memory_cli/render_human.py:api:86672880"
+          severite: P1
+          statut: corrige
+          resume: "actions humaines absentes du recu"
+        - id: ".claude/skills/llm-wiki/memory_cli/events.py:durability:8da55116"
+          severite: P1
+          statut: corrige
+          resume: "echec fsync apres replace non reconciliable"
+        - id: ".claude/skills/llm-wiki/memory_cli/events.py:maintainability:6fb907e1"
+          severite: P1
+          statut: refute
+          resume: "extraction immediate imposee par la taille du fichier"
+        - id: ".claude/skills/llm-wiki/memory_cli/events.py:privacy:path-component-secret"
+          severite: P1
+          statut: corrige
+          resume: "secret dans un composant de chemin repository"
+        - id: ".claude/skills/llm-wiki/memory_cli/events.py:durability:purge-diagnostic"
+          severite: P1
+          statut: corrige
+          resume: "diagnostic fsync purge ignore"
+        - id: ".claude/skills/llm-wiki/memory_cli/events.py:durability:purge-retry"
+          severite: P1
+          statut: corrige
+          resume: "retry purge sans nouvelle barriere"
+        - id: ".claude/skills/llm-wiki/memory_cli/events.py:durability:single-append"
+          severite: P1
+          statut: corrige
+          resume: "premier fichier mensuel sans fsync repertoire"
+        - id: ".claude/skills/llm-wiki/memory_cli/session_events.py:api:retry-correction"
+          severite: P2
+          statut: note
+          resume: "wording retry versus already_*"
+        - id: ".claude/skills/llm-wiki/memory_cli/session_events.py:durability:expired-snooze"
+          severite: P1
+          statut: corrige
+          resume: "snooze incertain non rejouable apres echeance"
+      re_gate_2026_07_25:
+        - id: ".claude/skills/llm-wiki/memory_cli/conflicts.py:privacy:invalid-path-error"
+          severite: P1
+          statut: corrige
+          commit: e8cacd0
+          resume: "un chemin de preuve invalide pouvait etre recopie dans l'erreur"
+          preuve: "les erreurs ne recopient plus la valeur non valide; test stdout/stderr anti-secret"
+        - id: ".claude/skills/llm-wiki/memory_cli/events.py:durability:abandoned-temp"
+          severite: P1
+          statut: corrige
+          commit: 9513d59
+          resume: "purge laissait les temporaires atomiques abandonnes"
+          preuve: "purge cible uniquement le namespace de temporaires mensuels valide"
+        - id: ".claude/skills/llm-wiki/memory_cli/session_events.py:durability:mutable-evidence-replay"
+          severite: P1
+          statut: corrige
+          commit: 9513d59
+          resume: "un replay exact etait bloque si la preuve repository avait disparu"
+          preuve: "le batch immuable stocke est reconcilie avant de revalider une nouvelle preuve"
+        - id: ".claude/skills/llm-wiki/memory_cli/events.py:retention:descendant-orphan"
+          severite: P1
+          statut: corrige
+          commit: e3be05b
+          resume: "la retention pouvait conserver un enfant dont le parent expirait"
+          preuve: "la fermeture transitive supprime attestations, conflits et actions descendantes"
+        - id: ".claude/skills/llm-wiki/memory_cli/receipts.py:api:diagnostic-status"
+          severite: P1
+          statut: corrige
+          commit: 03f44b6
+          resume: "FinishOutcome pouvait afficher ready/conflict avec exit 50"
+          preuve: "tout diagnostic force maintenant le status degraded"
+        - id: ".claude/skills/llm-wiki/memory_cli/cli.py:durability:visible-context-id"
+          severite: P1
+          statut: corrige
+          commit: 6c8aeaf
+          resume: "un context visible apres echec fsync repertoire perdait son event ID dans le recu"
+          preuve: "seul l'echec post-append conserve l'ID visible; les erreurs pre-append gardent null"
+        - id: ".claude/skills/llm-wiki/memory_cli/events.py:durability:first-store-ancestors"
+          severite: P1
+          statut: corrige
+          commit: 3fed975
+          resume: "le premier append ne persistait pas les nouvelles entrees state/events/projet"
+          preuve: "chaque parent est fsync avant append; un echec bootstrap reste pre-persistance et retryable"
+        - id: ".claude/skills/llm-wiki/memory_cli/events.py:retention:multi-month-intent"
+          severite: P2
+          statut: note
+          resume: "un crash entre deux mois de purge peut laisser temporairement un enfant orphelin"
+          preuve: "metadata locale privee et expiration eventuelle; un marqueur durable de purge serait une amelioration future"
+    lentilles:
+      correctness_security: "P1 bootstrap confirme au tour 4, corrige et couvert; aucune nouvelle passe autorisee apres le plafond"
+      readability: "P1 diagnostics confirme au tour 2 et corrige; pas de passe finale au head apres le plafond"
+      performance: "note P2 multi-month conservee; pas de P0/P1 performance connu"
+      thermo_nuclear: "aucun P0/P1 structurel connu au dernier passage execute; pas de passe finale au head apres le plafond"
+
+acceptation:
+  AC1: "vert - precedence repository et references relatives dans les recus"
+  AC2: "vert - seuls les conflits high critiques exigent une decision humaine"
+  AC3: "vert - conflit faible et dette ouverte ne bloquent pas le contexte"
+  AC4: "vert - donnees metadata-only; secrets et preuves invalides refuses sans fuite"
+  AC5: "vert - fix/ignore/snooze append-only, concurrents, durables et rejouables"
+
+decisions_prises_en_ton_nom:
+  - "La preuve repository doit rester un fichier regulier canonique dans le worktree."
+  - "Le batch usage_attested + memory_conflict est publie par remplacement atomique."
+  - "Une mutation visible mais non durable retourne exit 50 avec ses IDs reconciliables."
+  - "Une panne de bootstrap repertoire est pre-persistance et ne retourne aucun event ID."
+  - "La retention applique une fermeture transitive des descendants."
+  - "Le risque P2 de transaction multi-mois reste documente hors du lot P0/P1."
+
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no live real-vault QMD query; deterministic fixtures and temporary vaults used"
+  - "default Apple Python is 3.9; verification used Miniconda Python 3.12 for Python >=3.10"
+  - "no frontend or SEO/GEO surface"
+  - "two consecutive clean rounds were not reached within the level-3 four-round cap"
+
+conclusion: "Aucun P0/P1 connu ne reste et toutes les preuves executables passent. Le verdict reste CONCERNS car le plafond de quatre tours a ete atteint sans deux tours propres consecutifs; ship requiert un waiver explicite ou un nouveau gate borne."
