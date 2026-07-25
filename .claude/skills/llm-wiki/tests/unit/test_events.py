@@ -401,6 +401,59 @@ class EventContractUnitTests(unittest.TestCase):
         self.assertFalse(event_path.exists())
         self.assertFalse(abandoned.exists())
 
+    def test_retention_deletes_descendants_of_expired_parent(self) -> None:
+        evidence = self.repo / "current-contract.py"
+        evidence.write_text("CURRENT = True\n", encoding="utf-8")
+        parent = build_context_event(
+            context_metadata(),
+            occurred_at=datetime(2026, 6, 1, 10, tzinfo=timezone.utc),
+        )
+        append_event(
+            parent,
+            state_dir=self.state_dir,
+            project_root=self.repo,
+        )
+        finish = append_usage_attestation(
+            project_id="skillz-claude",
+            parent_event_id=parent["event_id"],
+            used=("#a1b2c3",),
+            cited=(),
+            citation_only=(),
+            impact_codes=(),
+            conflict_docid="#a1b2c3",
+            repository_path="current-contract.py",
+            evidence_type=ConflictEvidenceType.CONTRACT,
+            conflict_category=ConflictCategory.ARCHITECTURE,
+            conflict_risk=ConflictRisk.HIGH,
+            prepare_debt=True,
+            state_dir=self.state_dir,
+            project_root=self.repo,
+            occurred_at=datetime(2026, 6, 1, 11, tzinfo=timezone.utc),
+        )
+        assert finish.conflict_event is not None
+        append_memory_debt_action(
+            project_id="skillz-claude",
+            parent_event_id=finish.conflict_event["event_id"],
+            action=DebtAction.FIX,
+            reason=None,
+            snooze_until=None,
+            state_dir=self.state_dir,
+            project_root=self.repo,
+            occurred_at=datetime(2026, 7, 20, 10, tzinfo=timezone.utc),
+        )
+
+        outcome = purge_project_events(
+            "skillz-claude",
+            retention_days=30,
+            state_dir=self.state_dir,
+            project_root=self.repo,
+            now=datetime(2026, 7, 25, tzinfo=timezone.utc),
+        )
+
+        self.assertEqual(outcome.deleted_events, 4)
+        self.assertEqual(outcome.retained_events, 0)
+        self.assertFalse(any(self.state_dir.rglob("*.jsonl")))
+
     def test_expired_snooze_replay_reconciles_directory_fsync_failure(self) -> None:
         evidence = self.repo / "current-contract.py"
         evidence.write_text("CURRENT = True\n", encoding="utf-8")

@@ -1023,12 +1023,38 @@ def purge_project_events(
     diagnostics: list[dict[str, str]] = []
     try:
         with _project_lock(lock_path):
+            file_results: list[tuple[Path, EventReadResult]] = []
+            events: list[dict[str, Any]] = []
             for path in sorted(project_dir.glob("*.jsonl")):
                 result = read_event_file(path)
+                file_results.append((path, result))
+                events.extend(result.events)
                 corrupted_files += int(bool(result.diagnostics))
+
+            deleted_ids = {
+                str(event["event_id"])
+                for event in events
+                if force or _parse_time(event["occurred_at"]) < cutoff
+            }
+            children_by_parent: dict[str, list[str]] = {}
+            for event in events:
+                parent_event_id = event.get("parent_event_id")
+                if isinstance(parent_event_id, str):
+                    children_by_parent.setdefault(parent_event_id, []).append(
+                        str(event["event_id"])
+                    )
+            pending = list(deleted_ids)
+            while pending:
+                parent_event_id = pending.pop()
+                for child_event_id in children_by_parent.get(parent_event_id, ()):
+                    if child_event_id not in deleted_ids:
+                        deleted_ids.add(child_event_id)
+                        pending.append(child_event_id)
+
+            for path, result in file_results:
                 retained: list[dict[str, Any]] = []
                 for event in result.events:
-                    if force or _parse_time(event["occurred_at"]) < cutoff:
+                    if str(event["event_id"]) in deleted_ids:
                         deleted_events += 1
                     else:
                         retained.append(event)
