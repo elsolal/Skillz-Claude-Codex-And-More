@@ -9,6 +9,7 @@ from .receipts import (
     ContextOutcome,
     DebtActionOutcome,
     FinishOutcome,
+    GoldenTestOutcome,
 )
 
 
@@ -177,6 +178,28 @@ def render_finish_human(outcome: FinishOutcome, *, stream: TextIO) -> None:
         print(f"Error: {diagnostic['message']}", file=stream)
         print(f"Correction: {diagnostic['correction']}", file=stream)
     print("Machine output: memory finish --json", file=stream)
+
+
+def render_golden_test_human(
+    outcome: GoldenTestOutcome,
+    *,
+    stream: TextIO,
+) -> None:
+    aggregate = outcome.aggregate
+    print(f"Memory test {outcome.status} · run {outcome.run_id}", file=stream)
+    print(f"Cases: {len(outcome.cases)}", file=stream)
+    print(
+        f"Retrieval hit rate: {aggregate['retrieval_hit_rate']:.1%}",
+        file=stream,
+    )
+    print(f"Fallback rate: {aggregate['fallback_rate']:.1%}", file=stream)
+    print(
+        "Median context reduction: "
+        f"{aggregate['median_context_reduction']:.1%}",
+        file=stream,
+    )
+    print(f"Estimator: {outcome.estimator_version}", file=stream)
+    print("Machine output: memory test --json", file=stream)
 
 
 def render_debt_action_human(

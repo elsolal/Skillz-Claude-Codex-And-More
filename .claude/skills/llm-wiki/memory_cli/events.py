@@ -301,6 +301,12 @@ def _scan_privacy(value: object, *, field: str = "event") -> None:
             )
 
 
+def scan_metadata_privacy(value: object, *, field: str = "metadata") -> None:
+    """Apply the common metadata-only scanner to non-event state artifacts."""
+
+    _scan_privacy(value, field=field)
+
+
 def _strict_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in pairs:
@@ -686,6 +692,12 @@ def _ensure_private_directory(path: Path) -> None:
         path.chmod(0o700)
 
 
+def ensure_private_state_directory(path: Path) -> None:
+    """Create one private state directory with the event-store permissions."""
+
+    _ensure_private_directory(path)
+
+
 def _durably_prepare_event_directories(
     root: Path, project_dir: Path
 ) -> tuple[dict[str, str], ...]:
@@ -728,6 +740,12 @@ def _validate_storage_location(state_dir: Path, project_root: Path | None) -> Pa
                 "Choose a private state directory outside the Git worktree.",
             )
     return resolved
+
+
+def validate_state_directory(state_dir: Path, project_root: Path | None) -> Path:
+    """Resolve and reject a shared state root inside the current worktree."""
+
+    return _validate_storage_location(state_dir, project_root)
 
 
 @contextmanager
@@ -965,6 +983,12 @@ def _fsync_directory(path: Path) -> tuple[dict[str, str], ...]:
             },
         )
     return ()
+
+
+def fsync_state_directory(path: Path) -> tuple[dict[str, str], ...]:
+    """Expose the event store's directory durability check to run storage."""
+
+    return _fsync_directory(path)
 
 
 def _write_events_atomically(

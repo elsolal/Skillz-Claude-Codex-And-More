@@ -63,6 +63,7 @@ Start task-aware retrieval with the project collection first:
 memory context --mode project --task-category architecture "How is this project structured?"
 memory context --mode project --task-category security --risk-reason security "Which security decision applies?"
 printf '%s' "private task" | memory context --task-category security --query-stdin --json
+memory test --json
 ```
 
 The command uses lexical `qmd search` only, never persists the query, and emits
@@ -77,6 +78,12 @@ When retrieval is sufficient, the CLI emits only the Markdown sections needed
 under the selected mode budget, distinguishes `retrieved` from `read`, and uses
 the versioned `utf8_bytes_div_4_v1` estimate. Hard-cap overruns require an
 explicit, auditable `--risk-reason`.
+
+`memory test` validates exactly eight visible golden V1 cases before retrieval,
+then compares the bounded project route with an explicit, reproducible
+`index-first` replay. It exports page/source hit rate, fallback rate and median
+estimated-context reduction without exposing or persisting the golden queries.
+Holdouts and answer-quality scoring remain separate stages.
 
 The CLI requires Python 3.10+ and uses the standard library only. The installer
 does not create a virtual environment or download QMD, a model, or another
