@@ -199,6 +199,9 @@ def render_golden_test_human(
         file=stream,
     )
     print(f"Estimator: {outcome.estimator_version}", file=stream)
+    for error in outcome.errors:
+        print(f"Error: {error['message']}", file=stream)
+        print(f"Correction: {error['correction']}", file=stream)
     print("Machine output: memory test --json", file=stream)
 
 

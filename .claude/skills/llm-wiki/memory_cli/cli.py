@@ -725,11 +725,17 @@ def _run_test_command(*, json_output: bool) -> int:
         manifest = load_manifest(manifest_path)
         project_id = manifest.project.id
         outcome = run_golden_test(manifest_path)
-        persist_golden_run(
+        _, persistence_diagnostics = persist_golden_run(
             outcome,
             state_dir=resolve_state_dir(),
             project_root=manifest_path.parent.parent,
         )
+        if persistence_diagnostics:
+            outcome = replace(
+                outcome,
+                exit_code=50,
+                errors=(*outcome.errors, *persistence_diagnostics),
+            )
     except (ManifestError, ProjectionError, GoldenContractError) as error:
         if json_output:
             _render_json(

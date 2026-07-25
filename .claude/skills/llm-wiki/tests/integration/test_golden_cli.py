@@ -98,7 +98,7 @@ class GoldenCliIntegrationTests(unittest.TestCase):
         result = self.fixture._run_memory_cli("test", "--json")
         output = json.loads(result.stdout)
 
-        self.assertEqual(result.returncode, 32)
+        self.assertEqual(result.returncode, 30)
         self.assertEqual(output["errors"][0]["code"], "golden_baseline_unavailable")
         self.assertEqual(self.fixture.qmd_log.read_text(encoding="utf-8"), "")
         self.assertFalse(self.fixture.state_dir.exists())

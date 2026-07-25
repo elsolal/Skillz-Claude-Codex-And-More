@@ -263,7 +263,7 @@ class EventContractUnitTests(unittest.TestCase):
             return ()
 
         with patch(
-            "memory_cli.events._fsync_directory",
+            "memory_cli.events.fsync_state_directory",
             side_effect=track_directory_fsync,
         ):
             event_path = append_event(
@@ -295,7 +295,7 @@ class EventContractUnitTests(unittest.TestCase):
         )
 
         with patch(
-            "memory_cli.events._fsync_directory",
+            "memory_cli.events.fsync_state_directory",
             return_value=diagnostic,
         ):
             with self.assertRaises(EventIntegrityError) as raised:

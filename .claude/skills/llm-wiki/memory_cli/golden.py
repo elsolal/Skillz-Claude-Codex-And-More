@@ -52,7 +52,7 @@ class GoldenContractError(RuntimeError):
         code: str,
         message: str,
         correction: str,
-        exit_code: int = 32,
+        exit_code: int = 30,
     ) -> None:
         super().__init__(message)
         self.code = code
@@ -73,7 +73,7 @@ def _error(
     message: str,
     correction: str,
     *,
-    exit_code: int = 32,
+    exit_code: int = 30,
 ) -> GoldenContractError:
     return GoldenContractError(
         code=code,
@@ -159,7 +159,13 @@ def _exact_keys(
         )
 
 
-def _safe_path(value: object, field: str, *, source: bool = False) -> PurePosixPath:
+def _safe_path(
+    value: object,
+    field: str,
+    *,
+    source: bool = False,
+    page: bool = False,
+) -> PurePosixPath:
     if not isinstance(value, str) or not value:
         raise _error(
             "golden_path_invalid",
@@ -185,6 +191,15 @@ def _safe_path(value: object, field: str, *, source: bool = False) -> PurePosixP
             f"{field} must identify a page beneath wiki/sources/.",
             "Classify source expectations separately from other wiki pages.",
         )
+    if page and (
+        path.parts[:2] == ("wiki", "sources")
+        or path == PurePosixPath("wiki/index.md")
+    ):
+        raise _error(
+            "golden_path_invalid",
+            f"{field} must identify a non-source wiki page.",
+            "Classify source evidence separately and keep wiki/index.md out of expectations.",
+        )
     return path
 
 
@@ -193,6 +208,7 @@ def _path_list(
     field: str,
     *,
     source: bool = False,
+    page: bool = False,
     allow_empty: bool = True,
 ) -> tuple[PurePosixPath, ...]:
     if not isinstance(value, list):
@@ -202,7 +218,7 @@ def _path_list(
             "Use a JSON array of relative wiki Markdown paths.",
         )
     paths = tuple(
-        _safe_path(item, f"{field}[{index}]", source=source)
+        _safe_path(item, f"{field}[{index}]", source=source, page=page)
         for index, item in enumerate(value)
     )
     if not allow_empty and not paths:
@@ -268,7 +284,11 @@ def _parse_case(raw: object, index: int) -> GoldenCase:
 
     expected = _object(data["expected"], f"{field}.expected")
     _exact_keys(expected, f"{field}.expected", required={"pages", "sources"})
-    expected_pages = _path_list(expected["pages"], f"{field}.expected.pages")
+    expected_pages = _path_list(
+        expected["pages"],
+        f"{field}.expected.pages",
+        page=True,
+    )
     expected_sources = _path_list(
         expected["sources"],
         f"{field}.expected.sources",
@@ -299,6 +319,12 @@ def _parse_case(raw: object, index: int) -> GoldenCase:
             "golden_case_schema_invalid",
             f"{field}.baseline.pages must contain 3-10 deterministic drill-in pages.",
             "Replay the approved historical index-first envelope.",
+        )
+    if PurePosixPath("wiki/index.md") in baseline_pages:
+        raise _error(
+            "golden_case_schema_invalid",
+            f"{field}.baseline.pages must not repeat wiki/index.md.",
+            "The index-first adapter already loads the complete index once.",
         )
     missing = (set(expected_pages) | set(expected_sources)) - set(baseline_pages)
     if missing:
@@ -647,7 +673,7 @@ def persist_golden_run(
     *,
     state_dir: Path,
     project_root: Path,
-) -> Path:
+) -> tuple[Path, tuple[dict[str, str], ...]]:
     """Atomically persist one private metadata-only run JSON."""
 
     if _RUN_ID.fullmatch(outcome.run_id) is None:
@@ -706,18 +732,18 @@ def persist_golden_run(
                 stream.write("\n")
                 stream.flush()
                 os.fsync(stream.fileno())
-            os.replace(temporary, path)
+            try:
+                os.link(temporary, path)
+            except FileExistsError as error:
+                raise _error(
+                    "golden_run_exists",
+                    "The immutable golden run ID already exists.",
+                    "Retry to allocate a fresh run ID.",
+                    exit_code=50,
+                ) from error
             if os.name == "posix":
                 path.chmod(0o600)
             diagnostics = fsync_state_directory(project_dir)
-            if diagnostics:
-                diagnostic = diagnostics[0]
-                raise _error(
-                    diagnostic["code"],
-                    diagnostic["message"],
-                    diagnostic["correction"],
-                    exit_code=50,
-                )
         finally:
             if temporary.exists():
                 temporary.unlink()
@@ -737,4 +763,12 @@ def persist_golden_run(
             "Restore access to the private memory state directory, then retry.",
             exit_code=50,
         ) from error
-    return path
+    run_diagnostics = tuple(
+        {
+            "code": "golden_run_directory_fsync_failed",
+            "message": diagnostic["message"],
+            "correction": diagnostic["correction"],
+        }
+        for diagnostic in diagnostics
+    )
+    return path, run_diagnostics

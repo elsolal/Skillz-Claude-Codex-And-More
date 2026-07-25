@@ -3,13 +3,16 @@ from __future__ import annotations
 import io
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 SKILL_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(SKILL_ROOT))
 
+from memory_cli.golden import GoldenContractError, persist_golden_run  # noqa: E402
 from memory_cli.receipts import GoldenTestOutcome  # noqa: E402
 from memory_cli.render_human import render_golden_test_human  # noqa: E402
 from memory_cli.render_json import golden_test_envelope  # noqa: E402
@@ -83,6 +86,42 @@ class GoldenOutputContractTests(unittest.TestCase):
         self.assertIn("Fallback rate: 0.0%", output)
         self.assertIn("Median context reduction: 75.0%", output)
         self.assertIn("utf8_bytes_div_4_v1", output)
+
+    def test_run_publish_is_immutable_and_keeps_post_publish_diagnostics(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            project = root / "project"
+            state = root / "state"
+            project.mkdir()
+            diagnostic = {
+                "code": "event_directory_fsync_failed",
+                "message": "directory durability unavailable",
+                "correction": "retry storage verification",
+            }
+            with patch(
+                "memory_cli.golden.fsync_state_directory",
+                return_value=(diagnostic,),
+            ):
+                path, diagnostics = persist_golden_run(
+                    self.outcome,
+                    state_dir=state,
+                    project_root=project,
+                )
+
+            original = path.read_bytes()
+            self.assertTrue(path.is_file())
+            self.assertEqual(
+                diagnostics[0]["code"],
+                "golden_run_directory_fsync_failed",
+            )
+            with self.assertRaises(GoldenContractError) as raised:
+                persist_golden_run(
+                    self.outcome,
+                    state_dir=state,
+                    project_root=project,
+                )
+            self.assertEqual(raised.exception.code, "golden_run_exists")
+            self.assertEqual(path.read_bytes(), original)
 
 
 if __name__ == "__main__":
