@@ -2,6 +2,32 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## [Unreleased] - 2026-07-25
+
+**Memory conflict signaling and reviewable debt**
+
+### Added
+- Repository-precedence conflict events with relative memory/repository evidence, risk classification, `requires_human`, and exit `21` for high-impact product, architecture, security, or data conflicts.
+- Metadata-only debt preparation and append-only `fix`, `ignore --reason`, and `snooze --until` review actions without automatic shared-vault edits.
+- Human and JSON conflict receipts, including explicit continue, inspect, and prepare-patch actions.
+- Contract, snapshot, privacy, concurrency, retention, replay, and injected-durability coverage for the complete context-to-debt lifecycle.
+
+### Changed
+- `memory finish` can atomically publish `usage_attested` with an optional `memory_conflict`, reconcile exact retries, and report degraded durability without losing visible event IDs.
+- Retention now deletes the complete descendant graph when a context parent expires, and purge removes abandoned monthly atomic temporary files.
+- A fresh event store durably creates each state/events/project directory entry before acknowledging its first context event.
+
+### Fixed
+- Invalid repository evidence can no longer escape the worktree, reference missing/non-regular files, contain secret-shaped path components, or echo rejected values in errors.
+- Finish receipts no longer report `ready` or `conflict` when durability diagnostics require exit `50`.
+- Exact conflict and snooze retries remain reconcilable after mutable evidence disappears or a snooze date passes.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `PATH=/Users/aymeric/miniconda3/bin:$PATH bash tests/test-install-memory-cli.sh` — installer acceptance PASS
+- `PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — 203 tests Python OK
+- Level-3 quality gate: `WAIVED` only for the four-round convergence ceiling; executable evidence is green and no known P0/P1 remains
+
 ## [Unreleased] - 2026-07-24
 
 **Attested memory usage, citations, and impact**

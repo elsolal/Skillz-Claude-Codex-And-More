@@ -1,11 +1,16 @@
 # Re-gate de ship pour STORY-013 / GitHub issue #53.
-verdict: CONCERNS
+verdict: WAIVED
 niveau: 3
 tours: 4
 base: main
 head: 3fed975994f166aca0acd132101ff101696a3563
 diff_hash: "6b71d62b498ec79d59a176df123de601597dc35f12f4ca6f5396b3bbd5548590"
 gate_precedent: "docs/quality/GATE-2026-07-24-feature-53-memory-conflicts.yaml"
+waiver:
+  verdict_initial: CONCERNS
+  accepte_par: human
+  accepte_le: "2026-07-25"
+  raison: "Waiver explicite du plafond de convergence: les preuves executables sont vertes et aucun P0/P1 connu ne reste apres correction des findings des quatre tours."
 
 preuve:
   executable:
@@ -180,4 +185,4 @@ absents:
   - "no frontend or SEO/GEO surface"
   - "two consecutive clean rounds were not reached within the level-3 four-round cap"
 
-conclusion: "Aucun P0/P1 connu ne reste et toutes les preuves executables passent. Le verdict reste CONCERNS car le plafond de quatre tours a ete atteint sans deux tours propres consecutifs; ship requiert un waiver explicite ou un nouveau gate borne."
+conclusion: "Aucun P0/P1 connu ne reste et toutes les preuves executables passent. Le verdict processuel CONCERNS lie au plafond de quatre tours est explicitement accepte par waiver humain; le ship peut continuer."
