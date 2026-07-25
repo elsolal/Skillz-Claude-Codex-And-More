@@ -820,7 +820,10 @@ def append_event(
                 raise _error(
                     diagnostic["code"],
                     diagnostic["message"],
-                    diagnostic["correction"],
+                    (
+                        "Keep the returned event ID and restore durable storage "
+                        "before using the context event."
+                    ),
                 )
     except OSError as error:
         raise _error(

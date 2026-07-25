@@ -12,6 +12,7 @@ from unittest.mock import patch
 from integration.test_context_cli import ContextCliIntegrationTests, SKILL_ROOT
 from memory_cli import cli as memory_cli
 from memory_cli.contracts import RetrievalMode, TaskCategory
+from memory_cli.events import EventIntegrityError
 from memory_cli.qmd_adapter import QmdSearchStatus
 from memory_cli.receipts import ContextInitialReceipt, ContextOutcome
 
@@ -218,6 +219,67 @@ class EventStoreCliIntegrationTests(unittest.TestCase):
 
         self.assertEqual(exit_code, 31)
         self.assertEqual(discovery.call_count, 1)
+
+    def test_context_directory_fsync_failure_keeps_visible_event_id(self) -> None:
+        initial = ContextInitialReceipt(
+            project_id="skillz-claude",
+            mode=RetrievalMode.HISTORICAL,
+            task_category=TaskCategory.HISTORICAL,
+            planned_route=("elsolal-wiki",),
+            target_tokens=6000,
+            hard_tokens=9000,
+        )
+        outcome = ContextOutcome(
+            status="blocked",
+            exit_code=31,
+            project_id="skillz-claude",
+            mode=RetrievalMode.HISTORICAL,
+            task_category=TaskCategory.HISTORICAL,
+            route=("elsolal-wiki",),
+            retrieval_status=QmdSearchStatus.ERROR,
+            duration_ms=None,
+            hits=(),
+            initial_receipt=initial,
+        )
+        event_id = "mem_20260725T010203123456Z_0123456789abcdef"
+        durability_error = EventIntegrityError(
+            code="event_directory_fsync_failed",
+            message="The event update is visible, but durability is uncertain.",
+            correction="Keep the returned event ID.",
+        )
+
+        with (
+            patch.object(
+                memory_cli,
+                "discover_manifest",
+                return_value=self.fixture.repo / ".agents" / "memory.yaml",
+            ),
+            patch.object(memory_cli, "run_context", return_value=outcome),
+            patch.object(
+                memory_cli,
+                "build_context_event",
+                return_value={"event_id": event_id},
+            ),
+            patch.object(memory_cli, "append_event", side_effect=durability_error),
+            patch.object(memory_cli, "render_context_json") as renderer,
+        ):
+            exit_code = memory_cli._run_context_command(
+                mode="historical",
+                task_category="historical",
+                query="history",
+                fallback_on_ambiguous=False,
+                risk_reason=None,
+                explain=False,
+                json_output=True,
+            )
+
+        rendered_outcome = renderer.call_args.args[0]
+        self.assertEqual(exit_code, 50)
+        self.assertEqual(rendered_outcome.event_id, event_id)
+        self.assertEqual(
+            rendered_outcome.errors[0]["code"],
+            "event_directory_fsync_failed",
+        )
 
     def test_completed_insufficient_and_blocked_attempts_are_also_recorded(self) -> None:
         insufficient = self.fixture._run_cli(

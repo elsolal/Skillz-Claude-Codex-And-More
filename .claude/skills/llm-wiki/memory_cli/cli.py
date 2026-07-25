@@ -622,6 +622,7 @@ def _run_context_command(
             print(f"Correction: {error.correction}")
         return error.exit_code
 
+    event: dict[str, object] | None = None
     try:
         event = build_context_event(outcome.event_metadata())
         append_event(
@@ -631,8 +632,12 @@ def _run_context_command(
         )
         outcome = replace(outcome, event_id=str(event["event_id"]))
     except EventIntegrityError as error:
+        event_id = outcome.event_id
+        if error.code == "event_directory_fsync_failed" and event is not None:
+            event_id = str(event["event_id"])
         outcome = replace(
             outcome,
+            event_id=event_id,
             exit_code=error.exit_code,
             errors=(*outcome.errors, error.as_dict()),
         )
