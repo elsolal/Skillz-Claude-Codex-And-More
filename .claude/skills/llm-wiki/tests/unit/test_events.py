@@ -39,6 +39,7 @@ from memory_cli.session_events import (  # noqa: E402
     append_memory_debt_action,
     append_usage_attestation,
 )
+from memory_cli.receipts import FinishOutcome  # noqa: E402
 
 
 NOW = datetime(2026, 7, 24, 12, 30, tzinfo=timezone.utc)
@@ -292,6 +293,15 @@ class EventContractUnitTests(unittest.TestCase):
             uncertain.diagnostics[0]["code"],
             "event_directory_fsync_failed",
         )
+        receipt = FinishOutcome(
+            project_id="skillz-claude",
+            parent_event=uncertain.parent_event,
+            attestation_event=uncertain.event,
+            conflict_event=uncertain.conflict_event,
+            diagnostics=uncertain.diagnostics,
+        )
+        self.assertEqual(receipt.status, "degraded")
+        self.assertEqual(receipt.exit_code, 50)
         self.assertEqual(
             [event["event_type"] for event in read_event_file(event_path).events],
             ["context_completed", "usage_attested", "memory_conflict"],

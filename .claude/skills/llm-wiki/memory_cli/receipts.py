@@ -61,6 +61,8 @@ class FinishOutcome:
 
     @property
     def status(self) -> str:
+        if self.diagnostics:
+            return "degraded"
         return "conflict" if self.conflict_event is not None else "ready"
 
     @property
