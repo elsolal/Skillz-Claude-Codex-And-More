@@ -123,6 +123,26 @@ class GoldenOutputContractTests(unittest.TestCase):
             self.assertEqual(raised.exception.code, "golden_run_exists")
             self.assertEqual(path.read_bytes(), original)
 
+    def test_temp_cleanup_failure_keeps_the_published_run_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            project = root / "project"
+            state = root / "state"
+            project.mkdir()
+
+            with patch("pathlib.Path.unlink", side_effect=PermissionError("denied")):
+                path, diagnostics = persist_golden_run(
+                    self.outcome,
+                    state_dir=state,
+                    project_root=project,
+                )
+
+            self.assertTrue(path.is_file())
+            self.assertEqual(
+                diagnostics[0]["code"],
+                "golden_run_temp_cleanup_failed",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

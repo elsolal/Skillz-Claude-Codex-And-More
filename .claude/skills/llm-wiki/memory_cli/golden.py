@@ -719,6 +719,8 @@ def persist_golden_run(
             prefix=f".{outcome.run_id}.", suffix=".tmp", dir=project_dir
         )
         temporary = Path(temporary_name)
+        published = False
+        cleanup_diagnostics: list[dict[str, str]] = []
         try:
             if os.name == "posix":
                 os.fchmod(descriptor, 0o600)
@@ -734,6 +736,7 @@ def persist_golden_run(
                 os.fsync(stream.fileno())
             try:
                 os.link(temporary, path)
+                published = True
             except FileExistsError as error:
                 raise _error(
                     "golden_run_exists",
@@ -741,12 +744,29 @@ def persist_golden_run(
                     "Retry to allocate a fresh run ID.",
                     exit_code=50,
                 ) from error
-            if os.name == "posix":
-                path.chmod(0o600)
-            diagnostics = fsync_state_directory(project_dir)
-        finally:
-            if temporary.exists():
+            try:
                 temporary.unlink()
+            except OSError as error:
+                cleanup_diagnostics.append(
+                    {
+                        "code": "golden_run_temp_cleanup_failed",
+                        "message": (
+                            "The immutable golden run was published, but its private "
+                            "temporary link could not be removed."
+                        ),
+                        "correction": (
+                            "Remove the private temporary run link and verify state "
+                            f"directory permissions ({error.__class__.__name__})."
+                        ),
+                    }
+                )
+            durability_diagnostics = fsync_state_directory(project_dir)
+        finally:
+            if not published and temporary.exists():
+                try:
+                    temporary.unlink()
+                except OSError:
+                    pass
     except GoldenContractError:
         raise
     except EventIntegrityError as error:
@@ -763,12 +783,12 @@ def persist_golden_run(
             "Restore access to the private memory state directory, then retry.",
             exit_code=50,
         ) from error
-    run_diagnostics = tuple(
+    run_diagnostics = tuple(cleanup_diagnostics) + tuple(
         {
             "code": "golden_run_directory_fsync_failed",
             "message": diagnostic["message"],
             "correction": diagnostic["correction"],
         }
-        for diagnostic in diagnostics
+        for diagnostic in durability_diagnostics
     )
     return path, run_diagnostics
