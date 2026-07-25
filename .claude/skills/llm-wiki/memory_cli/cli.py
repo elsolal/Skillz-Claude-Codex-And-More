@@ -13,6 +13,10 @@ from . import __version__
 from .context import run_context
 from .contracts import (
     PUBLIC_SCHEMA_VERSION,
+    ConflictCategory,
+    ConflictEvidenceType,
+    ConflictRisk,
+    DebtAction,
     ImpactCode,
     MemoryManifest,
     PrincipalRole,
@@ -24,16 +28,25 @@ from .doctor import DoctorOutcome, run_doctor
 from .events import (
     EventIntegrityError,
     append_event,
-    append_usage_attestation,
     build_context_event,
     purge_project_events,
     resolve_state_dir,
 )
 from .manifest import ManifestError, discover_manifest, load_manifest, load_nearest_manifest
 from .projection import ConfigureOutcome, ProjectionError, configure_projection
-from .receipts import FinishOutcome
-from .render_human import render_context_final, render_context_initial, render_finish_human
-from .render_json import render_context_json, render_finish_json
+from .receipts import DebtActionOutcome, FinishOutcome
+from .render_human import (
+    render_context_final,
+    render_context_initial,
+    render_debt_action_human,
+    render_finish_human,
+)
+from .render_json import (
+    render_context_json,
+    render_debt_action_json,
+    render_finish_json,
+)
+from .session_events import append_memory_debt_action, append_usage_attestation
 
 
 MAX_QUERY_CHARACTERS = 16 * 1024
@@ -204,6 +217,49 @@ def build_parser() -> argparse.ArgumentParser:
         default=[],
         choices=[code.value for code in ImpactCode],
         help="Attest one impact-v1 outcome; repeat as needed.",
+    )
+    finish_parser.add_argument(
+        "--conflict-docid",
+        help="Declare one retrieved memory docid contradicted by current repository evidence.",
+    )
+    finish_parser.add_argument(
+        "--repo-evidence",
+        dest="repository_path",
+        help="Reference the current repository evidence with a relative POSIX path.",
+    )
+    finish_parser.add_argument(
+        "--evidence-type",
+        choices=[kind.value for kind in ConflictEvidenceType],
+        help="Classify the current repository evidence without storing its content.",
+    )
+    finish_parser.add_argument(
+        "--conflict-category",
+        choices=[category.value for category in ConflictCategory],
+        help="Classify the memory conflict for the conflict-v1 risk matrix.",
+    )
+    finish_parser.add_argument(
+        "--conflict-risk",
+        choices=[risk.value for risk in ConflictRisk],
+        help="Declare the conflict impact as low, medium or high.",
+    )
+    finish_parser.add_argument(
+        "--prepare-debt",
+        action="store_true",
+        help="Keep the conflict event as an open metadata-only local draft.",
+    )
+    finish_parser.add_argument(
+        "--debt-action",
+        choices=[action.value for action in DebtAction],
+        help="Review an open conflict debt with fix, ignore or snooze.",
+    )
+    finish_parser.add_argument(
+        "--reason",
+        help="Structured reason slug required only by --debt-action ignore.",
+    )
+    finish_parser.add_argument(
+        "--until",
+        dest="snooze_until",
+        help="Future YYYY-MM-DD date required only by --debt-action snooze.",
     )
     finish_parser.add_argument(
         "--json",
@@ -566,6 +622,7 @@ def _run_context_command(
             print(f"Correction: {error.correction}")
         return error.exit_code
 
+    event: dict[str, object] | None = None
     try:
         event = build_context_event(outcome.event_metadata())
         append_event(
@@ -575,8 +632,12 @@ def _run_context_command(
         )
         outcome = replace(outcome, event_id=str(event["event_id"]))
     except EventIntegrityError as error:
+        event_id = outcome.event_id
+        if error.code == "event_directory_fsync_failed" and event is not None:
+            event_id = str(event["event_id"])
         outcome = replace(
             outcome,
+            event_id=event_id,
             exit_code=error.exit_code,
             errors=(*outcome.errors, error.as_dict()),
         )
@@ -622,9 +683,10 @@ def _run_purge_command(*, force: bool, json_output: bool) -> int:
         _render_json(
             _envelope(
                 command="purge",
-                status="ready",
+                status=outcome.status,
                 project_id=project_id,
                 data=outcome.data(),
+                errors=list(outcome.diagnostics),
             )
         )
     else:
@@ -637,7 +699,10 @@ def _run_purge_command(*, force: bool, json_output: bool) -> int:
                 "Warning: "
                 f"{outcome.corrupted_files} truncated file(s) were rewritten from their valid prefix."
             )
-    return 0
+        for diagnostic in outcome.diagnostics:
+            print(f"Error: {diagnostic['message']}")
+            print(f"Correction: {diagnostic['correction']}")
+    return outcome.exit_code
 
 
 def _run_finish_command(
@@ -647,6 +712,15 @@ def _run_finish_command(
     cited: Sequence[str],
     citation_only: Sequence[str],
     impact_codes: Sequence[str],
+    conflict_docid: str | None,
+    repository_path: str | None,
+    evidence_type: str | None,
+    conflict_category: str | None,
+    conflict_risk: str | None,
+    prepare_debt: bool,
+    debt_action: str | None,
+    reason: str | None,
+    snooze_until: str | None,
     json_output: bool,
 ) -> int:
     project_id: str | None = None
@@ -654,6 +728,51 @@ def _run_finish_command(
         manifest_path = discover_manifest()
         manifest = load_manifest(manifest_path)
         project_id = manifest.project.id
+        if debt_action is not None:
+            incompatible = (
+                bool(used)
+                or bool(cited)
+                or bool(citation_only)
+                or bool(impact_codes)
+                or conflict_docid is not None
+                or repository_path is not None
+                or evidence_type is not None
+                or conflict_category is not None
+                or conflict_risk is not None
+                or prepare_debt
+            )
+            if incompatible:
+                raise EventIntegrityError(
+                    code="finish_mode_invalid",
+                    message="Debt review cannot be combined with usage or conflict declaration options.",
+                    correction="Review the open debt in a separate memory finish invocation.",
+                )
+            action_result = append_memory_debt_action(
+                project_id=project_id,
+                parent_event_id=parent_event_id,
+                action=DebtAction(debt_action),
+                reason=reason,
+                snooze_until=snooze_until,
+                state_dir=resolve_state_dir(),
+                project_root=manifest_path.parent.parent,
+            )
+            action_outcome = DebtActionOutcome(
+                project_id=project_id,
+                parent_event=action_result.parent_event,
+                action_event=action_result.event,
+                diagnostics=action_result.diagnostics,
+            )
+            if json_output:
+                render_debt_action_json(action_outcome, stream=sys.stdout)
+            else:
+                render_debt_action_human(action_outcome, stream=sys.stdout)
+            return action_outcome.exit_code
+        if reason is not None or snooze_until is not None:
+            raise EventIntegrityError(
+                code="finish_mode_invalid",
+                message="Debt review arguments require --debt-action.",
+                correction="Choose fix, ignore or snooze before supplying review arguments.",
+            )
         result = append_usage_attestation(
             project_id=project_id,
             parent_event_id=parent_event_id,
@@ -661,6 +780,16 @@ def _run_finish_command(
             cited=cited,
             citation_only=citation_only,
             impact_codes=impact_codes,
+            conflict_docid=conflict_docid,
+            repository_path=repository_path,
+            evidence_type=(
+                ConflictEvidenceType(evidence_type) if evidence_type else None
+            ),
+            conflict_category=(
+                ConflictCategory(conflict_category) if conflict_category else None
+            ),
+            conflict_risk=ConflictRisk(conflict_risk) if conflict_risk else None,
+            prepare_debt=prepare_debt,
             state_dir=resolve_state_dir(),
             project_root=manifest_path.parent.parent,
         )
@@ -685,12 +814,14 @@ def _run_finish_command(
         project_id=project_id,
         parent_event=result.parent_event,
         attestation_event=result.event,
+        conflict_event=result.conflict_event,
+        diagnostics=result.diagnostics,
     )
     if json_output:
         render_finish_json(outcome, stream=sys.stdout)
     else:
         render_finish_human(outcome, stream=sys.stdout)
-    return 0
+    return outcome.exit_code
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -720,6 +851,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             cited=arguments.cited,
             citation_only=arguments.citation_only,
             impact_codes=arguments.impact_code,
+            conflict_docid=arguments.conflict_docid,
+            repository_path=arguments.repository_path,
+            evidence_type=arguments.evidence_type,
+            conflict_category=arguments.conflict_category,
+            conflict_risk=arguments.conflict_risk,
+            prepare_debt=arguments.prepare_debt,
+            debt_action=arguments.debt_action,
+            reason=arguments.reason,
+            snooze_until=arguments.snooze_until,
             json_output=arguments.json_output,
         )
     if arguments.command == "purge":

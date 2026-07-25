@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from typing import TextIO
 
-from .receipts import ContextInitialReceipt, ContextOutcome, FinishOutcome
+from .receipts import (
+    ContextInitialReceipt,
+    ContextOutcome,
+    DebtActionOutcome,
+    FinishOutcome,
+)
 
 
 def render_context_initial(receipt: ContextInitialReceipt, *, stream: TextIO) -> None:
@@ -135,4 +140,58 @@ def render_finish_human(outcome: FinishOutcome, *, stream: TextIO) -> None:
         file=stream,
     )
     print(f"Impact: {impact}", file=stream)
+    if outcome.conflict_event is not None:
+        conflict = outcome.conflict_data()
+        print(file=stream)
+        print(
+            f"Memory conflict · {str(conflict['risk']).upper()} RISK",
+            file=stream,
+        )
+        print(
+            f"Memory: {conflict['memory']['docid']} · {conflict['memory']['path']}",
+            file=stream,
+        )
+        print(
+            "Repository: "
+            f"{conflict['repository']['path']} · "
+            f"{conflict['repository']['evidence_type']}",
+            file=stream,
+        )
+        print("Decision: repository evidence takes precedence", file=stream)
+        human = "yes" if conflict["requires_human"] else "no"
+        print(f"Human arbitration: {human}", file=stream)
+        if conflict["debt"] is not None:
+            print(
+                f"Debt: {conflict['debt']['id']} · open metadata-only draft",
+                file=stream,
+            )
+        action_labels = {
+            "continue": "[c] continue with repository evidence",
+            "inspect": "[i] inspect both sources",
+            "prepare_patch": "[p] prepare a source-backed memory patch",
+        }
+        print("Actions:", file=stream)
+        for action in conflict["next_actions"]:
+            print(f"  {action_labels[action]}", file=stream)
+    for diagnostic in outcome.diagnostics:
+        print(f"Error: {diagnostic['message']}", file=stream)
+        print(f"Correction: {diagnostic['correction']}", file=stream)
+    print("Machine output: memory finish --json", file=stream)
+
+
+def render_debt_action_human(
+    outcome: DebtActionOutcome, *, stream: TextIO
+) -> None:
+    action = outcome.action_data()
+    print(f"Memory debt · {outcome.debt_id}", file=stream)
+    print(f"Action: {action['action']}", file=stream)
+    if action["reason"] is not None:
+        print(f"Reason: {action['reason']}", file=stream)
+    if action["snooze_until"] is not None:
+        print(f"Snooze until: {action['snooze_until']}", file=stream)
+    print(f"Event: {outcome.event_id}", file=stream)
+    print("Shared memory: unchanged", file=stream)
+    for diagnostic in outcome.diagnostics:
+        print(f"Error: {diagnostic['message']}", file=stream)
+        print(f"Correction: {diagnostic['correction']}", file=stream)
     print("Machine output: memory finish --json", file=stream)

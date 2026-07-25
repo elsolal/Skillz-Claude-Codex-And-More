@@ -1,0 +1,142 @@
+# Quality gate for STORY-013 / GitHub issue #53.
+verdict: CONCERNS
+niveau: 3
+tours: 4
+base: main
+head: b89dd107b932
+diff_hash: "55eff88908fd32d014d3009be212347ceb41bc14f0a8e222f771c79f28dce567"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "vert apres chaque correction (exit 0)"
+    tests:
+      cmd: "PATH=/Users/aymeric/miniconda3/bin:$PATH bash tests/test-install-memory-cli.sh && PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "vert apres chaque correction; installer acceptance PASS; 196, 197 puis 198 tests Python; dernier run 198 tests en 51.542s"
+    diff_check:
+      cmd: "git diff --check"
+      statut: "vert avant chaque commit de correction"
+    runtime_contract:
+      flow: "memory context -> memory finish avec usage_attested + memory_conflict atomiques -> recu humain/JSON -> memory finish con_... avec memory_debt_action append-only -> purge durable"
+      statut: "vert via faux QMD 0.9.x, worktrees/vaults/state dirs temporaires, snapshots, injections de fsync et huit revues concurrentes"
+  red_green:
+    red: "les tests initiaux echouaient sur memory_cli.conflicts absent et les options --conflict-* inconnues; le re-gate a ensuite reproduit les chemins privacy et durabilite defaillants"
+    green: "198 tests passent; precedence repository, risque, brouillon metadata-only, refus des secrets, atomicite et reconciliation de durabilite sont prouves"
+  convergence:
+    statut: "non atteinte dans la borne"
+    preuve: "nouveaux P1 confirmes aux tours 1, 2 et 4 du re-gate; tour 3 propre, donc un seul tour propre consecutif avant le plafond de quatre"
+  opinion:
+    findings:
+      total: 16
+      confirmes: 14
+      refutes: 2
+      corriges_p0_p1: 9
+      restants_p0_p1: 0
+      notes_p2_p3: 5
+    registre:
+      - id: ".claude/skills/llm-wiki/memory_cli/conflicts.py:security:13cc04a9"
+        severite: P1
+        statut: corrige
+        resume: "une chaine libre ou un chemin inexistant pouvait etre persiste comme preuve repo relative"
+        preuve: "la cible doit etre un fichier regulier existant dont la resolution canonique reste dans le worktree"
+      - id: ".claude/skills/llm-wiki/memory_cli/receipts.py:api:195ec77d"
+        severite: P1
+        statut: refute
+        resume: "le mode conflit retourne un event_id con_ a la racine plutot que att_"
+        preuve: "le mode opt-in documente con_ comme identifiant de dette et le chemin sans conflit reste inchange"
+      - id: ".claude/skills/llm-wiki/memory_cli/cli.py:readability:4e0b5327"
+        severite: P2
+        statut: note
+        resume: "l'aide positionnelle de finish ne decrit pas encore le parent con_ du mode debt-action"
+        preuve: "le README documente les deux commandes; aucun effet comportemental"
+      - id: ".claude/skills/llm-wiki/memory_cli/session_events.py:readability:75201800"
+        severite: P3
+        statut: note
+        resume: "un message de correction regroupe les cinq options sous le prefixe --conflict-*"
+        preuve: "erreur stable; wording a polir sans elargir le lot"
+      - id: ".claude/skills/llm-wiki/memory_cli/events.py:readability:3b907498"
+        severite: P3
+        statut: note
+        resume: "une correction commune d'identifiant invalide nomme build_context_event"
+        preuve: "validation correcte; seul le conseil de debug est trop specifique"
+      - id: ".claude/skills/llm-wiki/memory_cli/session_events.py:performance:588cc205"
+        severite: P2
+        statut: note
+        resume: "lookup parent et doublon relisent les JSONL retenus sous verrou exclusif"
+        preuve: "cout lineaire confirme mais acceptable pour la telemetrie locale bornee du pilote"
+      - id: ".claude/skills/llm-wiki/memory_cli/session_events.py:atomicity:b74382e9"
+        severite: P1
+        statut: corrige
+        resume: "une ecriture partielle pouvait conserver usage_attested sans memory_conflict"
+        preuve: "la paire passe par temp file, fsync fichier, replace atomique et fsync repertoire"
+      - id: ".claude/skills/llm-wiki/memory_cli/render_human.py:api:86672880"
+        severite: P1
+        statut: corrige
+        resume: "le recu humain omettait continue, inspect et prepare_patch"
+        preuve: "bloc Actions [c]/[i]/[p] ajoute et snapshot contractuel mis a jour"
+      - id: ".claude/skills/llm-wiki/memory_cli/events.py:durability:8da55116"
+        severite: P1
+        statut: corrige
+        resume: "un echec du fsync repertoire apres replace ne pouvait pas etre reconcilie proprement"
+        preuve: "diagnostic conserve les IDs; replay exact fsync le repertoire et reutilise le batch"
+      - id: ".claude/skills/llm-wiki/memory_cli/events.py:maintainability:6fb907e1"
+        severite: P1
+        statut: refute
+        resume: "events.py depasse 1000 lignes et imposerait une extraction immediate"
+        preuve: "la boundary est chargeable et une extraction substantielle depasserait le lot sans simplification prouvee"
+      - id: ".claude/skills/llm-wiki/memory_cli/events.py:privacy:path-component-secret"
+        severite: P1
+        statut: corrige
+        resume: "un vrai fichier repo nomme evidence/sk-... echappait a la regex de secret ancree"
+        preuve: "chaque composant PurePosixPath est scanne; le CLI refuse sans append"
+      - id: ".claude/skills/llm-wiki/memory_cli/events.py:durability:purge-diagnostic"
+        severite: P1
+        statut: corrige
+        resume: "purge ignorait le diagnostic de fsync retourne apres une reecriture visible"
+        preuve: "PurgeOutcome propage diagnostics, status degraded et exit 50 aux recus humain/JSON"
+      - id: ".claude/skills/llm-wiki/memory_cli/events.py:durability:purge-retry"
+        severite: P1
+        statut: corrige
+        resume: "un retry purge sans mutation pouvait rendre ready sans refaire le fsync precedent"
+        preuve: "chaque purge termine par une barriere repertoire, y compris le no-op et le repertoire deja supprime"
+      - id: ".claude/skills/llm-wiki/memory_cli/events.py:durability:single-append"
+        severite: P1
+        statut: corrige
+        resume: "le premier append d'un fichier mensuel etait acquitte sans fsync du repertoire"
+        preuve: "la primitive append partagee fsync maintenant fichier puis repertoire; diagnostics propages"
+      - id: ".claude/skills/llm-wiki/memory_cli/session_events.py:api:retry-correction"
+        severite: P2
+        statut: note
+        resume: "un retry peut reconcilier puis retourner already_* selon le contrat one-winner"
+        preuve: "durabilite confirmee et aucun doublon; clarifier le texte de correction pour les appelants automatises"
+      - id: ".claude/skills/llm-wiki/memory_cli/session_events.py:durability:expired-snooze"
+        severite: P1
+        statut: corrige
+        resume: "un snooze visible mais incertain ne pouvait plus etre rejoue apres sa date cible"
+        preuve: "un replay compare d'abord le payload immuable stocke puis fsync; la regle future reste appliquee aux nouvelles actions"
+    lentilles:
+      correctness_security: "approve final; les P1 privacy/durabilite ont ete reproduits, corriges et contre-verifies"
+      readability: "approve avec notes P2/P3; dernier P1 snooze corrige apres reproduction temporelle"
+      performance: "approve; scans lineaires sous verrou acceptes aux volumes pilotes"
+      thermo_nuclear: "approve au dernier tour propre; aucune nouvelle boundary P0/P1"
+acceptation:
+  AC1: "vert - precedence repository et references memory/repository relatives dans les recus humain et JSON"
+  AC2: "vert - seule la combinaison high + product/architecture/security/data produit requires_human true et exit 21"
+  AC3: "vert - conflit faible et dette ouverte persistent avec exit 0 sans bloquer le contexte"
+  AC4: "vert - conflit/draft metadata-only; texte libre, secret-shape, chemin absolu, absent ou hors worktree refuses; vaults inchanges"
+  AC5: "vert - fix, ignore --reason et snooze --until persistent un unique memory_debt_action; concurrence, durabilite et replay temporel couverts"
+decisions_prises_en_ton_nom:
+  - "La preuve repository doit designer un fichier regulier existant dont la cible canonique reste dans le worktree."
+  - "La paire usage_attested + memory_conflict est publiee par remplacement atomique du JSONL mensuel."
+  - "Toute mutation visible mais non confirmee retourne un diagnostic de durabilite et un exit 50."
+  - "Les append simples fsync le fichier puis son repertoire; purge execute une barriere meme sans mutation."
+  - "Le replay d'un snooze stocke compare son payload immuable avant la validation temporelle reservee aux nouvelles actions."
+  - "Le contrat concurrent one-winner est preserve; le wording P2 de retry reste hors lot."
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no live real-vault QMD query; fixture-backed QMD 0.9.x and temporary vaults provide deterministic proof"
+  - "the shell resolves Apple Python 3.9.6 by default; verification prepended Miniconda Python 3.12.7 for Python >=3.10"
+  - "no frontend or SEO/GEO surface; design, SEO/GEO and WCAG web lenses are not applicable"
+  - "two consecutive clean review rounds were not reached within the level-3 four-round cap"

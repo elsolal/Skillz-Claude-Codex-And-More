@@ -223,12 +223,16 @@ is explicitly set, otherwise `$XDG_STATE_HOME/skillz-memory`, then
 `~/.local/state/skillz-memory`. A state directory resolving inside the current
 project is refused with exit `50`. On POSIX, state/project directories are
 restricted to `0700` and JSONL/lock files to `0600`. Events are partitioned as
-`events/<project-id>/YYYY-MM.jsonl`, appended under a project lock as one compact
-JSON line, and `fsync`ed before success is reported.
+`events/<project-id>/YYYY-MM.jsonl`. Unit events append under a project lock as
+one compact JSON line and are `fsync`ed before success is reported. The related
+`usage_attested` + `memory_conflict` pair is published through a same-directory
+temporary file, file `fsync`, atomic replace, and directory `fsync`, so a failed
+finish exposes either both new events or neither.
 
 The common V1 root allowlist is `schema_version`, `event_id`, `event_type`,
-`occurred_at`, `project_id`, and `payload`. A `usage_attested` event adds only
-`parent_event_id`. A `context_completed` payload is limited to:
+`occurred_at`, `project_id`, and `payload`. The child events `usage_attested`,
+`memory_conflict`, and `memory_debt_action` add only `parent_event_id`. A
+`context_completed` payload is limited to:
 
 - `mode`, `task_category`, `status`, and the collection-only `route`;
 - normalized `retrieved` entries containing `docid`, `collection`, relative
@@ -281,6 +285,47 @@ All lists may be empty. This records that no influence was observed and renders
 as product success. Human and JSON receipts reconstruct measured fields from the
 immutable parent and attested fields from the child, with explicit `Measured`
 and `Attested` labels.
+
+### Repository-first conflicts and memory debt
+
+`memory finish` may declare that one retrieved memory page conflicts with
+current repository evidence. The page reference is derived from its parent
+`context_completed` event, while the repository reference must be a normalized
+relative POSIX path. Neither reference stores page content, a diff, a task, or a
+transcript:
+
+```bash
+memory finish mem_... \
+  --used '#dfec5e' \
+  --conflict-docid '#dfec5e' \
+  --repo-evidence '.claude/project-memory.md' \
+  --evidence-type contract \
+  --conflict-category architecture \
+  --conflict-risk high \
+  --prepare-debt
+```
+
+The immutable `memory_conflict` event always records
+`precedence: repository`, the two relative references, risk, category, and the
+derived `requires_human` decision. Only `high` conflicts in `product`,
+`architecture`, `security`, or `data` require human arbitration and return exit
+`21`. Other combinations remain visible but return `0`, so current repository
+evidence can continue to guide the task.
+
+`--prepare-debt` makes that same local conflict event an open metadata-only
+draft; it does not create or edit a Markdown page. Its `con_...` event ID is the
+debt ID. A later review appends exactly one immutable `memory_debt_action`:
+
+```bash
+memory finish con_... --debt-action fix
+memory finish con_... --debt-action ignore --reason not_actionable
+memory finish con_... --debt-action snooze --until 2026-08-01
+```
+
+`fix` records intent only. `ignore` requires a lowercase structured reason
+slug, and `snooze` requires a future ISO date. These actions never modify shared
+memory. A later weekly report can aggregate the conflict/action event chain
+without inventing a second debt model.
 
 `memory purge` removes only events older than the current manifest's
 `policy.retention_days` for the current project. `memory purge --force` removes

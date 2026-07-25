@@ -19,6 +19,8 @@ from .contracts import IMPACT_TAXONOMY_VERSION, ImpactCode
 EVENT_SCHEMA_VERSION = 1
 EVENT_TYPE_CONTEXT_COMPLETED = "context_completed"
 EVENT_TYPE_USAGE_ATTESTED = "usage_attested"
+EVENT_TYPE_MEMORY_CONFLICT = "memory_conflict"
+EVENT_TYPE_MEMORY_DEBT_ACTION = "memory_debt_action"
 EVENT_EXIT_CODE = 50
 
 _CONTEXT_ROOT_KEYS = (
@@ -64,8 +66,13 @@ _RETRIEVED_KEYS = ("docid", "collection", "path", "score")
 _READ_KEYS = ("docid", "collection", "path")
 
 _PROJECT_ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
+_ATOMIC_TEMP_FILE = re.compile(
+    r"^\.\d{4}-(?:0[1-9]|1[0-2])\.jsonl\.[A-Za-z0-9_-]+$"
+)
 _CONTEXT_EVENT_ID = re.compile(r"^mem_\d{8}T\d{12}Z_[0-9a-f]{16}$")
 _ATTESTATION_EVENT_ID = re.compile(r"^att_\d{8}T\d{12}Z_[0-9a-f]{16}$")
+_CONFLICT_EVENT_ID = re.compile(r"^con_\d{8}T\d{12}Z_[0-9a-f]{16}$")
+_DEBT_ACTION_EVENT_ID = re.compile(r"^deb_\d{8}T\d{12}Z_[0-9a-f]{16}$")
 _DOCID = re.compile(r"^#[A-Za-z0-9._:-]+$")
 _WINDOWS_ABSOLUTE_PATH = re.compile(r"^[A-Za-z]:[\\/]")
 _SENSITIVE_KEY = re.compile(
@@ -142,13 +149,6 @@ class EventReadResult:
 
 
 @dataclass(frozen=True, slots=True)
-class UsageAttestationResult:
-    parent_event: dict[str, Any]
-    event: dict[str, Any]
-    diagnostics: tuple[dict[str, str], ...] = ()
-
-
-@dataclass(frozen=True, slots=True)
 class PurgeOutcome:
     project_id: str
     retention_days: int
@@ -157,6 +157,15 @@ class PurgeOutcome:
     retained_events: int
     removed_files: int
     corrupted_files: int
+    diagnostics: tuple[dict[str, str], ...] = ()
+
+    @property
+    def status(self) -> str:
+        return "degraded" if self.diagnostics else "ready"
+
+    @property
+    def exit_code(self) -> int:
+        return 50 if self.diagnostics else 0
 
     def data(self) -> dict[str, object]:
         return {
@@ -279,7 +288,12 @@ def _scan_privacy(value: object, *, field: str = "event") -> None:
                 f"{field} contains an absolute path.",
                 "Store only normalized paths relative to the declared memory root.",
             )
-        if any(pattern.search(value) for pattern in _SECRET_VALUES):
+        secret_candidates = (value, *PurePosixPath(value).parts)
+        if any(
+            pattern.search(candidate)
+            for candidate in secret_candidates
+            for pattern in _SECRET_VALUES
+        ):
             raise _error(
                 "event_privacy_violation",
                 f"{field} contains a secret-shaped value.",
@@ -401,11 +415,17 @@ def validate_event(event: Mapping[str, object]) -> None:
     elif event_type == EVENT_TYPE_USAGE_ATTESTED:
         _expect_exact_keys(event, _ATTESTATION_ROOT_KEYS, "event")
         event_id_pattern = _ATTESTATION_EVENT_ID
+    elif event_type == EVENT_TYPE_MEMORY_CONFLICT:
+        _expect_exact_keys(event, _ATTESTATION_ROOT_KEYS, "event")
+        event_id_pattern = _CONFLICT_EVENT_ID
+    elif event_type == EVENT_TYPE_MEMORY_DEBT_ACTION:
+        _expect_exact_keys(event, _ATTESTATION_ROOT_KEYS, "event")
+        event_id_pattern = _DEBT_ACTION_EVENT_ID
     else:
         raise _error(
             "event_schema_invalid",
             "Unsupported event type.",
-            "Use context_completed or usage_attested for V1 events.",
+            "Use a documented metadata-only V1 event type.",
         )
     if event["schema_version"] != EVENT_SCHEMA_VERSION:
         raise _error(
@@ -447,6 +467,50 @@ def validate_event(event: Mapping[str, object]) -> None:
                 "Build the event through build_usage_attestation_event().",
             )
         _validate_attestation_payload(payload)
+        return
+
+    if event_type == EVENT_TYPE_MEMORY_CONFLICT:
+        parent_event_id = _expect_string(
+            event["parent_event_id"], "event.parent_event_id"
+        )
+        if parent_event_id is None or not _CONTEXT_EVENT_ID.fullmatch(parent_event_id):
+            raise _error(
+                "event_schema_invalid",
+                "Conflict parent must identify a context_completed event.",
+                "Use the event_id returned by memory context.",
+            )
+        payload = event["payload"]
+        if not isinstance(payload, Mapping):
+            raise _error(
+                "event_schema_invalid",
+                "Conflict payload must be an object.",
+                "Build the conflict through memory finish.",
+            )
+        from .conflicts import validate_conflict_payload
+
+        validate_conflict_payload(payload)
+        return
+
+    if event_type == EVENT_TYPE_MEMORY_DEBT_ACTION:
+        parent_event_id = _expect_string(
+            event["parent_event_id"], "event.parent_event_id"
+        )
+        if parent_event_id is None or not _CONFLICT_EVENT_ID.fullmatch(parent_event_id):
+            raise _error(
+                "event_schema_invalid",
+                "Debt action parent must identify a memory_conflict event.",
+                "Use an open debt ID returned by memory finish.",
+            )
+        payload = event["payload"]
+        if not isinstance(payload, Mapping):
+            raise _error(
+                "event_schema_invalid",
+                "Debt action payload must be an object.",
+                "Build the action through memory finish.",
+            )
+        from .conflicts import validate_debt_action_payload
+
+        validate_debt_action_payload(payload)
         return
 
     payload = event["payload"]
@@ -622,6 +686,31 @@ def _ensure_private_directory(path: Path) -> None:
         path.chmod(0o700)
 
 
+def _durably_prepare_event_directories(
+    root: Path, project_dir: Path
+) -> tuple[dict[str, str], ...]:
+    """Create and persist every directory entry needed by the event log."""
+
+    events_root = root / "events"
+    private_directories = {root, events_root, project_dir}
+    directories = (*reversed(root.parents), root, events_root, project_dir)
+    seen: set[Path] = set()
+    for directory in directories:
+        if directory == directory.parent or directory in seen:
+            continue
+        seen.add(directory)
+        if directory in private_directories:
+            _ensure_private_directory(directory)
+        elif not directory.exists():
+            directory.mkdir(mode=0o700)
+            if os.name == "posix":
+                directory.chmod(0o700)
+        diagnostics = _fsync_directory(directory.parent)
+        if diagnostics:
+            return diagnostics
+    return ()
+
+
 def _validate_storage_location(state_dir: Path, project_root: Path | None) -> Path:
     if not state_dir.is_absolute():
         raise _error(
@@ -698,9 +787,12 @@ def _event_path(project_dir: Path, event: Mapping[str, object]) -> Path:
     return project_dir / f"{occurred_at:%Y-%m}.jsonl"
 
 
-def _append_event_line(event_path: Path, event: Mapping[str, object]) -> None:
-    encoded = (
+def _append_event_lines(
+    event_path: Path, events: Sequence[Mapping[str, object]]
+) -> tuple[dict[str, str], ...]:
+    encoded = "".join(
         json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n"
+        for event in events
     ).encode("utf-8")
     _ensure_private_directory(event_path.parent)
     flags = os.O_WRONLY | os.O_CREAT | os.O_APPEND | getattr(os, "O_NOFOLLOW", 0)
@@ -715,6 +807,13 @@ def _append_event_line(event_path: Path, event: Mapping[str, object]) -> None:
         os.fsync(descriptor)
     finally:
         os.close(descriptor)
+    return _fsync_directory(event_path.parent)
+
+
+def _append_event_line(
+    event_path: Path, event: Mapping[str, object]
+) -> tuple[dict[str, str], ...]:
+    return _append_event_lines(event_path, (event,))
 
 
 def append_event(
@@ -729,8 +828,8 @@ def append_event(
     if event["event_type"] != EVENT_TYPE_CONTEXT_COMPLETED:
         raise _error(
             "usage_attestation_requires_parent_lookup",
-            "Usage attestations cannot use the generic event append path.",
-            "Use append_usage_attestation() for atomic parent validation and append.",
+            "Child events cannot use the generic event append path.",
+            "Use the relationship-specific append function for atomic parent validation.",
         )
     root = _validate_storage_location(state_dir or resolve_state_dir(), project_root)
     project_dir = _project_directory(root, str(event["project_id"]))
@@ -738,9 +837,33 @@ def append_event(
     lock_path = root / "events" / f".{event['project_id']}.lock"
 
     try:
-        _ensure_private_directory(root)
+        bootstrap_diagnostics = _durably_prepare_event_directories(
+            root, project_dir
+        )
+        if bootstrap_diagnostics:
+            raise _error(
+                "event_store_unavailable",
+                (
+                    "The private event directory could not be made durable "
+                    "before persistence."
+                ),
+                (
+                    "Restore durable storage, then retry; no event was "
+                    "acknowledged."
+                ),
+            )
         with _project_lock(lock_path):
-            _append_event_line(event_path, event)
+            diagnostics = _append_event_line(event_path, event)
+            if diagnostics:
+                diagnostic = diagnostics[0]
+                raise _error(
+                    diagnostic["code"],
+                    diagnostic["message"],
+                    (
+                        "Keep the returned event ID and restore durable storage "
+                        "before using the context event."
+                    ),
+                )
     except OSError as error:
         raise _error(
             "event_store_unavailable",
@@ -748,95 +871,6 @@ def append_event(
             "Restore access to the private memory state directory, then retry.",
         ) from error
     return event_path
-
-
-def append_usage_attestation(
-    *,
-    project_id: str,
-    parent_event_id: str,
-    used: Sequence[str],
-    cited: Sequence[str],
-    citation_only: Sequence[str],
-    impact_codes: Sequence[str],
-    state_dir: Path | None = None,
-    project_root: Path | None = None,
-    occurred_at: datetime | None = None,
-) -> UsageAttestationResult:
-    """Lookup, validate and append one attestation under one project lock."""
-
-    if not _PROJECT_ID.fullmatch(project_id):
-        raise _error(
-            "event_schema_invalid",
-            "Attestation project ID is invalid.",
-            "Use the project ID from the nearest validated memory manifest.",
-        )
-    if not _CONTEXT_EVENT_ID.fullmatch(parent_event_id):
-        raise _error(
-            "parent_event_invalid",
-            "Parent event ID must identify a context_completed event.",
-            "Use the event_id returned by memory context.",
-        )
-    root = _validate_storage_location(state_dir or resolve_state_dir(), project_root)
-    project_dir = _project_directory(root, project_id)
-    lock_path = root / "events" / f".{project_id}.lock"
-    try:
-        _ensure_private_directory(root)
-        with _project_lock(lock_path):
-            parents: list[dict[str, Any]] = []
-            already_attested = False
-            diagnostics: list[dict[str, str]] = []
-            if project_dir.exists():
-                for path in sorted(project_dir.glob("*.jsonl")):
-                    result = read_event_file(path)
-                    diagnostics.extend(result.diagnostics)
-                    for stored_event in result.events:
-                        if stored_event["event_id"] == parent_event_id:
-                            parents.append(stored_event)
-                        if (
-                            stored_event["event_type"] == EVENT_TYPE_USAGE_ATTESTED
-                            and stored_event["parent_event_id"] == parent_event_id
-                        ):
-                            already_attested = True
-            if diagnostics:
-                raise _error(
-                    "event_log_truncated",
-                    "The project event log has an incomplete final line.",
-                    "Run memory purge before appending an attestation.",
-                )
-            if not parents:
-                raise _error(
-                    "parent_event_not_found",
-                    f"Parent context event was not found: {parent_event_id}.",
-                    "Use a retained event_id from memory context in the current project.",
-                )
-            if len(parents) != 1:
-                raise _error(
-                    "parent_event_ambiguous",
-                    f"Parent context event is duplicated: {parent_event_id}.",
-                    "Inspect or purge the affected local project telemetry.",
-                )
-            if already_attested:
-                raise _error(
-                    "parent_already_attested",
-                    f"Parent context event is already attested: {parent_event_id}.",
-                    "Reuse the existing immutable attestation instead of appending another.",
-                )
-            event = build_usage_attestation_event(
-                parents[0],
-                used=used,
-                cited=cited,
-                citation_only=citation_only,
-                impact_codes=impact_codes,
-                occurred_at=occurred_at,
-            )
-            _append_event_line(_event_path(project_dir, event), event)
-    except OSError as error:
-        raise _error(
-            "event_store_unavailable",
-            "The usage attestation could not be persisted safely.",
-            "Restore access to the private memory state directory, then retry.",
-        ) from error
-    return UsageAttestationResult(parents[0], event)
 
 
 def read_event_file(path: Path) -> EventReadResult:
@@ -906,10 +940,40 @@ def read_event_file(path: Path) -> EventReadResult:
     return EventReadResult(tuple(events), tuple(diagnostics))
 
 
-def _write_events_atomically(path: Path, events: Sequence[Mapping[str, object]]) -> None:
+def _fsync_directory(path: Path) -> tuple[dict[str, str], ...]:
+    if os.name != "posix":
+        return ()
+    try:
+        directory_flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+        directory = os.open(path, directory_flags)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    except OSError:
+        return (
+            {
+                "code": "event_directory_fsync_failed",
+                "message": (
+                    "The event update is visible, but directory durability "
+                    "could not be confirmed."
+                ),
+                "correction": (
+                    "Retry the same operation to reconcile the visible "
+                    "immutable state."
+                ),
+            },
+        )
+    return ()
+
+
+def _write_events_atomically(
+    path: Path, events: Sequence[Mapping[str, object]]
+) -> tuple[dict[str, str], ...]:
     _ensure_private_directory(path.parent)
     descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
     temporary = Path(temporary_name)
+    diagnostics: list[dict[str, str]] = []
     try:
         if os.name == "posix":
             os.fchmod(descriptor, 0o600)
@@ -920,9 +984,37 @@ def _write_events_atomically(path: Path, events: Sequence[Mapping[str, object]])
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(temporary, path)
+        diagnostics.extend(_fsync_directory(path.parent))
     finally:
         if temporary.exists():
             temporary.unlink()
+    return tuple(diagnostics)
+
+
+def append_event_batch_atomically(
+    path: Path, events: Sequence[Mapping[str, object]]
+) -> tuple[dict[str, str], ...]:
+    """Publish a related event batch wholly before or wholly after one replace."""
+
+    if not events:
+        raise _error(
+            "event_schema_invalid",
+            "An atomic event batch cannot be empty.",
+            "Provide the related validated events that must publish together.",
+        )
+    for event in events:
+        validate_event(event)
+    existing: tuple[dict[str, Any], ...] = ()
+    if path.exists() or path.is_symlink():
+        result = read_event_file(path)
+        if result.diagnostics:
+            raise _error(
+                "event_log_truncated",
+                "The target event log has an incomplete final line.",
+                "Run memory purge before appending a related event batch.",
+            )
+        existing = result.events
+    return _write_events_atomically(path, (*existing, *events))
 
 
 def purge_project_events(
@@ -951,19 +1043,60 @@ def purge_project_events(
     root = _validate_storage_location(state_dir or resolve_state_dir(), project_root)
     project_dir = _project_directory(root, project_id)
     if not project_dir.exists():
-        return PurgeOutcome(project_id, retention_days, force, 0, 0, 0, 0)
+        diagnostics = (
+            _fsync_directory(project_dir.parent)
+            if project_dir.parent.exists()
+            else ()
+        )
+        return PurgeOutcome(
+            project_id,
+            retention_days,
+            force,
+            0,
+            0,
+            0,
+            0,
+            diagnostics,
+        )
 
     lock_path = root / "events" / f".{project_id}.lock"
     cutoff = _as_utc(now or _utc_now()) - timedelta(days=retention_days)
     deleted_events = retained_events = removed_files = corrupted_files = 0
+    diagnostics: list[dict[str, str]] = []
     try:
         with _project_lock(lock_path):
+            file_results: list[tuple[Path, EventReadResult]] = []
+            events: list[dict[str, Any]] = []
             for path in sorted(project_dir.glob("*.jsonl")):
                 result = read_event_file(path)
+                file_results.append((path, result))
+                events.extend(result.events)
                 corrupted_files += int(bool(result.diagnostics))
+
+            deleted_ids = {
+                str(event["event_id"])
+                for event in events
+                if force or _parse_time(event["occurred_at"]) < cutoff
+            }
+            children_by_parent: dict[str, list[str]] = {}
+            for event in events:
+                parent_event_id = event.get("parent_event_id")
+                if isinstance(parent_event_id, str):
+                    children_by_parent.setdefault(parent_event_id, []).append(
+                        str(event["event_id"])
+                    )
+            pending = list(deleted_ids)
+            while pending:
+                parent_event_id = pending.pop()
+                for child_event_id in children_by_parent.get(parent_event_id, ()):
+                    if child_event_id not in deleted_ids:
+                        deleted_ids.add(child_event_id)
+                        pending.append(child_event_id)
+
+            for path, result in file_results:
                 retained: list[dict[str, Any]] = []
                 for event in result.events:
-                    if force or _parse_time(event["occurred_at"]) < cutoff:
+                    if str(event["event_id"]) in deleted_ids:
                         deleted_events += 1
                     else:
                         retained.append(event)
@@ -974,8 +1107,18 @@ def purge_project_events(
                 else:
                     path.unlink(missing_ok=True)
                     removed_files += 1
+            for path in sorted(project_dir.iterdir()):
+                if _ATOMIC_TEMP_FILE.fullmatch(path.name) and (
+                    path.is_file() or path.is_symlink()
+                ):
+                    path.unlink(missing_ok=True)
+                    removed_files += 1
             if project_dir.exists() and not any(project_dir.iterdir()):
                 project_dir.rmdir()
+            durability_directory = (
+                project_dir if project_dir.exists() else project_dir.parent
+            )
+            diagnostics.extend(_fsync_directory(durability_directory))
     except OSError as error:
         raise _error(
             "event_store_unavailable",
@@ -990,4 +1133,5 @@ def purge_project_events(
         retained_events=retained_events,
         removed_files=removed_files,
         corrupted_files=corrupted_files,
+        diagnostics=tuple(diagnostics),
     )

@@ -17,6 +17,16 @@ from memory_cli.events import (  # noqa: E402
     build_context_event,
     build_usage_attestation_event,
 )
+from memory_cli.conflicts import (  # noqa: E402
+    build_memory_conflict_event,
+    build_memory_debt_action_event,
+)
+from memory_cli.contracts import (  # noqa: E402
+    ConflictCategory,
+    ConflictEvidenceType,
+    ConflictRisk,
+    DebtAction,
+)
 from unit.test_events import context_metadata  # noqa: E402
 
 
@@ -94,6 +104,31 @@ class MetadataOnlyEventContractTests(unittest.TestCase):
                 event = copy.deepcopy(attestation)
                 event["payload"][key] = "private user material"
                 self.assert_rejected_without_append(event)
+
+    def test_conflicts_and_debt_actions_keep_the_same_privacy_boundary(self) -> None:
+        conflict = build_memory_conflict_event(
+            self.event,
+            memory_docid="#a1b2c3",
+            repository_path="src/current-contract.py",
+            evidence_type=ConflictEvidenceType.CONTRACT,
+            category=ConflictCategory.ARCHITECTURE,
+            risk=ConflictRisk.HIGH,
+            prepare_debt=True,
+            occurred_at=NOW,
+        )
+        action = build_memory_debt_action_event(
+            conflict,
+            action=DebtAction.FIX,
+            reason=None,
+            snooze_until=None,
+            occurred_at=NOW,
+        )
+        for base in (conflict, action):
+            for key in ("query", "prompt", "response", "transcript", "snippet", "body"):
+                with self.subTest(event_type=base["event_type"], key=key):
+                    event = copy.deepcopy(base)
+                    event["payload"][key] = "private user material"
+                    self.assert_rejected_without_append(event)
 
 
 if __name__ == "__main__":

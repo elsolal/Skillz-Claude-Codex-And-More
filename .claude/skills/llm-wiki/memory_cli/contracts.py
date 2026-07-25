@@ -13,6 +13,8 @@ PUBLIC_SCHEMA_VERSION = 1
 MANIFEST_SCHEMA_VERSION = 1
 DEFAULT_SUFFICIENCY_THRESHOLDS_VERSION = "qmd-0.9-v1"
 IMPACT_TAXONOMY_VERSION = "impact-v1"
+CONFLICT_POLICY_VERSION = "conflict-v1"
+DEBT_ACTION_POLICY_VERSION = "debt-action-v1"
 
 
 class RetrievalMode(str, Enum):
@@ -82,6 +84,35 @@ class ImpactCode(str, Enum):
     KNOWN_PROBLEM_AVOIDED = "known_problem_avoided"
     VALIDATION_COMMAND_REUSED = "validation_command_reused"
     NEXT_STEP_REUSED = "next_step_reused"
+
+
+class ConflictRisk(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
+class ConflictCategory(str, Enum):
+    PRODUCT = "product"
+    ARCHITECTURE = "architecture"
+    SECURITY = "security"
+    DATA = "data"
+    OPERATIONS = "operations"
+    GENERAL = "general"
+
+
+class ConflictEvidenceType(str, Enum):
+    CODE = "code"
+    TEST = "test"
+    CONTRACT = "contract"
+    CONFIG = "config"
+    DOCUMENTATION = "documentation"
+
+
+class DebtAction(str, Enum):
+    FIX = "fix"
+    IGNORE = "ignore"
+    SNOOZE = "snooze"
 
 
 class SufficiencyReason(str, Enum):

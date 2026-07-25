@@ -1,0 +1,16 @@
+Memory final · event <event-id>
+Measured: 2 retrieved · 1 read · ~27/2500 tokens · <duration>
+Attested: 1 used · 0 cited
+Impact: none observed
+
+Memory conflict · HIGH RISK
+Memory: #dfec5e · entities/skillz-claude.md
+Repository: .claude/project-memory.md · contract
+Decision: repository evidence takes precedence
+Human arbitration: yes
+Debt: <event-id> · open metadata-only draft
+Actions:
+  [c] continue with repository evidence
+  [i] inspect both sources
+  [p] prepare a source-backed memory patch
+Machine output: memory finish --json

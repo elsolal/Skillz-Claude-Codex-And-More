@@ -23,6 +23,8 @@ or to verify the scripts behave correctly end-to-end.
 | initial and final human context receipts | `memory/context-receipts-human.txt` |
 | `memory finish --json` | `memory/finish-ready.json` |
 | empty human `memory finish` receipt | `memory/finish-receipt-human.txt` |
+| high-risk `memory finish --conflict --json` | `memory/finish-conflict.json` |
+| high-risk human `memory finish --conflict` receipt | `memory/finish-conflict-human.txt` |
 | `memory purge --json` with fresh project events | `memory/purge-ready.json` |
 
 These were captured against a small 2-page example vault (one concept page and
