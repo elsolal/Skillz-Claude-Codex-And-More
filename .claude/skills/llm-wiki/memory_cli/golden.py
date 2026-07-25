@@ -722,9 +722,9 @@ def persist_golden_run(
         published = False
         cleanup_diagnostics: list[dict[str, str]] = []
         try:
-            if os.name == "posix":
-                os.fchmod(descriptor, 0o600)
             with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+                if os.name == "posix":
+                    os.fchmod(stream.fileno(), 0o600)
                 json.dump(
                     projection,
                     stream,
