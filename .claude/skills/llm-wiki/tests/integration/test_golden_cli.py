@@ -206,6 +206,37 @@ class GoldenCliIntegrationTests(unittest.TestCase):
         self.assertEqual(passed_output["status"], "pass")
         self.assertFalse(passed_output["data"]["authorizes_global_rollout"])
 
+    def test_gate_requires_current_rubric_even_before_quality_is_imported(self) -> None:
+        test_result = self.fixture._run_memory_cli("test", "--holdout", "--json")
+        run_id = json.loads(test_result.stdout)["run_id"]
+        (self.fixture.repo / ".agents" / "memory" / "quality-rubric.json").unlink()
+
+        result = self.fixture._run_memory_cli(
+            "test", "gate", "--run-id", run_id, "--json"
+        )
+        output = json.loads(result.stdout)
+
+        self.assertEqual(result.returncode, 30)
+        self.assertEqual(output["status"], "blocked")
+        self.assertEqual(output["errors"][0]["code"], "quality_rubric_file_missing")
+
+    def test_gate_rejects_tampered_run_metrics_instead_of_passing_them_through(self) -> None:
+        test_result = self.fixture._run_memory_cli("test", "--holdout", "--json")
+        run_id = json.loads(test_result.stdout)["run_id"]
+        run_path = self.fixture.state_dir / "runs" / "skillz-claude" / f"{run_id}.json"
+        run = json.loads(run_path.read_text(encoding="utf-8"))
+        run["aggregate"]["retrieval_hit_rate"] = 2.0
+        run_path.write_text(json.dumps(run), encoding="utf-8")
+
+        result = self.fixture._run_memory_cli(
+            "test", "gate", "--run-id", run_id, "--json"
+        )
+        output = json.loads(result.stdout)
+
+        self.assertEqual(result.returncode, 50)
+        self.assertEqual(output["status"], "blocked")
+        self.assertEqual(output["errors"][0]["code"], "quality_run_invalid")
+
     def test_quality_over_five_percent_fails_even_with_context_reduction(self) -> None:
         test_result = self.fixture._run_memory_cli("test", "--holdout", "--json")
         run_id = json.loads(test_result.stdout)["run_id"]

@@ -99,8 +99,15 @@ class QualityContractTests(unittest.TestCase):
                 {
                     "schema_version": 1,
                     "run_id": imported.run_id,
+                    "occurred_at": "2026-07-26T12:00:00.000000Z",
                     "project_id": "skillz-claude",
-                    "aggregate": {},
+                    "estimator_version": "utf8_bytes_div_4_v1",
+                    "cases": [],
+                    "aggregate": {
+                        "retrieval_hit_rate": 1.0,
+                        "fallback_rate": 0.0,
+                        "median_context_reduction": 0.5,
+                    },
                 }
             ),
             encoding="utf-8",
@@ -135,6 +142,18 @@ class QualityContractTests(unittest.TestCase):
                 project_root=project_root,
             )
         self.assertEqual(raised.exception.code, "quality_record_exists")
+
+        tampered = json.loads(path.read_text(encoding="utf-8"))
+        tampered["quality_degradation"] = 0.0
+        path.write_text(json.dumps(tampered), encoding="utf-8")
+        with self.assertRaises(QualityContractError) as raised:
+            load_quality_record(
+                run_id=imported.run_id,
+                project_id="skillz-claude",
+                state_dir=state_dir,
+                project_root=project_root,
+            )
+        self.assertEqual(raised.exception.code, "quality_record_invalid")
 
 
 if __name__ == "__main__":

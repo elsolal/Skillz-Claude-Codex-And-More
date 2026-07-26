@@ -18,8 +18,6 @@ from .events import (
     scan_metadata_privacy,
     validate_state_directory,
 )
-from .manifest import load_manifest
-from .receipts import MeasurementGateOutcome, QualityRecordOutcome
 
 
 QUALITY_RUBRIC_SCHEMA_VERSION = 1
@@ -455,10 +453,25 @@ def _validate_source_run(
             "Restore the immutable metadata-only run and retry.",
             exit_code=50,
         ) from error
+    base_keys = {
+        "schema_version",
+        "run_id",
+        "occurred_at",
+        "project_id",
+        "estimator_version",
+        "cases",
+        "aggregate",
+    }
     if (
         not isinstance(payload, dict)
+        or frozenset(payload)
+        not in {frozenset(base_keys), frozenset((*base_keys, "holdout"))}
+        or payload.get("schema_version") != 1
         or payload.get("run_id") != run_id
         or payload.get("project_id") != project_id
+        or not isinstance(payload.get("occurred_at"), str)
+        or not isinstance(payload.get("estimator_version"), str)
+        or not isinstance(payload.get("cases"), list)
         or not isinstance(payload.get("aggregate"), dict)
     ):
         raise _error(
@@ -467,7 +480,78 @@ def _validate_source_run(
             "Use an unmodified run emitted for the current project.",
             exit_code=50,
         )
+    _validate_run_aggregate(payload["aggregate"])
+    holdout = payload.get("holdout")
+    if holdout is not None:
+        if (
+            not isinstance(holdout, dict)
+            or set(holdout) != {"case_count", "aggregate", "details_shared"}
+            or isinstance(holdout.get("case_count"), bool)
+            or holdout.get("case_count") != 2
+            or holdout.get("details_shared") is not False
+            or not isinstance(holdout.get("aggregate"), dict)
+        ):
+            raise _error(
+                "quality_run_invalid",
+                "The referenced golden run holdout projection is invalid.",
+                "Use an unmodified run emitted by memory test --holdout.",
+                exit_code=50,
+            )
+        _validate_run_aggregate(holdout["aggregate"])
+    try:
+        scan_metadata_privacy(payload, field="golden_run")
+    except EventIntegrityError as error:
+        raise _error(
+            "quality_run_invalid",
+            "The referenced golden run violates the metadata-only contract.",
+            "Use an unmodified run emitted by memory test --holdout.",
+            exit_code=50,
+        ) from error
     return payload
+
+
+def _validate_run_aggregate(value: Mapping[str, object]) -> None:
+    if set(value) != {
+        "retrieval_hit_rate",
+        "fallback_rate",
+        "median_context_reduction",
+    }:
+        raise _error(
+            "quality_run_invalid",
+            "The referenced golden run aggregate does not match V1.",
+            "Use an unmodified metadata-only golden run.",
+            exit_code=50,
+        )
+    try:
+        retrieval = _finite_number(
+            value["retrieval_hit_rate"],
+            "aggregate.retrieval_hit_rate",
+            code="quality_run_invalid",
+        )
+        fallback = _finite_number(
+            value["fallback_rate"],
+            "aggregate.fallback_rate",
+            code="quality_run_invalid",
+        )
+        reduction = _finite_number(
+            value["median_context_reduction"],
+            "aggregate.median_context_reduction",
+            code="quality_run_invalid",
+        )
+    except QualityContractError as error:
+        raise _error(
+            "quality_run_invalid",
+            "The referenced golden run aggregate contains an invalid metric.",
+            "Use an unmodified metadata-only golden run.",
+            exit_code=50,
+        ) from error
+    if not (0.0 <= retrieval <= 1.0 and 0.0 <= fallback <= 1.0 and reduction <= 1.0):
+        raise _error(
+            "quality_run_invalid",
+            "The referenced golden run aggregate contains an out-of-range metric.",
+            "Use an unmodified metadata-only golden run.",
+            exit_code=50,
+        )
 
 
 def _quality_projection(imported: QualityImport, *, project_id: str) -> dict[str, object]:
@@ -674,11 +758,42 @@ def load_quality_record(
             "Use the record linked to the current project and run.",
             exit_code=50,
         )
-    _finite_number(
-        payload["quality_degradation"],
-        "quality_degradation",
-        code="quality_record_invalid",
-    )
+    try:
+        baseline_score = _finite_number(
+            payload["baseline_score"],
+            "baseline_score",
+            code="quality_record_invalid",
+        )
+        score = _finite_number(
+            payload["score"],
+            "score",
+            code="quality_record_invalid",
+        )
+        degradation = _finite_number(
+            payload["quality_degradation"],
+            "quality_degradation",
+            code="quality_record_invalid",
+        )
+        expected_degradation = calculate_quality_degradation(baseline_score, score)
+    except QualityContractError as error:
+        raise _error(
+            "quality_record_invalid",
+            "The immutable quality record contains invalid score metrics.",
+            "Create a new golden run and re-import the external evaluation.",
+            exit_code=50,
+        ) from error
+    if not math.isclose(
+        degradation,
+        expected_degradation,
+        rel_tol=0.0,
+        abs_tol=1e-12,
+    ):
+        raise _error(
+            "quality_record_invalid",
+            "The stored quality degradation does not match its two scores.",
+            "Create a new golden run and re-import the external evaluation.",
+            exit_code=50,
+        )
     try:
         scan_metadata_privacy(payload, field="quality_record")
     except EventIntegrityError as error:
@@ -765,120 +880,3 @@ def evaluate_measurement_gate(
         "authorizes_global_rollout": False,
         "dimensions": dimensions,
     }
-
-
-def _resolve_project_file(project_root: Path, relative_path: object, *, label: str) -> Path:
-    root = project_root.resolve(strict=True)
-    parts = getattr(relative_path, "parts", ())
-    candidate = project_root.joinpath(*parts)
-    if candidate.is_symlink():
-        raise _error(
-            f"{label}_file_escape",
-            f"The {label.replace('_', ' ')} file cannot be a symbolic link.",
-            "Restore the versioned physical file beneath the project root.",
-        )
-    resolved = candidate.resolve(strict=False)
-    if root not in resolved.parents:
-        raise _error(
-            f"{label}_file_escape",
-            f"The {label.replace('_', ' ')} file escapes the current project.",
-            "Keep the manifest-declared file beneath the repository root.",
-        )
-    return resolved
-
-
-def record_quality_from_file(
-    manifest_path: Path,
-    *,
-    input_path: Path,
-    state_dir: Path,
-) -> QualityRecordOutcome:
-    """Validate and persist one external score without reading any raw response."""
-
-    manifest = load_manifest(manifest_path)
-    project_root = manifest_path.parent.parent
-    rubric_path = _resolve_project_file(
-        project_root,
-        manifest.golden.quality_rubric,
-        label="quality_rubric",
-    )
-    rubric = load_quality_rubric(rubric_path)
-    imported = load_quality_import(input_path, rubric=rubric)
-    _, diagnostics = persist_quality_import(
-        imported,
-        project_id=manifest.project.id,
-        state_dir=state_dir,
-        project_root=project_root,
-    )
-    return QualityRecordOutcome(
-        status="degraded" if diagnostics else "ready",
-        exit_code=50 if diagnostics else 0,
-        project_id=manifest.project.id,
-        run_id=imported.run_id,
-        rubric_version=imported.rubric_version,
-        baseline_score=imported.baseline_score,
-        score=imported.score,
-        reviewer_type=imported.reviewer_type,
-        quality_degradation=imported.quality_degradation,
-        errors=diagnostics,
-    )
-
-
-def run_measurement_gate(
-    manifest_path: Path,
-    *,
-    run_id: str,
-    state_dir: Path,
-) -> MeasurementGateOutcome:
-    """Combine an immutable holdout run with its optional external quality record."""
-
-    manifest = load_manifest(manifest_path)
-    project_root = manifest_path.parent.parent
-    run = _validate_source_run(
-        run_id=run_id,
-        project_id=manifest.project.id,
-        state_dir=state_dir,
-        project_root=project_root,
-    )
-    quality_degradation: float | None = None
-    quality_path = state_dir.resolve(strict=False) / "quality" / manifest.project.id / f"{run_id}.json"
-    if quality_path.exists() or quality_path.is_symlink():
-        rubric_path = _resolve_project_file(
-            project_root,
-            manifest.golden.quality_rubric,
-            label="quality_rubric",
-        )
-        rubric = load_quality_rubric(rubric_path)
-        quality = load_quality_record(
-            run_id=run_id,
-            project_id=manifest.project.id,
-            state_dir=state_dir,
-            project_root=project_root,
-        )
-        if quality["rubric_version"] != rubric.rubric_version:
-            raise _error(
-                "quality_record_rubric_stale",
-                "The quality record does not use the current versioned rubric.",
-                "Create a new golden run and evaluate it with the current rubric.",
-            )
-        quality_degradation = float(quality["quality_degradation"])
-
-    holdout = run.get("holdout")
-    holdout_case_count = (
-        int(holdout.get("case_count", 0)) if isinstance(holdout, dict) else 0
-    )
-    aggregate = run["aggregate"]
-    assert isinstance(aggregate, dict)
-    gate = evaluate_measurement_gate(
-        aggregate=aggregate,
-        holdout_case_count=holdout_case_count,
-        quality_degradation=quality_degradation,
-    )
-    status = str(gate["status"])
-    return MeasurementGateOutcome(
-        status=status,
-        exit_code=0 if status == "pass" else 10 if status == "incomplete" else 20,
-        project_id=manifest.project.id,
-        run_id=run_id,
-        gate=gate,
-    )
