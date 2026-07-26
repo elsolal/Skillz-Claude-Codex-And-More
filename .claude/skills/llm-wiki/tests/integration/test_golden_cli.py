@@ -13,6 +13,8 @@ from integration import test_context_cli as context_support
 
 SKILL_ROOT = context_support.SKILL_ROOT
 GOLDEN_FIXTURE = SKILL_ROOT / "tests" / "fixtures" / "golden-v1" / "valid.json"
+HOLDOUT_FIXTURE = SKILL_ROOT / "tests" / "fixtures" / "holdout-v1" / "valid.json"
+RUBRIC_FIXTURE = SKILL_ROOT / "tests" / "fixtures" / "quality-v1" / "rubric.json"
 
 
 class GoldenCliIntegrationTests(unittest.TestCase):
@@ -26,6 +28,14 @@ class GoldenCliIntegrationTests(unittest.TestCase):
         shutil.copyfile(
             GOLDEN_FIXTURE,
             self.fixture.repo / ".agents" / "memory" / "golden.json",
+        )
+        shutil.copyfile(
+            HOLDOUT_FIXTURE,
+            self.fixture.repo / ".agents" / "memory" / "holdout.local.json",
+        )
+        shutil.copyfile(
+            RUBRIC_FIXTURE,
+            self.fixture.repo / ".agents" / "memory" / "quality-rubric.json",
         )
         (self.fixture.vault / "wiki" / "index.md").write_text(
             "# Index\n\n"
@@ -116,6 +126,145 @@ class GoldenCliIntegrationTests(unittest.TestCase):
         self.assertIn("Fallback rate:", result.stdout)
         self.assertIn("Median context reduction:", result.stdout)
         self.assertNotIn("How is the memory runtime installed?", result.stdout + result.stderr)
+
+    def test_holdout_contributes_to_aggregate_without_sharing_local_case_details(self) -> None:
+        holdout_payload = json.loads(HOLDOUT_FIXTURE.read_text(encoding="utf-8"))
+
+        result = self.fixture._run_memory_cli("test", "--holdout", "--json")
+        output = json.loads(result.stdout)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(output["data"]["holdout"]["case_count"], 2)
+        self.assertFalse(output["data"]["holdout"]["details_shared"])
+        self.assertEqual(len(output["data"]["cases"]), 8)
+        persisted = next(
+            (self.fixture.state_dir / "runs" / "skillz-claude").glob("*.json")
+        ).read_text(encoding="utf-8")
+        serialized = result.stdout + result.stderr + persisted
+        for case in holdout_payload["cases"]:
+            self.assertNotIn(case["id"], serialized)
+            self.assertNotIn(case["query"], serialized)
+        invocations = self.fixture.qmd_log.read_text(encoding="utf-8").splitlines()
+        self.assertEqual(len(invocations), 10)
+
+    def test_invalid_holdout_blocks_before_qmd_and_state_mutation(self) -> None:
+        path = self.fixture.repo / ".agents" / "memory" / "holdout.local.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["cases"] = payload["cases"][:1]
+        path.write_text(json.dumps(payload), encoding="utf-8")
+
+        result = self.fixture._run_memory_cli("test", "--holdout", "--json")
+        output = json.loads(result.stdout)
+
+        self.assertEqual(result.returncode, 30)
+        self.assertEqual(output["errors"][0]["code"], "holdout_case_count_invalid")
+        self.assertEqual(self.fixture.qmd_log.read_text(encoding="utf-8"), "")
+        self.assertFalse(self.fixture.state_dir.exists())
+
+    def test_gate_is_incomplete_without_quality_then_passes_after_clean_import(self) -> None:
+        test_result = self.fixture._run_memory_cli("test", "--holdout", "--json")
+        run_id = json.loads(test_result.stdout)["run_id"]
+
+        incomplete = self.fixture._run_memory_cli(
+            "test", "gate", "--run-id", run_id, "--json"
+        )
+        incomplete_output = json.loads(incomplete.stdout)
+        self.assertEqual(incomplete.returncode, 10)
+        self.assertEqual(incomplete_output["status"], "incomplete")
+        self.assertEqual(
+            incomplete_output["data"]["dimensions"]["quality"]["status"],
+            "incomplete",
+        )
+
+        quality_input = self.fixture.repo / "quality-import.json"
+        quality_input.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "run_id": run_id,
+                    "rubric_version": "quality-v1",
+                    "baseline_score": 96,
+                    "score": 93,
+                    "reviewer_type": "human",
+                }
+            ),
+            encoding="utf-8",
+        )
+        recorded = self.fixture._run_memory_cli(
+            "test", "record-quality", "--input", str(quality_input), "--json"
+        )
+        recorded_output = json.loads(recorded.stdout)
+        self.assertEqual(recorded.returncode, 0, recorded.stderr)
+        self.assertEqual(recorded_output["data"]["rubric_version"], "quality-v1")
+        self.assertFalse(recorded_output["data"]["raw_response_stored"])
+
+        passed = self.fixture._run_memory_cli(
+            "test", "gate", "--run-id", run_id, "--json"
+        )
+        passed_output = json.loads(passed.stdout)
+        self.assertEqual(passed.returncode, 0, passed.stderr)
+        self.assertEqual(passed_output["status"], "pass")
+        self.assertFalse(passed_output["data"]["authorizes_global_rollout"])
+
+    def test_quality_over_five_percent_fails_even_with_context_reduction(self) -> None:
+        test_result = self.fixture._run_memory_cli("test", "--holdout", "--json")
+        run_id = json.loads(test_result.stdout)["run_id"]
+        quality_input = self.fixture.repo / "quality-import.json"
+        quality_input.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "run_id": run_id,
+                    "rubric_version": "quality-v1",
+                    "baseline_score": 100,
+                    "score": 94,
+                    "reviewer_type": "hybrid",
+                }
+            ),
+            encoding="utf-8",
+        )
+        recorded = self.fixture._run_memory_cli(
+            "test", "record-quality", "--input", str(quality_input), "--json"
+        )
+        self.assertEqual(recorded.returncode, 0, recorded.stderr)
+
+        failed = self.fixture._run_memory_cli(
+            "test", "gate", "--run-id", run_id, "--json"
+        )
+        output = json.loads(failed.stdout)
+
+        self.assertEqual(failed.returncode, 20)
+        self.assertEqual(output["status"], "fail")
+        self.assertEqual(output["data"]["dimensions"]["context"]["status"], "pass")
+        self.assertEqual(output["data"]["dimensions"]["quality"]["status"], "fail")
+
+    def test_raw_response_field_is_rejected_without_quality_state_mutation(self) -> None:
+        test_result = self.fixture._run_memory_cli("test", "--holdout", "--json")
+        run_id = json.loads(test_result.stdout)["run_id"]
+        quality_input = self.fixture.repo / "quality-import.json"
+        quality_input.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "run_id": run_id,
+                    "rubric_version": "quality-v1",
+                    "baseline_score": 100,
+                    "score": 98,
+                    "reviewer_type": "human",
+                    "response": "raw answer must never enter state",
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        result = self.fixture._run_memory_cli(
+            "test", "record-quality", "--input", str(quality_input), "--json"
+        )
+        output = json.loads(result.stdout)
+
+        self.assertEqual(result.returncode, 30)
+        self.assertEqual(output["errors"][0]["code"], "quality_import_schema_invalid")
+        self.assertFalse((self.fixture.state_dir / "quality").exists())
 
 
 if __name__ == "__main__":

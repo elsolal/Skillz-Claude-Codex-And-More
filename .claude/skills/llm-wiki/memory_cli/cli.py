@@ -7,6 +7,7 @@ import json
 import sys
 from collections.abc import Sequence
 from dataclasses import replace
+from pathlib import Path
 from typing import Any
 
 from . import __version__
@@ -35,6 +36,11 @@ from .events import (
 from .golden import GoldenContractError, persist_golden_run, run_golden_test
 from .manifest import ManifestError, discover_manifest, load_manifest, load_nearest_manifest
 from .projection import ConfigureOutcome, ProjectionError, configure_projection
+from .quality import (
+    QualityContractError,
+    record_quality_from_file,
+    run_measurement_gate,
+)
 from .receipts import DebtActionOutcome, FinishOutcome
 from .render_human import (
     render_context_final,
@@ -42,12 +48,16 @@ from .render_human import (
     render_debt_action_human,
     render_finish_human,
     render_golden_test_human,
+    render_measurement_gate_human,
+    render_quality_record_human,
 )
 from .render_json import (
     render_context_json,
     render_debt_action_json,
     render_finish_json,
     render_golden_test_json,
+    render_measurement_gate_json,
+    render_quality_record_json,
 )
 from .session_events import append_memory_debt_action, append_usage_attestation
 
@@ -287,13 +297,49 @@ def build_parser() -> argparse.ArgumentParser:
     )
     test_parser = commands.add_parser(
         "test",
-        help="Run the eight visible golden cases against index-first and bounded retrieval.",
+        help="Run visible/local measurement cases and manage external quality evidence.",
+    )
+    test_parser.add_argument(
+        "--holdout",
+        action="store_true",
+        help="Include two local ignored holdouts while sharing aggregates only.",
     )
     test_parser.add_argument(
         "--json",
         action="store_true",
         dest="json_output",
         help="Emit the stable metadata-only aggregate result envelope.",
+    )
+    test_actions = test_parser.add_subparsers(dest="test_action")
+    quality_parser = test_actions.add_parser(
+        "record-quality",
+        help="Import one externally scored metadata-only quality record.",
+    )
+    quality_parser.add_argument(
+        "--input",
+        required=True,
+        help="Strict JSON score import produced outside the retrieval CLI.",
+    )
+    quality_parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit the stable metadata-only quality result envelope.",
+    )
+    gate_parser = test_actions.add_parser(
+        "gate",
+        help="Evaluate holdout retrieval, context reduction and imported quality.",
+    )
+    gate_parser.add_argument(
+        "--run-id",
+        required=True,
+        help="Immutable run_id returned by memory test --holdout.",
+    )
+    gate_parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit the stable measurement gate envelope.",
     )
     return parser
 
@@ -718,13 +764,13 @@ def _run_purge_command(*, force: bool, json_output: bool) -> int:
     return outcome.exit_code
 
 
-def _run_test_command(*, json_output: bool) -> int:
+def _run_test_command(*, include_holdout: bool, json_output: bool) -> int:
     project_id: str | None = None
     try:
         manifest_path = discover_manifest()
         manifest = load_manifest(manifest_path)
         project_id = manifest.project.id
-        outcome = run_golden_test(manifest_path)
+        outcome = run_golden_test(manifest_path, include_holdout=include_holdout)
         _, persistence_diagnostics = persist_golden_run(
             outcome,
             state_dir=resolve_state_dir(),
@@ -760,6 +806,82 @@ def _run_test_command(*, json_output: bool) -> int:
         render_golden_test_json(outcome, stream=sys.stdout)
     else:
         render_golden_test_human(outcome, stream=sys.stdout)
+    return outcome.exit_code
+
+
+def _run_record_quality_command(*, input_path: str, json_output: bool) -> int:
+    project_id: str | None = None
+    run_id: str | None = None
+    try:
+        manifest_path = discover_manifest()
+        manifest = load_manifest(manifest_path)
+        project_id = manifest.project.id
+        outcome = record_quality_from_file(
+            manifest_path,
+            input_path=Path(input_path),
+            state_dir=resolve_state_dir(),
+        )
+        run_id = outcome.run_id
+    except (ManifestError, QualityContractError) as error:
+        if json_output:
+            _render_json(
+                {
+                    "schema_version": PUBLIC_SCHEMA_VERSION,
+                    "command": "test.record-quality",
+                    "status": "blocked",
+                    "project_id": project_id,
+                    "run_id": run_id,
+                    "data": {},
+                    "warnings": [],
+                    "errors": [error.as_dict()],
+                }
+            )
+        else:
+            print(f"[blocked] memory test record-quality · {error.code}")
+            print(error.message)
+            print(f"Correction: {error.correction}")
+        return error.exit_code
+    if json_output:
+        render_quality_record_json(outcome, stream=sys.stdout)
+    else:
+        render_quality_record_human(outcome, stream=sys.stdout)
+    return outcome.exit_code
+
+
+def _run_measurement_gate_command(*, run_id: str, json_output: bool) -> int:
+    project_id: str | None = None
+    try:
+        manifest_path = discover_manifest()
+        manifest = load_manifest(manifest_path)
+        project_id = manifest.project.id
+        outcome = run_measurement_gate(
+            manifest_path,
+            run_id=run_id,
+            state_dir=resolve_state_dir(),
+        )
+    except (ManifestError, QualityContractError) as error:
+        if json_output:
+            _render_json(
+                {
+                    "schema_version": PUBLIC_SCHEMA_VERSION,
+                    "command": "test.gate",
+                    "status": "blocked",
+                    "project_id": project_id,
+                    "run_id": run_id,
+                    "data": {},
+                    "warnings": [],
+                    "errors": [error.as_dict()],
+                }
+            )
+        else:
+            print(f"[blocked] memory test gate · {error.code}")
+            print(error.message)
+            print(f"Correction: {error.correction}")
+        return error.exit_code
+    if json_output:
+        render_measurement_gate_json(outcome, stream=sys.stdout)
+    else:
+        render_measurement_gate_human(outcome, stream=sys.stdout)
     return outcome.exit_code
 
 
@@ -926,7 +1048,20 @@ def main(argv: Sequence[str] | None = None) -> int:
             json_output=arguments.json_output,
         )
     if arguments.command == "test":
-        return _run_test_command(json_output=arguments.json_output)
+        if arguments.test_action == "record-quality":
+            return _run_record_quality_command(
+                input_path=arguments.input,
+                json_output=arguments.json_output,
+            )
+        if arguments.test_action == "gate":
+            return _run_measurement_gate_command(
+                run_id=arguments.run_id,
+                json_output=arguments.json_output,
+            )
+        return _run_test_command(
+            include_holdout=arguments.holdout,
+            json_output=arguments.json_output,
+        )
     if arguments.command == "context":
         if arguments.query_stdin and arguments.query is not None:
             parser.error("context accepts either a query argument or --query-stdin, not both")

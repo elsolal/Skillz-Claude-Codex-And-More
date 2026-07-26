@@ -56,15 +56,63 @@ class GoldenTestOutcome:
     estimator_version: str
     cases: tuple[dict[str, Any], ...]
     aggregate: dict[str, float]
+    holdout_case_count: int = 0
+    holdout_aggregate: dict[str, float] | None = None
+    warnings: tuple[dict[str, str], ...] = ()
+    errors: tuple[dict[str, str], ...] = ()
+
+    def data(self) -> dict[str, Any]:
+        data: dict[str, Any] = {
+            "estimator_version": self.estimator_version,
+            "cases": [dict(case) for case in self.cases],
+            "aggregate": dict(self.aggregate),
+        }
+        if self.holdout_case_count:
+            data["holdout"] = {
+                "case_count": self.holdout_case_count,
+                "aggregate": dict(self.holdout_aggregate or {}),
+                "details_shared": False,
+            }
+        return data
+
+
+@dataclass(frozen=True, slots=True)
+class QualityRecordOutcome:
+    status: str
+    exit_code: int
+    project_id: str
+    run_id: str
+    rubric_version: str
+    baseline_score: float
+    score: float
+    reviewer_type: str
+    quality_degradation: float
     warnings: tuple[dict[str, str], ...] = ()
     errors: tuple[dict[str, str], ...] = ()
 
     def data(self) -> dict[str, Any]:
         return {
-            "estimator_version": self.estimator_version,
-            "cases": [dict(case) for case in self.cases],
-            "aggregate": dict(self.aggregate),
+            "rubric_version": self.rubric_version,
+            "baseline_score": self.baseline_score,
+            "score": self.score,
+            "reviewer_type": self.reviewer_type,
+            "quality_degradation": self.quality_degradation,
+            "raw_response_stored": False,
         }
+
+
+@dataclass(frozen=True, slots=True)
+class MeasurementGateOutcome:
+    status: str
+    exit_code: int
+    project_id: str
+    run_id: str
+    gate: dict[str, Any]
+    warnings: tuple[dict[str, str], ...] = ()
+    errors: tuple[dict[str, str], ...] = ()
+
+    def data(self) -> dict[str, Any]:
+        return dict(self.gate)
 
 
 @dataclass(frozen=True, slots=True)

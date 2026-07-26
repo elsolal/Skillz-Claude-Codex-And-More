@@ -540,6 +540,7 @@ def configure_projection(
         stores={name: LocalStoreConfig(root=root) for name, root in store_roots.items()},
     )
     local_files = (projection_path, claude_pointer, agents_pointer)
+    holdout_path = project_root / ".agents" / "memory" / "holdout.local.json"
 
     projection_content = json.dumps(
         _projection_payload(projection),
@@ -553,7 +554,7 @@ def configure_projection(
     missing_pages = _missing_entry_pages(manifest, projection.stores["project"].root)
 
     git_root, exclude_path = _git_paths(project_root)
-    patterns = _relative_git_patterns(git_root, local_files)
+    patterns = _relative_git_patterns(git_root, (*local_files, holdout_path))
     _ensure_git_excludes(exclude_path, patterns)
 
     changed: list[Path] = []
