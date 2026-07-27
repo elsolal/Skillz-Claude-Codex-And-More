@@ -206,6 +206,7 @@ class ConfigureCliContractTests(unittest.TestCase):
             ".agents/memory.local.json",
             ".claude/project-memory.md",
             ".agents/project-memory.md",
+            ".agents/memory/holdout.local.json",
         ):
             self.assertEqual(exclude_content.splitlines().count(pattern), 1)
 

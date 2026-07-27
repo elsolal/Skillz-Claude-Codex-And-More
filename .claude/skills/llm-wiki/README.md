@@ -244,13 +244,46 @@ fallback. Both sides use `utf8_bytes_div_4_v1`. Aggregate output contains:
 
 Each completed run is atomically persisted outside the worktree as
 `runs/<project-id>/<run-id>.json`, with private `0700` directories and `0600`
-files on POSIX. The run contains only case IDs, metrics and docids plus its
-schema/run/project/time/estimator metadata. Queries, prompts, snippets, page
+files on POSIX. The run contains only visible case IDs, metrics and docids plus
+its schema/run/project/time/estimator metadata. Queries, prompts, snippets, page
 content, responses, absolute paths and secret-shaped values are rejected by the
-common metadata-only scanner. The command does not emit eight
-`context_completed` events. The JSON stdout envelope is the aggregate export;
-holdouts and independently recorded answer quality belong to the later quality
-gate workflow.
+common metadata-only scanner. The command does not emit `context_completed`
+events.
+
+### Local holdout and external quality gate
+
+`memory configure` protects `.agents/memory/holdout.local.json` through Git's
+local `info/exclude`. Holdout V1 contains exactly two sanitized cases in the
+same closed schema as the visible set. IDs, queries, and exact functional copies
+of visible cases are refused before QMD. Running the holdout executes all ten
+cases but exports and persists only the two-case holdout aggregate:
+
+```bash
+memory test --holdout
+memory test --holdout --json
+```
+
+The manifest's versioned `golden.quality_rubric` defines a numeric score range
+and positive dimensions whose unique weights sum to `1`. The retrieval CLI does
+not generate or grade an answer. An external reviewer instead exports a strict
+metadata-only JSON object with `run_id`, matching `rubric_version`,
+`baseline_score`, bounded `score`, and `reviewer_type` (`human`, `llm`, or
+`hybrid`), then imports it explicitly:
+
+```bash
+memory test record-quality --input /path/to/quality.json
+memory test record-quality --input /path/to/quality.json --json
+memory test gate --run-id run_... --json
+```
+
+The quality record is immutable, private, and stored separately under
+`quality/<project-id>/<run-id>.json`; raw responses and unknown fields are
+refused. Relative degradation is `(baseline - bounded) / baseline`, clamped to
+zero for improvements. The STORY-015 gate requires two holdouts, at least 90%
+retrieval hit rate, at least 50% median context reduction, and no more than 5%
+quality degradation. Missing quality is `incomplete`; any failed measured
+dimension wins over incompleteness. A `pass` validates this measurement slice
+only and always reports `authorizes_global_rollout: false`.
 
 ### Metadata-only event storage and purge
 

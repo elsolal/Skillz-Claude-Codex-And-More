@@ -26,6 +26,9 @@ or to verify the scripts behave correctly end-to-end.
 | high-risk `memory finish --conflict --json` | `memory/finish-conflict.json` |
 | high-risk human `memory finish --conflict` receipt | `memory/finish-conflict-human.txt` |
 | `memory purge --json` with fresh project events | `memory/purge-ready.json` |
+| `memory test --json` | `memory/test-ready.json` |
+| `memory test record-quality --json` | `memory/test-quality-recorded.json` |
+| passing `memory test gate --json` | `memory/test-gate-pass.json` |
 
 These were captured against a small 2-page example vault (one concept page and
 one source page, both with proper frontmatter). Paths have been anonymized to

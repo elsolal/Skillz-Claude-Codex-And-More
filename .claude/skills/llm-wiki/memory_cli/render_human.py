@@ -10,6 +10,8 @@ from .receipts import (
     DebtActionOutcome,
     FinishOutcome,
     GoldenTestOutcome,
+    MeasurementGateOutcome,
+    QualityRecordOutcome,
 )
 
 
@@ -187,7 +189,12 @@ def render_golden_test_human(
 ) -> None:
     aggregate = outcome.aggregate
     print(f"Memory test {outcome.status} · run {outcome.run_id}", file=stream)
-    print(f"Cases: {len(outcome.cases)}", file=stream)
+    print(f"Cases: {len(outcome.cases) + outcome.holdout_case_count}", file=stream)
+    if outcome.holdout_case_count:
+        print(
+            f"Holdout: {outcome.holdout_case_count} local case(s) · aggregate only",
+            file=stream,
+        )
     print(
         f"Retrieval hit rate: {aggregate['retrieval_hit_rate']:.1%}",
         file=stream,
@@ -203,6 +210,37 @@ def render_golden_test_human(
         print(f"Error: {error['message']}", file=stream)
         print(f"Correction: {error['correction']}", file=stream)
     print("Machine output: memory test --json", file=stream)
+
+
+def render_quality_record_human(
+    outcome: QualityRecordOutcome,
+    *,
+    stream: TextIO,
+) -> None:
+    print(f"Memory quality {outcome.status} · run {outcome.run_id}", file=stream)
+    print(f"Rubric: {outcome.rubric_version}", file=stream)
+    print(f"Reviewer: {outcome.reviewer_type}", file=stream)
+    print(f"Baseline score: {outcome.baseline_score:g}", file=stream)
+    print(f"Bounded score: {outcome.score:g}", file=stream)
+    print(f"Quality degradation: {outcome.quality_degradation:.1%}", file=stream)
+    print("Raw response stored: no", file=stream)
+    for error in outcome.errors:
+        print(f"Error: {error['message']}", file=stream)
+        print(f"Correction: {error['correction']}", file=stream)
+    print("Machine output: memory test record-quality --json", file=stream)
+
+
+def render_measurement_gate_human(
+    outcome: MeasurementGateOutcome,
+    *,
+    stream: TextIO,
+) -> None:
+    gate = outcome.gate
+    print(f"Memory measurement gate {outcome.status.upper()} · run {outcome.run_id}", file=stream)
+    for name, dimension in gate["dimensions"].items():
+        print(f"{name.capitalize()}: {dimension['status']} · {dimension['value']}", file=stream)
+    print("Global rollout authorized: no", file=stream)
+    print("Machine output: memory test gate --json", file=stream)
 
 
 def render_debt_action_human(

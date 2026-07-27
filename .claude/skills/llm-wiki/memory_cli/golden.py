@@ -35,6 +35,8 @@ from .tokens import ESTIMATOR_VERSION, estimate_tokens
 GOLDEN_SCHEMA_VERSION = 1
 GOLDEN_RUN_SCHEMA_VERSION = 1
 GOLDEN_VISIBLE_CASES = 8
+HOLDOUT_SCHEMA_VERSION = 1
+HOLDOUT_CASES = 2
 BASELINE_MIN_PAGES = 3
 BASELINE_MAX_PAGES = 10
 MAX_GOLDEN_QUERY_CHARACTERS = 16 * 1024
@@ -396,6 +398,93 @@ def load_golden_suite(path: Path) -> GoldenSuite:
     return GoldenSuite(schema_version=GOLDEN_SCHEMA_VERSION, cases=cases)
 
 
+def _holdout_functional_fingerprint(case: GoldenCase) -> tuple[object, ...]:
+    """Identify simple overfitting even when a copied case receives a new ID/query."""
+
+    return (
+        case.query,
+        case.task_category,
+        case.expected_pages,
+        case.expected_sources,
+        case.baseline_pages,
+    )
+
+
+def load_holdout_suite(
+    path: Path,
+    *,
+    visible_suite: GoldenSuite,
+) -> GoldenSuite:
+    """Load the two local holdouts and reject overlap with the visible workflow."""
+
+    if path.is_symlink():
+        raise _error(
+            "holdout_file_escape",
+            "The local holdout file cannot be a symbolic link.",
+            "Restore a physical holdout.local.json beneath .agents/memory/.",
+        )
+    try:
+        payload = json.loads(
+            path.read_text(encoding="utf-8"),
+            object_pairs_hook=_strict_json_object,
+            parse_constant=_reject_json_constant,
+        )
+    except FileNotFoundError as error:
+        raise _error(
+            "holdout_file_missing",
+            "The local holdout file is missing.",
+            "Create .agents/memory/holdout.local.json with two sanitized cases.",
+        ) from error
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as error:
+        raise _error(
+            "holdout_file_invalid",
+            "The local holdout file is not strict readable JSON.",
+            "Repair the local holdout JSON before running memory test --holdout.",
+        ) from error
+
+    data = _object(payload, "holdout")
+    _exact_keys(data, "holdout", required={"schema_version", "cases"})
+    if data["schema_version"] != HOLDOUT_SCHEMA_VERSION:
+        raise _error(
+            "holdout_schema_unknown",
+            "The local holdout file uses an unknown schema version.",
+            f"Use holdout schema version {HOLDOUT_SCHEMA_VERSION}.",
+        )
+    raw_cases = data["cases"]
+    if not isinstance(raw_cases, list) or len(raw_cases) != HOLDOUT_CASES:
+        raise _error(
+            "holdout_case_count_invalid",
+            f"Holdout V1 requires exactly {HOLDOUT_CASES} local cases.",
+            "Keep eight visible cases and two local holdouts so 20% stays unseen.",
+        )
+    cases = tuple(_parse_case(raw, index) for index, raw in enumerate(raw_cases))
+    case_ids = [case.case_id for case in cases]
+    if len(case_ids) != len(set(case_ids)):
+        raise _error(
+            "holdout_case_id_duplicate",
+            "Local holdout case IDs must be unique.",
+            "Assign a distinct stable lowercase slug to each local holdout.",
+        )
+
+    visible_ids = {case.case_id for case in visible_suite.cases}
+    visible_queries = {case.query for case in visible_suite.cases}
+    visible_fingerprints = {
+        _holdout_functional_fingerprint(case) for case in visible_suite.cases
+    }
+    if any(
+        case.case_id in visible_ids
+        or case.query in visible_queries
+        or _holdout_functional_fingerprint(case) in visible_fingerprints
+        for case in cases
+    ):
+        raise _error(
+            "holdout_duplicates_visible",
+            "A local holdout duplicates a visible golden case.",
+            "Replace copied IDs, queries and functional expectations with unseen cases.",
+        )
+    return GoldenSuite(schema_version=HOLDOUT_SCHEMA_VERSION, cases=cases)
+
+
 def _canonical_wiki_path(path: PurePosixPath) -> PurePosixPath:
     if path.parts[:1] == ("wiki",):
         return path
@@ -601,6 +690,7 @@ def _format_time(value: datetime) -> str:
 def run_golden_test(
     manifest_path: Path,
     *,
+    include_holdout: bool = False,
     bounded_runner: Callable[..., ContextOutcome] = run_context,
     occurred_at: datetime | None = None,
 ) -> GoldenTestOutcome:
@@ -611,6 +701,19 @@ def run_golden_test(
     project_root = manifest_path.parent.parent
     golden_path = _resolve_golden_file(project_root, manifest.golden.visible_path)
     suite = load_golden_suite(golden_path)
+    holdout_suite = (
+        load_holdout_suite(
+            project_root / ".agents" / "memory" / "holdout.local.json",
+            visible_suite=suite,
+        )
+        if include_holdout
+        else None
+    )
+    all_cases = (
+        (*suite.cases, *holdout_suite.cases)
+        if holdout_suite is not None
+        else suite.cases
+    )
     project_store = projection.stores.get("project")
     if project_store is None:
         raise _error(
@@ -627,7 +730,7 @@ def run_golden_test(
             collection=manifest.stores.project.collection,
             root=project_store.root,
         )
-        for case in suite.cases
+        for case in all_cases
     )
     case_results = tuple(
         _case_result(
@@ -640,9 +743,11 @@ def run_golden_test(
                 runner=bounded_runner,
             ),
         )
-        for case, baseline in zip(suite.cases, baselines, strict=True)
+        for case, baseline in zip(all_cases, baselines, strict=True)
     )
     aggregate = aggregate_case_results(case_results)
+    visible_results = case_results[: len(suite.cases)]
+    holdout_results = case_results[len(suite.cases) :]
     now = occurred_at or datetime.now(timezone.utc)
     if now.tzinfo is None:
         raise ValueError("golden run timestamps must be timezone-aware")
@@ -653,8 +758,12 @@ def run_golden_test(
         run_id=_new_run_id(now),
         occurred_at=_format_time(now),
         estimator_version=ESTIMATOR_VERSION,
-        cases=case_results,
+        cases=visible_results,
         aggregate=aggregate,
+        holdout_case_count=len(holdout_results),
+        holdout_aggregate=(
+            aggregate_case_results(holdout_results) if holdout_results else None
+        ),
     )
 
 

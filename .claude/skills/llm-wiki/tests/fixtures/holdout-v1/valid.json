@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "holdout-install-boundary",
+      "query": "Which installation boundary keeps the memory CLI portable?",
+      "task_category": "onboarding",
+      "expected": {
+        "pages": ["wiki/entities/skillz-claude.md"],
+        "sources": []
+      },
+      "baseline": {
+        "pages": [
+          "wiki/entities/project.md",
+          "wiki/entities/skillz-claude.md",
+          "wiki/concepts/project-memory-workflow.md"
+        ]
+      }
+    },
+    {
+      "id": "holdout-repository-precedence",
+      "query": "What takes precedence when repository evidence conflicts with memory?",
+      "task_category": "architecture",
+      "expected": {
+        "pages": ["wiki/concepts/project-memory-workflow.md"],
+        "sources": []
+      },
+      "baseline": {
+        "pages": [
+          "wiki/entities/project.md",
+          "wiki/entities/skillz-claude.md",
+          "wiki/concepts/project-memory-workflow.md"
+        ]
+      }
+    }
+  ]
+}

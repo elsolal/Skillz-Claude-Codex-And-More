@@ -11,6 +11,8 @@ from .receipts import (
     DebtActionOutcome,
     FinishOutcome,
     GoldenTestOutcome,
+    MeasurementGateOutcome,
+    QualityRecordOutcome,
 )
 
 
@@ -103,6 +105,58 @@ def render_golden_test_json(outcome: GoldenTestOutcome, *, stream: TextIO) -> No
     print(
         json.dumps(
             golden_test_envelope(outcome),
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ),
+        file=stream,
+    )
+
+
+def quality_record_envelope(outcome: QualityRecordOutcome) -> dict[str, Any]:
+    return {
+        "schema_version": PUBLIC_SCHEMA_VERSION,
+        "command": "test.record-quality",
+        "status": outcome.status,
+        "project_id": outcome.project_id,
+        "run_id": outcome.run_id,
+        "data": outcome.data(),
+        "warnings": list(outcome.warnings),
+        "errors": list(outcome.errors),
+    }
+
+
+def render_quality_record_json(outcome: QualityRecordOutcome, *, stream: TextIO) -> None:
+    print(
+        json.dumps(
+            quality_record_envelope(outcome),
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ),
+        file=stream,
+    )
+
+
+def measurement_gate_envelope(outcome: MeasurementGateOutcome) -> dict[str, Any]:
+    return {
+        "schema_version": PUBLIC_SCHEMA_VERSION,
+        "command": "test.gate",
+        "status": outcome.status,
+        "project_id": outcome.project_id,
+        "run_id": outcome.run_id,
+        "data": outcome.data(),
+        "warnings": list(outcome.warnings),
+        "errors": list(outcome.errors),
+    }
+
+
+def render_measurement_gate_json(
+    outcome: MeasurementGateOutcome,
+    *,
+    stream: TextIO,
+) -> None:
+    print(
+        json.dumps(
+            measurement_gate_envelope(outcome),
             ensure_ascii=False,
             separators=(",", ":"),
         ),
