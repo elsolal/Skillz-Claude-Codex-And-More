@@ -2,6 +2,32 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## [Unreleased] - 2026-07-27
+
+**Holdout-protected retrieval and external quality gate**
+
+### Added
+- `memory test --holdout` with exactly two local Git-ignored cases, duplicate-visible rejection before QMD, and aggregate-only holdout receipts.
+- Versioned quality-rubric validation, immutable metadata-only score import through `memory test record-quality`, and reviewer provenance (`human`, `llm`, or `hybrid`).
+- `memory test gate --run-id` combining holdout presence, retrieval hit rate, context reduction, and answer-quality degradation into closed `pass`, `fail`, or `incomplete` states.
+- Unit, contract, integration, fixture, snapshot, corruption, privacy, and threshold coverage for the complete holdout-to-quality-gate workflow.
+
+### Changed
+- `memory configure` protects `.agents/memory/holdout.local.json` through the repository-local Git exclude without publishing holdout contents.
+- Golden runs may persist only the two-case holdout aggregate alongside visible results; shared output never exposes holdout case details.
+- CLI, measurement orchestration, and strict quality validation now have separate module boundaries to keep the main command surface reviewable.
+
+### Fixed
+- Persisted golden metrics, holdout projections, and external quality records are revalidated before gate evaluation instead of trusting mutable aggregates.
+- Quality degradation is recalculated from the stored baseline and score, while the current rubric is required even when quality evidence is still missing.
+- A passing STORY-015 measurement gate always reports `authorizes_global_rollout: false`.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `PATH=/Users/aymeric/miniconda3/bin:$PATH bash tests/test-install-memory-cli.sh` — installer acceptance PASS
+- `PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — 234 tests Python OK in 69.933s from a clean worktree
+- Level-3 quality gate: PASS after four rounds, four confirmed P1 findings corrected, and two consecutive clean rounds
+
 ## [Unreleased] - 2026-07-25
 
 **Golden retrieval and reproducible index-first baseline**
