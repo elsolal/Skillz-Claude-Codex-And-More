@@ -67,3 +67,34 @@ Lit `.opencode/AGENTS.md` et les commandes dans `.opencode/commands/`
 ## Maintenance
 
 Seul `.claude/` doit être modifié. Les symlinks propagent automatiquement les changements.
+
+## Pilote memory Skillz-Claude
+
+Le pilote versionne un contrat portable dans `.agents/memory.yaml`, huit cas
+golden visibles dans `.agents/memory/golden.json` et la rubrique partagée dans
+`.agents/memory/quality-rubric.json`. Il utilise uniquement la collection QMD
+`elsolal-wiki`, sans fallback transverse ni lecture implicite de l'index complet.
+
+L'activation locale requiert Python 3.10 ou plus récent, QMD `>=0.9,<1.0` et un
+clone du vault `elsolal-memory` :
+
+```bash
+memory configure --store project=/absolute/path/to/elsolal-memory --role owner
+memory doctor --json
+memory test --json
+memory test --holdout --json
+```
+
+`memory configure` crée `.agents/memory.local.json` et les pointeurs projet, puis
+les ajoute aux exclusions Git locales. Il protège aussi
+`.agents/memory/holdout.local.json`, qui contient exactement deux cas nettoyés.
+Ces quatre fichiers restent propres à la machine et ne doivent jamais être
+commités. Un pointeur utilisateur existant n'est remplacé qu'avec l'option
+explicite `--replace-managed`; pour valider un clone sans toucher un pointeur
+historique, utiliser un clone temporaire.
+
+`memory doctor` peut retourner `degraded` lorsque la collection QMD est ancienne.
+Le pilote accepte cet état uniquement si la fraîcheur est la seule limite
+signalée et si elle est consignée dans la preuve d'exécution. Il ne lance jamais
+`qmd update` implicitement. Les runs restent hors du dépôt et ne persistent que
+des agrégats metadata-only; ils ne constituent pas un verdict de rollout global.

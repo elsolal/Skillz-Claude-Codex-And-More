@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "rubric_version": "quality-v1",
+  "score": {
+    "minimum": 0,
+    "maximum": 100
+  },
+  "dimensions": [
+    {
+      "id": "correctness",
+      "weight": 0.6
+    },
+    {
+      "id": "relevance",
+      "weight": 0.25
+    },
+    {
+      "id": "evidence",
+      "weight": 0.15
+    }
+  ]
+}

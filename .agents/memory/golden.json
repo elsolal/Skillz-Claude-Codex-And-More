@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "install-provider-runtime",
+      "query": "Skillz Claude installation",
+      "task_category": "onboarding",
+      "expected": {
+        "pages": [
+          "wiki/entities/skillz-claude.md"
+        ],
+        "sources": [
+          "wiki/sources/session-capture-skillz-claude-refonte-d-epct-r-v6.md"
+        ]
+      },
+      "baseline": {
+        "pages": [
+          "wiki/entities/skillz-claude.md",
+          "wiki/sources/session-capture-skillz-claude-refonte-d-epct-r-v6.md",
+          "wiki/concepts/single-source-skill-launcher.md"
+        ]
+      }
+    },
+    {
+      "id": "depct-development-workflow",
+      "query": "D EPCT workflow",
+      "task_category": "operations",
+      "expected": {
+        "pages": [
+          "wiki/entities/skillz-claude.md"
+        ],
+        "sources": [
+          "wiki/sources/session-capture-skillz-claude-refonte-d-epct-r-v6.md"
+        ]
+      },
+      "baseline": {
+        "pages": [
+          "wiki/entities/skillz-claude.md",
+          "wiki/sources/session-capture-skillz-claude-refonte-d-epct-r-v6.md",
+          "wiki/concepts/proven-quality-gate.md"
+        ]
+      }
+    },
+    {
+      "id": "proven-quality-gate",
+      "query": "Proven Quality Gate",
+      "task_category": "operations",
+      "expected": {
+        "pages": [
+          "wiki/concepts/proven-quality-gate.md"
+        ],
+        "sources": [
+          "wiki/sources/session-capture-skillz-claude-refonte-d-epct-r-v6.md"
+        ]
+      },
+      "baseline": {
+        "pages": [
+          "wiki/concepts/proven-quality-gate.md",
+          "wiki/sources/session-capture-skillz-claude-refonte-d-epct-r-v6.md",
+          "wiki/entities/skillz-claude.md"
+        ]
+      }
+    },
+    {
+      "id": "llm-wiki-task-first",
+      "query": "Project Memory workflow",
+      "task_category": "architecture",
+      "expected": {
+        "pages": [
+          "wiki/concepts/project-memory-workflow.md"
+        ],
+        "sources": [
+          "wiki/sources/session-capture-memory-system-setup.md"
+        ]
+      },
+      "baseline": {
+        "pages": [
+          "wiki/concepts/project-memory-workflow.md",
+          "wiki/sources/session-capture-memory-system-setup.md",
+          "wiki/concepts/local-rag-stack.md"
+        ]
+      }
+    },
+    {
+      "id": "qmd-local-retrieval",
+      "query": "Local RAG Stack QMD",
+      "task_category": "architecture",
+      "expected": {
+        "pages": [
+          "wiki/concepts/local-rag-stack.md"
+        ],
+        "sources": [
+          "wiki/sources/session-capture-memory-system-setup.md"
+        ]
+      },
+      "baseline": {
+        "pages": [
+          "wiki/concepts/local-rag-stack.md",
+          "wiki/sources/session-capture-memory-system-setup.md",
+          "wiki/concepts/project-memory-workflow.md"
+        ]
+      }
+    },
+    {
+      "id": "project-memory-precedence",
+      "query": "repository memory",
+      "task_category": "architecture",
+      "expected": {
+        "pages": [
+          "wiki/concepts/project-memory-workflow.md"
+        ],
+        "sources": []
+      },
+      "baseline": {
+        "pages": [
+          "wiki/concepts/project-memory-workflow.md",
+          "wiki/entities/skillz-claude.md",
+          "wiki/sources/session-capture-dev-project-memory-map.md"
+        ]
+      }
+    },
+    {
+      "id": "multi-runtime-source-of-truth",
+      "query": "Single Source Skill Thin Launchers",
+      "task_category": "architecture",
+      "expected": {
+        "pages": [
+          "wiki/concepts/single-source-skill-launcher.md"
+        ],
+        "sources": []
+      },
+      "baseline": {
+        "pages": [
+          "wiki/concepts/single-source-skill-launcher.md",
+          "wiki/sources/session-capture-skillz-claude-refonte-d-epct-r-v6.md",
+          "wiki/entities/skillz-claude.md"
+        ]
+      }
+    },
+    {
+      "id": "memory-freshness-boundary",
+      "query": "QMD update",
+      "task_category": "operations",
+      "expected": {
+        "pages": [
+          "wiki/concepts/project-memory-workflow.md"
+        ],
+        "sources": [
+          "wiki/sources/session-capture-dev-project-memory-map.md"
+        ]
+      },
+      "baseline": {
+        "pages": [
+          "wiki/concepts/project-memory-workflow.md",
+          "wiki/sources/session-capture-dev-project-memory-map.md",
+          "wiki/concepts/local-rag-stack.md"
+        ]
+      }
+    }
+  ]
+}
