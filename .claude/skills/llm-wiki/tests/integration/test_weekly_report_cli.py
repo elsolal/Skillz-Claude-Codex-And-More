@@ -121,15 +121,59 @@ class WeeklyReportCliIntegrationTests(unittest.TestCase):
 
     def test_nominal_pilot_path_is_bounded_to_ten_minutes(self) -> None:
         started_at = datetime.now(timezone.utc)
-        self._open_debt()
+        debt_ids = [self._open_debt() for _ in range(7)]
 
         report = self.fixture._run_memory_cli("report", "--weekly", "--json")
-        elapsed = datetime.now(timezone.utc) - started_at
         output = json.loads(report.stdout)
 
         self.assertEqual(report.returncode, 0, report.stderr)
+        self.assertEqual(output["data"]["review"]["decision_count"], 7)
         self.assertEqual(output["data"]["review"]["budget_minutes"], 10)
+        for debt_id in debt_ids:
+            fixed = self.fixture._run_memory_cli(
+                "finish",
+                debt_id,
+                "--debt-action",
+                "fix",
+                "--json",
+            )
+            self.assertEqual(fixed.returncode, 0, fixed.stderr)
+        reviewed = self.fixture._run_memory_cli("report", "--weekly", "--json")
+        self.assertEqual(reviewed.returncode, 0, reviewed.stderr)
+        self.assertEqual(json.loads(reviewed.stdout)["data"]["decisions"], [])
+        elapsed = datetime.now(timezone.utc) - started_at
         self.assertLess(elapsed, timedelta(minutes=10))
+
+    def test_invalid_naive_run_timestamp_is_blocked_without_traceback(self) -> None:
+        run_id = "run_20260728T120000000000Z_0123456789abcdef"
+        run_dir = self.fixture.state_dir / "runs" / "skillz-claude"
+        run_dir.mkdir(parents=True)
+        (run_dir / f"{run_id}.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "run_id": run_id,
+                    "occurred_at": "2026-07-28T12:00:00",
+                    "project_id": "skillz-claude",
+                    "estimator_version": "utf8_bytes_div_4_v1",
+                    "cases": [],
+                    "aggregate": {
+                        "retrieval_hit_rate": 0.95,
+                        "fallback_rate": 0.0,
+                        "median_context_reduction": 0.55,
+                    },
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        result = self.fixture._run_memory_cli("report", "--weekly", "--json")
+        output = json.loads(result.stdout)
+
+        self.assertEqual(result.returncode, 50, result.stderr)
+        self.assertEqual(output["status"], "blocked")
+        self.assertEqual(output["errors"][0]["code"], "quality_run_invalid")
+        self.assertNotIn("Traceback", result.stderr)
 
 
 if __name__ == "__main__":

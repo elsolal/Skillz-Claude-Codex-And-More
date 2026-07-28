@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import html
 import re
 from typing import NoReturn
 
@@ -9,7 +10,7 @@ from .receipts import WeeklyReportOutcome
 
 
 _CONTENT_LABEL = re.compile(
-    r"(?im)^\s*(?:[-*]\s*)?(?:prompt|query|response|snippet|transcript|body|content)\s*:"
+    r"(?i)(?:^|[\s`])(?:prompt|query|response|snippet|transcript|body|content)\s*:"
 )
 _POSIX_ABSOLUTE = re.compile(r"(?<![:\w])/(?:[^\s`]+)")
 _WINDOWS_ABSOLUTE = re.compile(r"\b[A-Za-z]:[\\/][^\s`]+")
@@ -65,10 +66,11 @@ def scan_markdown_export(markdown: str) -> None:
 
 
 def _inline(value: object) -> str:
+    printable = "".join(
+        character if character.isprintable() else " " for character in str(value)
+    )
     return (
-        str(value)
-        .replace("\r", " ")
-        .replace("\n", " ")
+        html.escape(printable, quote=False)
         .replace("`", "'")
         .replace("|", "\\|")
     )

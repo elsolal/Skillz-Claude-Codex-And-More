@@ -284,7 +284,9 @@ def build_weekly_report(
         period_start=period_start,
         period_end=period_end,
     )
-    status = "ready" if contexts or quality is not None else "insufficient"
+    status = (
+        "ready" if contexts or quality is not None or decisions else "insufficient"
+    )
     return WeeklyReportOutcome(
         status=status,
         exit_code=0 if status == "ready" else 10,

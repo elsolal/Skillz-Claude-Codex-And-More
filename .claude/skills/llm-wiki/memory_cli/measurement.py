@@ -49,11 +49,13 @@ def read_project_measurements(
         try:
             if not isinstance(occurred_at, str):
                 raise ValueError
-            datetime.fromisoformat(
+            parsed = datetime.fromisoformat(
                 f"{occurred_at[:-1]}+00:00"
                 if occurred_at.endswith("Z")
                 else occurred_at
             )
+            if parsed.tzinfo is None:
+                raise ValueError
         except ValueError as error:
             raise _error(
                 "quality_run_invalid",

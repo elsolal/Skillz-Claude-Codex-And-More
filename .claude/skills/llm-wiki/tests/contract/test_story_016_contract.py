@@ -4,6 +4,7 @@ import io
 import json
 import sys
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 
@@ -124,6 +125,24 @@ class Story016OutputContractTests(unittest.TestCase):
         for value in forbidden_values:
             with self.subTest(value=value), self.assertRaises(ReportExportError):
                 scan_markdown_export(f"# Weekly\n\n{value}\n")
+
+    def test_renderers_neutralize_html_and_terminal_control_characters(self) -> None:
+        outcome = _outcome()
+        decision = dict(outcome.decisions[0])
+        decision["memory"] = {
+            "docid": "#a1b2c3",
+            "path": "wiki/<script>alert.md\x1b",
+        }
+        hostile = replace(outcome, decisions=(decision,))
+        human = io.StringIO()
+
+        render_weekly_report_human(hostile, stream=human)
+        markdown = render_weekly_report_markdown(hostile)
+
+        self.assertNotIn("\x1b", human.getvalue())
+        self.assertNotIn("\x1b", markdown)
+        self.assertNotIn("<script>", markdown)
+        self.assertIn("&lt;script&gt;", markdown)
 
 
 if __name__ == "__main__":

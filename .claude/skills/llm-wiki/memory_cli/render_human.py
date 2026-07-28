@@ -266,6 +266,12 @@ def _metric(value: object) -> str:
     return "not available" if value is None else f"{value:g}"
 
 
+def _terminal_text(value: object) -> str:
+    return "".join(
+        character if character.isprintable() else "?" for character in str(value)
+    )
+
+
 def render_weekly_report_human(
     outcome: WeeklyReportOutcome,
     *,
@@ -330,9 +336,9 @@ def render_weekly_report_human(
                 f"{decision['observed_impact_count']} observed impact(s)",
                 file=stream,
             )
-            print(f"   {decision['memory']['path']}", file=stream)
+            print(f"   {_terminal_text(decision['memory']['path'])}", file=stream)
             for action in ("fix", "ignore", "snooze"):
-                print(f"   {decision['actions'][action]}", file=stream)
+                print(f"   {_terminal_text(decision['actions'][action])}", file=stream)
     if outcome.appendix["remaining_count"]:
         print(file=stream)
         print(

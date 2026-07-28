@@ -24,7 +24,7 @@
 - Observed impacts: 1
 - Actions:
   - `memory finish con_20260727T120002000000Z_0123456789abcdef --debt-action fix`
-  - `memory finish con_20260727T120002000000Z_0123456789abcdef --debt-action ignore --reason <reason_slug>`
+  - `memory finish con_20260727T120002000000Z_0123456789abcdef --debt-action ignore --reason &lt;reason_slug&gt;`
   - `memory finish con_20260727T120002000000Z_0123456789abcdef --debt-action snooze --until YYYY-MM-DD`
 
 ## Appendix

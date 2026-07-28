@@ -266,7 +266,7 @@ class WeeklyReportAggregationTests(unittest.TestCase):
                 occurred_at=NOW - timedelta(hours=2),
                 risk=ConflictRisk.LOW,
                 action=DebtAction.SNOOZE,
-                snooze_until="2026-08-01",
+                snooze_until="2099-01-01",
             )
         )
 
