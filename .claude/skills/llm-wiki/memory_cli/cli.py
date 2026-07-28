@@ -34,6 +34,7 @@ from .events import (
 )
 from .manifest import ManifestError, discover_manifest, load_manifest, load_nearest_manifest
 from .projection import ConfigureOutcome, ProjectionError, configure_projection
+from .report_commands import run_weekly_report_command
 from .receipts import DebtActionOutcome, FinishOutcome
 from .render_human import (
     render_context_final,
@@ -332,6 +333,28 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         dest="json_output",
         help="Emit the stable measurement gate envelope.",
+    )
+    report_parser = commands.add_parser(
+        "report",
+        help="Aggregate the current project's metadata-only weekly memory evidence.",
+    )
+    report_parser.add_argument(
+        "--weekly",
+        action="store_true",
+        required=True,
+        help="Use the rolling seven-day UTC report window.",
+    )
+    report_output = report_parser.add_mutually_exclusive_group()
+    report_output.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit the stable machine-readable weekly report envelope.",
+    )
+    report_output.add_argument(
+        "--export-markdown",
+        metavar="PATH",
+        help="Write a scanned metadata-only Markdown report atomically.",
     )
     return parser
 
@@ -932,6 +955,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_golden_command(
             include_holdout=arguments.holdout,
             json_output=arguments.json_output,
+        )
+    if arguments.command == "report":
+        return run_weekly_report_command(
+            json_output=arguments.json_output,
+            export_markdown=arguments.export_markdown,
         )
     if arguments.command == "context":
         if arguments.query_stdin and arguments.query is not None:

@@ -396,6 +396,33 @@ slug, and `snooze` requires a future ISO date. These actions never modify shared
 memory. A later weekly report can aggregate the conflict/action event chain
 without inventing a second debt model.
 
+### Actionable weekly report
+
+`memory report --weekly` reads only the nearest manifest's private project
+stores over a rolling seven-day UTC window. It aggregates context efficiency,
+the latest golden/holdout and linked quality record, fallback and insufficiency,
+freshness, and the measured-to-attested `retrieved -> read -> used -> cited`
+funnel:
+
+```bash
+memory report --weekly
+memory report --weekly --json
+memory report --weekly --export-markdown ./memory-weekly.md
+```
+
+Open conflict debts are ranked by risk and then observed impact, with a stable
+tie-breaker. The nominal path contains at most seven decisions; additional debt
+is summarized by risk and category. Completed, ignored, or snoozed debts are
+removed by folding the existing append-only
+`memory_conflict -> memory_debt_action` chain.
+
+Each decision prints copyable `memory finish <debt-id> --debt-action ...`
+commands. The report itself never edits shared memory. Markdown is rendered from
+a closed aggregate projection, rescanned after interpolation for content labels,
+secret-shaped values, and absolute POSIX/Windows/UNC paths, then written
+atomically. Events with another project identity are excluded before
+aggregation.
+
 `memory purge` removes only events older than the current manifest's
 `policy.retention_days` for the current project. `memory purge --force` removes
 all detailed events for that project immediately; neither form accepts an

@@ -940,6 +940,58 @@ def read_event_file(path: Path) -> EventReadResult:
     return EventReadResult(tuple(events), tuple(diagnostics))
 
 
+def read_project_events(
+    project_id: str,
+    *,
+    state_dir: Path,
+    project_root: Path,
+) -> EventReadResult:
+    """Read only one physical project store and exclude mismatched identities."""
+
+    if not _PROJECT_ID.fullmatch(project_id):
+        raise _error(
+            "event_schema_invalid",
+            "Report project ID is invalid.",
+            "Use the project ID from the nearest validated memory manifest.",
+        )
+    root = validate_state_directory(state_dir, project_root)
+    project_dir = _project_directory(root, project_id)
+    if not project_dir.exists():
+        return EventReadResult(())
+    events: list[dict[str, Any]] = []
+    diagnostics: list[dict[str, str]] = []
+    lock_path = root / "events" / f".{project_id}.lock"
+    try:
+        with _project_lock(lock_path):
+            for path in sorted(project_dir.glob("*.jsonl")):
+                result = read_event_file(path)
+                diagnostics.extend(result.diagnostics)
+                for event in result.events:
+                    if event["project_id"] != project_id:
+                        diagnostics.append(
+                            {
+                                "code": "cross_project_event_excluded",
+                                "message": (
+                                    "An event with a different project identity "
+                                    "was excluded before aggregation."
+                                ),
+                                "correction": (
+                                    "Inspect or purge the affected private project "
+                                    "telemetry."
+                                ),
+                            }
+                        )
+                        continue
+                    events.append(event)
+    except OSError as error:
+        raise _error(
+            "event_store_unavailable",
+            "The current project event store could not be read safely.",
+            "Restore access to the private memory state directory, then retry.",
+        ) from error
+    return EventReadResult(tuple(events), tuple(diagnostics))
+
+
 def fsync_state_directory(path: Path) -> tuple[dict[str, str], ...]:
     if os.name != "posix":
         return ()

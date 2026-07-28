@@ -2,6 +2,32 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## [Unreleased] - 2026-07-28
+
+**Actionable metadata-only weekly memory report**
+
+### Added
+- `memory report --weekly` with project-scoped seven-day UTC aggregates for context efficiency, retrieval quality, fallback, insufficiency, freshness, and the `retrieved -> read -> used -> cited` funnel.
+- A maximum of seven open memory-debt decisions ranked by risk and observed impact, with the remaining debt summarized by risk and category.
+- Stable human, JSON, and shareable Markdown projections, including atomic Markdown export and final-byte privacy scanning.
+- Unit, contract, integration, snapshot, project-isolation, hostile-output, invalid-timestamp, and complete seven-decision pilot coverage.
+
+### Changed
+- Weekly decisions reuse the existing append-only `memory finish <debt-id> --debt-action ...` contract instead of introducing a second debt lifecycle or editing shared wiki pages.
+- Project event and immutable measurement readers now expose validated, project-filtered evidence for report aggregation.
+- Markdown prose and generated command code use separate output sanitizers so paths remain safe while action placeholders stay copyable.
+
+### Fixed
+- Golden-run timestamps without an explicit timezone now fail through the stable `quality_run_invalid` envelope instead of reaching report aggregation.
+- Relative metadata paths can no longer inject HTML or terminal control characters into weekly report outputs.
+- The timed acceptance path now exercises all seven nominal decisions, persists their append-only resolutions, and proves that the next report removes reviewed debt.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `PATH=/Users/aymeric/miniconda3/bin:$PATH bash tests/test-install-memory-cli.sh` — installer acceptance PASS
+- `PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — 244 tests Python OK in 86.820s from a clean worktree
+- Level-3 quality gate: PASS after four rounds, four confirmed P1 findings corrected, and two consecutive rounds without a new P0/P1
+
 ## [Unreleased] - 2026-07-27
 
 **Holdout-protected retrieval and external quality gate**
