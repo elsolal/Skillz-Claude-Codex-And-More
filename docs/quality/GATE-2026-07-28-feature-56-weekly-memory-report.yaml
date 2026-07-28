@@ -1,0 +1,117 @@
+# Quality gate for STORY-016 / GitHub issue #56.
+verdict: PASS
+niveau: 3
+tours: 4
+base: main
+head: 67139326ee0449eb6fa914046593dace84c0c10b
+diff_hash: "e7a1195cf5f5c9e8ea0ce99bfe3537f8c06311b1e94610992e10761df05e1c5c"
+
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "vert sur les quatre tours (exit 0)"
+    tests:
+      cmd: "PATH=/Users/aymeric/miniconda3/bin:$PATH bash tests/test-install-memory-cli.sh && PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "installer acceptance PASS; tour 1 interrompu par deux echecs doctor transitoires puis les deux tests cibles ont passe; tour 2 vert avec 242 tests en 210.745s; tours 3 et 4 verts avec 244 tests en 85.799s et 72.119s"
+    story_tests:
+      cmd: "PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_story_016*.py' && PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_weekly_report_cli.py'"
+      statut: "6 tests unit/contract et 4 tests integration verts apres les corrections; le pilote nominal complet a termine en moins de 5 secondes"
+    compile:
+      cmd: "PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m compileall -q .claude/skills/llm-wiki/memory_cli"
+      statut: "vert au tour final"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: "vert au tour final"
+    runtime_contract:
+      flow: "memory report --weekly -> projection metadata-only bornee a sept decisions -> sept memory finish append-only -> second report sans dette deja revue"
+      statut: "vert via repositories et state dirs temporaires, sorties human/JSON/Markdown, export atomique et injections de donnees hostiles"
+  red_green:
+    red: "les tests initiaux echouaient car memory_cli.report et WeeklyReportOutcome n'existaient pas"
+    green: "244 tests passent; les agregats hebdomadaires, le cap de sept, les actions append-only, l'isolation projet, le scanner final et le pilote chronometre sont couverts"
+  convergence:
+    statut: "atteinte"
+    preuve: "le tour 2 a confirme quatre P1 puis les a corriges; les tours 3 et 4 ont produit zero nouveau P0/P1 avec toutes les preuves executables vertes"
+    tour_1: "lint et installer verts; deux tests doctor transitoires rouges dans la suite complete, puis verts en isolation"
+    tour_2: "suite complete verte; quatre P1 confirmes et corriges par 5b2c11f"
+    tour_3: "aucun nouveau P0/P1; deux P2 de copyabilite et de precision documentaire corriges par 6713932"
+    tour_4: "aucun nouveau P0/P1; preuves completes et lentille thermo-nuclear propres"
+  opinion:
+    findings:
+      total: 6
+      confirmes: 6
+      refutes: 0
+      corriges_p0_p1: 4
+      restants_p0_p1: 0
+      notes_p2_p3: 2
+    registre:
+      - id: ".claude/skills/llm-wiki/tests/integration/test_weekly_report_cli.py:acceptance:maximum-path"
+        severite: P1
+        statut: corrige
+        commit: 5b2c11f
+        resume: "le pilote chronometre ne parcourait qu'une decision et n'appliquait aucune action"
+        preuve: "le test genere sept dettes, applique sept actions fix, regenere le rapport et verifie zero decision en moins de dix minutes"
+      - id: ".claude/skills/llm-wiki/tests/unit/test_story_016_report.py:determinism:snooze-date"
+        severite: P1
+        statut: corrige
+        commit: 5b2c11f
+        resume: "une date de snooze proche rendait le test dependant du calendrier"
+        preuve: "la fixture utilise 2099-01-01 et reste deterministe"
+      - id: ".claude/skills/llm-wiki/memory_cli/measurement.py:contract:timezone"
+        severite: P1
+        statut: corrige
+        commit: 5b2c11f
+        resume: "un run avec timestamp ISO naif passait le reader puis pouvait provoquer une ValueError non contractuelle"
+        preuve: "le reader exige une timezone et le CLI retourne blocked/quality_run_invalid sans traceback"
+      - id: ".claude/skills/llm-wiki/memory_cli/render_markdown.py:security:output-injection"
+        severite: P1
+        statut: corrige
+        commit: 5b2c11f
+        resume: "des chemins relatifs valides pouvaient transporter du HTML ou des caracteres de controle dans les sorties partagees"
+        preuve: "echappement HTML, neutralisation des controles et test hostile commun aux renderers human et Markdown"
+      - id: ".claude/skills/llm-wiki/memory_cli/render_markdown.py:usability:copyable-placeholder"
+        severite: P2
+        statut: corrige
+        commit: 6713932
+        resume: "l'echappement de prose encodait aussi le placeholder reason_slug dans le code Markdown"
+        preuve: "les commandes validees utilisent un sanitizer de code distinct et conservent le placeholder litteral"
+      - id: ".claude/skills/llm-wiki/README.md:documentation:snooze-fold"
+        severite: P2
+        statut: corrige
+        commit: 6713932
+        resume: "la documentation qualifiait les snoozes d'actifs alors que STORY-013 definit une action de revue immutable unique"
+        preuve: "la documentation decrit maintenant exactement le fold des dettes deja snoozees"
+    lentilles:
+      correctness_security: "approve; schemas fermes, timestamps conscients de la timezone, stores confines, mismatchs projet exclus, sorties metadata-only et export atomique scanne"
+      readability: "approve; politique pure, orchestration filesystem, receipts et renderers sont separes; les erreurs publiques restent stables"
+      performance: "approve; parcours lineaires des evenements/runs locaux, tri O(n log n) des seules dettes et chemin nominal strictement borne a sept"
+      thermo_nuclear: "approve; report.py fait 325 lignes, report_commands.py 137, cli.py reste a 989 lignes, sans cycle ni abstraction identitaire"
+
+acceptation:
+  AC1: "vert - efficacite mediane/p95, dernier run qualite, fallback, insuffisance, fraicheur et funnel sont agreges sur sept jours UTC pour le projet courant"
+  AC2: "vert - sept decisions maximum sont classees par risque puis impact observe; le reste est resume par risque et categorie"
+  AC3: "vert - les commandes fix, ignore et snooze reutilisent memory finish et les actions append-only retirees sont observees au rapport suivant"
+  AC4: "vert - les evenements dont project_id differe sont exclus avant toute aggregation et produisent un diagnostic"
+  AC5: "vert - le Markdown final refuse contenu, secrets et chemins absolus; HTML et caracteres de controle sont neutralises avant ecriture atomique"
+  AC6: "vert - le scenario automatise genere, examine et resout les sept decisions nominales en moins de cinq secondes, sous le budget de dix minutes"
+
+decisions_prises_en_ton_nom:
+  - "La fenetre hebdomadaire est un intervalle glissant inclusif de sept jours en UTC, termine a l'instant d'execution."
+  - "Le rapport reutilise les commandes append-only memory finish de STORY-013 au lieu d'introduire une seconde API d'action ou de modifier directement le wiki."
+  - "Le fold lit toute la chaine d'actions du projet avant de filtrer les conflits sur la semaine, afin qu'une action plus ancienne ne ressuscite pas une dette encore visible."
+  - "La qualite hebdomadaire correspond au run golden le plus recent dans la fenetre et a son eventuel score externe lie par run_id."
+  - "Un evenement physiquement present dans le store courant mais portant un autre project_id est exclu avec diagnostic plutot que bloque ou agrege."
+  - "Le budget de dix minutes est expose comme contrat fixe et prouve par un pilote automatise de sept decisions; aucun nouvel evenement de revue hebdomadaire n'est persiste."
+  - "Les commandes Markdown validees ont un echappement de code distinct de l'echappement HTML utilise pour les chemins et libelles."
+
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no configured live runtime smoke command beyond the temporary-repository CLI integration flow"
+  - "no real human-timed Aymeric review; AC6 has deterministic scripted evidence for the complete seven-decision path"
+  - "the shell resolves Apple Python 3.9.6 by default; verification prepended Miniconda Python 3.12.7 to satisfy the package Python >=3.10 contract"
+  - "no frontend or SEO/GEO surface; design, SEO/GEO and WCAG web lenses are not applicable"
+  - "remote CI was not queried during this local development gate"
+
+conclusion: "PASS: le rapport hebdomadaire est borne, actionnable, isole par projet et metadata-only; deux tours consecutifs n'ont produit aucun nouveau P0/P1."
