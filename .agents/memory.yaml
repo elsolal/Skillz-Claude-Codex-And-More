@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "project": {
+    "id": "skillz-claude",
+    "name": "Skillz-Claude",
+    "owner": "Aymeric"
+  },
+  "stores": {
+    "project": {
+      "remote": "https://github.com/elsolal/elsolal-memory.git",
+      "collection": "elsolal-wiki",
+      "entry_pages": [
+        "wiki/entities/skillz-claude.md",
+        "wiki/concepts/project-memory-workflow.md",
+        "wiki/concepts/local-rag-stack.md"
+      ]
+    }
+  },
+  "fallbacks": [],
+  "budgets": {
+    "minimal": {
+      "target_tokens": 800,
+      "hard_tokens": 1200
+    },
+    "project": {
+      "target_tokens": 2500,
+      "hard_tokens": 4000
+    },
+    "historical": {
+      "target_tokens": 6000,
+      "hard_tokens": 9000
+    }
+  },
+  "policy": {
+    "semantic_retrieval": "explicit",
+    "full_index_fallback": false,
+    "retention_days": 30,
+    "sufficiency_thresholds_version": "qmd-0.9-v1"
+  },
+  "golden": {
+    "visible_path": ".agents/memory/golden.json",
+    "quality_rubric": ".agents/memory/quality-rubric.json",
+    "start_question": "What should an agent know before changing Skillz-Claude workflows?"
+  }
+}

@@ -92,6 +92,7 @@ write_third_party_binary() {
 
 test_install_update_and_uninstall() {
     local home log expected_target skillz_output alias_output deny_bin command test_path
+    local claude_manifest codex_manifest
     home="$(new_home happy-path)"
     log="$home/install.log"
     expected_target="$home/.claude/skills/llm-wiki/bin/memory"
@@ -118,6 +119,31 @@ test_install_update_and_uninstall() {
     alias_output="$(HOME="$home" PATH="$test_path" memory --version)"
     [ -n "$skillz_output" ] || fail "skillz-memory --version returned no output"
     [ "$skillz_output" = "$alias_output" ] || fail "CLI aliases returned different versions"
+
+    claude_manifest="$(
+        cd "$REPO_ROOT"
+        HOME="$home" PATH="$test_path" \
+            "$home/.claude/skills/llm-wiki/bin/memory" manifest --json
+    )"
+    codex_manifest="$(
+        cd "$REPO_ROOT"
+        HOME="$home" PATH="$test_path" \
+            "$home/.codex/skills/llm-wiki/bin/memory" manifest --json
+    )"
+    [ "$claude_manifest" = "$codex_manifest" ] || \
+        fail "Claude and Codex consumed different memory manifest envelopes"
+    printf '%s' "$claude_manifest" | python3 -c '
+import json
+import sys
+
+payload = json.load(sys.stdin)
+assert payload["schema_version"] == 1
+assert payload["command"] == "manifest"
+assert payload["status"] == "ready"
+assert payload["project_id"] == "skillz-claude"
+assert payload["data"]["manifest_schema_version"] == 1
+assert payload["data"]["stores"]["project"]["collection"] == "elsolal-wiki"
+'
 
     run_installer "$home" "$test_path" "$log" update all
     run_installer "$home" "$test_path" "$log" update all

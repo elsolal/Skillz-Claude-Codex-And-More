@@ -4,6 +4,25 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## [Unreleased] - 2026-07-28
 
+**Portable Skillz-Claude memory pilot**
+
+### Added
+- A portable `.agents/memory.yaml` pilot manifest for the `elsolal-wiki` project store, with no transverse fallback and bounded context budgets.
+- Eight versioned golden retrieval cases plus a quality rubric covering installation, D-EPCT, llm-wiki, QMD, and project-memory guidance.
+- STORY-018 contract coverage for the shared manifest, local-only holdouts, and repository-clean privacy boundary.
+
+### Changed
+- Claude and Codex installer acceptance now proves that both installed entrypoints consume the same manifest and return the same JSON V1 envelope.
+- Agent documentation now separates versioned pilot assets from local projection, holdout, run, and QMD-index state.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `PATH=/Users/aymeric/miniconda3/bin:$PATH bash tests/test-install-memory-cli.sh` — installer acceptance PASS
+- `PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — 266 tests Python OK in 81.874s from a clean worktree
+- Level-3 quality gate: PASS after three rounds and two consecutive rounds without a new P0/P1
+
+## [Unreleased] - 2026-07-28
+
 **Opt-in repository contracts for current project truth**
 
 ### Added
