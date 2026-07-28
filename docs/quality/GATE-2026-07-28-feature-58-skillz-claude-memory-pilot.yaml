@@ -1,0 +1,82 @@
+# Quality gate for STORY-018 / GitHub issue #58.
+verdict: PASS
+niveau: 3
+tours: 3
+base: main
+head: 8070ca56d0ea883d5019b65263bddddfb12b556a
+diff_hash: "576a25e19fa857ba2c20c4cf12f768b609717d68fb79619749b4fbab94ed9985"
+
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: "vert avant commit et sur les trois tours du gate (exit 0)"
+    tests:
+      cmd: "PATH=/Users/aymeric/miniconda3/bin:$PATH bash tests/test-install-memory-cli.sh && PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "installer acceptance PASS; tour 1 interrompu par un echec doctor transitoire puis test cible vert; tours 2 et 3 verts avec 266 tests en 104.462s et 103.594s"
+    story_tests:
+      cmd: "PATH=/Users/aymeric/miniconda3/bin:$PATH python3 .claude/skills/llm-wiki/tests/contract/test_story_018_pilot.py"
+      statut: "5 tests verts; manifeste, huit sujets golden, rubrique et frontiere des fichiers locaux valides"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: "vert avant le commit d'implementation"
+    runtime_contract:
+      flow: "clone propre -> configure elsolal-wiki -> doctor -> huit golden -> deux holdouts -> verification du run prive -> git status"
+      statut: "configure ready; doctor degraded uniquement par qmd_index_stale; retrieval 100%; fallback 0%; reduction mediane 96.70% visible et 98.09% holdout; clone propre"
+    multi_runtime:
+      flow: "installation temporaire Claude et Codex -> memory manifest --json depuis les deux entrypoints"
+      statut: "enveloppes JSON strictement identiques; schema_version 1, manifest schema 1 et project_id skillz-claude"
+    privacy:
+      flow: "run holdout metadata-only persiste hors repo"
+      statut: "fichier 0600 sous dossier 0700; aucun query, prompt, snippet, content ou chemin /Users/; details_shared false"
+  red_green:
+    red: "le contrat story-specific echouait sur l'absence du manifeste, des huit golden, de la rubrique et de la documentation pilote"
+    green: "266 tests passent; Claude et Codex consomment le meme contrat; le run live execute huit golden et deux holdouts sans fallback ni fuite locale"
+  convergence:
+    statut: "atteinte"
+    preuve: "les tours 2 et 3 ont produit zero nouveau P0/P1 avec toutes les preuves executables vertes"
+    tour_1: "lint et smoke verts; un test doctor nominal hors diff a echoue transitoirement, puis la reproduction instrumentee et le test cible ont retourne ready/0"
+    tour_2: "lint, installer acceptance et 266 tests verts en 104.462s; aucune finding P0/P1"
+    tour_3: "lint, installer acceptance et 266 tests verts en 103.594s; aucune finding P0/P1; lentille thermo-nuclear propre"
+  opinion:
+    findings:
+      total: 0
+      confirmes: 0
+      refutes: 0
+      corriges_p0_p1: 0
+      restants_p0_p1: 0
+      notes_p2_p3: 0
+    lentilles:
+      correctness_security: "approve; schemas fermes, store unique sans fallback, holdout local ignore, run metadata-only et clone final propre"
+      readability: "approve; le contrat pilote reste declaratif, la documentation separe explicitement partage et local, et les tests nomment les invariants de STORY-018"
+      performance: "approve; huit recherches visibles plus deux holdouts bornes, sans nouveau parcours non borne; reduction de contexte mesuree au-dessus de 96%"
+      thermo_nuclear: "approve; aucun fichier ne franchit 1000 lignes, aucune abstraction, branche, wrapper ou duplication structurelle n'est introduit"
+
+acceptation:
+  AC1: "vert - un clone propre configure le manifeste et le store elsolal-wiki; doctor retourne degraded/10 uniquement pour qmd_index_stale, explicitement accepte"
+  AC2: "vert - huit golden versionnes et deux holdouts locaux distincts couvrent installation, D-EPCT, llm-wiki, QMD et memoire projet; les details holdout ne sont pas partages"
+  AC3: "vert - les deux runs apparies exposent pages/sources, contexte estime et fallback; retrieval 100%, fallback 0% et runs prives immuables enregistres"
+  AC4: "vert - les entrypoints installes Claude et Codex consomment le meme manifeste et produisent la meme enveloppe JSON V1"
+  AC5: "vert - le clone reste propre apres configure/test; hooks utilisateur, pointeurs locaux, projection et holdout sont absents du diff et du commit"
+
+decisions_prises_en_ton_nom:
+  - "Les pointeurs locaux historiques du checkout principal n'ont pas ete remplaces; configure et doctor ont ete prouves dans un clone temporaire propre."
+  - "Le statut doctor degraded a ete accepte parce que qmd_index_stale etait l'unique avertissement; aucun qmd update implicite n'a ete lance."
+  - "Le store projet est uniquement elsolal-wiki; fallbacks reste vide et full_index_fallback est desactive."
+  - "Les formulations longues ayant retourne zero hit avec QMD BM25, les golden ont ete calibres en expressions lexicales courtes tout en conservant les huit sujets approuves."
+  - "Les deux holdouts ont ete crees localement et proteges par .git/info/exclude; seul leur agregat details_shared false est partage."
+  - "Le smoke multi-runtime utilise un HOME temporaire et ne modifie aucune installation globale Claude ou Codex."
+  - "La verification a place Miniconda Python 3.12 en tete du PATH sans versionner de chemin machine, car le shell Codex resout Apple Python 3.9.6 par defaut."
+
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness"
+  - "no configured runtime application surface; the affected CLI flow was driven live on the real Elsolal vault"
+  - "QMD collection elsolal-wiki was 22 days old; doctor correctly remained degraded and no explicit reindex was authorized"
+  - "no external answer-quality score was imported; this pilot run does not authorize global rollout"
+  - "the shell resolves Apple Python 3.9.6 by default; verification prepended Miniconda Python 3.12.7 to satisfy the Python >=3.10 contract"
+  - "no frontend or SEO/GEO surface; design, SEO/GEO and WCAG web lenses are not applicable"
+  - "remote CI was not queried during this local development gate"
+
+conclusion: "PASS: le pilote Skillz-Claude est portable, borne, observable et prive; deux tours consecutifs n'ont produit aucun nouveau P0/P1."
