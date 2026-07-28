@@ -12,6 +12,7 @@ from .receipts import (
     GoldenTestOutcome,
     MeasurementGateOutcome,
     QualityRecordOutcome,
+    WeeklyReportOutcome,
 )
 
 
@@ -259,3 +260,92 @@ def render_debt_action_human(
         print(f"Error: {diagnostic['message']}", file=stream)
         print(f"Correction: {diagnostic['correction']}", file=stream)
     print("Machine output: memory finish --json", file=stream)
+
+
+def _metric(value: object) -> str:
+    return "not available" if value is None else f"{value:g}"
+
+
+def render_weekly_report_human(
+    outcome: WeeklyReportOutcome,
+    *,
+    stream: TextIO,
+) -> None:
+    data = outcome.data()
+    review = data["review"]
+    efficiency = data["efficiency"]
+    reliability = data["reliability"]
+    funnel = data["usage_funnel"]
+    decision_label = "decision" if review["decision_count"] == 1 else "decisions"
+    print(f"Memory Weekly · {outcome.project_id} · {outcome.period_end[:10]}", file=stream)
+    print("Scope: local detail + shareable project aggregates", file=stream)
+    print(
+        f"Review budget: {review['budget_minutes']} minutes · "
+        f"{review['decision_count']} {decision_label}",
+        file=stream,
+    )
+    print(file=stream)
+    print(
+        "Efficiency: "
+        f"{efficiency['context_events']} context event(s) · "
+        f"tokens median {_metric(efficiency['estimated_context_tokens']['median'])} "
+        f"p95 {_metric(efficiency['estimated_context_tokens']['p95'])} · "
+        f"duration median {_metric(efficiency['duration_ms']['median'])}ms "
+        f"p95 {_metric(efficiency['duration_ms']['p95'])}ms",
+        file=stream,
+    )
+    quality = data["quality"]
+    if quality is None:
+        print("Quality: not measured this week", file=stream)
+    else:
+        degradation = quality["quality_degradation"]
+        quality_label = (
+            "not imported" if degradation is None else f"{degradation:.1%} degradation"
+        )
+        print(
+            f"Quality: {quality['retrieval_hit_rate']:.1%} retrieval · {quality_label}",
+            file=stream,
+        )
+    print(
+        f"Reliability: {reliability['fallback_rate']:.1%} fallback · "
+        f"{reliability['insufficiency_rate']:.1%} insufficient · "
+        f"{reliability['freshness']['stale']} stale",
+        file=stream,
+    )
+    print(
+        f"Funnel: {funnel['retrieved']} retrieved -> {funnel['read']} read -> "
+        f"{funnel['used']} used -> {funnel['cited']} cited",
+        file=stream,
+    )
+    print(file=stream)
+    if not outcome.decisions:
+        print("Healthy · no human decision required this week", file=stream)
+    else:
+        print("Decisions", file=stream)
+        for index, decision in enumerate(outcome.decisions, start=1):
+            print(
+                f"{index}. {decision['priority']} · "
+                f"{str(decision['risk']).upper()} · {decision['category']} · "
+                f"{decision['memory']['docid']} · "
+                f"{decision['observed_impact_count']} observed impact(s)",
+                file=stream,
+            )
+            print(f"   {decision['memory']['path']}", file=stream)
+            for action in ("fix", "ignore", "snooze"):
+                print(f"   {decision['actions'][action]}", file=stream)
+    if outcome.appendix["remaining_count"]:
+        print(file=stream)
+        print(
+            f"Appendix: {outcome.appendix['remaining_count']} additional debt(s) · "
+            f"by risk {outcome.appendix['by_risk']}",
+            file=stream,
+        )
+    print(file=stream)
+    print("Privacy: 0 prompts · 0 responses · 0 cross-project raw events", file=stream)
+    for warning in outcome.warnings:
+        print(f"Warning: {warning['message']}", file=stream)
+        print(f"Correction: {warning['correction']}", file=stream)
+    for error in outcome.errors:
+        print(f"Error: {error['message']}", file=stream)
+        print(f"Correction: {error['correction']}", file=stream)
+    print("Machine output: memory report --weekly --json", file=stream)

@@ -13,6 +13,7 @@ from .receipts import (
     GoldenTestOutcome,
     MeasurementGateOutcome,
     QualityRecordOutcome,
+    WeeklyReportOutcome,
 )
 
 
@@ -157,6 +158,33 @@ def render_measurement_gate_json(
     print(
         json.dumps(
             measurement_gate_envelope(outcome),
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ),
+        file=stream,
+    )
+
+
+def weekly_report_envelope(outcome: WeeklyReportOutcome) -> dict[str, Any]:
+    return {
+        "schema_version": PUBLIC_SCHEMA_VERSION,
+        "command": "report.weekly",
+        "status": outcome.status,
+        "project_id": outcome.project_id,
+        "data": outcome.data(),
+        "warnings": list(outcome.warnings),
+        "errors": list(outcome.errors),
+    }
+
+
+def render_weekly_report_json(
+    outcome: WeeklyReportOutcome,
+    *,
+    stream: TextIO,
+) -> None:
+    print(
+        json.dumps(
+            weekly_report_envelope(outcome),
             ensure_ascii=False,
             separators=(",", ":"),
         ),

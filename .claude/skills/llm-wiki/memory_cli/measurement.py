@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 
 from .manifest import load_manifest
@@ -15,6 +16,68 @@ from .quality import (
     persist_quality_import,
 )
 from .receipts import MeasurementGateOutcome, QualityRecordOutcome
+
+
+def read_project_measurements(
+    *,
+    project_id: str,
+    state_dir: Path,
+    project_root: Path,
+) -> tuple[tuple[dict[str, object], ...], tuple[dict[str, object], ...]]:
+    """Load validated immutable runs and their optional quality records."""
+
+    runs_dir = state_dir.resolve(strict=False) / "runs" / project_id
+    if not runs_dir.exists():
+        return (), ()
+    if runs_dir.is_symlink():
+        raise _error(
+            "quality_run_store_escape",
+            "The project run directory cannot be a symbolic link.",
+            "Restore the physical private run directory.",
+            exit_code=50,
+        )
+    runs: list[dict[str, object]] = []
+    quality_records: list[dict[str, object]] = []
+    for path in sorted(runs_dir.glob("*.json")):
+        run = _validate_source_run(
+            run_id=path.stem,
+            project_id=project_id,
+            state_dir=state_dir,
+            project_root=project_root,
+        )
+        occurred_at = run.get("occurred_at")
+        try:
+            if not isinstance(occurred_at, str):
+                raise ValueError
+            datetime.fromisoformat(
+                f"{occurred_at[:-1]}+00:00"
+                if occurred_at.endswith("Z")
+                else occurred_at
+            )
+        except ValueError as error:
+            raise _error(
+                "quality_run_invalid",
+                "The referenced golden run timestamp is invalid.",
+                "Use an unmodified run emitted by memory test.",
+                exit_code=50,
+            ) from error
+        runs.append(run)
+        quality_path = (
+            state_dir.resolve(strict=False)
+            / "quality"
+            / project_id
+            / f"{path.stem}.json"
+        )
+        if quality_path.exists() or quality_path.is_symlink():
+            quality_records.append(
+                load_quality_record(
+                    run_id=path.stem,
+                    project_id=project_id,
+                    state_dir=state_dir,
+                    project_root=project_root,
+                )
+            )
+    return tuple(runs), tuple(quality_records)
 
 
 def _resolve_project_file(project_root: Path, relative_path: object, *, label: str) -> Path:

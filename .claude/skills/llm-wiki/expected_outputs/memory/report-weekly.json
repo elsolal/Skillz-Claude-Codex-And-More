@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "command": "report.weekly",
+  "status": "ready",
+  "project_id": "skillz-claude",
+  "data": {
+    "period": {
+      "start": "2026-07-21T12:00:00Z",
+      "end": "2026-07-28T12:00:00Z",
+      "window_days": 7
+    },
+    "review": {
+      "decision_count": 1,
+      "budget_minutes": 10,
+      "cap": 7
+    },
+    "efficiency": {
+      "context_events": 2,
+      "estimated_context_tokens": {
+        "median": 600.0,
+        "p95": 800.0
+      },
+      "duration_ms": {
+        "median": 200.0,
+        "p95": 300.0
+      }
+    },
+    "quality": null,
+    "reliability": {
+      "fallback_rate": 0.0,
+      "insufficiency_rate": 0.0,
+      "freshness": {
+        "fresh": 2,
+        "stale": 0,
+        "unknown": 0
+      },
+      "activation_errors": 0
+    },
+    "usage_funnel": {
+      "retrieved": 2,
+      "read": 2,
+      "used": 1,
+      "cited": 1,
+      "read_rate": 1.0,
+      "used_rate": 0.5,
+      "cited_rate": 1.0
+    },
+    "decisions": [
+      {
+        "debt_id": "con_20260727T120002000000Z_0123456789abcdef",
+        "priority": "P0",
+        "risk": "high",
+        "category": "architecture",
+        "observed_impact_count": 1,
+        "memory": {
+          "docid": "#a1b2c3",
+          "path": "wiki/entities/skillz-claude.md"
+        },
+        "repository": {
+          "path": "src/current-contract.py",
+          "evidence_type": "contract"
+        },
+        "actions": {
+          "fix": "memory finish con_20260727T120002000000Z_0123456789abcdef --debt-action fix",
+          "ignore": "memory finish con_20260727T120002000000Z_0123456789abcdef --debt-action ignore --reason <reason_slug>",
+          "snooze": "memory finish con_20260727T120002000000Z_0123456789abcdef --debt-action snooze --until YYYY-MM-DD"
+        }
+      }
+    ],
+    "appendix": {
+      "remaining_count": 0,
+      "by_risk": {},
+      "by_category": {}
+    },
+    "privacy": {
+      "prompts": 0,
+      "responses": 0,
+      "raw_cross_project_events": 0
+    }
+  },
+  "warnings": [],
+  "errors": []
+}

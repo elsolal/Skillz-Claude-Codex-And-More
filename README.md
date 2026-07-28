@@ -67,6 +67,8 @@ memory test --json
 memory test --holdout --json
 memory test record-quality --input /path/to/quality.json --json
 memory test gate --run-id run_... --json
+memory report --weekly --json
+memory report --weekly --export-markdown ./memory-weekly.md
 ```
 
 The command uses lexical `qmd search` only, never persists the query, and emits
@@ -90,6 +92,12 @@ weighted rubric governs a metadata-only score import linked to the immutable run
 The measurement gate stays `incomplete` without quality and fails above 5%
 degradation even when context reduction exceeds 50%; its pass never authorizes
 the later global rollout.
+
+`memory report --weekly` folds the current project's private event, run, and
+quality stores into shareable aggregates. It caps the nominal review at seven
+open debts ranked by risk then observed impact, reuses the existing append-only
+`memory finish ... --debt-action` commands, and scans the final Markdown before
+atomic export.
 
 The CLI requires Python 3.10+ and uses the standard library only. The installer
 does not create a virtual environment or download QMD, a model, or another

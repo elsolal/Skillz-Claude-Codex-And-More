@@ -1,0 +1,18 @@
+Memory Weekly · skillz-claude · 2026-07-28
+Scope: local detail + shareable project aggregates
+Review budget: 10 minutes · 1 decision
+
+Efficiency: 2 context event(s) · tokens median 600 p95 800 · duration median 200ms p95 300ms
+Quality: not measured this week
+Reliability: 0.0% fallback · 0.0% insufficient · 0 stale
+Funnel: 2 retrieved -> 2 read -> 1 used -> 1 cited
+
+Decisions
+1. P0 · HIGH · architecture · #a1b2c3 · 1 observed impact(s)
+   wiki/entities/skillz-claude.md
+   memory finish con_20260727T120002000000Z_0123456789abcdef --debt-action fix
+   memory finish con_20260727T120002000000Z_0123456789abcdef --debt-action ignore --reason <reason_slug>
+   memory finish con_20260727T120002000000Z_0123456789abcdef --debt-action snooze --until YYYY-MM-DD
+
+Privacy: 0 prompts · 0 responses · 0 cross-project raw events
+Machine output: memory report --weekly --json

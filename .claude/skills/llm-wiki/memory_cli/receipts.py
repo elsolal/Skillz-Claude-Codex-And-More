@@ -116,6 +116,51 @@ class MeasurementGateOutcome:
 
 
 @dataclass(frozen=True, slots=True)
+class WeeklyReportOutcome:
+    """Closed metadata-only projection shared by weekly report renderers."""
+
+    status: str
+    exit_code: int
+    project_id: str
+    period_start: str
+    period_end: str
+    efficiency: dict[str, Any]
+    quality: dict[str, Any] | None
+    reliability: dict[str, Any]
+    usage_funnel: dict[str, Any]
+    decisions: tuple[dict[str, Any], ...]
+    appendix: dict[str, Any]
+    review_budget_minutes: int = 10
+    warnings: tuple[dict[str, str], ...] = ()
+    errors: tuple[dict[str, str], ...] = ()
+
+    def data(self) -> dict[str, Any]:
+        return {
+            "period": {
+                "start": self.period_start,
+                "end": self.period_end,
+                "window_days": 7,
+            },
+            "review": {
+                "decision_count": len(self.decisions),
+                "budget_minutes": self.review_budget_minutes,
+                "cap": 7,
+            },
+            "efficiency": dict(self.efficiency),
+            "quality": dict(self.quality) if self.quality is not None else None,
+            "reliability": dict(self.reliability),
+            "usage_funnel": dict(self.usage_funnel),
+            "decisions": [dict(decision) for decision in self.decisions],
+            "appendix": dict(self.appendix),
+            "privacy": {
+                "prompts": 0,
+                "responses": 0,
+                "raw_cross_project_events": 0,
+            },
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class FinishOutcome:
     """Consolidated view over immutable measured and attested events."""
 

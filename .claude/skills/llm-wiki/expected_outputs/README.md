@@ -29,6 +29,9 @@ or to verify the scripts behave correctly end-to-end.
 | `memory test --json` | `memory/test-ready.json` |
 | `memory test record-quality --json` | `memory/test-quality-recorded.json` |
 | passing `memory test gate --json` | `memory/test-gate-pass.json` |
+| `memory report --weekly --json` | `memory/report-weekly.json` |
+| human `memory report --weekly` | `memory/report-weekly-human.txt` |
+| `memory report --weekly --export-markdown` | `memory/report-weekly.md` |
 
 These were captured against a small 2-page example vault (one concept page and
 one source page, both with proper frontmatter). Paths have been anonymized to
