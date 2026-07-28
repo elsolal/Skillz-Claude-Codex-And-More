@@ -76,6 +76,12 @@ def _inline(value: object) -> str:
     )
 
 
+def _code(value: object) -> str:
+    return "".join(
+        character if character.isprintable() else " " for character in str(value)
+    ).replace("`", "'")
+
+
 def _percentage(value: object) -> str:
     return "not measured" if value is None else f"{float(value):.1%}"
 
@@ -154,9 +160,9 @@ def render_weekly_report_markdown(outcome: WeeklyReportOutcome) -> str:
                 ),
                 f"- Observed impacts: {decision['observed_impact_count']}",
                 "- Actions:",
-                f"  - `{_inline(decision['actions']['fix'])}`",
-                f"  - `{_inline(decision['actions']['ignore'])}`",
-                f"  - `{_inline(decision['actions']['snooze'])}`",
+                f"  - `{_code(decision['actions']['fix'])}`",
+                f"  - `{_code(decision['actions']['ignore'])}`",
+                f"  - `{_code(decision['actions']['snooze'])}`",
                 "",
             ]
         )

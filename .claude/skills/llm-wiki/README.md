@@ -412,8 +412,8 @@ memory report --weekly --export-markdown ./memory-weekly.md
 
 Open conflict debts are ranked by risk and then observed impact, with a stable
 tie-breaker. The nominal path contains at most seven decisions; additional debt
-is summarized by risk and category. Completed or ignored debts and active
-snoozes are removed by folding the existing append-only
+is summarized by risk and category. Completed, ignored, or snoozed debts are
+removed by folding the existing append-only
 `memory_conflict -> memory_debt_action` chain.
 
 Each decision prints copyable `memory finish <debt-id> --debt-action ...`
