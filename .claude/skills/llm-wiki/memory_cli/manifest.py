@@ -10,6 +10,7 @@ from urllib.parse import urlsplit
 
 from .contracts import (
     DEFAULT_SUFFICIENCY_THRESHOLDS_VERSION,
+    CONTRACT_FILE_EXTENSIONS,
     MANIFEST_SCHEMA_VERSION,
     BudgetConfig,
     FallbackConfig,
@@ -18,11 +19,14 @@ from .contracts import (
     PolicyConfig,
     PrincipalRole,
     ProjectConfig,
+    RepositorySourceConfig,
+    RepositorySourceKind,
     RetrievalMode,
     SemanticRetrieval,
     StoreConfig,
     StoresConfig,
     TaskCategory,
+    TrustLevel,
 )
 from .routing import authorized_fallbacks
 
@@ -293,6 +297,66 @@ def _path_list(value: Any, field: str, *, allow_empty: bool = False) -> tuple[Pu
     return tuple(_relative_path(item, f"{field}.{index}") for index, item in enumerate(value))
 
 
+def _contract_pattern(value: Any, field: str, *, enforce_extension: bool) -> str:
+    pattern = _string(value, field)
+    path = PurePosixPath(pattern)
+    if (
+        path.is_absolute()
+        or WINDOWS_ABSOLUTE_PATTERN.match(pattern)
+        or pattern.startswith("~")
+        or "\\" in pattern
+        or ".." in path.parts
+        or any(ord(character) < 32 for character in pattern)
+    ):
+        _error(
+            code="invalid_contract_pattern",
+            field=field,
+            message=f'Field "{field}" is not a portable repository glob.',
+            correction="Use a relative POSIX glob that remains inside the repository root.",
+        )
+    suffix = Path(pattern).suffix.lower()
+    if (
+        enforce_extension
+        and suffix
+        and not any(character in suffix for character in "*?[")
+        and suffix not in CONTRACT_FILE_EXTENSIONS
+    ):
+        _error(
+            code="contract_extension_forbidden",
+            field=field,
+            message=f'Field "{field}" selects a non-contract file extension.',
+            correction=(
+                "Select Markdown, OpenAPI/YAML, JSON schema, or SQL contract files; "
+                "application-code extensions are refused in V1."
+            ),
+        )
+    return pattern
+
+
+def _contract_patterns(
+    value: Any,
+    field: str,
+    *,
+    allow_empty: bool,
+    enforce_extension: bool,
+) -> tuple[str, ...]:
+    if not isinstance(value, list) or (not value and not allow_empty):
+        _error(
+            code="invalid_type",
+            field=field,
+            message=f'Field "{field}" must be {"an" if allow_empty else "a non-empty"} array of repository globs.',
+            correction=f'Set "{field}" to an array such as ["docs/**/*.md"].',
+        )
+    return tuple(
+        _contract_pattern(
+            item,
+            f"{field}.{index}",
+            enforce_extension=enforce_extension,
+        )
+        for index, item in enumerate(value)
+    )
+
+
 def _enum_list(value: Any, field: str, enum_type: type[Any]) -> tuple[Any, ...]:
     if not isinstance(value, list) or not value:
         _error(
@@ -374,6 +438,50 @@ def _fallback(value: Any, index: int) -> FallbackConfig:
     )
 
 
+def _repository_source(value: Any, index: int) -> RepositorySourceConfig:
+    field = f"sources.{index}"
+    data = _object(value, field)
+    _exact_keys(
+        data,
+        field,
+        required={"id", "kind", "trust", "collection", "include", "exclude"},
+    )
+    kind = _string(data["kind"], f"{field}.kind")
+    if kind not in {member.value for member in RepositorySourceKind}:
+        _error(
+            code="invalid_enum",
+            field=f"{field}.kind",
+            message=f'Repository source kind "{kind}" is not supported in V1.',
+            correction='Set the source kind to "qmd".',
+        )
+    trust = _string(data["trust"], f"{field}.trust")
+    if trust != TrustLevel.CURRENT_CONTRACT.value:
+        _error(
+            code="invalid_enum",
+            field=f"{field}.trust",
+            message=f'Repository source trust "{trust}" is not supported in V1.',
+            correction='Set repository source trust to "current_contract".',
+        )
+    return RepositorySourceConfig(
+        id=_identifier(data["id"], f"{field}.id"),
+        kind=RepositorySourceKind(kind),
+        trust=TrustLevel(trust),
+        collection=_identifier(data["collection"], f"{field}.collection"),
+        include=_contract_patterns(
+            data["include"],
+            f"{field}.include",
+            allow_empty=False,
+            enforce_extension=True,
+        ),
+        exclude=_contract_patterns(
+            data["exclude"],
+            f"{field}.exclude",
+            allow_empty=True,
+            enforce_extension=False,
+        ),
+    )
+
+
 def _budget(value: Any, field: str) -> BudgetConfig:
     data = _object(value, field)
     _exact_keys(data, field, required={"target_tokens", "hard_tokens"})
@@ -410,6 +518,7 @@ def _build_manifest(payload: dict[str, Any]) -> MemoryManifest:
         payload,
         "",
         required={"schema_version", "project", "stores", "fallbacks", "budgets", "policy", "golden"},
+        optional={"sources"},
     )
 
     project_data = _object(payload["project"], "project")
@@ -423,6 +532,24 @@ def _build_manifest(payload: dict[str, Any]) -> MemoryManifest:
     stores_data = _object(payload["stores"], "stores")
     _exact_keys(stores_data, "stores", required={"project"})
     stores = StoresConfig(project=_store(stores_data["project"], "stores.project"))
+
+    sources_data = payload.get("sources", [])
+    if not isinstance(sources_data, list):
+        _error(
+            code="invalid_type",
+            field="sources",
+            message='Field "sources" must be an array.',
+            correction='Set "sources" to [] or an array of repository source objects.',
+        )
+    sources = tuple(_repository_source(value, index) for index, value in enumerate(sources_data))
+    source_ids = [source.id for source in sources]
+    if len(set(source_ids)) != len(source_ids):
+        _error(
+            code="duplicate_id",
+            field="sources",
+            message="Repository source IDs must be unique.",
+            correction="Rename duplicate repository source IDs.",
+        )
 
     fallbacks_data = payload["fallbacks"]
     if not isinstance(fallbacks_data, list):
@@ -440,6 +567,18 @@ def _build_manifest(payload: dict[str, Any]) -> MemoryManifest:
             field="fallbacks",
             message="Fallback IDs must be unique.",
             correction="Rename duplicate fallback IDs so each fallback has a unique lowercase kebab-case ID.",
+        )
+    collections = [
+        stores.project.collection,
+        *(source.collection for source in sources),
+        *(fallback.collection for fallback in fallbacks),
+    ]
+    if len(set(collections)) != len(collections):
+        _error(
+            code="duplicate_collection",
+            field="sources",
+            message="Project, repository source, and fallback collections must be distinct.",
+            correction="Assign one distinct QMD collection to each trust boundary.",
         )
 
     budgets_data = _object(payload["budgets"], "budgets")
@@ -521,6 +660,7 @@ def _build_manifest(payload: dict[str, Any]) -> MemoryManifest:
         schema_version=version,
         project=project,
         stores=stores,
+        sources=sources,
         fallbacks=fallbacks,
         budgets=budgets,
         policy=policy,

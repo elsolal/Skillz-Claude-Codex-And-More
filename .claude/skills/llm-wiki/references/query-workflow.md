@@ -14,13 +14,13 @@ Keep the user's question as the task. From the project repository, look for the 
 
 ### 2. Activated project: use `memory context`
 
-When `.agents/memory.yaml` is present and configured, choose the narrowest suitable mode and task category, then retrieve from the declared project collection first:
+When `.agents/memory.yaml` is present and configured, choose the narrowest suitable mode and task category. The CLI searches any opt-in `current_contract` repository collection first, then durable project memory, then an authorized transverse fallback:
 
 ```bash
 memory context --mode project --task-category <category> "<task>"
 ```
 
-Use `--query-stdin` for sensitive task text. Consume the returned `read` sections and receipt; do not reopen every `retrieved` candidate. The CLI owns sufficiency, budget enforcement, freshness, provenance, and any authorized fallback.
+Use `--query-stdin` for sensitive task text. Consume the returned `read` sections and receipt; do not reopen every `retrieved` candidate. The CLI owns allowlist enforcement, trust precedence, sufficiency, budget enforcement, freshness, provenance, and any authorized fallback. A `current_contract` section takes operational priority over `durable_memory` when both are returned.
 
 If QMD is unavailable, keep using `memory context`. For `minimal` and `project`, it degrades only to the manifest-declared `entry_pages` under their one-page or three-page caps. It never scans the vault or opens an undeclared full index. `historical` reports that QMD is required.
 

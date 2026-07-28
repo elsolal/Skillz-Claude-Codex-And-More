@@ -50,7 +50,7 @@ vault/
 ## Three core operations
 
 1. **Ingest** — LLM reads a source, discusses takeaways with you, writes a source summary, updates 10-15 relevant pages, updates index, appends to log. See `references/ingest-workflow.md`.
-2. **Query** — LLM starts from the task and the nearest `.agents/memory.yaml`. Activated projects use `memory context` against the project collection; QMD failures degrade only to declared `entry_pages`. Vaults without a manifest keep an explicit legacy/non-pilot catalog route. Good answers get **filed back into the wiki** so explorations compound. See `references/query-workflow.md`.
+2. **Query** — LLM starts from the task and the nearest `.agents/memory.yaml`. Activated projects use `memory context`; opt-in `current_contract` repository sources precede `durable_memory`, while QMD failures degrade only to declared `entry_pages`. Vaults without a manifest keep an explicit legacy/non-pilot catalog route. Good answers get **filed back into the wiki** so explorations compound. See `references/query-workflow.md`.
 3. **Lint** — Health check: contradictions, stale claims, orphan pages, missing cross-refs, concepts mentioned but lacking their own page, data gaps to fill with web search. See `references/lint-workflow.md`.
 
 ## Quick start

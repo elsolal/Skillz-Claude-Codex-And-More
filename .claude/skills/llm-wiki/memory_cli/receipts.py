@@ -234,13 +234,18 @@ class FinishOutcome:
             raise ValueError("Finish outcome has no conflict event")
         payload = self.conflict_event["payload"]
         debt = payload["debt"]
+        memory = {**dict(payload["memory"]), "trust": "durable_memory"}
+        repository = {
+            **dict(payload["repository"]),
+            "trust": "current_contract",
+        }
         return {
             "risk": payload["risk"],
             "category": payload["category"],
             "precedence": payload["precedence"],
             "requires_human": payload["requires_human"],
-            "memory": dict(payload["memory"]),
-            "repository": dict(payload["repository"]),
+            "memory": memory,
+            "repository": repository,
             "debt": (
                 {"id": self.event_id, **dict(debt)} if debt is not None else None
             ),
@@ -318,6 +323,7 @@ class ContextOutcome:
                     "title": hit.title,
                     "score": hit.score,
                     "snippet_line": hit.snippet_line,
+                    "trust": hit.trust.value,
                 }
                 for hit in self.hits
             ],
@@ -362,6 +368,7 @@ class ContextOutcome:
                         "path": section.relative_path.as_posix(),
                         "title": section.title,
                         "provenance": section.provenance.value,
+                        "trust": section.trust.value,
                         "line_start": section.line_start,
                         "line_end": section.line_end,
                         "frontmatter": dict(section.frontmatter),
@@ -461,6 +468,7 @@ def _decision_data(decision: SufficiencyDecision) -> dict[str, Any]:
                     "docid": hit.docid,
                     "score": hit.score,
                     "provenance": hit.provenance.value,
+                    "trust": hit.trust.value,
                 }
                 for hit in decision.evidence.hits
             ],

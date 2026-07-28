@@ -89,10 +89,12 @@ class MemoryConflictsCliIntegrationTests(unittest.TestCase):
                 "memory": {
                     "docid": "#dfec5e",
                     "path": "entities/skillz-claude.md",
+                    "trust": "durable_memory",
                 },
                 "repository": {
                     "path": ".claude/project-memory.md",
                     "evidence_type": "contract",
+                    "trust": "current_contract",
                 },
                 "debt": {
                     "id": output["event_id"],

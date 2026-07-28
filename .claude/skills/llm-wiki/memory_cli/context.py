@@ -46,6 +46,7 @@ from .receipts import (
     context_outcome,
     degraded_context,
 )
+from .repository_contracts import select_repository_contracts
 from .routing import authorized_fallbacks
 from .sufficiency import evaluate_sufficiency, provenance_for_path, thresholds_for
 
@@ -56,6 +57,14 @@ MODE_SEARCH_LIMITS: dict[RetrievalMode, int] = {
     RetrievalMode.HISTORICAL: 15,
 }
 QMD_INSTALL_COMMAND = "bun install -g @tobilu/qmd"
+
+
+def _combined_freshness(statuses: tuple[FreshnessStatus, ...]) -> FreshnessStatus:
+    if FreshnessStatus.STALE in statuses:
+        return FreshnessStatus.STALE
+    if not statuses or FreshnessStatus.UNKNOWN in statuses:
+        return FreshnessStatus.UNKNOWN
+    return FreshnessStatus.FRESH
 
 
 def _qmd_executable() -> str | None:
@@ -105,6 +114,7 @@ def _evidence(
                 docid=hit.docid,
                 score=hit.score,
                 provenance=provenance_for_path(hit.relative_path),
+                trust=hit.trust,
             )
             for hit in hits
         ),
@@ -232,6 +242,7 @@ def _local_entry_page_fallback(
 def _materialize_context(
     *,
     manifest: MemoryManifest,
+    repository_root: Path,
     projection: MemoryProjection,
     mode: RetrievalMode,
     task_category: TaskCategory,
@@ -251,6 +262,9 @@ def _materialize_context(
     collection_roots = {
         project_collection: projection.stores["project"].root,
     }
+    for source in manifest.sources:
+        if source.collection in route:
+            collection_roots[source.collection] = repository_root
     for fallback in manifest.fallbacks:
         local_store = projection.stores.get(fallback.id)
         if fallback.collection in route and local_store is not None:
@@ -264,6 +278,7 @@ def _materialize_context(
             thresholds_version=decision.thresholds_version,
             budget=manifest.budgets[mode],
             collection_roots=collection_roots,
+            repository_collections=frozenset(source.collection for source in manifest.sources),
             risk_reason=risk_reason,
         )
     except DocumentAccessError as error:
@@ -314,22 +329,22 @@ def run_context(
     timeout_seconds: float = DEFAULT_SEARCH_TIMEOUT_SECONDS,
     on_initial_receipt: Callable[[ContextInitialReceipt], None] | None = None,
 ) -> ContextOutcome:
-    """Search project first, stop when sufficient, and authorize any fallback."""
+    """Search current contracts, durable project memory, then an authorized fallback."""
 
     manifest_path = discover_manifest()
     manifest = load_manifest(manifest_path)
     projection = load_projection(manifest_path)
+    repository_root = manifest_path.parent.parent.resolve()
     project_collection = manifest.stores.project.collection
-    route = (project_collection,)
     fallbacks = authorized_fallbacks(
         manifest,
         principal_role=projection.principal_role,
         task_category=task_category,
     )
     planned_route = (
-        (project_collection, fallbacks[0].collection)
-        if fallbacks
-        else route
+        *(source.collection for source in manifest.sources),
+        project_collection,
+        *((fallbacks[0].collection,) if fallbacks else ()),
     )
     budget = manifest.budgets[mode]
     initial_receipt = ContextInitialReceipt(
@@ -350,7 +365,7 @@ def run_context(
             projection=projection,
             mode=mode,
             task_category=task_category,
-            route=route,
+            route=(project_collection,),
             retrieval_status=QmdSearchStatus.ERROR,
             code="qmd_missing",
             message="QMD is required for project retrieval but is unavailable.",
@@ -358,6 +373,97 @@ def run_context(
             initial_receipt=initial_receipt,
         )
 
+    try:
+        qmd_status = inspect_qmd(
+            executable,
+            runner=runner,
+            timeout_seconds=timeout_seconds,
+        )
+        collections = qmd_status.collections
+    except (QmdTimeoutError, QmdOutputError, QmdInvocationError):
+        collections = {}
+
+    route: tuple[str, ...] = ()
+    aggregate_hits: tuple[RetrievalHit, ...] = ()
+    aggregate_duration = 0
+    freshness: tuple[FreshnessStatus, ...] = ()
+    repository_warnings: tuple[dict[str, Any], ...] = ()
+    last_retrieval: QmdSearchOutcome | None = None
+
+    for source in manifest.sources:
+        selection = select_repository_contracts(source, repository_root=repository_root)
+        if not selection.allowed:
+            repository_warnings += (
+                {
+                    "code": "repository_contracts_empty",
+                    "message": "A repository contract profile selects no safe files.",
+                    "correction": "Run memory doctor and review the profile includes and excludes.",
+                },
+            )
+            continue
+        route += (source.collection,)
+        try:
+            raw_retrieval = _search(
+                executable,
+                query=query,
+                collection=source.collection,
+                mode=mode,
+                thresholds_version=manifest.policy.sufficiency_thresholds_version,
+                runner=runner,
+                timeout_seconds=timeout_seconds,
+            )
+        except (QmdTimeoutError, QmdOutputError, QmdInvocationError) as error:
+            _, code, message, correction = _search_failure_details(error)
+            repository_warnings += (
+                {"code": code, "message": message, "correction": correction},
+            )
+            continue
+        allowed_paths = set(selection.allowed)
+        trusted_hits = tuple(
+            replace(hit, trust=source.trust)
+            for hit in raw_retrieval.hits
+            if hit.relative_path in allowed_paths
+        )
+        refused_count = len(raw_retrieval.hits) - len(trusted_hits)
+        if refused_count:
+            repository_warnings += (
+                {
+                    "code": "repository_contract_hit_refused",
+                    "message": f"{refused_count} QMD contract hit(s) were outside the active allowlist.",
+                    "correction": "Re-index the declared contract collection and run memory doctor.",
+                },
+            )
+        last_retrieval = replace(raw_retrieval, hits=trusted_hits)
+        aggregate_hits += trusted_hits
+        aggregate_duration += raw_retrieval.duration_ms
+        freshness += (collection_freshness(collections.get(source.collection)),)
+        contract_decision = evaluate_sufficiency(
+            _evidence(
+                mode=mode,
+                task_category=task_category,
+                hits=aggregate_hits,
+                freshness=_combined_freshness(freshness),
+                thresholds_version=manifest.policy.sufficiency_thresholds_version,
+            )
+        )
+        if contract_decision.status is SufficiencyStatus.SUFFICIENT:
+            return _materialize_context(
+                manifest=manifest,
+                repository_root=repository_root,
+                projection=projection,
+                mode=mode,
+                task_category=task_category,
+                route=route,
+                retrieval=last_retrieval,
+                hits=aggregate_hits,
+                duration_ms=aggregate_duration,
+                decision=contract_decision,
+                risk_reason=risk_reason,
+                initial_receipt=initial_receipt,
+                warnings=repository_warnings,
+            )
+
+    route += (project_collection,)
     try:
         project_retrieval = _search(
             executable,
@@ -380,46 +486,42 @@ def run_context(
             code=code,
             message=message,
             correction=correction,
+            hits=aggregate_hits,
+            duration_ms=aggregate_duration or None,
             initial_receipt=initial_receipt,
         )
 
-    try:
-        qmd_status = inspect_qmd(
-            executable,
-            runner=runner,
-            timeout_seconds=timeout_seconds,
-        )
-        collections = qmd_status.collections
-    except (QmdTimeoutError, QmdOutputError, QmdInvocationError):
-        collections = {}
-
+    aggregate_hits += project_retrieval.hits
+    aggregate_duration += project_retrieval.duration_ms
+    freshness += (collection_freshness(collections.get(project_collection)),)
     project_decision = evaluate_sufficiency(
         _evidence(
             mode=mode,
             task_category=task_category,
-            hits=project_retrieval.hits,
-            freshness=collection_freshness(collections.get(project_collection)),
+            hits=aggregate_hits,
+            freshness=_combined_freshness(freshness),
             thresholds_version=manifest.policy.sufficiency_thresholds_version,
         )
     )
     if project_decision.status is SufficiencyStatus.SUFFICIENT:
         return _materialize_context(
             manifest=manifest,
+            repository_root=repository_root,
             projection=projection,
             mode=mode,
             task_category=task_category,
             route=route,
             retrieval=project_retrieval,
-            hits=project_retrieval.hits,
-            duration_ms=project_retrieval.duration_ms,
+            hits=aggregate_hits,
+            duration_ms=aggregate_duration,
             decision=project_decision,
             risk_reason=risk_reason,
             initial_receipt=initial_receipt,
-            warnings=(
+            warnings=repository_warnings + (
                 (
                     {
                         "code": "qmd_index_stale",
-                        "message": "The project QMD collection is stale.",
+                        "message": "A project QMD collection is stale.",
                         "correction": "qmd update && qmd embed",
                     },
                 )
@@ -428,20 +530,32 @@ def run_context(
             ),
         )
 
-    if (
-        project_decision.status is SufficiencyStatus.AMBIGUOUS
-        and not fallback_on_ambiguous
-    ):
+    if project_decision.status is SufficiencyStatus.BLOCKED:
         return context_outcome(
             project_id=manifest.project.id,
             mode=mode,
             task_category=task_category,
             route=route,
             retrieval=project_retrieval,
-            hits=project_retrieval.hits,
-            duration_ms=project_retrieval.duration_ms,
+            hits=aggregate_hits,
+            duration_ms=aggregate_duration,
             decision=project_decision,
             initial_receipt=initial_receipt,
+            warnings=repository_warnings,
+        )
+
+    if project_decision.status is SufficiencyStatus.AMBIGUOUS and not fallback_on_ambiguous:
+        return context_outcome(
+            project_id=manifest.project.id,
+            mode=mode,
+            task_category=task_category,
+            route=route,
+            retrieval=project_retrieval,
+            hits=aggregate_hits,
+            duration_ms=aggregate_duration,
+            decision=project_decision,
+            initial_receipt=initial_receipt,
+            warnings=repository_warnings,
         )
 
     if not fallbacks:
@@ -451,27 +565,21 @@ def run_context(
             task_category=task_category,
             route=route,
             retrieval=project_retrieval,
-            hits=project_retrieval.hits,
-            duration_ms=project_retrieval.duration_ms,
+            hits=aggregate_hits,
+            duration_ms=aggregate_duration,
             decision=project_decision,
             initial_receipt=initial_receipt,
-            warnings=(
+            warnings=repository_warnings + (
                 {
                     "code": "fallback_not_authorized",
-                    "message": (
-                        "No transverse fallback is authorized for this local role "
-                        "and task category."
-                    ),
-                    "correction": (
-                        "Continue project-only or update the shared manifest policy "
-                        "through review."
-                    ),
+                    "message": "No transverse fallback is authorized for this local role and task category.",
+                    "correction": "Continue project-only or update the shared manifest policy through review.",
                 },
             ),
         )
 
     fallback = fallbacks[0]
-    route = (project_collection, fallback.collection)
+    route += (fallback.collection,)
     explicit_decision = project_decision.status is SufficiencyStatus.AMBIGUOUS
     try:
         fallback_retrieval = _search(
@@ -495,13 +603,16 @@ def run_context(
             code=code,
             message=message,
             correction=correction,
-            hits=project_retrieval.hits,
-            duration_ms=project_retrieval.duration_ms,
+            hits=aggregate_hits,
+            duration_ms=aggregate_duration,
             fallback_reason_codes=project_decision.reason_codes,
             explicit_decision=explicit_decision,
             initial_receipt=initial_receipt,
         )
 
+    aggregate_hits += fallback_retrieval.hits
+    aggregate_duration += fallback_retrieval.duration_ms
+    freshness += (collection_freshness(collections.get(fallback.collection)),)
     fallback_decision = evaluate_sufficiency(
         _evidence(
             mode=mode,
@@ -511,11 +622,10 @@ def run_context(
             thresholds_version=manifest.policy.sufficiency_thresholds_version,
         )
     )
-    aggregate_hits = project_retrieval.hits + fallback_retrieval.hits
-    aggregate_duration = project_retrieval.duration_ms + fallback_retrieval.duration_ms
     if fallback_decision.status is SufficiencyStatus.SUFFICIENT:
         return _materialize_context(
             manifest=manifest,
+            repository_root=repository_root,
             projection=projection,
             mode=mode,
             task_category=task_category,
@@ -529,6 +639,7 @@ def run_context(
             fallback_used=True,
             fallback_explicit_decision=explicit_decision,
             fallback_reason_codes=project_decision.reason_codes,
+            warnings=repository_warnings,
         )
     return context_outcome(
         project_id=manifest.project.id,
@@ -543,4 +654,5 @@ def run_context(
         fallback_used=True,
         fallback_explicit_decision=explicit_decision,
         fallback_reason_codes=project_decision.reason_codes,
+        warnings=repository_warnings,
     )

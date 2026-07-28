@@ -395,6 +395,17 @@ def _manifest_data(manifest: MemoryManifest) -> dict[str, Any]:
                 "entry_pages": [str(path) for path in manifest.stores.project.entry_pages],
             }
         },
+        "sources": [
+            {
+                "id": source.id,
+                "kind": source.kind.value,
+                "trust": source.trust.value,
+                "collection": source.collection,
+                "include": list(source.include),
+                "exclude": list(source.exclude),
+            }
+            for source in manifest.sources
+        ],
         "fallbacks": [
             {
                 "id": fallback.id,
@@ -441,6 +452,8 @@ def _render_manifest_human(manifest: MemoryManifest) -> None:
     print(f"[ok] project        {manifest.project.name} · {manifest.project.id}")
     print(f"[ok] project store  {manifest.stores.project.collection}")
     print(f"[ok] entry pages    {len(manifest.stores.project.entry_pages)} declared")
+    if manifest.sources:
+        print(f"[ok] repo sources   {len(manifest.sources)} declared · current_contract")
     print(f"[ok] fallbacks      {len(manifest.fallbacks)} declared")
 
 

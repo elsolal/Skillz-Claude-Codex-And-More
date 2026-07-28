@@ -149,6 +149,7 @@ class DoctorCliContractTests(unittest.TestCase):
         root: Path,
         *,
         collection: str = "elsolal-wiki",
+        extra_collections: dict[str, int] | None = None,
         age: str = "just now",
         version: str = "0.9.0",
         malformed_status: bool = False,
@@ -167,6 +168,12 @@ class DoctorCliContractTests(unittest.TestCase):
                 f"    echo '  {collection} (qmd://{collection}/)'\n"
                 "    echo '    Pattern:  **/*.md'\n"
                 f"    echo '    Files:    {files} (updated {age})'\n"
+                + "".join(
+                    f"    echo '  {name} (qmd://{name}/)'\n"
+                    f"    echo '    Pattern:  **/*'\n"
+                    f"    echo '    Files:    {count} (updated {age})'\n"
+                    for name, count in (extra_collections or {}).items()
+                )
             )
         )
         binary.write_text(
@@ -276,6 +283,39 @@ class DoctorCliContractTests(unittest.TestCase):
         )
         self.assertEqual(output["warnings"][0]["code"], "qmd_missing")
         self.assertIn("bun install -g @tobilu/qmd", output["data"]["next_actions"])
+
+    def test_repository_contract_profile_is_checked_against_repo_and_qmd_separately(self) -> None:
+        temp_dir, repo, _ = self.make_configured_project()
+        self.addCleanup(temp_dir.cleanup)
+        manifest_path = repo / ".agents" / "memory.yaml"
+        payload = json.loads(manifest_path.read_text())
+        payload["sources"] = [
+            {
+                "id": "repository-contracts",
+                "kind": "qmd",
+                "trust": "current_contract",
+                "collection": "skillz-contracts",
+                "include": ["docs/**/*.md"],
+                "exclude": [],
+            }
+        ]
+        manifest_path.write_text(json.dumps(payload), encoding="utf-8")
+        (repo / "docs").mkdir()
+        (repo / "docs" / "adr.md").write_text("# ADR\n", encoding="utf-8")
+        binary_dir, _ = self.make_qmd(
+            Path(temp_dir.name),
+            extra_collections={"skillz-contracts": 1},
+        )
+
+        result = self.run_cli(repo, "--json", path_prefix=binary_dir)
+        output = json.loads(result.stdout)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        checks = {check["id"]: check for check in output["data"]["checks"]}
+        self.assertEqual(checks["repository_contracts"]["status"], "ready")
+        self.assertIn("repository root", checks["repository_contracts"]["message"])
+        self.assertEqual(checks["repository_contracts_qmd"]["status"], "ready")
+        self.assertNotIn(str(repo), result.stdout)
 
     def test_missing_entry_page_is_blocked_with_priority_exit(self) -> None:
         temp_dir, repo, vault = self.make_configured_project()
