@@ -77,6 +77,34 @@ class RepositoryContractsManifestTests(unittest.TestCase):
 
 
 class RepositoryContractsSelectionTests(unittest.TestCase):
+    def test_single_segment_glob_cannot_cross_a_repository_directory(self) -> None:
+        payload = RepositoryContractsManifestTests().load_payload()
+        payload["sources"] = [
+            {
+                "id": "repository-contracts",
+                "kind": "qmd",
+                "trust": "current_contract",
+                "collection": "skillz-contracts",
+                "include": ["docs/*.md"],
+                "exclude": [],
+            }
+        ]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "repo"
+            root.mkdir()
+            manifest_path = RepositoryContractsManifestTests().write_payload(root, payload)
+            (root / "docs" / "nested").mkdir(parents=True)
+            (root / "docs" / "top.md").write_text("# Top\n")
+            (root / "docs" / "nested" / "deep.md").write_text("# Deep\n")
+            source = load_manifest(manifest_path).sources[0]
+
+            selection = select_repository_contracts(source, repository_root=root)
+
+        self.assertEqual(
+            [path.as_posix() for path in selection.allowed],
+            ["docs/top.md"],
+        )
+
     def test_immutable_denylist_and_symlink_boundary_override_broad_glob(self) -> None:
         payload = RepositoryContractsManifestTests().load_payload()
         payload["sources"] = [

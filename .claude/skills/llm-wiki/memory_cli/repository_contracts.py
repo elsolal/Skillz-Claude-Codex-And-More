@@ -5,6 +5,7 @@ from __future__ import annotations
 import fnmatch
 import os
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path, PurePosixPath
 
 from .contracts import CONTRACT_FILE_EXTENSIONS, RepositorySourceConfig
@@ -50,12 +51,26 @@ class RepositoryContractSelection:
 
 
 def _matches(path: str, pattern: str) -> bool:
-    variants = {pattern}
-    candidate = pattern
-    while "**/" in candidate:
-        candidate = candidate.replace("**/", "", 1)
-        variants.add(candidate)
-    return any(fnmatch.fnmatchcase(path, candidate) for candidate in variants)
+    path_parts = PurePosixPath(path).parts
+    pattern_parts = PurePosixPath(pattern).parts
+
+    @lru_cache(maxsize=None)
+    def match(path_index: int, pattern_index: int) -> bool:
+        if pattern_index == len(pattern_parts):
+            return path_index == len(path_parts)
+        segment = pattern_parts[pattern_index]
+        if segment == "**":
+            return match(path_index, pattern_index + 1) or (
+                path_index < len(path_parts)
+                and match(path_index + 1, pattern_index)
+            )
+        return (
+            path_index < len(path_parts)
+            and fnmatch.fnmatchcase(path_parts[path_index], segment)
+            and match(path_index + 1, pattern_index + 1)
+        )
+
+    return match(0, 0)
 
 
 def _immutable_denial(relative_path: PurePosixPath) -> bool:
