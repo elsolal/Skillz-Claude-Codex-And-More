@@ -15,6 +15,7 @@ DEFAULT_SUFFICIENCY_THRESHOLDS_VERSION = "qmd-0.9-v1"
 IMPACT_TAXONOMY_VERSION = "impact-v1"
 CONFLICT_POLICY_VERSION = "conflict-v1"
 DEBT_ACTION_POLICY_VERSION = "debt-action-v1"
+CONTRACT_FILE_EXTENSIONS = frozenset({".json", ".markdown", ".md", ".sql", ".yaml", ".yml"})
 
 
 class RetrievalMode(str, Enum):
@@ -25,6 +26,15 @@ class RetrievalMode(str, Enum):
 
 class SemanticRetrieval(str, Enum):
     EXPLICIT = "explicit"
+
+
+class RepositorySourceKind(str, Enum):
+    QMD = "qmd"
+
+
+class TrustLevel(str, Enum):
+    CURRENT_CONTRACT = "current_contract"
+    DURABLE_MEMORY = "durable_memory"
 
 
 class PrincipalRole(str, Enum):
@@ -145,6 +155,16 @@ class StoresConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class RepositorySourceConfig:
+    id: str
+    kind: RepositorySourceKind
+    trust: TrustLevel
+    collection: str
+    include: tuple[str, ...]
+    exclude: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class FallbackConfig:
     id: str
     collection: str
@@ -179,6 +199,7 @@ class MemoryManifest:
     schema_version: int
     project: ProjectConfig
     stores: StoresConfig
+    sources: tuple[RepositorySourceConfig, ...]
     fallbacks: tuple[FallbackConfig, ...]
     budgets: Mapping[RetrievalMode, BudgetConfig]
     policy: PolicyConfig
@@ -191,6 +212,7 @@ class MemoryManifest:
         schema_version: int,
         project: ProjectConfig,
         stores: StoresConfig,
+        sources: tuple[RepositorySourceConfig, ...],
         fallbacks: tuple[FallbackConfig, ...],
         budgets: dict[RetrievalMode, BudgetConfig],
         policy: PolicyConfig,
@@ -200,6 +222,7 @@ class MemoryManifest:
             schema_version=schema_version,
             project=project,
             stores=stores,
+            sources=sources,
             fallbacks=fallbacks,
             budgets=MappingProxyType(dict(budgets)),
             policy=policy,
@@ -243,6 +266,7 @@ class RetrievalHit:
     score: float
     snippet_line: int
     snippet: str
+    trust: TrustLevel = TrustLevel.DURABLE_MEMORY
 
 
 @dataclass(frozen=True, slots=True)
@@ -252,6 +276,7 @@ class SufficiencyHit:
     docid: str
     score: float
     provenance: ProvenanceKind
+    trust: TrustLevel = TrustLevel.DURABLE_MEMORY
 
 
 @dataclass(frozen=True, slots=True)
@@ -286,6 +311,7 @@ class ContextSection:
     content: str
     estimated_tokens: int
     truncated: bool
+    trust: TrustLevel = TrustLevel.DURABLE_MEMORY
 
     @classmethod
     def create(
@@ -302,6 +328,7 @@ class ContextSection:
         content: str,
         estimated_tokens: int,
         truncated: bool,
+        trust: TrustLevel = TrustLevel.DURABLE_MEMORY,
     ) -> "ContextSection":
         return cls(
             docid=docid,
@@ -315,6 +342,7 @@ class ContextSection:
             content=content,
             estimated_tokens=estimated_tokens,
             truncated=truncated,
+            trust=trust,
         )
 
 

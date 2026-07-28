@@ -143,6 +143,8 @@ class ContextCliIntegrationTests(unittest.TestCase):
             "        print(f'    Files: 179 (updated {age})')\n"
             "    print('  shared-wiki (qmd://shared-wiki/)')\n"
             "    print('    Files: 12 (updated 2h ago)')\n"
+            "    print('  skillz-contracts (qmd://skillz-contracts/)')\n"
+            "    print('    Files: 1 (updated 1h ago)')\n"
             "    raise SystemExit\n"
             "query = sys.argv[2] if len(sys.argv) > 2 else ''\n"
             "collection = sys.argv[sys.argv.index('-c') + 1] if '-c' in sys.argv else None\n"
@@ -165,6 +167,13 @@ class ContextCliIntegrationTests(unittest.TestCase):
             "elif mode == 'fallback-empty' and collection == 'shared-wiki': print('[]')\n"
             "elif mode == 'fallback-error' and collection == 'shared-wiki':\n"
             "    print('fallback unavailable', file=sys.stderr); raise SystemExit(2)\n"
+            "elif mode == 'contracts-project-error' and collection == 'elsolal-wiki':\n"
+            "    print('project unavailable', file=sys.stderr); raise SystemExit(2)\n"
+            "elif collection == 'skillz-contracts':\n"
+            "    score = 0.60 if mode in {'contracts-mixed', 'contracts-project-error'} else 0.90\n"
+            "    print(json.dumps([{'docid': '#810000', 'score': score, "
+            "'file': 'qmd://skillz-contracts/docs/adr.md', 'title': 'Current ADR', "
+            "'snippet': '@@ -1,2 @@\\n\\n# Current ADR'}]))\n"
             "elif mode == 'oversized':\n"
             "    print(json.dumps([{'docid': '#777777', 'score': 0.91, "
             "'file': f'qmd://{collection}/entities/oversized.md', 'title': 'Oversized', "
@@ -417,6 +426,127 @@ class ContextCliIntegrationTests(unittest.TestCase):
             "utf8_bytes_div_4_v1",
         )
         self.assertIn("Repo d'outillage", output["data"]["context"]["sections"][0]["content"])
+
+    def test_opt_in_contract_collection_precedes_wiki_and_exposes_current_trust(self) -> None:
+        manifest_path = self.repo / ".agents" / "memory.yaml"
+        payload = json.loads(manifest_path.read_text())
+        payload["sources"] = [
+            {
+                "id": "repository-contracts",
+                "kind": "qmd",
+                "trust": "current_contract",
+                "collection": "skillz-contracts",
+                "include": ["docs/**/*.md"],
+                "exclude": [],
+            }
+        ]
+        manifest_path.write_text(json.dumps(payload))
+        (self.repo / "docs").mkdir()
+        (self.repo / "docs" / "adr.md").write_text(
+            "# Current ADR\n\nThe repository contract is authoritative.\n",
+            encoding="utf-8",
+        )
+
+        result = self._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "architecture",
+            "--json",
+            "current architecture",
+        )
+        output = json.loads(result.stdout)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(output["data"]["route"], ["skillz-contracts"])
+        self.assertEqual(
+            output["data"]["receipt"]["initial"]["planned_route"][:2],
+            ["skillz-contracts", "elsolal-wiki"],
+        )
+        self.assertEqual(output["data"]["retrieval"]["hits"][0]["trust"], "current_contract")
+        self.assertEqual(output["data"]["context"]["sections"][0]["trust"], "current_contract")
+        invocation = json.loads(self.qmd_log.read_text().splitlines()[0])
+        self.assertEqual(invocation["collection"], "skillz-contracts")
+        self.assertEqual(len(self.qmd_log.read_text().splitlines()), 1)
+
+    def test_current_contract_stays_first_when_durable_memory_is_also_retrieved(self) -> None:
+        manifest_path = self.repo / ".agents" / "memory.yaml"
+        payload = json.loads(manifest_path.read_text())
+        payload["sources"] = [
+            {
+                "id": "repository-contracts",
+                "kind": "qmd",
+                "trust": "current_contract",
+                "collection": "skillz-contracts",
+                "include": ["docs/**/*.md"],
+                "exclude": [],
+            }
+        ]
+        manifest_path.write_text(json.dumps(payload))
+        (self.repo / "docs").mkdir()
+        (self.repo / "docs" / "adr.md").write_text(
+            "# Current ADR\n\nThe repository contract wins conflicts.\n",
+            encoding="utf-8",
+        )
+
+        result = self._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "architecture",
+            "--json",
+            "conflicting architecture",
+            fake_mode="contracts-mixed",
+        )
+        output = json.loads(result.stdout)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(output["data"]["route"], ["skillz-contracts", "elsolal-wiki"])
+        self.assertEqual(
+            [hit["trust"] for hit in output["data"]["retrieval"]["hits"][:2]],
+            ["current_contract", "durable_memory"],
+        )
+        self.assertEqual(
+            [section["trust"] for section in output["data"]["context"]["sections"][:2]],
+            ["current_contract", "durable_memory"],
+        )
+
+    def test_project_failure_after_contract_search_is_not_reported_as_transverse_fallback(self) -> None:
+        manifest_path = self.repo / ".agents" / "memory.yaml"
+        payload = json.loads(manifest_path.read_text())
+        payload["sources"] = [
+            {
+                "id": "repository-contracts",
+                "kind": "qmd",
+                "trust": "current_contract",
+                "collection": "skillz-contracts",
+                "include": ["docs/**/*.md"],
+                "exclude": [],
+            }
+        ]
+        manifest_path.write_text(json.dumps(payload))
+        (self.repo / "docs").mkdir()
+        (self.repo / "docs" / "adr.md").write_text("# Current ADR\n", encoding="utf-8")
+
+        result = self._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "architecture",
+            "--json",
+            "current architecture",
+            fake_mode="contracts-project-error",
+        )
+        output = json.loads(result.stdout)
+
+        self.assertEqual(result.returncode, 10, result.stderr)
+        self.assertEqual(output["data"]["route"], ["skillz-contracts", "elsolal-wiki"])
+        self.assertFalse(output["data"]["fallback"]["used"])
+        invocations = [json.loads(line) for line in self.qmd_log.read_text().splitlines()]
+        self.assertEqual(
+            [invocation["collection"] for invocation in invocations],
+            ["skillz-contracts", "elsolal-wiki"],
+        )
 
     def test_authorized_fallback_runs_after_project_insufficiency_with_reason_codes(self) -> None:
         result = self._run_cli(

@@ -62,6 +62,16 @@ standard library and prevents partial interpretation of hostile input.
       ]
     }
   },
+  "sources": [
+    {
+      "id": "repository-contracts",
+      "kind": "qmd",
+      "trust": "current_contract",
+      "collection": "skillz-contracts",
+      "include": ["docs/**/*.md", "openapi/**/*.yaml", "schemas/**/*.json"],
+      "exclude": ["docs/drafts/**"]
+    }
+  ],
   "fallbacks": [],
   "budgets": {
     "minimal": {"target_tokens": 800, "hard_tokens": 1200},
@@ -87,6 +97,20 @@ paths: absolute paths, `..` traversal, backslashes, shell interpolation, and
 unknown keys are rejected. Budgets are positive integers and each target must
 remain below or equal to its hard cap. Machine-local roots belong in the ignored
 projection created by the later `memory configure` workflow, never here.
+
+`sources` is optional. When absent, `memory context` performs no repository
+scan and invokes no technical collection. An enabled `repository-contracts`
+source is rooted in the current Git repository, remains separate from the
+Obsidian vault, and is searched before durable project memory. Its hits carry
+trust `current_contract`; wiki hits carry `durable_memory`.
+
+V1 accepts only Markdown, YAML/OpenAPI, JSON schema, and SQL contract files.
+The immutable denylist always rejects environment files, secret/credential
+names, logs, generated/build directories, dependency trees, agent-local
+configuration, application-code extensions, traversal, and symlink escapes.
+Manifest `include`/`exclude` globs cannot relax those rules. `memory doctor`
+checks both the repository selection and the distinct QMD collection, but
+never runs `qmd update` or `qmd embed` implicitly.
 
 Validate the nearest manifest without accessing QMD or the network:
 
@@ -456,8 +480,10 @@ adapter.
 `/wiki-query` starts from the task and checks the nearest project activation:
 
 - With `.agents/memory.yaml` and a configured projection, it uses `memory
-  context` against the manifest's project collection. QMD unavailability keeps
-  the same command and activates only the bounded `entry_pages` behavior above.
+  context` against opt-in current repository contracts first, then the durable
+  project collection, then an authorized transverse fallback if needed. QMD
+  unavailability keeps the same command and activates only the bounded
+  `entry_pages` behavior above.
 - Without `.agents/memory.yaml`, it preserves the standalone vault catalog
   workflow as an explicit **legacy/non-pilot** route. That route does not invoke
   `memory context`, emit a memory receipt/event, or count as pilot usage.

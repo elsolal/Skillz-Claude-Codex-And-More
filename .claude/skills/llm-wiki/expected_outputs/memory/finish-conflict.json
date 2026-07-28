@@ -35,11 +35,13 @@
       "requires_human": true,
       "memory": {
         "docid": "#dfec5e",
-        "path": "entities/skillz-claude.md"
+        "path": "entities/skillz-claude.md",
+        "trust": "durable_memory"
       },
       "repository": {
         "path": ".claude/project-memory.md",
-        "evidence_type": "contract"
+        "evidence_type": "contract",
+        "trust": "current_contract"
       },
       "debt": {
         "id": "<event-id>",

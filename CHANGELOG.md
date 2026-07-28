@@ -4,6 +4,29 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## [Unreleased] - 2026-07-28
 
+**Opt-in repository contracts for current project truth**
+
+### Added
+- Optional `repository-contracts` manifest sources backed by distinct QMD collections and labeled `current_contract`.
+- Safe repository selection for Markdown/ADR, OpenAPI YAML, JSON Schema, and SQL contracts, with repository-root confinement and retrieval-time allowlist validation.
+- Contract-aware doctor diagnostics, context receipts, assembly trust ordering, and STORY-013 conflict receipts.
+
+### Changed
+- Context retrieval now evaluates current repository contracts before durable project memory, while transverse fallback remains governed by the existing role and task policy.
+- Route receipts distinguish trust ordering from actual fallback use, and manifests without `sources` retain the historical project-memory behavior without repository scanning.
+
+### Fixed
+- Single-segment globs no longer cross repository directories; only `**` may span path segments.
+- Immutable exclusions now prune environment, secret/credential, log, generated/build, dependency, agent-local, application-code, and symlink paths even under `**/*`.
+
+### Validation
+- `bash -n install.sh scripts/*.sh .claude/scripts/health-check.sh .claude/skills/llm-wiki/bin/memory tests/*.sh`
+- `PATH=/Users/aymeric/miniconda3/bin:$PATH bash tests/test-install-memory-cli.sh` — installer acceptance PASS
+- `PATH=/Users/aymeric/miniconda3/bin:$PATH python3 -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'` — 261 tests Python OK in 73.316s from a clean worktree
+- Level-4 quality gate: PASS after four rounds, three confirmed P1 findings corrected, and two consecutive post-corrective rounds without a new P0/P1
+
+## [Unreleased] - 2026-07-28
+
 **Actionable metadata-only weekly memory report**
 
 ### Added

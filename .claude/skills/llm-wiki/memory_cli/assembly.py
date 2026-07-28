@@ -23,6 +23,7 @@ from .contracts import (
     SufficiencyHit,
     SufficiencyStatus,
     TaskCategory,
+    TrustLevel,
 )
 from .sufficiency import evaluate_sufficiency, provenance_for_path
 from .tokens import ESTIMATOR_VERSION, estimate_tokens
@@ -67,7 +68,12 @@ def section_limit_for(mode: RetrievalMode) -> int:
     return SECTION_LIMITS[mode]
 
 
-def resolve_document(root: Path, relative_path: PurePosixPath) -> Path:
+def resolve_document(
+    root: Path,
+    relative_path: PurePosixPath,
+    *,
+    prefer_wiki_subdirectory: bool = True,
+) -> Path:
     """Resolve a QMD-relative path without allowing traversal or symlink escape."""
 
     raw_path = relative_path.as_posix()
@@ -98,7 +104,11 @@ def resolve_document(root: Path, relative_path: PurePosixPath) -> Path:
         )
 
     wiki_root = resolved_root / "wiki"
-    collection_root = wiki_root if wiki_root.is_dir() else resolved_root
+    collection_root = (
+        wiki_root
+        if prefer_wiki_subdirectory and wiki_root.is_dir()
+        else resolved_root
+    )
     candidate = collection_root.joinpath(*relative_path.parts)
     try:
         resolved = candidate.resolve(strict=True)
@@ -193,11 +203,16 @@ def _ranked_unique(hits: tuple[RetrievalHit, ...]) -> tuple[RetrievalHit, ...]:
         ProvenanceKind.PAGE: 2,
         ProvenanceKind.UNKNOWN: 3,
     }
+    trust_priority = {
+        TrustLevel.CURRENT_CONTRACT: 0,
+        TrustLevel.DURABLE_MEMORY: 1,
+    }
     return tuple(
         item[1]
         for item in sorted(
             best_by_path.values(),
             key=lambda item: (
+                trust_priority[item[1].trust],
                 confidence[provenance_for_path(item[1].relative_path)],
                 -item[1].score,
                 item[0],
@@ -445,6 +460,7 @@ def _decision(
                     docid=hit.docid,
                     score=hit.score,
                     provenance=provenance_for_path(hit.relative_path),
+                    trust=hit.trust,
                 )
                 for hit in hits
             ),
@@ -463,6 +479,7 @@ def assemble_context(
     thresholds_version: str,
     budget: BudgetConfig,
     collection_roots: Mapping[str, Path],
+    repository_collections: frozenset[str] = frozenset(),
     risk_reason: RiskReason | None = None,
 ) -> ContextAssembly:
     """Materialize only the sections required to make selected evidence sufficient."""
@@ -494,7 +511,11 @@ def assemble_context(
                 message="A retrieved collection has no authorized local root projection.",
                 correction="Run memory configure with the manifest fallback store, then retry.",
             )
-        path = resolve_document(root, hit.relative_path)
+        path = resolve_document(
+            root,
+            hit.relative_path,
+            prefer_wiki_subdirectory=hit.collection not in repository_collections,
+        )
         extracted = _extract_section(hit, path)
         fitted = _fit_section(
             extracted,
@@ -520,6 +541,7 @@ def assemble_context(
                 content=content,
                 estimated_tokens=section_tokens,
                 truncated=truncated,
+                trust=hit.trust,
             )
         )
         selected_hits.append(hit)

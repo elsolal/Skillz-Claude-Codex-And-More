@@ -20,8 +20,8 @@ Ask project memory a question. The librarian starts from the task and selects th
 ### Activated project
 
 1. Keep the question as the task and detect the nearest `.agents/memory.yaml` plus local projection.
-2. Run `memory context --mode project --task-category <category> "<task>"` against the declared project collection.
-3. Consume only the returned `read` sections and preserve their receipt/provenance.
+2. Run `memory context --mode project --task-category <category> "<task>"`; opt-in `current_contract` repository sources precede `durable_memory` and any authorized fallback.
+3. Consume only the returned `read` sections in trust order and preserve their receipt/provenance.
 4. If QMD is unavailable, let `memory context` degrade to the declared `entry_pages` caps; never open an undeclared full index.
 5. Synthesize with inline `[[wikilink]]` citations and offer to file substantive answers back.
 

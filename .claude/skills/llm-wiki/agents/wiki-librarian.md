@@ -32,7 +32,7 @@ Check the nearest project for `.agents/memory.yaml` and its configured local pro
 
 ### 2. Activated project: retrieve through `memory context`
 
-Run `memory context --mode project --task-category <category> "<task>"` against the manifest-declared project collection. Consume the returned `read` sections and preserve their receipt/provenance.
+Run `memory context --mode project --task-category <category> "<task>"`. The CLI searches opt-in `current_contract` repository sources before `durable_memory`; consume the returned `read` sections in trust order and preserve their receipt/provenance.
 
 If QMD is unavailable, do not invent another search. The CLI degrades `minimal` and `project` to the declared `entry_pages` caps and blocks `historical` with an explicit correction.
 

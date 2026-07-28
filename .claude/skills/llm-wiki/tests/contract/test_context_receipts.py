@@ -180,7 +180,10 @@ class ContextReceiptContractTests(unittest.TestCase):
         output = stream.getvalue()
         self.assertTrue(stream.isatty())
         self.assertIn("Memory · PROJECT · skillz-claude", output)
-        self.assertIn("Route: elsolal-wiki -> shared-wiki", output)
+        self.assertIn(
+            "Route: elsolal-wiki -> shared-wiki in declared trust/policy order",
+            output,
+        )
         self.assertIn("Budget: 2,500 estimated tokens", output)
         self.assertIn("task: architecture", output)
         self.assertIn("Status: retrieving project context", output)

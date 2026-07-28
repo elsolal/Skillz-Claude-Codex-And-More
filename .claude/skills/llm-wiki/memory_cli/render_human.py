@@ -19,7 +19,7 @@ from .receipts import (
 def render_context_initial(receipt: ContextInitialReceipt, *, stream: TextIO) -> None:
     route = " -> ".join(receipt.planned_route)
     if len(receipt.planned_route) > 1:
-        route += " if insufficient and authorized"
+        route += " in declared trust/policy order"
     print(f"Memory · {receipt.mode.value.upper()} · {receipt.project_id}", file=stream)
     print(f"Route: {route}", file=stream)
     print(
@@ -73,7 +73,7 @@ def render_context_final(
         for hit in outcome.decision.evidence.hits:
             print(
                 f"  {hit.docid} · score {hit.score:g} · "
-                f"provenance {hit.provenance.value}",
+                f"provenance {hit.provenance.value} · trust {hit.trust.value}",
                 file=stream,
             )
         if outcome.fallback_explicit_decision:
@@ -106,7 +106,7 @@ def render_context_final(
             print(
                 f"\n[{section.docid}] {section.relative_path.as_posix()} "
                 f"· lines {section.line_start}-{section.line_end} "
-                f"· {section.estimated_tokens} tokens",
+                f"· {section.estimated_tokens} tokens · trust {section.trust.value}",
                 file=stream,
             )
             print(section.content.rstrip(), file=stream)
@@ -158,7 +158,8 @@ def render_finish_human(outcome: FinishOutcome, *, stream: TextIO) -> None:
         print(
             "Repository: "
             f"{conflict['repository']['path']} · "
-            f"{conflict['repository']['evidence_type']}",
+            f"{conflict['repository']['evidence_type']} · "
+            f"trust {conflict['repository']['trust']}",
             file=stream,
         )
         print("Decision: repository evidence takes precedence", file=stream)

@@ -22,6 +22,7 @@ from .projection import (
     projection_paths,
 )
 from .qmd_adapter import QmdInvocationError, QmdOutputError, inspect_qmd
+from .repository_contracts import select_repository_contracts
 
 
 QMD_INSTALL_COMMAND = "bun install -g @tobilu/qmd"
@@ -328,7 +329,7 @@ def _check_entry_pages(
 
 @dataclass(frozen=True, slots=True)
 class QmdDiagnostic:
-    checks: tuple[DoctorCheck, DoctorCheck]
+    checks: tuple[DoctorCheck, ...]
     ready: bool
     warnings: tuple[dict[str, Any], ...]
     next_actions: tuple[str, ...]
@@ -460,6 +461,45 @@ def _diagnose_qmd(
         "ready",
         f"QMD 0.9.x exposes the declared collection with {collection.files} indexed file(s).",
     )
+    repository_checks: tuple[DoctorCheck, ...] = ()
+    repository_warnings: tuple[dict[str, Any], ...] = ()
+    repository_actions: tuple[str, ...] = ()
+    if manifest.sources:
+        missing_sources = [
+            source
+            for source in manifest.sources
+            if (
+                source.collection not in qmd_status.collections
+                or qmd_status.collections[source.collection].files == 0
+            )
+        ]
+        if missing_sources:
+            names = ", ".join(source.collection for source in missing_sources)
+            correction = f"Configure and index the repository contract collection(s): {names}."
+            repository_checks = (
+                DoctorCheck(
+                    "repository_contracts_qmd",
+                    "degraded",
+                    "A declared repository contract collection is missing or empty in QMD.",
+                    correction,
+                ),
+            )
+            repository_warnings = (
+                {
+                    "code": "repository_contract_collection_unknown",
+                    "message": "A repository contract collection is missing or empty in QMD.",
+                    "correction": correction,
+                },
+            )
+            repository_actions = (correction,)
+        else:
+            repository_checks = (
+                DoctorCheck(
+                    "repository_contracts_qmd",
+                    "ready",
+                    f"{len(manifest.sources)} repository contract collection(s) are present in QMD.",
+                ),
+            )
     indexed_at = time.time() - collection.age_seconds
     index_predates_pages = latest_entry_page_mtime > indexed_at + 1.0
     if (
@@ -470,10 +510,11 @@ def _diagnose_qmd(
             checks=(
                 qmd_check,
                 DoctorCheck("freshness", "ready", "The local QMD collection is fresh."),
+                *repository_checks,
             ),
             ready=True,
-            warnings=(),
-            next_actions=(),
+            warnings=repository_warnings,
+            next_actions=repository_actions,
         )
 
     correction = "qmd update && qmd embed"
@@ -486,17 +527,68 @@ def _diagnose_qmd(
                 "The local QMD collection is stale relative to its age or entry pages.",
                 correction,
             ),
+            *repository_checks,
         ),
         ready=True,
-        warnings=(
+        warnings=repository_warnings + (
             {
                 "code": "qmd_index_stale",
                 "message": "The local QMD collection is stale relative to its age or entry pages.",
                 "correction": correction,
             },
         ),
-        next_actions=("qmd update", "qmd embed", "memory doctor"),
+        next_actions=("qmd update", "qmd embed", "memory doctor", *repository_actions),
     )
+
+
+def _check_repository_contracts(
+    manifest: MemoryManifest,
+    repository_root: Path,
+) -> tuple[DoctorCheck | None, dict[str, Any] | None]:
+    if not manifest.sources:
+        return None, None
+    allowed_count = 0
+    rejected_count = 0
+    try:
+        for source in manifest.sources:
+            selection = select_repository_contracts(
+                source,
+                repository_root=repository_root,
+            )
+            allowed_count += len(selection.allowed)
+            rejected_count += len(selection.rejected)
+    except (OSError, RuntimeError):
+        error = {
+            "code": "repository_root_unavailable",
+            "message": "The repository root cannot be inspected safely.",
+            "correction": "Restore repository access and run memory doctor again.",
+        }
+        return DoctorCheck(
+            "repository_contracts",
+            "blocked",
+            error["message"],
+            error["correction"],
+        ), error
+    if allowed_count == 0:
+        error = {
+            "code": "repository_contracts_empty",
+            "message": "The repository contract profile selects no safe contract files.",
+            "correction": "Review includes and excludes, then add at least one allowlisted contract file.",
+        }
+        return DoctorCheck(
+            "repository_contracts",
+            "blocked",
+            error["message"],
+            error["correction"],
+        ), error
+    return DoctorCheck(
+        "repository_contracts",
+        "ready",
+        (
+            f"{allowed_count} allowlisted contract file(s) are safe under the repository root; "
+            f"{rejected_count} path(s) were refused by policy."
+        ),
+    ), None
 
 
 def _check_network(
@@ -648,6 +740,22 @@ def run_doctor(
             next_action=pages_error["correction"],
         )
     assert latest_entry_page_mtime is not None
+
+    repository_check, repository_error = _check_repository_contracts(
+        manifest,
+        manifest_path.parent.parent,
+    )
+    if repository_check is not None:
+        checks.append(repository_check)
+    if repository_error is not None:
+        return _blocked(
+            project_id=project_id,
+            project_name=project_name,
+            checks=checks,
+            error=repository_error,
+            exit_code=30,
+            next_action=repository_error["correction"],
+        )
 
     qmd = _diagnose_qmd(
         manifest,

@@ -631,6 +631,10 @@ is preserved unless replacement is explicitly requested with
 `memory doctor` reports `ready`, `degraded`, or `blocked`, a copyable next
 action, and the manifest's golden start question. QMD absence stays usable in
 bounded `minimal`/`project` modes; missing required entry pages block activation.
+An optional `sources` profile can expose allowlisted repository ADRs, product
+docs, OpenAPI, JSON schemas, and SQL contracts through a distinct QMD collection
+with `current_contract` trust. It is disabled by default, never copies content
+into Obsidian, and cannot override the built-in secrets/logs/build/code denylist.
 Run `memory doctor --explain` for per-check details or `memory doctor --json` for
 the stable machine-readable envelope. Network access occurs only with
 `memory doctor --network`; safe managed-file repair occurs only with
