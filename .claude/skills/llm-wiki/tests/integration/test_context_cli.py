@@ -167,8 +167,10 @@ class ContextCliIntegrationTests(unittest.TestCase):
             "elif mode == 'fallback-empty' and collection == 'shared-wiki': print('[]')\n"
             "elif mode == 'fallback-error' and collection == 'shared-wiki':\n"
             "    print('fallback unavailable', file=sys.stderr); raise SystemExit(2)\n"
+            "elif mode == 'contracts-project-error' and collection == 'elsolal-wiki':\n"
+            "    print('project unavailable', file=sys.stderr); raise SystemExit(2)\n"
             "elif collection == 'skillz-contracts':\n"
-            "    score = 0.60 if mode == 'contracts-mixed' else 0.90\n"
+            "    score = 0.60 if mode in {'contracts-mixed', 'contracts-project-error'} else 0.90\n"
             "    print(json.dumps([{'docid': '#810000', 'score': score, "
             "'file': 'qmd://skillz-contracts/docs/adr.md', 'title': 'Current ADR', "
             "'snippet': '@@ -1,2 @@\\n\\n# Current ADR'}]))\n"
@@ -508,6 +510,38 @@ class ContextCliIntegrationTests(unittest.TestCase):
             [section["trust"] for section in output["data"]["context"]["sections"][:2]],
             ["current_contract", "durable_memory"],
         )
+
+    def test_project_failure_after_contract_search_is_not_reported_as_transverse_fallback(self) -> None:
+        manifest_path = self.repo / ".agents" / "memory.yaml"
+        payload = json.loads(manifest_path.read_text())
+        payload["sources"] = [
+            {
+                "id": "repository-contracts",
+                "kind": "qmd",
+                "trust": "current_contract",
+                "collection": "skillz-contracts",
+                "include": ["docs/**/*.md"],
+                "exclude": [],
+            }
+        ]
+        manifest_path.write_text(json.dumps(payload))
+        (self.repo / "docs").mkdir()
+        (self.repo / "docs" / "adr.md").write_text("# Current ADR\n", encoding="utf-8")
+
+        result = self._run_cli(
+            "--mode",
+            "project",
+            "--task-category",
+            "architecture",
+            "--json",
+            "current architecture",
+            fake_mode="contracts-project-error",
+        )
+        output = json.loads(result.stdout)
+
+        self.assertEqual(result.returncode, 10, result.stderr)
+        self.assertEqual(output["data"]["route"], ["skillz-contracts", "elsolal-wiki"])
+        self.assertFalse(output["data"]["fallback"]["used"])
         invocations = [json.loads(line) for line in self.qmd_log.read_text().splitlines()]
         self.assertEqual(
             [invocation["collection"] for invocation in invocations],

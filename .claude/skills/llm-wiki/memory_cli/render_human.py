@@ -19,7 +19,7 @@ from .receipts import (
 def render_context_initial(receipt: ContextInitialReceipt, *, stream: TextIO) -> None:
     route = " -> ".join(receipt.planned_route)
     if len(receipt.planned_route) > 1:
-        route += " if insufficient and authorized"
+        route += " in declared trust/policy order"
     print(f"Memory · {receipt.mode.value.upper()} · {receipt.project_id}", file=stream)
     print(f"Route: {route}", file=stream)
     print(

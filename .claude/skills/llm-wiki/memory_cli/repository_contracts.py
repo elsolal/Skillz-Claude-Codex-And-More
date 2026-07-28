@@ -73,11 +73,18 @@ def _matches(path: str, pattern: str) -> bool:
     return match(0, 0)
 
 
+def _denied_directory_name(name: str) -> bool:
+    lowered = name.lower()
+    return lowered in DENIED_DIRECTORY_NAMES or any(
+        fragment in lowered for fragment in DENIED_NAME_FRAGMENTS
+    )
+
+
 def _immutable_denial(relative_path: PurePosixPath) -> bool:
     lowered_parts = tuple(part.lower() for part in relative_path.parts)
     name = lowered_parts[-1]
     return (
-        any(part in DENIED_DIRECTORY_NAMES for part in lowered_parts[:-1])
+        any(_denied_directory_name(part) for part in lowered_parts[:-1])
         or name == ".env"
         or name.startswith(".env.")
         or name.endswith(".log")
@@ -93,7 +100,7 @@ def _candidate_paths(repository_root: Path) -> tuple[Path, ...]:
         directory_names[:] = sorted(directory_names)
         for directory_name in tuple(directory_names):
             path = current / directory_name
-            if path.is_symlink() or directory_name.lower() in DENIED_DIRECTORY_NAMES:
+            if path.is_symlink() or _denied_directory_name(directory_name):
                 candidates.append(path)
                 directory_names.remove(directory_name)
         candidates.extend(current / name for name in sorted(file_names))

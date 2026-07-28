@@ -5,7 +5,7 @@ Impact: none observed
 
 Memory conflict · HIGH RISK
 Memory: #dfec5e · entities/skillz-claude.md
-Repository: .claude/project-memory.md · contract
+Repository: .claude/project-memory.md · contract · trust current_contract
 Decision: repository evidence takes precedence
 Human arbitration: yes
 Debt: <event-id> · open metadata-only draft

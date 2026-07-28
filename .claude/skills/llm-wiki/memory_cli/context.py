@@ -159,10 +159,10 @@ def _local_entry_page_fallback(
     initial_receipt: ContextInitialReceipt,
     hits: tuple[RetrievalHit, ...] = (),
     duration_ms: int | None = None,
+    fallback_used: bool = False,
     fallback_reason_codes: tuple[SufficiencyReason, ...] = (),
     explicit_decision: bool = False,
 ) -> ContextOutcome:
-    fallback_used = len(route) > 1
     if mode is RetrievalMode.HISTORICAL:
         return blocked_context(
             project_id=manifest.project.id,
@@ -605,6 +605,7 @@ def run_context(
             correction=correction,
             hits=aggregate_hits,
             duration_ms=aggregate_duration,
+            fallback_used=True,
             fallback_reason_codes=project_decision.reason_codes,
             explicit_decision=explicit_decision,
             initial_receipt=initial_receipt,
