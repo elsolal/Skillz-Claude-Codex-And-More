@@ -52,4 +52,3 @@ Produire ou réviser un contenu utile, exact, lisible, accessible et facilement 
 ## Critère de fin et handoff
 
 Terminer lorsque le contenu passe la QA factuelle, éditoriale, accessibilité et maillage. Transmettre au Master Orchestrator le chemin du brouillon, les faits utilisés, les validations manquantes et l’action suivante.
-

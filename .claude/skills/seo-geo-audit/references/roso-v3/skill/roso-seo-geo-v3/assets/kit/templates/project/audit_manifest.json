@@ -41,4 +41,3 @@
   "outputs": ["reports/audit_strategique.md", "reports/plan_implementation.md"],
   "blind_spots": ["Aucun accès GSC, GA4, CRM ou logs serveur dans cet exemple."]
 }
-

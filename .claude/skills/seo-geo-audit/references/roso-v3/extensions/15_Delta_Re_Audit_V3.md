@@ -49,4 +49,3 @@ Mesurer les changements observés sans attribuer de causalité non prouvée et n
 ## Critère de fin et handoff
 
 Terminer lorsque chaque Delta publié est reproductible et chaque incompatibilité visible. Renvoyer au Master Orchestrator le rapport, les segments neutralisés et les nouvelles actions.
-

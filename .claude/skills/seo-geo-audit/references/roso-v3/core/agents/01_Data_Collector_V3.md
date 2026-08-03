@@ -170,4 +170,3 @@ Le travail est terminé si :
 Transmettre au Master Orchestrator : configuration hashée, `evidence_ids`, chemins/hashes bruts, période, contextes, couverture réelle, erreurs, blind spots, dernier `event_id` et condition de reprise.
 
 Après validation du gate, le même snapshot gelé est transmis en lecture aux Agents 02–05 et aux branches applicables. Si un agent demande une preuve manquante, recevoir une demande ciblée avec source, méthode, justification et impact ; ne pas élargir le run de sa propre initiative.
-

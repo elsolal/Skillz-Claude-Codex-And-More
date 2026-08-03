@@ -48,4 +48,3 @@ Construire un protocole reproductible de visibilité générative, capturer les 
 ## Critère de fin et handoff
 
 Terminer lorsque chaque observation possède contexte et provenance, et que les mesures respectent le panel gelé. Transmettre au Master Orchestrator les segments, contradictions, sources et actions prioritaires.
-

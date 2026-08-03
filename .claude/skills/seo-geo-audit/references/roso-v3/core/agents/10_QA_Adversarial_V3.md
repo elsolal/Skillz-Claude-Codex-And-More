@@ -49,4 +49,3 @@ Tenter de réfuter la validité du projet et de ses livrables avant livraison. C
 ## Critère de fin et handoff
 
 GO uniquement si la QA delivery ne contient aucun blocker et si les warnings contractuels ont été traités. Transmettre au Master Orchestrator le verdict et les preuves de contrôle.
-
