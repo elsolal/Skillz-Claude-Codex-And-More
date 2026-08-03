@@ -8,6 +8,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 SCRIPTS = Path(__file__).resolve().parents[1]
@@ -56,6 +57,14 @@ class SecurityRegressionTests(unittest.TestCase):
             rule_source_check._validate_url("https://127.0.0.1/rules", {"127.0.0.1"})
         with self.assertRaises(ValueError):
             rule_source_check._validate_url("https://[::1]/rules", {"::1"})
+
+    def test_dns_resolution_rejects_private_answers(self) -> None:
+        private_answer = [
+            (collect_site.socket.AF_INET, collect_site.socket.SOCK_STREAM, 6, "", ("127.0.0.1", 443)),
+        ]
+        with patch.object(collect_site.socket, "getaddrinfo", return_value=private_answer):
+            with self.assertRaises(collect_site.UnsafeURL):
+                collect_site._public_endpoints("example.com", 443)
 
 
 if __name__ == "__main__":

@@ -536,8 +536,8 @@
     },
     {
       "path": "skill/roso-seo-geo-v3/scripts/tests/test_security.py",
-      "bytes": 2387,
-      "sha256": "2c4269f819c8ee4485037191dbf621d169e943ed7ab00f5e31c97855ea775a41"
+      "bytes": 2846,
+      "sha256": "236b5c1878277d140a22694cee45dd17dd2fdf031d848145d7f3bc8c68cba1f2"
     },
     {
       "path": "skill/roso-seo-geo-v3/scripts/validate_project.py",
