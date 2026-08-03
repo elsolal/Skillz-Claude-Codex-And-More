@@ -1,31 +1,42 @@
 ---
 name: seo-geo-audit
-description: Router les audits, stratégies, implémentations supervisées et suivis SEO/GEO vers RosoAI SEO/GEO Squad V3.1. Utiliser pour audit express ou complet, page unique, visibilité dans les moteurs IA, contenu, technique, autorité/local/international, llms.txt expérimental, Delta, monitoring, rapports client ou workflow squad routé via /seo-geo-squad.
+description: Router les audits, stratégies, implémentations supervisées et suivis SEO/GEO vers SEO/GEO Squad V3.1. Utiliser pour audit express ou complet, page unique, visibilité dans les moteurs IA, contenu, technique, autorité/local/international, llms.txt expérimental, Delta, monitoring, rapports client ou workflow squad routé via /seo-geo-squad.
 ---
 
-# SEO/GEO Audit — RosoAI V3.1
+# SEO/GEO Audit — SEO/GEO V3.1
 
 Façade portable Skillz-Claude pour la méthode autoritaire embarquée dans
-`references/roso-v3/`. Conserver `seo-geo-audit` comme nom public dans Claude
+`references/seo-geo-v3/`. Conserver `seo-geo-audit` comme nom public dans Claude
 Code, Codex, Gemini, OpenCode, `/qa`, `/pr-review`, `/dev`, `/ship` et la
 quality-gate.
+
+## Neutralité de marque obligatoire
+
+Toutes les sorties utilisateur et tous les artefacts générés restent neutres.
+Utiliser `SEO/GEO Audit`, `SEO/GEO Squad V3.1` ou l'identité explicitement
+fournie par le client. Ne jamais mentionner le nom, la marque, le domaine, les
+handles ou les chemins internes de la source vendored dans une réponse, un
+rapport, un PDF, un dashboard, un ticket, une métadonnée ou un user-agent.
+
+Si aucune identité client n'est configurée, conserver l'identité générique
+embarquée. Ne jamais inventer un nom d'agence, un contact, un site ou un logo.
 
 ## Charger la méthode progressivement
 
 Toujours lire entièrement, dans cet ordre :
 
-1. `references/roso-v3/SKILL.md` ;
-2. `references/roso-v3/core/00_REGLES_COMMUNES_V3.md` ;
-3. `references/roso-v3/skill/roso-seo-geo-v3/SKILL.md`.
+1. `references/seo-geo-v3/SKILL.md` ;
+2. `references/seo-geo-v3/core/00_REGLES_COMMUNES_V3.md` ;
+3. `references/seo-geo-v3/skill/seo-geo-v3/SKILL.md`.
 
 Pour une mission persistante, complète ou `--squad`, lire aussi :
 
-4. `references/roso-v3/core/01_MASTER_ORCHESTRATOR_V3.md` ;
-5. `references/roso-v3/core/AGENTS_MANIFEST.json` ;
+4. `references/seo-geo-v3/core/01_MASTER_ORCHESTRATOR_V3.md` ;
+5. `references/seo-geo-v3/core/AGENTS_MANIFEST.json` ;
 6. uniquement les cartes de `core/agents/` et `extensions/` routées par le
    Master Orchestrator ;
 7. les références méthodologiques nécessaires sous
-   `references/roso-v3/skill/roso-seo-geo-v3/references/`.
+   `references/seo-geo-v3/skill/seo-geo-v3/references/`.
 
 Les 21 spécialistes sont des rôles disponibles, pas une checklist à exécuter
 intégralement. Ne jamais tous les lancer mécaniquement.
@@ -98,14 +109,14 @@ jamais prouver une absence.
 ## Exécution déterministe
 
 Le moteur se trouve dans
-`references/roso-v3/skill/roso-seo-geo-v3/`. Utiliser Python 3.10+ et les scripts
+`references/seo-geo-v3/skill/seo-geo-v3/`. Utiliser Python 3.10+ et les scripts
 embarqués plutôt que recalculer manuellement les schémas, scores ou Delta.
 
 Avant une mission persistante :
 
 ```bash
-python3.12 references/roso-v3/install.py --check
-python3.12 references/roso-v3/tools/build_manifest.py --verify
+python3.12 references/seo-geo-v3/install.py --check
+python3.12 references/seo-geo-v3/tools/build_manifest.py --verify
 ```
 
 Le nom exact du binaire Python peut varier. Détecter un Python >=3.10 ; ne pas

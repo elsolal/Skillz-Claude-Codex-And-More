@@ -234,7 +234,7 @@ claude
 │   📈 SEO/GEO AUDIT (si site public / contenu indexable)              │
 │   ├─ Technique + contenu + SERP + autorité                          │
 │   ├─ llms.txt + visibilité IA + preuves                             │
-│   └─ /seo-geo-squad → RosoAI V3, 21 spécialistes routés              │
+│   └─ /seo-geo-squad → SEO/GEO V3, 21 spécialistes routés              │
 │                                                                     │
 │   ✅ HANDOFF                                                         │
 │   ├─ Rapport : verdict, décisions prises en ton nom, absents        │
@@ -387,7 +387,7 @@ En mode squad complet, le skill lit les prompts stockés dans `.claude/skills/de
 
 Utilise `/seo-geo-audit` quand la feature touche une page publique, une landing, un site vitrine, une page service, du contenu éditorial, `robots.txt`, `sitemap.xml`, `schema`, `llms.txt`, les meta tags ou la stratégie de visibilité.
 
-Utilise `/seo-geo-squad` pour une mission RosoAI V3 complète: règles communes, Master Orchestrator, spécialistes routés parmi 21 rôles, Evidence Vault, QA adversariale et livrables client.
+Utilise `/seo-geo-squad` pour une mission SEO/GEO V3 complète: règles communes, Master Orchestrator, spécialistes routés parmi 21 rôles, Evidence Vault, QA adversariale et livrables client.
 
 Le workflow produit:
 
@@ -397,7 +397,7 @@ Le workflow produit:
 4. Un plan d'action priorisé avec propriétaires, dépendances, critères d'acceptation et rollback.
 5. Des tâches transformables en `/dev`, sans mutation du site pendant l'audit.
 
-En mode squad complet, le skill charge `.claude/skills/seo-geo-audit/references/roso-v3/`, puis uniquement les cartes cœur et extensions sélectionnées par le Master Orchestrator. Les 21 rôles ne sont jamais lancés mécaniquement.
+En mode squad complet, le skill charge `.claude/skills/seo-geo-audit/references/seo-geo-v3/`, puis uniquement les cartes cœur et extensions sélectionnées par le Master Orchestrator. Les 21 rôles ne sont jamais lancés mécaniquement.
 
 | Axe | Controle |
 |-----|----------|

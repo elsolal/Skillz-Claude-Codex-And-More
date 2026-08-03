@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.seo-geo.invalid/seo-geo/v3/events.schema.json",
+  "title": "SEO/GEO V3 immutable event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "event_id", "audit_id", "at", "actor", "actor_type", "event_type", "object_type", "object_id", "message"],
+  "properties": {
+    "schema_version": {"const": "3.0"}, "event_id": {"type": "string", "pattern": "^event_[a-z0-9][a-z0-9_-]{2,95}$"}, "audit_id": {"type": "string", "pattern": "^audit_"},
+    "run_id": {"type": ["string", "null"], "pattern": "^(run_|collect_|geo_)"},
+    "at": {"type": "string", "format": "date-time"}, "actor": {"type": "string", "minLength": 1}, "actor_type": {"enum": ["human", "agent", "script", "system"]},
+    "event_type": {"enum": ["created", "run_started", "run_completed", "run_failed", "collected", "validated", "updated", "status_changed", "approved", "rejected", "published", "rolled_back", "alerted", "exported", "deleted"]},
+    "object_type": {"enum": ["audit", "run", "evidence", "fact", "finding", "action", "geo_run", "report", "integration"]}, "object_id": {"type": "string", "minLength": 1},
+    "from_status": {"type": ["string", "null"]}, "to_status": {"type": ["string", "null"]}, "message": {"type": "string", "minLength": 3},
+    "artifacts": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}, "metadata": {"type": "object"}
+  }
+}

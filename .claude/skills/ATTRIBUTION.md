@@ -119,15 +119,15 @@ The `design-audit/` skill and `/design-audit` command are Skillz-Claude original
 
 Lyse's useful concepts are adapted into the Skillz-Claude loop as rewritten audit axes: tokens, components, stories/docs, accessibility, design taste, Figma/code drift, AI surface and AI governance. The upstream CLI remains optional evidence; the Skillz-Claude verdict comes from the combined workflow and existing skills.
 
-## RosoAI SEO/GEO Squad V3.1 (local Aymeric workflow)
+## SEO/GEO Squad V3.1 (local Aymeric workflow)
 
-The `seo-geo-audit/` skill packages the user-supplied RosoAI SEO/GEO Squad V3.1 source from `/Users/aymeric/Documents/PROJETS/DEV/SEO_GEO_SQUAD_V3` into the Skillz-Claude provider structure.
+The `seo-geo-audit/` skill packages the user-supplied SEO/GEO Squad V3.1 source from `/Users/aymeric/Documents/PROJETS/DEV/SEO_GEO_SQUAD_V3` into the Skillz-Claude provider structure.
 
 | Asset | Source |
 |-------|--------|
 | `skills/seo-geo-audit/SKILL.md` | Skillz-Claude portable entrypoint |
-| `skills/seo-geo-audit/references/roso-v3/` | V3.1 kit: 21 routed specialists, schemas, deterministic scripts, assets, QA and delivery tools |
-| `skills/seo-geo-audit/references/roso-v3/SKILLZ_PATCHES.md` | Skillz-Claude integration and security patches |
+| `skills/seo-geo-audit/references/seo-geo-v3/` | V3.1 kit: 21 routed specialists, schemas, deterministic scripts, assets, QA and delivery tools |
+| `skills/seo-geo-audit/references/seo-geo-v3/SKILLZ_PATCHES.md` | Skillz-Claude integration and security patches |
 | `commands/seo-geo-audit.md` | Compact, targeted or persistent V3 route |
 | `commands/seo-geo-squad.md` | Full V3 Master Orchestrator route |
 

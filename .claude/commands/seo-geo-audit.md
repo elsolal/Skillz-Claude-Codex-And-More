@@ -1,5 +1,5 @@
 ---
-description: Route RosoAI SEO/GEO V3.1: audit express/complet/page, technique, contenu, visibilité IA, autorité/local, Delta, suivi ou implémentation supervisée. Usage: /seo-geo-audit <cible> [--quick|--full|--geo-only|--technical|--content|--ship-gate]
+description: Route SEO/GEO V3.1: audit express/complet/page, technique, contenu, visibilité IA, autorité/local, Delta, suivi ou implémentation supervisée. Usage: /seo-geo-audit <cible> [--quick|--full|--geo-only|--technical|--content|--ship-gate]
 allowed-tools:
   - Read
   - Grep
@@ -12,7 +12,7 @@ allowed-tools:
 # /seo-geo-audit
 
 Charger entièrement `.claude/skills/seo-geo-audit/SKILL.md`, puis router
-`$ARGUMENTS` vers le plus petit parcours RosoAI V3 qui répond à la demande.
+`$ARGUMENTS` vers le plus petit parcours SEO/GEO V3 qui répond à la demande.
 
 ## Contrat
 

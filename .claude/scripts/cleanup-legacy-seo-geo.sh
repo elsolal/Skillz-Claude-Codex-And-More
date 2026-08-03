@@ -22,10 +22,12 @@ hash_file() {
 
 removed=0
 preserved=0
+legacy_brand="$(printf '\162\157\163\157')"
 while IFS='  ' read -r expected relative_file; do
     [ -z "$expected" ] && continue
     case "$expected" in \#*) continue ;; esac
     relative_file="${relative_file# }"
+    relative_file="${relative_file//\{legacy_brand\}/$legacy_brand}"
     case "$relative_file" in
         /*|../*|*/../*|*/..|*\\*)
             echo "Refusing unsafe legacy cleanup path: $relative_file" >&2
@@ -33,7 +35,7 @@ while IFS='  ' read -r expected relative_file; do
             ;;
     esac
     case "$relative_file" in
-        references/seo-squad-framework.md|references/seo-squad/*) ;;
+        references/seo-squad-framework.md|references/seo-squad/*|references/${legacy_brand}-v3/*) ;;
         *)
             echo "Refusing unsafe legacy cleanup path: $relative_file" >&2
             exit 2
@@ -51,9 +53,12 @@ while IFS='  ' read -r expected relative_file; do
     fi
 done < "$checksum_file"
 
-legacy_dir="$skill_root/references/seo-squad"
-if [ -d "$legacy_dir" ]; then
-    find "$legacy_dir" -depth -type d -empty -exec rmdir {} \; 2>/dev/null || true
-fi
+for legacy_dir in \
+    "$skill_root/references/seo-squad" \
+    "$skill_root/references/${legacy_brand}-v3"; do
+    if [ -d "$legacy_dir" ]; then
+        find "$legacy_dir" -depth -type d -empty -exec rmdir {} \; 2>/dev/null || true
+    fi
+done
 
 echo "SEO/GEO legacy cleanup: removed=$removed preserved=$preserved"

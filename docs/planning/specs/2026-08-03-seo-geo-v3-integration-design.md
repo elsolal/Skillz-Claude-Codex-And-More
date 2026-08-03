@@ -11,14 +11,14 @@ source_version: 3.1.0
 
 ## Context
 
-Skillz-Claude currently exposes `seo-geo-audit` as a portable 11-agent prompt pack. The supplied RosoAI V3.1 kit is a materially different system: 21 routed specialists, persistent client projects, evidence-linked structured records, five separate score dimensions, deterministic QA, Delta monitoring, supervised implementation, and HTML/PDF delivery.
+Skillz-Claude currently exposes `seo-geo-audit` as a portable 11-agent prompt pack. The supplied SEO/GEO V3.1 kit is a materially different system: 21 routed specialists, persistent client projects, evidence-linked structured records, five separate score dimensions, deterministic QA, Delta monitoring, supervised implementation, and HTML/PDF delivery.
 
 This is a level-4 migration because it adds executable code and persistent client-data contracts. The user approved this plan in the interactive checkpoint on 2026-08-03.
 
 ## Architecture decision
 
 - Keep `seo-geo-audit` as the stable public skill and command name.
-- Vendor the V3.1 kit under `references/roso-v3/` as the authoritative method and runtime.
+- Vendor the V3.1 kit under `references/seo-geo-v3/` as the authoritative method and runtime.
 - Make the public `SKILL.md` a thin provider-neutral router into the V3 modes.
 - Remove the legacy V1/V2 prompt corpus from the repository and prevent managed stale files from remaining authoritative after updates.
 - Keep QA, PR review, quality-gate and ship-gate invocations read-only. Persistent projects, connectors, implementation and external writes require an explicit user request and approval.

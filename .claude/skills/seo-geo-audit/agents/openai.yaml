@@ -1,4 +1,4 @@
 interface:
   display_name: "SEO/GEO Audit V3"
-  short_description: "Audit et pilotage SEO/GEO RosoAI V3, 21 spécialistes routés"
-  default_prompt: "Utilise seo-geo-audit pour router cette demande vers le parcours RosoAI V3 minimal. Garde les audits read-only, relie chaque constat aux preuves, sépare F/V/O/E/M avec couverture et confiance, et ne mobilise que les spécialistes utiles."
+  short_description: "Audit et pilotage SEO/GEO SEO/GEO V3, 21 spécialistes routés"
+  default_prompt: "Utilise seo-geo-audit pour router cette demande vers le parcours SEO/GEO V3 minimal. Garde les audits read-only, relie chaque constat aux preuves, sépare F/V/O/E/M avec couverture et confiance, et ne mobilise que les spécialistes utiles."

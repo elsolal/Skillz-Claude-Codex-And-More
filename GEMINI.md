@@ -34,7 +34,7 @@ D-EPCT+R v6 workflow (Probe → Explore → Plan → Red → Implement → Gate 
 | `/rodin` | Challenge socratique anti-complaisance |
 | `/design-audit` | Audit UI/DS ciblé |
 | `/design-audit-squad` | Orchestration Lyse Design Squad |
-| `/seo-geo-audit` | Audit RosoAI SEO/GEO V3.1 routé |
+| `/seo-geo-audit` | Audit SEO/GEO V3.1 routé |
 | `/seo-geo-squad` | Squad V3.1, 21 spécialistes routés |
 
 Les autres commandes (`/auto-dev`, `/skillz-doctor`, `/pr-review`, etc.) restent Claude-native dans `.claude/commands/`. Gemini peut lire leurs instructions comme contexte, mais elles ne sont pas packagées en TOML natif.

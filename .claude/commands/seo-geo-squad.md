@@ -1,5 +1,5 @@
 ---
-description: Orchestration complète RosoAI SEO/GEO V3.1: 21 spécialistes routés, Evidence Vault, scoring F/V/O/E/M, QA adversariale et livrables. Usage: /seo-geo-squad <cible> [--step-by-step|--all-at-once]
+description: Orchestration complète SEO/GEO V3.1: 21 spécialistes routés, Evidence Vault, scoring F/V/O/E/M, QA adversariale et livrables. Usage: /seo-geo-squad <cible> [--step-by-step|--all-at-once]
 allowed-tools:
   - Read
   - Grep
@@ -16,11 +16,11 @@ parcours `--squad` pour `$ARGUMENTS`.
 
 ## Chargement obligatoire
 
-1. `references/roso-v3/SKILL.md` ;
-2. `references/roso-v3/core/00_REGLES_COMMUNES_V3.md` ;
-3. `references/roso-v3/skill/roso-seo-geo-v3/SKILL.md` ;
-4. `references/roso-v3/core/01_MASTER_ORCHESTRATOR_V3.md` ;
-5. `references/roso-v3/core/AGENTS_MANIFEST.json` ;
+1. `references/seo-geo-v3/SKILL.md` ;
+2. `references/seo-geo-v3/core/00_REGLES_COMMUNES_V3.md` ;
+3. `references/seo-geo-v3/skill/seo-geo-v3/SKILL.md` ;
+4. `references/seo-geo-v3/core/01_MASTER_ORCHESTRATOR_V3.md` ;
+5. `references/seo-geo-v3/core/AGENTS_MANIFEST.json` ;
 6. seulement les cartes `core/agents/` et `extensions/` sélectionnées par le
    Master Orchestrator.
 

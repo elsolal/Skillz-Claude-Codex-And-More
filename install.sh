@@ -1175,6 +1175,9 @@ if [ "$GLOBAL_MODE" = true ]; then
     if [ -f "$HOME/.claude/scripts/cleanup-legacy-seo-geo.sh" ]; then
         bash "$HOME/.claude/scripts/cleanup-legacy-seo-geo.sh" \
             "$HOME/.claude/skills/seo-geo-audit"
+        bash "$HOME/.claude/scripts/cleanup-legacy-seo-geo.sh" \
+            "$HOME/.claude/skills/seo-geo-audit" \
+            "$HOME/.claude/skills/seo-geo-audit/migrations/pre-neutral-v3-sha256.txt"
     fi
 
     # Write fresh manifest — always after successful rsync
@@ -2400,7 +2403,7 @@ echo "    /qa                  QA testing + health score"
 echo "    /design-audit        Audit UI/DS + ship-gate design"
 echo "    /design-audit-squad  Audit complet UI/DS 12 agents"
 echo "    /seo-geo-audit       Audit SEO/GEO + visibilité IA"
-echo "    /seo-geo-squad       RosoAI V3, 21 spécialistes routés"
+echo "    /seo-geo-squad       SEO/GEO V3, 21 spécialistes routés"
 echo "    /plan-review         Review CEO/Founder"
 echo "    /rodin               Challenge socratique anti-complaisance"
 echo "    /retro               Rétrospective engineering"
