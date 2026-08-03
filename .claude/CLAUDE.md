@@ -109,7 +109,7 @@ Logger chaque itération dans `docs/ralph-logs/`.
 /design-audit <target>      # Audit UI/DS: tokens, composants, a11y, taste, Figma/code, IA
 /design-audit-squad <target> # Orchestration complète UI/DS: 12 agents Lyse Design Squad
 /seo-geo-audit <target>     # Audit SEO/GEO: technique, contenu, SERP, autorité, visibilité IA
-/seo-geo-squad <target>     # Orchestration complète SEO/GEO: 11 agents Roso SEO Squad
+/seo-geo-squad <target>     # RosoAI V3: 21 spécialistes routés, preuves, QA et livrables
 /plan-review <doc>          # Review CEO/Founder: challenge prémisses, 3 modes
 /rodin <texte|doc|url>      # Challenge socratique anti-complaisance
 /retro [--since 7d]         # Rétrospective: sessions, streaks, tendances
@@ -152,7 +152,7 @@ Logger chaque itération dans `docs/ralph-logs/`.
 # ai-native-ui              # Patterns AI-UI invariants (states, tool calls, citations, composer)
 
 # SEO/GEO & visibility :
-# seo-geo-audit             # Audit SEO/GEO ponctuel ou squad complète 11 agents, preuves Confirmé/Déduit/Non vérifié, roadmap 7/30/90
+# seo-geo-audit             # RosoAI V3: audit express/complet, 21 spécialistes routés, preuves structurées, F/V/O/E/M, Delta et suivi
 
 # QA runtime agentique :
 # web-navigator             # Navigation/analyse web, extraction sourcée, preuves runtime

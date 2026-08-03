@@ -1,0 +1,568 @@
+{
+  "product": "SEO/GEO Squad V3",
+  "version": "3.1.0",
+  "algorithm": "sha256",
+  "file_count": 112,
+  "files": [
+    {
+      "path": "CHANGELOG.md",
+      "bytes": 4814,
+      "sha256": "16273c90062fe8d68a7bb351d82eae03a34845d79d009ffa5c8be14991aa01ae"
+    },
+    {
+      "path": "SKILL.md",
+      "bytes": 5923,
+      "sha256": "7d83b2e537524a02b0b11ee663f4fbc020b9b1a3d0412b2de0ce183222e2b59e"
+    },
+    {
+      "path": "SKILLZ_PATCHES.md",
+      "bytes": 1047,
+      "sha256": "acfa9890ec313db0fd6c2c2ff015e94e1b7b3bb6f504a37b5afa374d69cacecb"
+    },
+    {
+      "path": "START_HERE.md",
+      "bytes": 5054,
+      "sha256": "c4b2caa7f21208ba52e81a42953d2d6efeade6bcc73eba43782176da12f9add1"
+    },
+    {
+      "path": "VERSION.json",
+      "bytes": 320,
+      "sha256": "838b1bc374dceee1370659cf051cb6dbece29d1f563857a9e9a051107a3c3687"
+    },
+    {
+      "path": "agents/openai.yaml",
+      "bytes": 236,
+      "sha256": "1fd0642c2bcdcb8507d56ebca969f706c0d7396b518e264d3d66a3dc19045e38"
+    },
+    {
+      "path": "core/00_REGLES_COMMUNES_V3.md",
+      "bytes": 15859,
+      "sha256": "3734721d87e719268045dd0a17273739c564dc7810eff4e5f0f1eefbca6e6798"
+    },
+    {
+      "path": "core/01_MASTER_ORCHESTRATOR_V3.md",
+      "bytes": 20243,
+      "sha256": "6af3eafd27401ba9312125f16632d0519f3ce4afb366c3474b5aa280fcd613b9"
+    },
+    {
+      "path": "core/AGENTS_MANIFEST.json",
+      "bytes": 3838,
+      "sha256": "540e4d7bcefe1b7bbf91d13ffbd4f2a81ef78a7d38202d86accf4245b800cf24"
+    },
+    {
+      "path": "core/README.md",
+      "bytes": 1604,
+      "sha256": "ebd25329e32f17ba5129b5c0906b8f91a7fe59428dd823729e23462d794d5685"
+    },
+    {
+      "path": "core/agents/01_Data_Collector_V3.md",
+      "bytes": 9619,
+      "sha256": "fd0daccdd842a36f224bb1f3545fcaf62febe44858589ed85aecf7fcfa253cbb"
+    },
+    {
+      "path": "core/agents/02_Strategie_Positionnement_SEO_GEO_V3.md",
+      "bytes": 9436,
+      "sha256": "d9f0a42b55ffa7455bda01da996cdda09876330d76d87b5eebfbe7684ef7c78e"
+    },
+    {
+      "path": "core/agents/03_Audit_On_Page_V3.md",
+      "bytes": 9730,
+      "sha256": "759fefd6ff47dab59dcfe0d490204ade220e20e1a21d48f0719ddfe03481dcf7"
+    },
+    {
+      "path": "core/agents/04_Demande_Intention_V3.md",
+      "bytes": 10009,
+      "sha256": "3ebad13f8e007177a3450fbf8c70743042d6a4bfebd75604662090dc9039b5c3"
+    },
+    {
+      "path": "core/agents/05_Analyse_Concurrentielle_V3.md",
+      "bytes": 10630,
+      "sha256": "381f4fc90a957f6a0d719a6efa6817826b29972dd3ed2667bb5888d5187e776d"
+    },
+    {
+      "path": "core/agents/06_Contenu_SEO_GEO_V3.md",
+      "bytes": 2344,
+      "sha256": "579e603a5627ccf232b2ed17a303dcb07f6bf158f3dbed308ff1a1894c6e8c18"
+    },
+    {
+      "path": "core/agents/07_SEO_Technique_Donnees_Structurees_V3.md",
+      "bytes": 2413,
+      "sha256": "3988a4c94b6920c4702492077fd5a9148b15b47876da091cde37628151e12ff1"
+    },
+    {
+      "path": "core/agents/08_Autorite_Marque_SEO_Local_V3.md",
+      "bytes": 2255,
+      "sha256": "3257c63c33648e52f10e3b375c15e5dba350df2151d7203a7c7e75b1f934cfa1"
+    },
+    {
+      "path": "core/agents/09_GEO_Observatory_Plan_Action_V3.md",
+      "bytes": 2246,
+      "sha256": "ba42154f98558754e9cf36e07b34b7f55413410df4b83d5376cde086a20fcd51"
+    },
+    {
+      "path": "core/agents/10_QA_Adversarial_V3.md",
+      "bytes": 2236,
+      "sha256": "d020c6956b5d78fab49d9155a3160afb4dbf1d463557aba7f8afa9eb31859705"
+    },
+    {
+      "path": "core/agents/11_Master_Final_Report_V3.md",
+      "bytes": 16218,
+      "sha256": "30569c296489532e15ee80c76f420e001ef6735f92babfa7cf2cde2300d34e9d"
+    },
+    {
+      "path": "docs/INSTALLATION.md",
+      "bytes": 6456,
+      "sha256": "fd84fd52a2e9f2dea08767e4d705d238a4873f7faf7c05a80b6565fc15c69f27"
+    },
+    {
+      "path": "extensions/12_Redacteur_Contenu_V3.md",
+      "bytes": 2495,
+      "sha256": "3f59437347fcfdf0a6ec0aacf9bf6bb0c028a6361d844b590a6eb6ccc68f4e3d"
+    },
+    {
+      "path": "extensions/13_Audit_Express_V3.md",
+      "bytes": 2611,
+      "sha256": "c3dd70d79add21fae97f24896b139382aa742ab348b2c4e89ad61b41a718bf0c"
+    },
+    {
+      "path": "extensions/14_Audit_Page_Unique_V3.md",
+      "bytes": 2224,
+      "sha256": "91c3940ebb1bc276167500d3cc50ce9af9bd69ffb1da6111c0a3b409a823350a"
+    },
+    {
+      "path": "extensions/15_Delta_Re_Audit_V3.md",
+      "bytes": 1954,
+      "sha256": "951d3b6c97070a8cd4984144bfa54511ed0b2bf9e99b162a3d4e80e2bcc81e26"
+    },
+    {
+      "path": "extensions/16_GEO_International_V3.md",
+      "bytes": 2472,
+      "sha256": "c41743f5a9fce3f21a187b490ccf773fab2a54ece496262c660da3778bcc28aa"
+    },
+    {
+      "path": "extensions/17_Generateur_llms_txt_V3.md",
+      "bytes": 1883,
+      "sha256": "556af7846e42018a47625d874e1f0fe75a3d89b1a43d5b7a5a69e2e5fca37db7"
+    },
+    {
+      "path": "extensions/18_Compagnon_Implementation_V3.md",
+      "bytes": 2077,
+      "sha256": "33b9b2550cf9bb490abbe855266a01569240090ffc7f3d1b11b6490d107f728b"
+    },
+    {
+      "path": "extensions/19_Tracker_Mensuel_V3.md",
+      "bytes": 1831,
+      "sha256": "0f1d88a8da7b5165a3e69ee25e81fc0470b16840e058468b125b277619e914ce"
+    },
+    {
+      "path": "extensions/20_Acquisition_Sources_Externes_V3.md",
+      "bytes": 2208,
+      "sha256": "f17e34192d5bdf925fe730d37af2474542dfbf54193ee3ff4c5badb34ad7a266"
+    },
+    {
+      "path": "extensions/21_Connecteurs_Mesure_V3.md",
+      "bytes": 2723,
+      "sha256": "c5ca78c6d90e138e58760a99e8f1c99980ea33ec730317d00f28148c4c386aa4"
+    },
+    {
+      "path": "extensions/README.md",
+      "bytes": 1432,
+      "sha256": "ae38544260ed563a07c9476bf29f4a818dcd157077a5b1d11ca40b616b3c90d0"
+    },
+    {
+      "path": "install.py",
+      "bytes": 10611,
+      "sha256": "3fc6b102dda8a66db200f7f88f263a942b7245d58f9773f2bf08549e38febce0"
+    },
+    {
+      "path": "skill/seo-geo-v3/SKILL.md",
+      "bytes": 12665,
+      "sha256": "011e98084969fb762a251d9d09956561b5ce3396d7a64ed63b8d1a20a4b9d041"
+    },
+    {
+      "path": "skill/seo-geo-v3/agents/openai.yaml",
+      "bytes": 241,
+      "sha256": "a676ef0addbb0c3da2da25e0fe31e593ec2c026eda15dd816b45a4be1d461021"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/default_theme.json",
+      "bytes": 1913,
+      "sha256": "4688b55ae116c677151e906640b1cd7aa38ff4ecb3481eabf5af63e048afc73e"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/fonts/Inter-latin-ext.woff2",
+      "bytes": 85272,
+      "sha256": "a28eb6d3ccb534ae0c94ca999371df024aab60b08c3c8a5720ee9e32fa0faaa2"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/fonts/Inter-latin.woff2",
+      "bytes": 48432,
+      "sha256": "c940764593d0fe5d596be327ca7558855e018039fb78509aa21921fd3644c3e4"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/fonts/JetBrainsMono-latin-ext.woff2",
+      "bytes": 11596,
+      "sha256": "9c38cb2d0d2d93c1ee6e21fa78db76f13ea7e15e15cc64214c7ca89b6aaa35c4"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/fonts/JetBrainsMono-latin.woff2",
+      "bytes": 31340,
+      "sha256": "2c32b9b3ee358c119e210f6f5195f9bd34894d78a785ff2e95d60e718e400af4"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/fonts/OFL-Inter.txt",
+      "bytes": 4380,
+      "sha256": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/fonts/OFL-JetBrainsMono.txt",
+      "bytes": 4398,
+      "sha256": "c1ab7c666206842a02b35b30770dac0d7a10156ed401c9defc3f02a754d89e90"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/fonts/README.md",
+      "bytes": 1806,
+      "sha256": "92912ff43c0e2ec83fcbf22024d3121a23be80931eaef8dcf9f9f1f96230353f"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/fonts/fonts.css",
+      "bytes": 237343,
+      "sha256": "721e002619228c82435c73913329be975367ca00812065fd8bce57853bdeb285"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/VERSION.json",
+      "bytes": 320,
+      "sha256": "838b1bc374dceee1370659cf051cb6dbece29d1f563857a9e9a051107a3c3687"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/schemas/actions.schema.json",
+      "bytes": 3065,
+      "sha256": "3a4d87734b12656a39605b274104cd5b0676fa7b2be92af1aecf62c5f4a6449a"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/schemas/audit_manifest.schema.json",
+      "bytes": 4576,
+      "sha256": "86c325ac00e76555a5d2e9e7d706402d2c6097878c475d28e10db2419dc88838"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/schemas/events.schema.json",
+      "bytes": 1467,
+      "sha256": "ec7e556be52228f79a7dc2592c65b864eb5bc1cff953134563aef34230f6bcea"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/schemas/evidence.schema.json",
+      "bytes": 2855,
+      "sha256": "d418a0f542a89494de94b94588c780c3db04ab5183189e02e1fe16f2c4a02286"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/schemas/facts.schema.json",
+      "bytes": 1940,
+      "sha256": "ab3c105545f7b5e7536afb57c36c88c942623a255f9725a8bc4391fab97debd6"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/schemas/findings.schema.json",
+      "bytes": 2346,
+      "sha256": "d999554f4a66e591b0a173fcad6005a7724dea608ffcbf672cd3d6c3f7e0d846"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/schemas/geo_run.schema.json",
+      "bytes": 5581,
+      "sha256": "b945265ec9b02be0cb39aa51337cbc482fb69378e8614dc176b194494bf154d8"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/templates/project/actions.json",
+      "bytes": 1702,
+      "sha256": "4c562ec3cb3bc8fecae5b56747ef0825e40f9599c656de3d8f24d381c2b9d9db"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/templates/project/audit_manifest.json",
+      "bytes": 1538,
+      "sha256": "879b2ab121084b8e179004a5bad3c2bea01825eedb1a4524fe040166c3e13cde"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/templates/project/client.yaml",
+      "bytes": 869,
+      "sha256": "84210b119f37a19158c0f728acb0d91923b60eb8bd91261a74486ded8c4a73a0"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/templates/project/events.jsonl",
+      "bytes": 844,
+      "sha256": "7da6d4a97d6655f4d8adba086604d8b95d46a9f7a0929dab536e59d351766545"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/templates/project/evidence.jsonl",
+      "bytes": 2049,
+      "sha256": "5cb952fcde6f97b755471d32f49dfdc13dcf0e65be374c5c5653573a2831cb42"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/templates/project/facts.json",
+      "bytes": 610,
+      "sha256": "56ebc1b5fbd4fa0de04fe438b54d143766b817d24ff394ac6b95cf8cc4b05a61"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/templates/project/findings.json",
+      "bytes": 1042,
+      "sha256": "d088936a8e4ba3e034348e653c7b5dfd3d9470a6305e9a666efb42f7963d4237"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/templates/project/geo_runs/geo_example_chatgpt_001.json",
+      "bytes": 3224,
+      "sha256": "923a2ee311bae127de87f537c0eb88993b284c4e1e72ca9168a0a876d00261b6"
+    },
+    {
+      "path": "skill/seo-geo-v3/assets/kit/templates/project/raw/homepage.html",
+      "bytes": 242,
+      "sha256": "12c57d49d922fff0c157dab0547a296bcd5e96df40c06a1709c35e917fb81b59"
+    },
+    {
+      "path": "skill/seo-geo-v3/package-lock.json",
+      "bytes": 2145,
+      "sha256": "62910257544e70d4d5545ebd57b4d637d5241b2f887ccce69c1dfe2ece33a4fc"
+    },
+    {
+      "path": "skill/seo-geo-v3/package.json",
+      "bytes": 462,
+      "sha256": "4f428012fade9ee5d468965f1fc288493d1adf87d7fc65eeecb6e238da291b60"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/advanced_features.md",
+      "bytes": 9915,
+      "sha256": "6d5bcc740973f5663f1f1ac553a704b813b0ca0abc7180c78bfdccbee9eb542b"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/architecture.md",
+      "bytes": 3470,
+      "sha256": "299c7ad19973eca0068a3e50f5db575670324fa3d57e814c7c0b3e9a34126542"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/data_model.md",
+      "bytes": 4821,
+      "sha256": "20ebf0ca33d87712472dcdb5b4604c9cde599e33e1dceadbbcd600cf791c1e59"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/product/connectors_measurement.md",
+      "bytes": 16067,
+      "sha256": "85b5ca5a259438d8b8a508ab2727938510bf2d3dbc134e3cc3529bfcab27712f"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/product/rules_registry.md",
+      "bytes": 13912,
+      "sha256": "fc01af4817e396461511597021c4d9d40879d2509db8e05fa916dea418ed3708"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/product/security_governance.md",
+      "bytes": 11087,
+      "sha256": "74c8996e01359d6b7587c101a55755b21b245ad43794be623c52900ea94543b8"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/product/vertical_packs.md",
+      "bytes": 10904,
+      "sha256": "4fc67adc17ede79bb732ad5bbdac6cccd818546229b9d2e03f1d71346565938e"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/product/white_label_accessibility.md",
+      "bytes": 10178,
+      "sha256": "145c5dcb044bc44945bdae76eb1a73aade1322daa83cf1d92be5c718e07e4fbf"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/qa_acceptance.md",
+      "bytes": 4269,
+      "sha256": "b99fab5b204253ea1411b01110cffaacba3e9e2932e5e69be7537ef0ec171355"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/scoring_v3.md",
+      "bytes": 6189,
+      "sha256": "50e4f4172a2c814d844ffaa4ba1fb997a96d6e23a599346f7dd89c92b320bb32"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/workflows/01_intake_digital_twin.md",
+      "bytes": 4203,
+      "sha256": "752ce6b44aa071e53d0328cade7eb60d14f6416c39a12aed1137bc1356c59c3b"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/workflows/02_collecte_preuves.md",
+      "bytes": 4142,
+      "sha256": "5907d3501e3718de2245b3bf77143e3862f595d9f64b4d44494fc37550056b77"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/workflows/03_audit_technique.md",
+      "bytes": 3603,
+      "sha256": "7fa3f77a8898b850b2f906f7ad972629723efd3d485b5d7ee3656ec5dafb87a6"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/workflows/04_demande_strategie.md",
+      "bytes": 2951,
+      "sha256": "7eeb1c4db15826809440155d26b5ece4d3ef019b4cb113a3265f3057449f321c"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/workflows/05_contenu.md",
+      "bytes": 3493,
+      "sha256": "e58259bae6bac0a8f64c573b4f181c6b578fc13e2a8c802471d353eda8557795"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/workflows/06_autorite_local.md",
+      "bytes": 3319,
+      "sha256": "f784c71a69b8eef0ae85f24adecc590fcdc422cf22354b08c8de6ff167685b09"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/workflows/07_geo_observatory.md",
+      "bytes": 4653,
+      "sha256": "9860b672c26f7a60980c173c92777ddd09f1a4446d70ed653dab7e7ee68ba145"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/workflows/08_priorisation.md",
+      "bytes": 2956,
+      "sha256": "a8cdf1ad2d57c4ba631a6dc53437f5185205714a292b362c12038fbc1150d268"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/workflows/09_implementation_supervisee.md",
+      "bytes": 3308,
+      "sha256": "fefad97ef76e0050c5058b03775dd3590d957186935a425aed124027a56e41a3"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/workflows/10_reporting.md",
+      "bytes": 4262,
+      "sha256": "7d87c0a820991dc2b481b2fad7dc41fea49f46f8c677f67bbe09c563b7fe9ffe"
+    },
+    {
+      "path": "skill/seo-geo-v3/references/workflows/11_monitoring_delta.md",
+      "bytes": 3674,
+      "sha256": "6e37d45d7968c61af75e2f5ccf41fa0ca216101e671c94ddeddce572e1dee84e"
+    },
+    {
+      "path": "skill/seo-geo-v3/requirements-pdf.txt",
+      "bytes": 111,
+      "sha256": "717c752d2cf12989db4413aef613a4664962139a571f68c214abc7fad3a8fbc0"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/_common.py",
+      "bytes": 12996,
+      "sha256": "5a7612322116eacce13be89a79e90d16f702c48999e03c0225d08e1c5bf91d9e"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/advanced/_advanced_common.py",
+      "bytes": 3666,
+      "sha256": "88fc393042830110389ed81f3226fb06cb7ce4960a15dba08fd55a757b5196ce"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/advanced/control_center.py",
+      "bytes": 21925,
+      "sha256": "eaf2947887a073af2e3a971680c6b3874b4e50a00eb73a5dd8f697802cd6c4b6"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/advanced/delta_compare.py",
+      "bytes": 26538,
+      "sha256": "a9b226a3db04a768dc7774cbf02959aa6661348406ef757feedd97befee15866"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/advanced/export_tickets.py",
+      "bytes": 7860,
+      "sha256": "64fc8c1495e5da7dfb83b8df762d04e3748cd4299904801a9233ff4e65b984c0"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/advanced/import_metrics.py",
+      "bytes": 13757,
+      "sha256": "7c1034f916507e4641dc1767dd2f0d350b26c7f21c67b04c2db393e5c27cbbc9"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/advanced/narrative_integrity.py",
+      "bytes": 6576,
+      "sha256": "f806f298020318e75b8660f119db23772d7d3db7d5ae8e6a76af11d4bddabfbf"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/advanced/rule_source_check.py",
+      "bytes": 10992,
+      "sha256": "45752f4fd0a5e61e5ef35c8ab104a99c141ed496cc859028ce828952ca964317"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/advanced/source_graph.py",
+      "bytes": 7987,
+      "sha256": "ccf73bcaab18cf312b2eff0bc498a9432d0dc77d1456bf25517616e561ab2b4d"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/advanced/tests/test_advanced.py",
+      "bytes": 32370,
+      "sha256": "2169dcfbbe999570332d824abd7be03930059212cf92100c0066b0fda620d1ee"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/collect_site.py",
+      "bytes": 50966,
+      "sha256": "44644d57dbddb2bf673bc8c9452f6e7835c044e6a0af76db4b6fef88860a8db4"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/create_project.py",
+      "bytes": 8132,
+      "sha256": "8a21a127ba97b29db3ad87f5c61abb50aa775aba106bc4d6db64b147d3d9c3f9"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/generate_markdown_reports.py",
+      "bytes": 16807,
+      "sha256": "9431220748a5cf338c4af6206a8885b3c402d2651ff6d20997c32ef333ad1c3c"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/geo_metrics.py",
+      "bytes": 17760,
+      "sha256": "9c07071dd2c95fbf4d41b60913e304a08c81f4d6f6034de4b06473475b552048"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/qa_audit.py",
+      "bytes": 27764,
+      "sha256": "474d557ca52aa6cea1cbfb5d2a3246b9339fc863936fb38698136c8d1fd25b8c"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/record_delivery.py",
+      "bytes": 6369,
+      "sha256": "57a228fc0beb093bafafd39a1d33605d3391b3f8ed23c7328ba8441a19efcdc3"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/score_v3.py",
+      "bytes": 19212,
+      "sha256": "5e1ad3bb63f776a3ff054535207a01c62d15d704eda1a45497b5a4fca095ef0e"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/tests/test_security.py",
+      "bytes": 2846,
+      "sha256": "236b5c1878277d140a22694cee45dd17dd2fdf031d848145d7f3bc8c68cba1f2"
+    },
+    {
+      "path": "skill/seo-geo-v3/scripts/validate_project.py",
+      "bytes": 16235,
+      "sha256": "be905c668bf88e819a50b0880c8adafaf7aabbb35a353bf3016a44161d44d3f1"
+    },
+    {
+      "path": "skill/seo-geo-v3/tools/local_file_policy.cjs",
+      "bytes": 746,
+      "sha256": "69f866e16a22d601c375fc5580a8b2579f876c6fb5f8e8773c3fb981d0f0c52a"
+    },
+    {
+      "path": "skill/seo-geo-v3/tools/render_html_pdf.cjs",
+      "bytes": 20210,
+      "sha256": "4cf1571264447747ab561c225d22e9264364c3ff05afd6915ab0c9e041fb900f"
+    },
+    {
+      "path": "skill/seo-geo-v3/tools/render_markdown_pdf.py",
+      "bytes": 25379,
+      "sha256": "44b8d561710d56ee5005c2abe09649a8c51fad6cc1800a14b6bfd83e122fdf40"
+    },
+    {
+      "path": "skill/seo-geo-v3/tools/render_tagged_pdf.cjs",
+      "bytes": 26515,
+      "sha256": "d69d455cbbde72b607dfc3e7e311abc0284a06d6c19176783311e4f48b0a7a99"
+    },
+    {
+      "path": "skill/seo-geo-v3/tools/tests/local_file_policy.test.cjs",
+      "bytes": 1772,
+      "sha256": "9c8e13186558d98c1870eaf4cb9c66854b923d564d8a8b8e4646b3c50aec2ced"
+    },
+    {
+      "path": "templates/Charte_PDF_SEO_GEO_V3.md",
+      "bytes": 50452,
+      "sha256": "d215a194fd9a6c654b9a98908f2626be217ca874fd000a4dec80563cae5add9e"
+    },
+    {
+      "path": "tools/build_manifest.py",
+      "bytes": 3113,
+      "sha256": "9c2d6f09a8d34fdb3357bdbf0850a26b7d5f8764a9f2b2bc70ec7e5e0278de68"
+    }
+  ]
+}

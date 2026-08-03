@@ -1,5 +1,5 @@
 ---
-description: Audit SEO/GEO d'un site ou d'une marque: technique, contenu, SERP, autorité, local, visibilité IA, llms.txt et roadmap. Usage: /seo-geo-audit <url|domaine> [--quick|--full|--squad|--geo-only|--technical|--content|--ship-gate]
+description: Route SEO/GEO V3.1: audit express/complet/page, technique, contenu, visibilité IA, autorité/local, Delta, suivi ou implémentation supervisée. Usage: /seo-geo-audit <cible> [--quick|--full|--geo-only|--technical|--content|--ship-gate]
 allowed-tools:
   - Read
   - Grep
@@ -11,50 +11,34 @@ allowed-tools:
 
 # /seo-geo-audit
 
-Lance le skill `seo-geo-audit` pour auditer une surface SEO/GEO avec preuves, scores, findings P0-P3 et roadmap actionnable.
+Charger entièrement `.claude/skills/seo-geo-audit/SKILL.md`, puis router
+`$ARGUMENTS` vers le plus petit parcours SEO/GEO V3 qui répond à la demande.
 
-## Usage
+## Contrat
 
-```bash
+1. Pour un audit, une QA, une review ou `--ship-gate`, rester read-only : aucune
+   modification du site, du code, des comptes ou des systèmes externes.
+2. Lire les règles communes et la méthode V3 indiquées par le skill ; ne jamais
+   charger l'ancien corpus 11 agents.
+3. En `--full`, charger le Master Orchestrator et uniquement les cartes des
+   spécialistes routés. Ne jamais lancer les 21 rôles mécaniquement.
+4. Préserver les statuts `observed`, `proxy`, `client_reported`, `inferred`,
+   `not_measured` et `unknown`, avec date, couverture et confiance.
+5. Publier F/V/O/E/M séparément et relier chaque finding important à ses preuves.
+6. Une mission persistante, un connecteur, une installation ou une écriture
+   externe exige une demande et une approbation explicites.
+
+## Exemples
+
+```text
 /seo-geo-audit https://example.com --quick
-/seo-geo-audit example.com --full
-/seo-geo-audit example.com --squad
 /seo-geo-audit https://example.com/service --ship-gate
-/seo-geo-audit "marque + concurrents" --geo-only
-```
-
-## Comportement
-
-1. Charger `.claude/skills/seo-geo-audit/SKILL.md`.
-2. Lire `references/seo-squad-framework.md` si mode `--quick`, `--geo-only`, `--technical`, `--content` ou `--ship-gate`.
-3. Lire le pack complet `references/seo-squad/` si mode `--full`, `--squad`, ou si l'utilisateur demande les 11 agents.
-4. Identifier l'input depuis `$ARGUMENTS`: URL, domaine, marque, concurrents, mode.
-5. Collecter les preuves disponibles et classer chaque fait en `Confirmé`, `Déduit` ou `Non vérifié`.
-6. Double-vérifier toute affirmation négative avant de la poser comme fait.
-7. Produire le rapport SEO/GEO avec scores, findings, grille GEO si pertinente et roadmap 7/30/90.
-8. Ne modifier aucun fichier sauf demande explicite après l'audit.
-
-## Sortie attendue
-
-```markdown
-## SEO/GEO Audit Report
-
-**Input**: ...
-**Mode**: quick | full | squad | geo-only | technical | content | ship-gate
-**Confidence**: Élevé | Moyen | Faible
-**Verdict**: Ship-ready | Fix P0/P1 first | Needs SEO/GEO loop
-
-### Axis scores
-### Findings
-### GEO visibility
-### Roadmap
-### Non vérifié
-### Next action
+/seo-geo-audit example.com --full
+/seo-geo-audit "marque + marché FR" --geo-only
+/seo-geo-audit "re-audit du projet client X" --delta
 ```
 
 ## Execution
-
-Lire le skill `seo-geo-audit`, puis auditer:
 
 ```text
 $ARGUMENTS

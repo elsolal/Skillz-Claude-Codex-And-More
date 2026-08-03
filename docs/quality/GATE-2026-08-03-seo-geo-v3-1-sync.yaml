@@ -1,0 +1,73 @@
+verdict: PASS
+niveau: 4
+tours: 3
+base: main
+head: "4fd553e"
+diff_hash: "4c2d9b9d85942448feb15c72dd823725275f50506253c511a9fcfc5a16746678"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/*.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: vert
+    tests:
+      cmd: "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/test-seo-geo-v3.sh"
+      statut: "vert (291 tests Python, 3 tests Node, installer mémoire, smoke install multi-provider et migration legacy)"
+    v3_integrity:
+      cmd: "python3.12 .claude/skills/seo-geo-audit/references/seo-geo-v3/tools/build_manifest.py --verify"
+      statut: "vert (112 fichiers)"
+    branding:
+      cmd: "bash tests/test-seo-geo-v3.sh"
+      statut: "vert (zéro mention de marque dans les surfaces distribuées; migration pré-neutralité testée)"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: vert
+    runtime_verify:
+      flow: "installation locale Claude/Codex/Gemini/OpenCode, sorties neutres et suppression sûre des anciens corpus"
+      statut: vert
+  opinion:
+    findings:
+      total: 5
+      confirmes: 5
+      refutes: 0
+      corriges_p0_p1: 4
+      restants_p0_p1: 0
+      notes_p2_p3: 1
+    registry:
+      - id: ".claude/scripts/cleanup-legacy-seo-geo.sh:security:adbed213"
+        severite: P1
+        statut: corrige
+        detail: "Le préfixe legacy autorisait encore des segments parent; la validation refuse maintenant les chemins absolus, les traversées et les séparateurs ambigus."
+      - id: ".claude/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/tests/test_security.py:security:d62987cb"
+        severite: P1
+        statut: corrige
+        detail: "La garantie de rejet DNS privé n'était pas couverte; un test simulé prouve maintenant le refus avant connexion."
+      - id: ".claude/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/default_theme.json:branding:d4569554"
+        severite: P1
+        statut: corrige
+        detail: "Le thème, les renderers, les dashboards, les user-agents et les PDF d'exemple exposaient l'identité de la source; toutes les sorties actives sont maintenant neutres."
+      - id: ".claude/scripts/cleanup-legacy-seo-geo.sh:migration:846d245f"
+        severite: P1
+        statut: corrige
+        detail: "La synchronisation non destructive aurait conservé l'ancien dossier V3; un manifeste de 116 checksums le retire uniquement lorsqu'il est byte-identique."
+      - id: ".claude/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/collect_site.py:maintainability:f3572d89"
+        severite: P2
+        statut: note
+        detail: "Le collecteur vendored fait 1119 lignes. Une extraction amont des politiques réseau et de la transaction réduirait sa taille, mais une divergence locale supplémentaire serait plus coûteuse dans cette migration."
+  lenses:
+    correctness_security: vert
+    readability: vert
+    performance: vert
+    seo_geo: vert
+    thermo_nuclear: "vert avec une note P2 non bloquante"
+decisions_prises_en_ton_nom:
+  - "Les sorties utilisent uniquement l'identité générique SEO/GEO Audit ou une identité client explicitement approuvée; aucun nom de source interne n'est exposé."
+  - "Les deux anciens PDF d'exemple brandés ont été retirés; la charte V3 devient l'unique référence de forme."
+  - "Les anciennes installations V3 byte-identiques sont nettoyées par checksum; toute personnalisation locale est préservée et signalée."
+  - "La migration legacy échoue de façon fermée sur un chemin de manifeste ambigu au lieu de l'ignorer silencieusement."
+  - "Le collecteur V3 de 1119 lignes reste vendored et intact structurellement; son éventuel découpage doit être porté upstream plutôt que dériver la copie Skillz-Claude."
+  - "Les dépendances PDF optionnelles Playwright/Chromium n'ont pas été installées globalement; le rendu PDF réel reste déclaré absent."
+absents:
+  - "Aucune commande typecheck ou build configurée pour ce dépôt de scripts et prompts."
+  - "Aucun harness E2E ni surface applicative runtime; la preuve runtime porte sur les installations providers, l'intégrité V3 et la migration locale."
+  - "Playwright/Chromium absent: aucun PDF V3 n'a été rendu ni inspecté page par page dans ce gate."
+  - "Aucun audit client réel, connecteur GSC/GA4/CRM, compte authentifié ou panel GEO live n'a été exécuté."

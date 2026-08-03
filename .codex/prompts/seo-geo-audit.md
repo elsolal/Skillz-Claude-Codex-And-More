@@ -1,8 +1,8 @@
 ---
-description: 'Audit SEO/GEO ponctuel: technique, contenu, SERP, autorité, local, visibilité IA, llms.txt, scores et roadmap'
+description: 'SEO/GEO V3.1: audit express/complet/page, technique, contenu, GEO, Delta et suivi'
 disable-model-invocation: true
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL `~/.codex/skills/seo-geo-audit/SKILL.md` if it exists, otherwise `.claude/skills/seo-geo-audit/SKILL.md`, READ its entire contents, and apply the SEO/GEO Audit workflow to the provided URL, domain, brand, competitors, content path, or latest visible SEO/GEO context.
+LOAD the FULL `~/.codex/skills/seo-geo-audit/SKILL.md` if it exists, otherwise `.claude/skills/seo-geo-audit/SKILL.md`, READ it completely, and route the provided target through the smallest SEO/GEO V3 workflow that answers the request.
 
-This is a READ-ONLY audit pass. Do not modify files, commit, push, or run destructive commands. If the mode is quick, geo-only, technical, content, or ship-gate, also load the compact skill reference `references/seo-squad-framework.md` when available. If the mode is full, squad, or the user asks for the 11 agents, load the complete pack under `references/seo-squad/` and preserve each agent prompt as authoritative. Classify every factual claim as Confirmé, Déduit, or Non vérifié, double-check negative claims, and output the SEO/GEO Audit Report sections: Input, Mode, Confidence, Verdict, Axis scores, Findings, GEO visibility, Roadmap, Non vérifié, Next action.
+Audit, QA, review and ship-gate calls are READ-ONLY. Load the V3 common rules and methodology required by the skill; for full mode load the master orchestrator and only the routed agent cards. Never execute all 21 specialists mechanically. Preserve observed/proxy/client_reported/inferred/not_measured/unknown, evidence links, freshness, coverage and confidence. Report F/V/O/E/M separately. Do not create a persistent project, connect an account, install dependencies or perform any external write without an explicit request and approval.

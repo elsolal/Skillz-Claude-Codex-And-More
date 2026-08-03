@@ -1,0 +1,4 @@
+interface:
+  display_name: "SEO/GEO Squad V3"
+  short_description: "Escouade SEO/GEO probante de 21 agents"
+  default_prompt: "Utilise $seo-geo-squad-v3 pour auditer ce site et produire un plan SEO/GEO sourcé, priorisé et mesurable."

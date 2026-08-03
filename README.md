@@ -21,7 +21,7 @@ One engine, four runtimes (Claude Code, Codex CLI, Gemini CLI, OpenCode), a sing
 | **Adaptive planning** | `/discovery` uses the same 0-4 grid: direct tech-spec for small scopes, full Brainstorm → PRD → Architecture → Stories above — always ending with an approved spec that mandates `/auto-dev`. |
 | **Thinking tools** | `/elicit` (12 named reasoning lenses), `/rodin` (socratic anti-echo), `multi-mind` with its **anti-consensus Contrarian**, and a `[P]` pressure-test before any brainstorm. |
 | **Autonomous mode (RALPH)** | `/auto-discovery`, `/auto-dev`, `/auto-loop` — zero stops, hard safety gates (mandate required, gate PASS required, structural-CONCERNS early stop). |
-| **Quality squads** | `/design-audit(-squad)` — 12-agent Lyse Design Squad ; `/seo-geo-audit(-squad)` — 11-agent Roso SEO Squad. |
+| **Quality squads** | `/design-audit(-squad)` — 12-agent Lyse Design Squad ; `/seo-geo-audit(-squad)` — SEO/GEO V3.1 with 21 routed specialists. |
 | **Second-brain memory** | Optional Obsidian LLM Wiki: durable decisions, sources and syntheses that compound across sessions. |
 | **55+ skills, 55+ knowledge files** | Planning, design, Figma (8 skills), audio/video, security, web navigation — all auto-triggered from descriptions. |
 
@@ -344,7 +344,7 @@ decisions_prises_en_ton_nom: [...]  # the only careful read left to the human
 | **Audits** | `/design-audit <target>` | UI/DS audit + ship-gate design evidence |
 | | `/design-audit-squad <target>` | Full 12-agent Lyse Design Squad audit |
 | | `/seo-geo-audit <target>` | SEO/GEO audit + AI visibility roadmap |
-| | `/seo-geo-squad <target>` | Full 11-agent Roso SEO Squad audit |
+| | `/seo-geo-squad <target>` | SEO/GEO V3.1 orchestration with 21 routed specialists |
 | **Utilities** | `/status` | Project state (docs, issues, RALPH) |
 | | `/retro [--since 7d]` | Engineering retrospective |
 | | `/docs [type]` | Generate docs (readme\|api\|guide\|all) |
@@ -528,7 +528,7 @@ Capability groups, all auto-triggered from skill descriptions.
 
 | Skill | Role | Key Features |
 |---|---|---|
-| `seo-geo-audit` | SEO/GEO audit | Technical SEO, content, SERP intent, authority, local SEO, llms.txt, AI visibility, full Roso SEO Squad references |
+| `seo-geo-audit` | SEO/GEO audit | SEO/GEO V3.1, 21 routed specialists, structured evidence, separate F/V/O/E/M scores, adversarial QA, Delta and supervised implementation |
 
 **Figma (from figma/mcp-server-guide)**
 

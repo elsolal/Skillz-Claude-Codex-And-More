@@ -1,10 +1,8 @@
 ---
-description: 'Orchestration complète Roso SEO Squad: 11 agents SEO/GEO, règles communes, livrables et rapport final'
+description: 'SEO/GEO Squad V3.1: 21 spécialistes routés, preuves, scores séparés, QA et livrables'
 disable-model-invocation: true
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL `~/.codex/skills/seo-geo-audit/SKILL.md` if it exists, otherwise `.claude/skills/seo-geo-audit/SKILL.md`, READ its entire contents, then run the SEO/GEO workflow in `--squad` mode for the provided URL, domain, brand, competitors, content path, or latest visible SEO/GEO context.
+LOAD the FULL `~/.codex/skills/seo-geo-audit/SKILL.md` if it exists, otherwise `.claude/skills/seo-geo-audit/SKILL.md`, READ it completely, then run its `--squad` route for the provided target.
 
-You MUST load the complete Roso SEO Squad reference pack when available: `references/seo-squad/README.md`, `00_REGLES_COMMUNES.md`, `01_MASTER_ORCHESTRATOR.md`, `Outils_Verification_Externes.md`, all `references/seo-squad/agents/*.md`, and the templates under `references/seo-squad/templates/`.
-
-Preserve each agent prompt as authoritative. Execute the 11-agent order from the master orchestrator, adapt Claude-in-Chrome instructions to the current Codex runtime capabilities, classify every factual claim as Confirmé, Déduit, or Non vérifié, double-check negative claims, and do not modify the audited site or project code. Create `audit-livrables/<client>/` deliverables only when the user asked for files or the context clearly allows audit output files; otherwise output the deliverables inline.
+Load `references/seo-geo-v3/SKILL.md`, the V3 common rules, methodology, master orchestrator and agent manifest. Load only the core and extension cards selected by the orchestrator; never launch all 21 roles mechanically. Define scope, permissions and cut-off date before collection. Preserve the structured evidence chain and report F/V/O/E/M separately with coverage and confidence. A persistent local project requires an authorized path; any connector, installation, audited-site change or external write requires explicit approval.

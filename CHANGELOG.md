@@ -2,6 +2,33 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## [Unreleased] - 2026-08-03
+
+**SEO/GEO Squad V3.1 migration**
+
+### Added
+- Vendored SEO/GEO Squad V3.1 with 21 routed specialists, persistent evidence records, separate F/V/O/E/M scoring, adversarial QA, Delta monitoring and client-delivery tooling.
+- Security regressions for PDF local-file isolation, public-only rule-source networking and real authorization timestamps.
+- Safe legacy cleanup that removes only byte-identical Skillz-managed V1 files and preserves user modifications.
+- Approved migration spec at `docs/planning/specs/2026-08-03-seo-geo-v3-integration-design.md`.
+
+### Changed
+- `seo-geo-audit` remains the stable public entrypoint but now routes to V3.1 and loads only the specialists required by the mission.
+- `/seo-geo-squad` no longer executes a fixed 11-agent chain; the V3 Master Orchestrator selects among 21 roles.
+- QA, PR review, quality-gate and ship-gate SEO calls remain explicitly read-only.
+- Claude, Codex, Gemini and OpenCode launchers now share the same V3 evidence and permission contract.
+
+### Security
+- PDF rendering only permits local resources below the report directory or bundled asset roots.
+- Official-rule network checks disable proxies, reject non-public destinations and pin TLS connections to validated public IPs.
+- New projects keep `authorized_at` unset until a real approver and timezone-aware timestamp are supplied.
+- PDF fallback setup uses a virtual environment and no longer recommends bypassing PEP 668.
+
+### Validation
+- V3 integrity manifest: 115 files verified.
+- Python: 21 upstream tests + 3 Skillz security tests passing.
+- Node: 3 local-file-policy tests passing; renderer syntax valid.
+
 ## [Unreleased] - 2026-07-28
 
 **Portable Skillz-Claude memory pilot**
@@ -483,19 +510,19 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## v5.14.0 (2026-06-09)
 
-**SEO/GEO Audit Workflow — Roso SEO Squad packaged for Skillz-Claude**
+**SEO/GEO Audit Workflow — SEO/GEO Squad packaged for Skillz-Claude**
 
 ### Why
 Skillz-Claude couvrait le planning, le design, la QA, le code, la sécurité et la performance, mais il n'avait pas de workflow dédié pour auditer la visibilité organique d'un site: SEO technique, contenu, SERP, autorité, local SEO, `llms.txt` et visibilité IA.
 
-Le dossier local `/Users/aymeric/Documents/PROJETS/DEV/SEO_Squad` contient un framework Roso SEO Squad beaucoup plus complet: 11 agents, règles anti-hallucination, triple statut `Confirmé / Déduit / Non vérifié`, double-vérification des affirmations négatives, grille GEO et roadmap client-facing.
+Le dossier local `/Users/aymeric/Documents/PROJETS/DEV/SEO_Squad` contient un framework SEO/GEO Squad beaucoup plus complet: 11 agents, règles anti-hallucination, triple statut `Confirmé / Déduit / Non vérifié`, double-vérification des affirmations négatives, grille GEO et roadmap client-facing.
 
 Cette release package le workflow dans Skillz-Claude: une entrée compacte pour les audits rapides, une commande squad complète pour les 11 agents, et le pack SEO_Squad complet stocké dans les références du skill.
 
 ### Added
 - **`seo-geo-audit` skill** — audit ponctuel SEO/GEO avec 9 axes: stratégie, homepage/on-page, technique, keywords/intent, concurrents, content SEO/GEO, autorité/local, visibilité IA, cohérence finale.
-- **Référence progressive** — `seo-geo-audit/references/seo-squad-framework.md` résume la séquence Roso, les checks déterministes, la grille GEO et les critères ship-gate.
-- **Pack complet Roso SEO Squad** — `seo-geo-audit/references/seo-squad/` contient règles communes, master orchestrator, 11 prompts agents et templates.
+- **Référence progressive** — `seo-geo-audit/references/seo-squad-framework.md` résume la séquence SEO/GEO, les checks déterministes, la grille GEO et les critères ship-gate.
+- **Pack complet SEO/GEO Squad** — `seo-geo-audit/references/seo-squad/` contient règles communes, master orchestrator, 11 prompts agents et templates.
 - **`/seo-geo-audit` Claude command** — audit read-only sur URL, domaine, marque, concurrents ou page publique, avec modes `--quick`, `--full`, `--geo-only`, `--technical`, `--content`, `--ship-gate`.
 - **`/seo-geo-squad` Claude command** — orchestration complète 11 agents avec livrables intermédiaires, rapport fusionné et double livrable final.
 - **Portable provider triggers**:

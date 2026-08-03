@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.seo-geo.invalid/seo-geo/v3/facts.schema.json",
+  "title": "SEO/GEO V3 fact registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "audit_id", "generated_at", "facts"],
+  "properties": {
+    "schema_version": {"const": "3.0"},
+    "audit_id": {"type": "string", "pattern": "^audit_"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "facts": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["fact_id", "key", "type", "value", "status", "confidence", "evidence_ids"],
+        "properties": {
+          "fact_id": {"type": "string", "pattern": "^fact_[a-z0-9][a-z0-9_-]{2,95}$"},
+          "key": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.-]+$"},
+          "type": {"enum": ["identity", "offer", "price", "location", "person", "legal", "proof", "policy", "metric", "competitor", "audience", "voice", "constraint"]},
+          "value": {},
+          "status": {"enum": ["client_approved", "observed", "inferred", "conflicted", "expired", "unknown"]},
+          "confidence": {"enum": ["confirmed", "strong", "moderate", "weak"]},
+          "evidence_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^ev_"}},
+          "valid_from": {"type": ["string", "null"], "format": "date"},
+          "valid_to": {"type": ["string", "null"], "format": "date"},
+          "owner": {"type": ["string", "null"]},
+          "approval": {
+            "type": ["object", "null"], "additionalProperties": false,
+            "properties": {"approved_by": {"type": "string"}, "approved_at": {"type": "string", "format": "date-time"}, "notes": {"type": "string"}},
+            "required": ["approved_by", "approved_at"]
+          },
+          "notes": {"type": "string"}
+        }
+      }
+    }
+  }
+}

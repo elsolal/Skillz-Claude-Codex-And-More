@@ -1,0 +1,26 @@
+{
+  "schema_version": "3.0",
+  "audit_id": "audit_atelier_brindille_20260715",
+  "generated_at": "2026-07-15T09:20:00Z",
+  "findings": [
+    {
+      "finding_id": "finding_org_schema_missing",
+      "title": "Entité locale non décrite en JSON-LD",
+      "category": "entity",
+      "dimension": "F",
+      "issue_type": "structured_data_missing",
+      "statement": "La page d'accueil observée ne contient ni objet Organization ni objet LocalBusiness.",
+      "impact": "Les machines disposent de moins de signaux explicites pour relier la marque, l'activité et la zone servie.",
+      "severity": "medium",
+      "confidence": "confirmed",
+      "basis": "observed",
+      "evidence_ids": ["ev_org_schema_absent"],
+      "fact_ids": ["fact_brand_name"],
+      "affected_urls": ["https://atelier-brindille.example/"],
+      "status": "open",
+      "detected_at": "2026-07-15T09:06:00Z",
+      "rule_id": "entity.structured_data.relevant",
+      "limitations": ["Le balisage ne garantit ni classement ni citation par une IA."]
+    }
+  ]
+}
