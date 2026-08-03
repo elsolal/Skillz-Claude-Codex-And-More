@@ -27,6 +27,12 @@ while IFS='  ' read -r expected relative_file; do
     case "$expected" in \#*) continue ;; esac
     relative_file="${relative_file# }"
     case "$relative_file" in
+        /*|../*|*/../*|*/..|*\\*)
+            echo "Refusing unsafe legacy cleanup path: $relative_file" >&2
+            exit 2
+            ;;
+    esac
+    case "$relative_file" in
         references/seo-squad-framework.md|references/seo-squad/*) ;;
         *)
             echo "Refusing unsafe legacy cleanup path: $relative_file" >&2

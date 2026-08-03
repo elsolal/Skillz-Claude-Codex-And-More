@@ -67,6 +67,22 @@ bash "$repo_root/.claude/scripts/cleanup-legacy-seo-geo.sh" \
     "$fixture_skill" "$fixture_skill/migrations/checksums.txt"
 test -e "$fixture_skill/references/seo-squad/README.md"
 
+outside_file="$temporary_root/outside.txt"
+printf 'managed legacy file\n' > "$outside_file"
+if command -v shasum >/dev/null 2>&1; then
+    outside_hash="$(shasum -a 256 "$outside_file" | awk '{print $1}')"
+else
+    outside_hash="$(sha256sum "$outside_file" | awk '{print $1}')"
+fi
+printf '%s  references/seo-squad/../../../outside.txt\n' "$outside_hash" \
+    > "$fixture_skill/migrations/traversal.txt"
+if bash "$repo_root/.claude/scripts/cleanup-legacy-seo-geo.sh" \
+    "$fixture_skill" "$fixture_skill/migrations/traversal.txt"; then
+    echo "Legacy cleanup accepted a path traversal" >&2
+    exit 1
+fi
+test -e "$outside_file"
+
 if rg -n 'references/seo-squad/|seo-squad-framework|[Ee]xecute (the )?11-agent|exécuter.*11 agents|orchestration complète.*11 agents' \
     "$skill_root/SKILL.md" \
     "$repo_root/.claude/commands/seo-geo-audit.md" \
