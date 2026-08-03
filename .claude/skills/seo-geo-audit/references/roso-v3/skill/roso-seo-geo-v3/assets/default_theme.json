@@ -1,0 +1,67 @@
+{
+  "schema_version": "3.0",
+  "theme_id": "rosoai-default",
+  "identity": {
+    "agency_name": "RosoAI",
+    "legal_name": "RosoAI",
+    "contact": "contact@rosoai.fr",
+    "website": "https://www.rosoai.fr",
+    "logo_path": null,
+    "logo_alt": "Logo RosoAI",
+    "document_language": "fr-FR"
+  },
+  "document": {
+    "methodology_name": "SEO/GEO V3",
+    "methodology_version": "3.1.0",
+    "description": "Guide et livrable SEO/GEO fondé sur des preuves",
+    "cover_subtitle": "Le système d’audit, d’exécution supervisée et de suivi SEO/GEO fondé sur des preuves horodatées.",
+    "edition_label": "ÉDITION V3 · 2026",
+    "confidentiality": "Confidentiel · réservé au client",
+    "footer_left": "Preuves · décisions · mesure",
+    "date_format": "DD/MM/YYYY",
+    "currency": "EUR",
+    "units": "métriques"
+  },
+  "product": {
+    "offer_labels": ["Audit", "Build", "Grow", "Monitor"]
+  },
+  "colors": {
+    "primary": "#0E1F3A",
+    "accent": "#ED8030",
+    "link": "#3B6ED3",
+    "success": "#2F9D6A",
+    "warning": "#B55D00",
+    "critical": "#B42318",
+    "text": "#24324A",
+    "muted_text": "#667085",
+    "cover_text": "#FFFFFF",
+    "cover_muted_text": "#E4EBF6",
+    "code_text": "#E8ECF5",
+    "background": "#FFFFFF",
+    "soft_background": "#F5F7FB",
+    "border": "#DDE3EC"
+  },
+  "typography": {
+    "heading_family": "Inter",
+    "body_family": "Inter",
+    "code_family": "JetBrains Mono",
+    "minimum_body_size_pt": 9
+  },
+  "layout": {
+    "page_size": "A4",
+    "orientation": "portrait",
+    "show_header": true,
+    "show_footer": true,
+    "show_page_numbers": true
+  },
+  "accessibility": {
+    "target": "WCAG 2.2 AA",
+    "body_contrast_minimum": 4.5,
+    "large_text_contrast_minimum": 3.0,
+    "color_is_not_only_signal": true,
+    "require_descriptive_links": true,
+    "require_alt_text": true,
+    "require_pdf_metadata": true,
+    "require_render_review": true
+  }
+}

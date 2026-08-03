@@ -5,6 +5,14 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INSTALLER="$REPO_ROOT/install.sh"
 BASE_PATH="$PATH"
+for python_candidate in python3 python3.13 python3.12 python3.11 python3.10; do
+    if command -v "$python_candidate" >/dev/null 2>&1 \
+        && "$python_candidate" -c 'import sys; raise SystemExit(sys.version_info < (3, 10))'; then
+        python_directory="$(dirname "$(command -v "$python_candidate")")"
+        BASE_PATH="$python_directory:$BASE_PATH"
+        break
+    fi
+done
 TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/skillz-memory-tests.XXXXXX")"
 
 cleanup() {

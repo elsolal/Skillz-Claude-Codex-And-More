@@ -1,0 +1,33 @@
+{
+  "schema_version": "3.0",
+  "audit_id": "audit_atelier_brindille_20260715",
+  "generated_at": "2026-07-15T09:30:00Z",
+  "actions": [
+    {
+      "action_id": "action_add_localbusiness_schema",
+      "title": "Ajouter un balisage LocalBusiness exact",
+      "description": "Créer un objet JSON-LD conforme aux informations approuvées du registre de faits et l'intégrer d'abord en staging.",
+      "finding_ids": ["finding_org_schema_missing"],
+      "evidence_ids": ["ev_org_schema_absent"],
+      "stream": "build",
+      "priority": "P1",
+      "status": "ready",
+      "effort": {"size": "S", "person_days": 0.5},
+      "impact": "medium",
+      "confidence": "strong",
+      "owner": "Développeur web",
+      "preconditions": ["Les coordonnées et horaires ont été approuvés dans le registre de faits"],
+      "dependencies": [],
+      "procedure": ["Créer le JSON-LD uniquement depuis les faits approuvés", "Intégrer le script en staging", "Exécuter les validations avant toute demande de publication"],
+      "acceptance_criteria": ["Le JSON-LD ne contient que des faits approuvés", "Le validateur ne signale aucune erreur bloquante", "La page publique reste fonctionnelle après publication"],
+      "validation_method": "Valider le JSON, tester la page en staging puis recrawler l'URL publiée.",
+      "backup": "Créer une sauvegarde ou un commit restaurable de la page avant intégration.",
+      "rollback": "Retirer le script ajouté et restaurer la version précédente de la page.",
+      "due_date": "2026-07-29",
+      "target_urls": ["https://atelier-brindille.example/"],
+      "risk": "low",
+      "approval_required": true,
+      "automation": "assisted"
+    }
+  ]
+}

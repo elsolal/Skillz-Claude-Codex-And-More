@@ -80,7 +80,7 @@ If the app has a frontend/design-system surface, load `design-audit` and run a q
 
 ### Phase 4.6: SEO/GEO Audit
 
-If the target is a public/indexable site, landing, homepage, blog, docs, content page, or marketing route, load `seo-geo-audit` and run `--quick` against the URL. Report SEO/GEO findings separately from the QA health score unless the user explicitly asks to include them in the score.
+If the target is a public/indexable site, landing, homepage, blog, docs, content page, or marketing route, load `seo-geo-audit` and run its V3 `--quick` route against the URL. This pass is read-only: do not create a persistent client project, connect accounts, install dependencies, or mutate the audited site. Report F/V/O/E/M separately with evidence status, coverage and confidence, and keep SEO/GEO findings separate from the QA health score unless the user explicitly asks to include them.
 
 ### Phase 5: Document Issues
 For each issue:

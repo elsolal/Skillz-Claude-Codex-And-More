@@ -1170,6 +1170,13 @@ if [ "$GLOBAL_MODE" = true ]; then
         --exclude='.skillz-manifest' \
         "$SOURCE_DIR/" ~/.claude/
 
+    # SEO/GEO V3 replaces a vendored V1 prompt pack. Remove only files whose
+    # bytes still match the Skillz-managed V1 checksums; preserve user edits.
+    if [ -f "$HOME/.claude/scripts/cleanup-legacy-seo-geo.sh" ]; then
+        bash "$HOME/.claude/scripts/cleanup-legacy-seo-geo.sh" \
+            "$HOME/.claude/skills/seo-geo-audit"
+    fi
+
     # Write fresh manifest — always after successful rsync
     {
         echo "# skillz-manifest v1"
@@ -2393,7 +2400,7 @@ echo "    /qa                  QA testing + health score"
 echo "    /design-audit        Audit UI/DS + ship-gate design"
 echo "    /design-audit-squad  Audit complet UI/DS 12 agents"
 echo "    /seo-geo-audit       Audit SEO/GEO + visibilité IA"
-echo "    /seo-geo-squad       Audit complet SEO/GEO 11 agents"
+echo "    /seo-geo-squad       RosoAI V3, 21 spécialistes routés"
 echo "    /plan-review         Review CEO/Founder"
 echo "    /rodin               Challenge socratique anti-complaisance"
 echo "    /retro               Rétrospective engineering"

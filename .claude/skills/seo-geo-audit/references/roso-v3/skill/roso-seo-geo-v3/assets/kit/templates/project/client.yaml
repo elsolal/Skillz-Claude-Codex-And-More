@@ -1,0 +1,27 @@
+schema_version: "3.0"
+client_id: client_atelier_brindille
+identity:
+  name: Atelier Brindille
+  legal_name: Atelier Brindille SAS
+  domain: atelier-brindille.example
+  aliases: ["AtelierBrindille"]
+business:
+  vertical: local
+  description: Fleuriste artisanal et ateliers floraux à Lyon.
+  offers: ["Bouquets sur mesure", "Ateliers floraux", "Décoration événementielle"]
+markets:
+  primary: France
+  countries: ["FR"]
+  locales: ["fr-FR"]
+audiences:
+  primary: Particuliers et entreprises de la métropole de Lyon.
+competitors:
+  domains: ["fleurs-exemple.fr", "atelier-floral-exemple.fr"]
+brand_governance:
+  approved_claims: ["Créations florales réalisées à Lyon"]
+  forbidden_claims: ["Numéro 1", "Résultats garantis"]
+  tone: Chaleureux, précis et sans superlatif invérifiable.
+contacts:
+  data_owner: Responsable marketing
+  approval_owner: Direction
+

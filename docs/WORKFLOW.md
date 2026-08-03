@@ -234,7 +234,7 @@ claude
 │   📈 SEO/GEO AUDIT (si site public / contenu indexable)              │
 │   ├─ Technique + contenu + SERP + autorité                          │
 │   ├─ llms.txt + visibilité IA + preuves                             │
-│   └─ /seo-geo-squad pour l'audit complet 11 agents                   │
+│   └─ /seo-geo-squad → RosoAI V3, 21 spécialistes routés              │
 │                                                                     │
 │   ✅ HANDOFF                                                         │
 │   ├─ Rapport : verdict, décisions prises en ton nom, absents        │
@@ -387,17 +387,17 @@ En mode squad complet, le skill lit les prompts stockés dans `.claude/skills/de
 
 Utilise `/seo-geo-audit` quand la feature touche une page publique, une landing, un site vitrine, une page service, du contenu éditorial, `robots.txt`, `sitemap.xml`, `schema`, `llms.txt`, les meta tags ou la stratégie de visibilité.
 
-Utilise `/seo-geo-squad` quand il faut reprendre le workflow complet Roso SEO Squad: règles communes, master orchestrator, 11 agents, livrables intermédiaires, rapport fusionné et double livrable final client-facing.
+Utilise `/seo-geo-squad` pour une mission RosoAI V3 complète: règles communes, Master Orchestrator, spécialistes routés parmi 21 rôles, Evidence Vault, QA adversariale et livrables client.
 
 Le workflow produit:
 
-1. Un diagnostic SEO/GEO avec preuves `Confirmé / Déduit / Non vérifié`.
-2. Des scores par axe: technique, on-page, contenu, keywords, autorité, local, visibilité IA.
-3. Une grille GEO de prompts conversationnels si le sujet s'y prête.
-4. Une roadmap 7j / 30j / 90j.
-5. Des tâches transformables en `/dev`.
+1. Une chaîne `source → evidence → fact → finding → action → outcome` avec statuts `observed`, `proxy`, `client_reported`, `inferred`, `not_measured` ou `unknown`.
+2. Les dimensions F (Fondations), V (Visibilité générative), O (Opportunité), E (Exécution) et M (Mesure), toujours séparées avec couverture, confiance et fraîcheur.
+3. Des runs GEO segmentés par moteur, marché, langue, contexte et type de prompt lorsque les mesures existent réellement.
+4. Un plan d'action priorisé avec propriétaires, dépendances, critères d'acceptation et rollback.
+5. Des tâches transformables en `/dev`, sans mutation du site pendant l'audit.
 
-En mode squad complet, le skill lit les prompts originaux stockés dans `.claude/skills/seo-geo-audit/references/seo-squad/` et conserve les règles dédiées de chaque agent.
+En mode squad complet, le skill charge `.claude/skills/seo-geo-audit/references/roso-v3/`, puis uniquement les cartes cœur et extensions sélectionnées par le Master Orchestrator. Les 21 rôles ne sont jamais lancés mécaniquement.
 
 | Axe | Controle |
 |-----|----------|

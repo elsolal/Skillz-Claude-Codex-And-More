@@ -1,0 +1,44 @@
+{
+  "schema_version": "3.0",
+  "audit_id": "audit_atelier_brindille_20260715",
+  "client_id": "client_atelier_brindille",
+  "created_at": "2026-07-15T09:00:00Z",
+  "updated_at": "2026-07-15T09:00:00Z",
+  "status": "analyzing",
+  "scope": {
+    "mode": "full",
+    "root_url": "https://atelier-brindille.example/",
+    "locales": ["fr-FR"],
+    "markets": ["France"],
+    "vertical": "local",
+    "max_pages": 100,
+    "include_urls": ["https://atelier-brindille.example/"],
+    "exclude_patterns": ["/compte/", "/panier/"],
+    "expected_checks": ["homepage.http", "structured_data.organization", "geo.panel"]
+  },
+  "authorization": {
+    "authorized_by": "Direction Atelier Brindille",
+    "authorized_at": "2026-07-15T08:55:00Z",
+    "permissions": ["public_web"],
+    "write_actions_require_approval": true,
+    "notes": "Collecte publique en lecture seule."
+  },
+  "data_policy": {
+    "retention_days": 365,
+    "pii": "forbidden",
+    "secrets": "not_stored",
+    "client_isolation": true,
+    "deletion_contact": "Direction Atelier Brindille"
+  },
+  "methodology": {
+    "kit_version": "3.0.0",
+    "schema_version": "3.0",
+    "rules_snapshot_date": "2026-07-15",
+    "scoring_version": "3.0",
+    "notes": "Les scores restent séparés; aucune moyenne globale opaque."
+  },
+  "run_ids": {"collector": ["collect_example_001"], "geo": ["geo_example_chatgpt_001"]},
+  "outputs": ["reports/audit_strategique.md", "reports/plan_implementation.md"],
+  "blind_spots": ["Aucun accès GSC, GA4, CRM ou logs serveur dans cet exemple."]
+}
+

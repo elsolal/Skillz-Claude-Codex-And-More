@@ -2,6 +2,33 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## [Unreleased] - 2026-08-03
+
+**RosoAI SEO/GEO Squad V3.1 migration**
+
+### Added
+- Vendored RosoAI SEO/GEO Squad V3.1 with 21 routed specialists, persistent evidence records, separate F/V/O/E/M scoring, adversarial QA, Delta monitoring and client-delivery tooling.
+- Security regressions for PDF local-file isolation, public-only rule-source networking and real authorization timestamps.
+- Safe legacy cleanup that removes only byte-identical Skillz-managed V1 files and preserves user modifications.
+- Approved migration spec at `docs/planning/specs/2026-08-03-seo-geo-v3-integration-design.md`.
+
+### Changed
+- `seo-geo-audit` remains the stable public entrypoint but now routes to V3.1 and loads only the specialists required by the mission.
+- `/seo-geo-squad` no longer executes a fixed 11-agent chain; the V3 Master Orchestrator selects among 21 roles.
+- QA, PR review, quality-gate and ship-gate SEO calls remain explicitly read-only.
+- Claude, Codex, Gemini and OpenCode launchers now share the same V3 evidence and permission contract.
+
+### Security
+- PDF rendering only permits local resources below the report directory or bundled asset roots.
+- Official-rule network checks disable proxies, reject non-public destinations and pin TLS connections to validated public IPs.
+- New projects keep `authorized_at` unset until a real approver and timezone-aware timestamp are supplied.
+- PDF fallback setup uses a virtual environment and no longer recommends bypassing PEP 668.
+
+### Validation
+- V3 integrity manifest: 115 files verified.
+- Python: 21 upstream tests + 3 Skillz security tests passing.
+- Node: 3 local-file-policy tests passing; renderer syntax valid.
+
 ## [Unreleased] - 2026-07-28
 
 **Portable Skillz-Claude memory pilot**

@@ -170,13 +170,13 @@ Prompt: "Tu es seo-geo-audit. Audit SEO/GEO de cette PR.
 Diff public/SEO fourni : [diff filtré aux fichiers publics/meta/schema/content]
 Preview URL / paths : [si disponibles]
 
-**Invoquer le skill `seo-geo-audit`** et appliquer les axes :
-Technique, On-page, Keywords/intent, Content SEO/GEO, Autorité/local, Visibilité IA, Cohérence.
+**Invoquer le skill `seo-geo-audit`** en route V3 `--ship-gate`, strictement read-only. Ne pas créer de projet client persistant, installer de dépendance, connecter de compte ou modifier le repo. Évaluer F/V/O/E/M séparément selon les preuves disponibles.
 
 Pour chaque finding :
 - Localisation précise
 - Sévérité P0-P3
-- Statut de preuve : Confirmé / Déduit / Non vérifié
+- Statut de preuve V3 : observed / proxy / client_reported / inferred / not_measured / unknown
+- Couverture, confiance et fraîcheur
 - Fix concret
 - Double-check obligatoire avant toute affirmation négative
 

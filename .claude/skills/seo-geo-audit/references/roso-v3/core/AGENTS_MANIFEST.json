@@ -1,0 +1,30 @@
+{
+  "schema_version": "3.0",
+  "product": "RosoAI SEO/GEO Squad V3",
+  "common_rules": "core/00_REGLES_COMMUNES_V3.md",
+  "orchestrator": "core/01_MASTER_ORCHESTRATOR_V3.md",
+  "methodology": "skill/roso-seo-geo-v3/SKILL.md",
+  "agents": [
+    {"id": "01", "tier": "core", "name": "Data Collector", "file": "core/agents/01_Data_Collector_V3.md", "triggers": ["collecte", "evidence", "crawl"]},
+    {"id": "02", "tier": "core", "name": "Stratégie et positionnement", "file": "core/agents/02_Strategie_Positionnement_SEO_GEO_V3.md", "triggers": ["positionnement", "digital_twin", "objectifs"]},
+    {"id": "03", "tier": "core", "name": "Audit On-Page", "file": "core/agents/03_Audit_On_Page_V3.md", "triggers": ["homepage", "on_page", "conversion"]},
+    {"id": "04", "tier": "core", "name": "Demande et intention", "file": "core/agents/04_Demande_Intention_V3.md", "triggers": ["demande", "intention", "opportunité"]},
+    {"id": "05", "tier": "core", "name": "Analyse concurrentielle", "file": "core/agents/05_Analyse_Concurrentielle_V3.md", "triggers": ["concurrents", "écarts", "sources"]},
+    {"id": "06", "tier": "core", "name": "Analyse de contenu", "file": "core/agents/06_Contenu_SEO_GEO_V3.md", "triggers": ["contenu", "inventaire", "pruning"]},
+    {"id": "07", "tier": "core", "name": "SEO technique et données structurées", "file": "core/agents/07_SEO_Technique_Donnees_Structurees_V3.md", "triggers": ["technique", "schema", "indexation"]},
+    {"id": "08", "tier": "core", "name": "Autorité, marque et local", "file": "core/agents/08_Autorite_Marque_SEO_Local_V3.md", "triggers": ["autorité", "marque", "local"]},
+    {"id": "09", "tier": "core", "name": "GEO Observatory", "file": "core/agents/09_GEO_Observatory_Plan_Action_V3.md", "triggers": ["geo", "réponses_ia", "citations"]},
+    {"id": "10", "tier": "core", "name": "QA adversariale", "file": "core/agents/10_QA_Adversarial_V3.md", "triggers": ["qa", "validation", "livraison"]},
+    {"id": "11", "tier": "core", "name": "Master Final Report", "file": "core/agents/11_Master_Final_Report_V3.md", "triggers": ["rapport", "pdf", "synthèse"]},
+    {"id": "12", "tier": "extension", "name": "Rédacteur de contenu", "file": "extensions/12_Redacteur_Contenu_V3.md", "triggers": ["rédaction", "révision", "brief"]},
+    {"id": "13", "tier": "extension", "name": "Audit Express", "file": "extensions/13_Audit_Express_V3.md", "triggers": ["express", "diagnostic", "prospection"]},
+    {"id": "14", "tier": "extension", "name": "Audit page unique", "file": "extensions/14_Audit_Page_Unique_V3.md", "triggers": ["page_unique", "url", "landing_page"]},
+    {"id": "15", "tier": "extension", "name": "Delta Re-audit", "file": "extensions/15_Delta_Re_Audit_V3.md", "triggers": ["delta", "reaudit", "comparaison"]},
+    {"id": "16", "tier": "extension", "name": "GEO international", "file": "extensions/16_GEO_International_V3.md", "triggers": ["international", "multilingue", "marchés"]},
+    {"id": "17", "tier": "extension", "name": "Générateur llms.txt", "file": "extensions/17_Generateur_llms_txt_V3.md", "triggers": ["llms.txt", "expérimental"]},
+    {"id": "18", "tier": "extension", "name": "Compagnon d’implémentation", "file": "extensions/18_Compagnon_Implementation_V3.md", "triggers": ["implémentation", "staging", "rollback"]},
+    {"id": "19", "tier": "extension", "name": "Tracker mensuel", "file": "extensions/19_Tracker_Mensuel_V3.md", "triggers": ["mensuel", "monitoring", "suivi"]},
+    {"id": "20", "tier": "extension", "name": "Acquisition de sources externes", "file": "extensions/20_Acquisition_Sources_Externes_V3.md", "triggers": ["backlinks", "mentions", "sources"]},
+    {"id": "21", "tier": "extension", "name": "Connecteurs et mesure", "file": "extensions/21_Connecteurs_Mesure_V3.md", "triggers": ["gsc", "analytics", "crm", "import"]}
+  ]
+}

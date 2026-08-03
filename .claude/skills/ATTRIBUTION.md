@@ -119,21 +119,23 @@ The `design-audit/` skill and `/design-audit` command are Skillz-Claude original
 
 Lyse's useful concepts are adapted into the Skillz-Claude loop as rewritten audit axes: tokens, components, stories/docs, accessibility, design taste, Figma/code drift, AI surface and AI governance. The upstream CLI remains optional evidence; the Skillz-Claude verdict comes from the combined workflow and existing skills.
 
-## Roso SEO Squad (local Aymeric workflow)
+## RosoAI SEO/GEO Squad V3.1 (local Aymeric workflow)
 
-The `seo-geo-audit/` skill packages the local SEO/GEO audit workflow from `/Users/aymeric/Documents/PROJETS/DEV/SEO_Squad` into the Skillz-Claude provider structure.
+The `seo-geo-audit/` skill packages the user-supplied RosoAI SEO/GEO Squad V3.1 source from `/Users/aymeric/Documents/PROJETS/DEV/SEO_GEO_SQUAD_V3` into the Skillz-Claude provider structure.
 
 | Asset | Source |
 |-------|--------|
 | `skills/seo-geo-audit/SKILL.md` | Skillz-Claude portable entrypoint |
-| `skills/seo-geo-audit/references/seo-squad-framework.md` | Skillz-Claude compact reference |
-| `skills/seo-geo-audit/references/seo-squad/` | Full local SEO_Squad pack: rules, master orchestrator, 11 agent prompts, templates |
-| `commands/seo-geo-audit.md` | Compact or targeted audit command |
-| `commands/seo-geo-squad.md` | Full 11-agent squad orchestration command |
+| `skills/seo-geo-audit/references/roso-v3/` | V3.1 kit: 21 routed specialists, schemas, deterministic scripts, assets, QA and delivery tools |
+| `skills/seo-geo-audit/references/roso-v3/SKILLZ_PATCHES.md` | Skillz-Claude integration and security patches |
+| `commands/seo-geo-audit.md` | Compact, targeted or persistent V3 route |
+| `commands/seo-geo-squad.md` | Full V3 Master Orchestrator route |
 
 ### Adaptation notes
 
-The full SEO_Squad files are vendored as authoritative references so Codex, Claude Code, Gemini, OpenCode and generic agents can run the same workflow without relying on the external local folder. Claude-specific instructions such as Claude in Chrome are adapted at runtime to the available provider tools: browser, WebFetch, WebSearch, Playwright, MCP connectors, screenshots or user-provided exports.
+The V3 files are vendored as authoritative references so Codex, Claude Code, Gemini, OpenCode and generic agents can run the same workflow without relying on the external local folder. Skillz-Claude preserves the public `seo-geo-audit` name, routes only the necessary specialists, keeps gate callers read-only, and documents its path-integrity, SSRF, local-file, authorization and isolated-install patches in `SKILLZ_PATCHES.md`.
+
+The source bundle does not include a project-wide license file. Its bundled Inter and JetBrains Mono fonts retain their included OFL license files. The repository owner supplied the V3 source for this integration; the Skillz-Claude MIT license must not be interpreted as relicensing third-party or separately licensed assets.
 
 ## Playwright CLI (Microsoft)
 

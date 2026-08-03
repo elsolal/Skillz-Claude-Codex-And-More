@@ -1,0 +1,18 @@
+{
+  "name": "rosoai-seo-geo-v3-pdf",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Dépendances verrouillées du renderer PDF balisé RosoAI V3",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "install-browser": "playwright install chromium",
+    "render-pdf": "node tools/render_html_pdf.cjs",
+    "render-markdown-internal": "node tools/render_tagged_pdf.cjs"
+  },
+  "dependencies": {
+    "marked": "17.0.5",
+    "playwright": "1.61.1"
+  }
+}
