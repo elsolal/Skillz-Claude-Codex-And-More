@@ -1,0 +1,59 @@
+verdict: PASS
+niveau: 4
+tours: 4
+base: main
+head: "1b764d0"
+diff_hash: "93a8bed9c193bbd24eb68d3a4200da7cb533714c41fe905639e1f4a414661089"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/*.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: vert
+    tests:
+      cmd: "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/test-seo-geo-v3.sh"
+      statut: "vert (291 tests Python, 3 tests Node, installer mémoire, smoke install multi-provider et migration legacy)"
+    v3_integrity:
+      cmd: "python3.12 .claude/skills/seo-geo-audit/references/roso-v3/tools/build_manifest.py --verify"
+      statut: "vert (115 fichiers)"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: vert
+    runtime_verify:
+      flow: "installation locale Claude/Codex/Gemini/OpenCode puis suppression sûre du corpus legacy"
+      statut: vert
+  opinion:
+    findings:
+      total: 3
+      confirmes: 3
+      refutes: 0
+      corriges_p0_p1: 2
+      restants_p0_p1: 0
+      notes_p2_p3: 1
+    registry:
+      - id: ".claude/scripts/cleanup-legacy-seo-geo.sh:security:adbed213"
+        severite: P1
+        statut: corrige
+        detail: "Le préfixe legacy autorisait encore des segments parent; la validation refuse maintenant les chemins absolus, les traversées et les séparateurs ambigus."
+      - id: ".claude/skills/seo-geo-audit/references/roso-v3/skill/roso-seo-geo-v3/scripts/tests/test_security.py:security:d62987cb"
+        severite: P1
+        statut: corrige
+        detail: "La garantie de rejet DNS privé n'était pas couverte; un test simulé prouve maintenant le refus avant connexion."
+      - id: ".claude/skills/seo-geo-audit/references/roso-v3/skill/roso-seo-geo-v3/scripts/collect_site.py:maintainability:f3572d89"
+        severite: P2
+        statut: note
+        detail: "Le collecteur vendored fait 1119 lignes. Une extraction amont des politiques réseau et de la transaction réduirait sa taille, mais une divergence locale supplémentaire serait plus coûteuse dans cette migration."
+  lenses:
+    correctness_security: vert
+    readability: vert
+    performance: vert
+    seo_geo: vert
+    thermo_nuclear: "vert avec une note P2 non bloquante"
+decisions_prises_en_ton_nom:
+  - "La migration legacy échoue de façon fermée sur un chemin de manifeste ambigu au lieu de l'ignorer silencieusement."
+  - "Le collecteur V3 de 1119 lignes reste vendored et intact structurellement; son éventuel découpage doit être porté upstream plutôt que dériver la copie Skillz-Claude."
+  - "Les dépendances PDF optionnelles Playwright/Chromium n'ont pas été installées globalement; le rendu PDF réel reste déclaré absent."
+absents:
+  - "Aucune commande typecheck ou build configurée pour ce dépôt de scripts et prompts."
+  - "Aucun harness E2E ni surface applicative runtime; la preuve runtime porte sur les installations providers, l'intégrité V3 et la migration locale."
+  - "Playwright/Chromium absent: aucun PDF V3 n'a été rendu ni inspecté page par page dans ce gate."
+  - "Aucun audit client réel, connecteur GSC/GA4/CRM, compte authentifié ou panel GEO live n'a été exécuté."
