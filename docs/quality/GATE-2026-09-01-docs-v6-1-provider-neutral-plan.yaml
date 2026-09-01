@@ -1,0 +1,36 @@
+verdict: PASS
+niveau: 2
+tours: 2
+base: main
+head: "f3c2c1d"
+diff_hash: "ed0216b7bad6f4c05ff40aeb10a5908d5886d9180000b2a95f1672c478bb917e"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/*.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: vert
+    tests:
+      cmd: "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/test-seo-geo-v3.sh"
+      statut: "vert (installer mémoire, 291 tests Python, 3 tests Node et vérification SEO/GEO V3)"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: vert
+  opinion:
+    findings:
+      total: 0
+      confirmes: 0
+      refutes: 0
+      corriges_p0_p1: 0
+      restants_p0_p1: 0
+      notes_p2_p3: 0
+    registry: []
+  lenses:
+    correctness_security: vert
+    readability: vert
+    performance: "sans objet pour un ajout documentaire"
+    thermo_nuclear: vert
+decisions_prises_en_ton_nom: []
+absents:
+  - "Aucune commande typecheck ou build configurée pour ce dépôt de scripts et prompts."
+  - "Aucun harness E2E ni surface applicative runtime; le diff ajoute uniquement un plan documentaire draft."
+  - "Playwright/Chromium absent; l'avertissement PDF SEO/GEO est sans rapport avec le document publié."
