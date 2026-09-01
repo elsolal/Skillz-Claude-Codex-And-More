@@ -2,6 +2,19 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## [Unreleased] - 2026-09-01
+
+**Provider-neutral v6.1 architecture plan**
+
+### Added
+- Preserved the draft level-4 execution plan for a provider-neutral core, deterministic provider adapters, stronger verification contracts and progressive runtime certification.
+
+### Clarified
+- The document is a future migration target requiring a human-approved specification; it does not claim that the current D-EPCT+R v6 repository already implements v6.1.
+
+### Validation
+- Repository syntax checks, installer acceptance, 291 Python tests, 3 Node tests and the SEO/GEO V3 verification suite pass.
+
 ## [Unreleased] - 2026-08-03
 
 **SEO/GEO Squad V3.1 migration**
