@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 3
+base_sha: "8112f0170dadce4c2c91c0fd52ec3122a38cf42d"
+head_sha: "a345d5fe8ab4d892608449f3e1010944c497a2b7"
+code_diff_hash: "ded4449e83ed27b2b9773d7fb994d1019d89fa77fff07f9a53db8d19d9f02f4d"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-09-02-quality-gate-v2.json"
+proof_payload_hash: "1bde5322199416b32ee42c09f7652a6fe315bb2845f7aac579d52e63149cd17c"
+integrity_sha256: "f21393bbab874682f1b680ba3e344d9475cfc7f64eb78f4f38c522472c62dd59"
