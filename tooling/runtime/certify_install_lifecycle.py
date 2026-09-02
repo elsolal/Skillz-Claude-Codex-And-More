@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import stat
 import subprocess
 import sys
 import tempfile
@@ -22,10 +23,26 @@ class CertificationError(RuntimeError):
 
 def _tree_digest(root: Path) -> str:
     digest = hashlib.sha256()
-    for path in sorted(item for item in root.rglob("*") if item.is_file()):
+    for path in sorted(root.rglob("*"), key=lambda item: item.relative_to(root).as_posix()):
+        metadata = path.lstat()
+        if path.is_symlink():
+            entry_type = b"symlink"
+        elif path.is_file():
+            entry_type = b"file"
+        elif path.is_dir():
+            entry_type = b"directory"
+        else:
+            entry_type = b"other"
         digest.update(path.relative_to(root).as_posix().encode("utf-8"))
         digest.update(b"\0")
-        digest.update(path.read_bytes())
+        digest.update(entry_type)
+        digest.update(b"\0")
+        digest.update(str(stat.S_IMODE(metadata.st_mode)).encode("ascii"))
+        digest.update(b"\0")
+        if entry_type == b"symlink":
+            digest.update(path.readlink().as_posix().encode("utf-8"))
+        elif entry_type == b"file":
+            digest.update(path.read_bytes())
         digest.update(b"\0")
     return digest.hexdigest()
 
