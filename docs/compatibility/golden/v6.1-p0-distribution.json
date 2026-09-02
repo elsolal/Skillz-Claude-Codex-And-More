@@ -13,6 +13,12 @@
           "type": "skill"
         },
         {
+          "alias": "discovery-workflow",
+          "artifact_id": "discovery-workflow",
+          "output": "skills/discovery-workflow/SKILL.md",
+          "type": "skill"
+        },
+        {
           "alias": "project-probe",
           "artifact_id": "project-probe",
           "output": "skills/project-probe/SKILL.md",
@@ -22,6 +28,12 @@
           "alias": "quality-gate",
           "artifact_id": "quality-gate",
           "output": "skills/quality-gate/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "ship-workflow",
+          "artifact_id": "ship-workflow",
+          "output": "skills/ship-workflow/SKILL.md",
           "type": "skill"
         },
         {
@@ -35,7 +47,32 @@
         {
           "mode": "0644",
           "path": "skills/dev-workflow/SKILL.md",
-          "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367"
+          "sha256": "868d49a30ad52c8e277bf41eebf628944ce2c3d84eb5b3af32de0d9d788739b3"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/references/testing/test-levels-framework.md",
+          "sha256": "80bbac7959a47a2e7e7de82613296f906954d571d2d64ece13381c1a0b480237"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/references/testing/test-priorities-matrix.md",
+          "sha256": "321c3b708cc19892884be0166afa2a7197028e5474acaf7bc65c17ac861964a5"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/SKILL.md",
+          "sha256": "79e7087bbd745e7973c3618ac1e3dbbc8332d6752d94696efab69c0433e2d5b5"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
+          "sha256": "eee115aad5225f4ebf3e4f99fd6ea46fd281a8beea7fc772cdbe2cd6250f59ae"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/references/workflows/prd-template.md",
+          "sha256": "0046bc5fbeba8c70aadb45005a18f9c16a4f0d44792f507dcaa284818ddad01b"
         },
         {
           "mode": "0644",
@@ -46,6 +83,11 @@
           "mode": "0644",
           "path": "skills/quality-gate/SKILL.md",
           "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/ship-workflow/SKILL.md",
+          "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238"
         },
         {
           "mode": "0644",
@@ -64,6 +106,13 @@
         },
         {
           "frontmatter": {
+            "description": "Single-thread sequential planning workflow inspired by D-EPCT+R discovery phase. Loaded by /discovery slash command in both Claude Code and Codex CLI. Use when the user has a new idea, vague project, or wants to go from an idea to actionable stories. Scales with levels 0-4 (tech-spec direct for small scopes, full Brainstorm \u2192 PRD \u2192 Architecture \u2192 Stories chain above), always ends with a consolidated approved-spec output, with validation checkpoints between phases.",
+            "name": "discovery-workflow"
+          },
+          "path": "skills/discovery-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
             "description": "Detect and cache a project's real verification commands into a versioned .agents/verification.yaml manifest. Use at the start of dev and ship workflows, before verification, when the manifest is missing or stale, or when a recorded command no longer exists. Covers Node, Python, shell-only, mixed and monorepo projects without executing destructive candidates.",
             "name": "project-probe"
           },
@@ -78,6 +127,13 @@
         },
         {
           "frontmatter": {
+            "description": "Automated ship workflow that takes a feature branch from \"done\" to \"PR opened\" in a single non-interactive pass. Loaded by /ship slash command in both Claude Code and Codex CLI. Use when the user has finished implementing a feature and wants to merge main, manifest verification, quality-gate consumption (PASS required or explicit waiver), CHANGELOG, commit, push, and create a PR in one go.",
+            "name": "ship-workflow"
+          },
+          "path": "skills/ship-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
             "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
             "name": "status-workflow"
           },
@@ -88,15 +144,45 @@
     "claude": {
       "aliases": [
         {
+          "alias": "dev",
+          "artifact_id": "dev",
+          "output": "commands/dev.md",
+          "type": "command"
+        },
+        {
+          "alias": "discovery",
+          "artifact_id": "discovery",
+          "output": "commands/discovery.md",
+          "type": "command"
+        },
+        {
           "alias": "quick-fix",
           "artifact_id": "quick-fix",
           "output": "commands/quick-fix.md",
           "type": "command"
         },
         {
+          "alias": "ship",
+          "artifact_id": "ship",
+          "output": "commands/ship.md",
+          "type": "command"
+        },
+        {
+          "alias": "status",
+          "artifact_id": "status",
+          "output": "commands/status.md",
+          "type": "command"
+        },
+        {
           "alias": "dev-workflow",
           "artifact_id": "dev-workflow",
           "output": "skills/dev-workflow/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "discovery-workflow",
+          "artifact_id": "discovery-workflow",
+          "output": "skills/discovery-workflow/SKILL.md",
           "type": "skill"
         },
         {
@@ -109,6 +195,12 @@
           "alias": "quality-gate",
           "artifact_id": "quality-gate",
           "output": "skills/quality-gate/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "ship-workflow",
+          "artifact_id": "ship-workflow",
+          "output": "skills/ship-workflow/SKILL.md",
           "type": "skill"
         },
         {
@@ -126,13 +218,58 @@
         },
         {
           "mode": "0644",
+          "path": "commands/dev.md",
+          "sha256": "8f583390bc248698033092c687c2f55784d7f535accb339130028b8bdab4664f"
+        },
+        {
+          "mode": "0644",
+          "path": "commands/discovery.md",
+          "sha256": "dd90f72bd7ffd82c81b661a1f1aa0bc37c809fee6c0f2df5ab8fab707cf0d6ac"
+        },
+        {
+          "mode": "0644",
           "path": "commands/quick-fix.md",
           "sha256": "f48490301efdc6a4042bd2f9e989510af5f35cb9e227bdfa20471fbb77e16db3"
         },
         {
           "mode": "0644",
+          "path": "commands/ship.md",
+          "sha256": "08f62e0db3f7d2d0e4db2fbbe2b8c15772b6aad416c70b91aaf0d814c6a40352"
+        },
+        {
+          "mode": "0644",
+          "path": "commands/status.md",
+          "sha256": "0291f1f029f74f5bd492e683d1373942dfa7ab7268e14896d7b96acc658f556d"
+        },
+        {
+          "mode": "0644",
           "path": "skills/dev-workflow/SKILL.md",
-          "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367"
+          "sha256": "868d49a30ad52c8e277bf41eebf628944ce2c3d84eb5b3af32de0d9d788739b3"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/references/testing/test-levels-framework.md",
+          "sha256": "80bbac7959a47a2e7e7de82613296f906954d571d2d64ece13381c1a0b480237"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/references/testing/test-priorities-matrix.md",
+          "sha256": "321c3b708cc19892884be0166afa2a7197028e5474acaf7bc65c17ac861964a5"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/SKILL.md",
+          "sha256": "79e7087bbd745e7973c3618ac1e3dbbc8332d6752d94696efab69c0433e2d5b5"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
+          "sha256": "eee115aad5225f4ebf3e4f99fd6ea46fd281a8beea7fc772cdbe2cd6250f59ae"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/references/workflows/prd-template.md",
+          "sha256": "0046bc5fbeba8c70aadb45005a18f9c16a4f0d44792f507dcaa284818ddad01b"
         },
         {
           "mode": "0644",
@@ -143,6 +280,11 @@
           "mode": "0644",
           "path": "skills/quality-gate/SKILL.md",
           "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/ship-workflow/SKILL.md",
+          "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238"
         },
         {
           "mode": "0644",
@@ -183,6 +325,13 @@
         },
         {
           "frontmatter": {
+            "description": "Single-thread sequential planning workflow inspired by D-EPCT+R discovery phase. Loaded by /discovery slash command in both Claude Code and Codex CLI. Use when the user has a new idea, vague project, or wants to go from an idea to actionable stories. Scales with levels 0-4 (tech-spec direct for small scopes, full Brainstorm \u2192 PRD \u2192 Architecture \u2192 Stories chain above), always ends with a consolidated approved-spec output, with validation checkpoints between phases.",
+            "name": "discovery-workflow"
+          },
+          "path": "skills/discovery-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
             "description": "Detect and cache a project's real verification commands into a versioned .agents/verification.yaml manifest. Use at the start of dev and ship workflows, before verification, when the manifest is missing or stale, or when a recorded command no longer exists. Covers Node, Python, shell-only, mixed and monorepo projects without executing destructive candidates.",
             "name": "project-probe"
           },
@@ -197,6 +346,13 @@
         },
         {
           "frontmatter": {
+            "description": "Automated ship workflow that takes a feature branch from \"done\" to \"PR opened\" in a single non-interactive pass. Loaded by /ship slash command in both Claude Code and Codex CLI. Use when the user has finished implementing a feature and wants to merge main, manifest verification, quality-gate consumption (PASS required or explicit waiver), CHANGELOG, commit, push, and create a PR in one go.",
+            "name": "ship-workflow"
+          },
+          "path": "skills/ship-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
             "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
             "name": "status-workflow"
           },
@@ -207,15 +363,45 @@
     "codex": {
       "aliases": [
         {
+          "alias": "dev",
+          "artifact_id": "dev",
+          "output": "prompts/dev.md",
+          "type": "command"
+        },
+        {
+          "alias": "discovery",
+          "artifact_id": "discovery",
+          "output": "prompts/discovery.md",
+          "type": "command"
+        },
+        {
           "alias": "quick-fix",
           "artifact_id": "quick-fix",
           "output": "prompts/quick-fix.md",
           "type": "command"
         },
         {
+          "alias": "ship",
+          "artifact_id": "ship",
+          "output": "prompts/ship.md",
+          "type": "command"
+        },
+        {
+          "alias": "status",
+          "artifact_id": "status",
+          "output": "prompts/status.md",
+          "type": "command"
+        },
+        {
           "alias": "dev-workflow",
           "artifact_id": "dev-workflow",
           "output": "skills/dev-workflow/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "discovery-workflow",
+          "artifact_id": "discovery-workflow",
+          "output": "skills/discovery-workflow/SKILL.md",
           "type": "skill"
         },
         {
@@ -228,6 +414,12 @@
           "alias": "quality-gate",
           "artifact_id": "quality-gate",
           "output": "skills/quality-gate/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "ship-workflow",
+          "artifact_id": "ship-workflow",
+          "output": "skills/ship-workflow/SKILL.md",
           "type": "skill"
         },
         {
@@ -250,13 +442,58 @@
         },
         {
           "mode": "0644",
+          "path": "prompts/dev.md",
+          "sha256": "8f583390bc248698033092c687c2f55784d7f535accb339130028b8bdab4664f"
+        },
+        {
+          "mode": "0644",
+          "path": "prompts/discovery.md",
+          "sha256": "dd90f72bd7ffd82c81b661a1f1aa0bc37c809fee6c0f2df5ab8fab707cf0d6ac"
+        },
+        {
+          "mode": "0644",
           "path": "prompts/quick-fix.md",
           "sha256": "f48490301efdc6a4042bd2f9e989510af5f35cb9e227bdfa20471fbb77e16db3"
         },
         {
           "mode": "0644",
+          "path": "prompts/ship.md",
+          "sha256": "08f62e0db3f7d2d0e4db2fbbe2b8c15772b6aad416c70b91aaf0d814c6a40352"
+        },
+        {
+          "mode": "0644",
+          "path": "prompts/status.md",
+          "sha256": "0291f1f029f74f5bd492e683d1373942dfa7ab7268e14896d7b96acc658f556d"
+        },
+        {
+          "mode": "0644",
           "path": "skills/dev-workflow/SKILL.md",
-          "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367"
+          "sha256": "868d49a30ad52c8e277bf41eebf628944ce2c3d84eb5b3af32de0d9d788739b3"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/references/testing/test-levels-framework.md",
+          "sha256": "80bbac7959a47a2e7e7de82613296f906954d571d2d64ece13381c1a0b480237"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/references/testing/test-priorities-matrix.md",
+          "sha256": "321c3b708cc19892884be0166afa2a7197028e5474acaf7bc65c17ac861964a5"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/SKILL.md",
+          "sha256": "79e7087bbd745e7973c3618ac1e3dbbc8332d6752d94696efab69c0433e2d5b5"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
+          "sha256": "eee115aad5225f4ebf3e4f99fd6ea46fd281a8beea7fc772cdbe2cd6250f59ae"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/references/workflows/prd-template.md",
+          "sha256": "0046bc5fbeba8c70aadb45005a18f9c16a4f0d44792f507dcaa284818ddad01b"
         },
         {
           "mode": "0644",
@@ -267,6 +504,11 @@
           "mode": "0644",
           "path": "skills/quality-gate/SKILL.md",
           "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/ship-workflow/SKILL.md",
+          "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238"
         },
         {
           "mode": "0644",
@@ -331,6 +573,13 @@
         },
         {
           "frontmatter": {
+            "description": "Single-thread sequential planning workflow inspired by D-EPCT+R discovery phase. Loaded by /discovery slash command in both Claude Code and Codex CLI. Use when the user has a new idea, vague project, or wants to go from an idea to actionable stories. Scales with levels 0-4 (tech-spec direct for small scopes, full Brainstorm \u2192 PRD \u2192 Architecture \u2192 Stories chain above), always ends with a consolidated approved-spec output, with validation checkpoints between phases.",
+            "name": "discovery-workflow"
+          },
+          "path": "skills/discovery-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
             "description": "Detect and cache a project's real verification commands into a versioned .agents/verification.yaml manifest. Use at the start of dev and ship workflows, before verification, when the manifest is missing or stale, or when a recorded command no longer exists. Covers Node, Python, shell-only, mixed and monorepo projects without executing destructive candidates.",
             "name": "project-probe"
           },
@@ -345,6 +594,13 @@
         },
         {
           "frontmatter": {
+            "description": "Automated ship workflow that takes a feature branch from \"done\" to \"PR opened\" in a single non-interactive pass. Loaded by /ship slash command in both Claude Code and Codex CLI. Use when the user has finished implementing a feature and wants to merge main, manifest verification, quality-gate consumption (PASS required or explicit waiver), CHANGELOG, commit, push, and create a PR in one go.",
+            "name": "ship-workflow"
+          },
+          "path": "skills/ship-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
             "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
             "name": "status-workflow"
           },
@@ -355,9 +611,33 @@
     "gemini": {
       "aliases": [
         {
+          "alias": "dev",
+          "artifact_id": "dev",
+          "output": "commands/dev.toml",
+          "type": "command"
+        },
+        {
+          "alias": "discovery",
+          "artifact_id": "discovery",
+          "output": "commands/discovery.toml",
+          "type": "command"
+        },
+        {
           "alias": "quick-fix",
           "artifact_id": "quick-fix",
           "output": "commands/quick-fix.toml",
+          "type": "command"
+        },
+        {
+          "alias": "ship",
+          "artifact_id": "ship",
+          "output": "commands/ship.toml",
+          "type": "command"
+        },
+        {
+          "alias": "status",
+          "artifact_id": "status",
+          "output": "commands/status.toml",
           "type": "command"
         },
         {
@@ -373,6 +653,12 @@
           "type": "skill"
         },
         {
+          "alias": "discovery-workflow",
+          "artifact_id": "discovery-workflow",
+          "output": "skills/discovery-workflow/SKILL.md",
+          "type": "skill"
+        },
+        {
           "alias": "project-probe",
           "artifact_id": "project-probe",
           "output": "skills/project-probe/SKILL.md",
@@ -382,6 +668,12 @@
           "alias": "quality-gate",
           "artifact_id": "quality-gate",
           "output": "skills/quality-gate/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "ship-workflow",
+          "artifact_id": "ship-workflow",
+          "output": "skills/ship-workflow/SKILL.md",
           "type": "skill"
         },
         {
@@ -399,8 +691,28 @@
         },
         {
           "mode": "0644",
+          "path": "commands/dev.toml",
+          "sha256": "cd1d917c72deeb3d80e7d56828f7f5bbbcd2901086182720540b5063f6759357"
+        },
+        {
+          "mode": "0644",
+          "path": "commands/discovery.toml",
+          "sha256": "b94ed346ec955daa134cd3da70446a2ed84ab3bd4cd9f327db6c786c1e0498a9"
+        },
+        {
+          "mode": "0644",
           "path": "commands/quick-fix.toml",
           "sha256": "7539126a54fcef141a1752a2eafca0718ddf2db9c9d8c16c8ebdff0ea330b08b"
+        },
+        {
+          "mode": "0644",
+          "path": "commands/ship.toml",
+          "sha256": "f25e7a5f7136544e8d3c1c2ce4d55d49bdc470bd4444dd5668b90d2ae0c9c6d6"
+        },
+        {
+          "mode": "0644",
+          "path": "commands/status.toml",
+          "sha256": "1d13c695cb91f1337ba1b41b36b63fccdb77013da5b37d83ca0673a7eea2749e"
         },
         {
           "mode": "0644",
@@ -410,7 +722,32 @@
         {
           "mode": "0644",
           "path": "skills/dev-workflow/SKILL.md",
-          "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367"
+          "sha256": "868d49a30ad52c8e277bf41eebf628944ce2c3d84eb5b3af32de0d9d788739b3"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/references/testing/test-levels-framework.md",
+          "sha256": "80bbac7959a47a2e7e7de82613296f906954d571d2d64ece13381c1a0b480237"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/references/testing/test-priorities-matrix.md",
+          "sha256": "321c3b708cc19892884be0166afa2a7197028e5474acaf7bc65c17ac861964a5"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/SKILL.md",
+          "sha256": "79e7087bbd745e7973c3618ac1e3dbbc8332d6752d94696efab69c0433e2d5b5"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
+          "sha256": "eee115aad5225f4ebf3e4f99fd6ea46fd281a8beea7fc772cdbe2cd6250f59ae"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/references/workflows/prd-template.md",
+          "sha256": "0046bc5fbeba8c70aadb45005a18f9c16a4f0d44792f507dcaa284818ddad01b"
         },
         {
           "mode": "0644",
@@ -421,6 +758,11 @@
           "mode": "0644",
           "path": "skills/quality-gate/SKILL.md",
           "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/ship-workflow/SKILL.md",
+          "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238"
         },
         {
           "mode": "0644",
@@ -439,6 +781,13 @@
         },
         {
           "frontmatter": {
+            "description": "Single-thread sequential planning workflow inspired by D-EPCT+R discovery phase. Loaded by /discovery slash command in both Claude Code and Codex CLI. Use when the user has a new idea, vague project, or wants to go from an idea to actionable stories. Scales with levels 0-4 (tech-spec direct for small scopes, full Brainstorm \u2192 PRD \u2192 Architecture \u2192 Stories chain above), always ends with a consolidated approved-spec output, with validation checkpoints between phases.",
+            "name": "discovery-workflow"
+          },
+          "path": "skills/discovery-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
             "description": "Detect and cache a project's real verification commands into a versioned .agents/verification.yaml manifest. Use at the start of dev and ship workflows, before verification, when the manifest is missing or stale, or when a recorded command no longer exists. Covers Node, Python, shell-only, mixed and monorepo projects without executing destructive candidates.",
             "name": "project-probe"
           },
@@ -453,6 +802,13 @@
         },
         {
           "frontmatter": {
+            "description": "Automated ship workflow that takes a feature branch from \"done\" to \"PR opened\" in a single non-interactive pass. Loaded by /ship slash command in both Claude Code and Codex CLI. Use when the user has finished implementing a feature and wants to merge main, manifest verification, quality-gate consumption (PASS required or explicit waiver), CHANGELOG, commit, push, and create a PR in one go.",
+            "name": "ship-workflow"
+          },
+          "path": "skills/ship-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
             "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
             "name": "status-workflow"
           },
@@ -463,15 +819,45 @@
     "grok": {
       "aliases": [
         {
+          "alias": "dev",
+          "artifact_id": "dev",
+          "output": "commands/dev.md",
+          "type": "command"
+        },
+        {
+          "alias": "discovery",
+          "artifact_id": "discovery",
+          "output": "commands/discovery.md",
+          "type": "command"
+        },
+        {
           "alias": "quick-fix",
           "artifact_id": "quick-fix",
           "output": "commands/quick-fix.md",
           "type": "command"
         },
         {
+          "alias": "ship",
+          "artifact_id": "ship",
+          "output": "commands/ship.md",
+          "type": "command"
+        },
+        {
+          "alias": "status",
+          "artifact_id": "status",
+          "output": "commands/status.md",
+          "type": "command"
+        },
+        {
           "alias": "dev-workflow",
           "artifact_id": "dev-workflow",
           "output": "skills/dev-workflow/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "discovery-workflow",
+          "artifact_id": "discovery-workflow",
+          "output": "skills/discovery-workflow/SKILL.md",
           "type": "skill"
         },
         {
@@ -484,6 +870,12 @@
           "alias": "quality-gate",
           "artifact_id": "quality-gate",
           "output": "skills/quality-gate/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "ship-workflow",
+          "artifact_id": "ship-workflow",
+          "output": "skills/ship-workflow/SKILL.md",
           "type": "skill"
         },
         {
@@ -501,13 +893,58 @@
         },
         {
           "mode": "0644",
+          "path": "commands/dev.md",
+          "sha256": "8f583390bc248698033092c687c2f55784d7f535accb339130028b8bdab4664f"
+        },
+        {
+          "mode": "0644",
+          "path": "commands/discovery.md",
+          "sha256": "dd90f72bd7ffd82c81b661a1f1aa0bc37c809fee6c0f2df5ab8fab707cf0d6ac"
+        },
+        {
+          "mode": "0644",
           "path": "commands/quick-fix.md",
           "sha256": "f48490301efdc6a4042bd2f9e989510af5f35cb9e227bdfa20471fbb77e16db3"
         },
         {
           "mode": "0644",
+          "path": "commands/ship.md",
+          "sha256": "08f62e0db3f7d2d0e4db2fbbe2b8c15772b6aad416c70b91aaf0d814c6a40352"
+        },
+        {
+          "mode": "0644",
+          "path": "commands/status.md",
+          "sha256": "0291f1f029f74f5bd492e683d1373942dfa7ab7268e14896d7b96acc658f556d"
+        },
+        {
+          "mode": "0644",
           "path": "skills/dev-workflow/SKILL.md",
-          "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367"
+          "sha256": "868d49a30ad52c8e277bf41eebf628944ce2c3d84eb5b3af32de0d9d788739b3"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/references/testing/test-levels-framework.md",
+          "sha256": "80bbac7959a47a2e7e7de82613296f906954d571d2d64ece13381c1a0b480237"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/references/testing/test-priorities-matrix.md",
+          "sha256": "321c3b708cc19892884be0166afa2a7197028e5474acaf7bc65c17ac861964a5"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/SKILL.md",
+          "sha256": "79e7087bbd745e7973c3618ac1e3dbbc8332d6752d94696efab69c0433e2d5b5"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
+          "sha256": "eee115aad5225f4ebf3e4f99fd6ea46fd281a8beea7fc772cdbe2cd6250f59ae"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/references/workflows/prd-template.md",
+          "sha256": "0046bc5fbeba8c70aadb45005a18f9c16a4f0d44792f507dcaa284818ddad01b"
         },
         {
           "mode": "0644",
@@ -518,6 +955,11 @@
           "mode": "0644",
           "path": "skills/quality-gate/SKILL.md",
           "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/ship-workflow/SKILL.md",
+          "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238"
         },
         {
           "mode": "0644",
@@ -560,6 +1002,13 @@
         },
         {
           "frontmatter": {
+            "description": "Single-thread sequential planning workflow inspired by D-EPCT+R discovery phase. Loaded by /discovery slash command in both Claude Code and Codex CLI. Use when the user has a new idea, vague project, or wants to go from an idea to actionable stories. Scales with levels 0-4 (tech-spec direct for small scopes, full Brainstorm \u2192 PRD \u2192 Architecture \u2192 Stories chain above), always ends with a consolidated approved-spec output, with validation checkpoints between phases.",
+            "name": "discovery-workflow"
+          },
+          "path": "skills/discovery-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
             "description": "Detect and cache a project's real verification commands into a versioned .agents/verification.yaml manifest. Use at the start of dev and ship workflows, before verification, when the manifest is missing or stale, or when a recorded command no longer exists. Covers Node, Python, shell-only, mixed and monorepo projects without executing destructive candidates.",
             "name": "project-probe"
           },
@@ -571,6 +1020,13 @@
             "name": "quality-gate"
           },
           "path": "skills/quality-gate/SKILL.md"
+        },
+        {
+          "frontmatter": {
+            "description": "Automated ship workflow that takes a feature branch from \"done\" to \"PR opened\" in a single non-interactive pass. Loaded by /ship slash command in both Claude Code and Codex CLI. Use when the user has finished implementing a feature and wants to merge main, manifest verification, quality-gate consumption (PASS required or explicit waiver), CHANGELOG, commit, push, and create a PR in one go.",
+            "name": "ship-workflow"
+          },
+          "path": "skills/ship-workflow/SKILL.md"
         },
         {
           "frontmatter": {
@@ -590,6 +1046,12 @@
           "type": "skill"
         },
         {
+          "alias": "discovery-workflow",
+          "artifact_id": "discovery-workflow",
+          "output": "skills/discovery-workflow/SKILL.md",
+          "type": "skill"
+        },
+        {
           "alias": "project-probe",
           "artifact_id": "project-probe",
           "output": "skills/project-probe/SKILL.md",
@@ -599,6 +1061,12 @@
           "alias": "quality-gate",
           "artifact_id": "quality-gate",
           "output": "skills/quality-gate/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "ship-workflow",
+          "artifact_id": "ship-workflow",
+          "output": "skills/ship-workflow/SKILL.md",
           "type": "skill"
         },
         {
@@ -612,7 +1080,32 @@
         {
           "mode": "0644",
           "path": "skills/dev-workflow/SKILL.md",
-          "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367"
+          "sha256": "868d49a30ad52c8e277bf41eebf628944ce2c3d84eb5b3af32de0d9d788739b3"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/references/testing/test-levels-framework.md",
+          "sha256": "80bbac7959a47a2e7e7de82613296f906954d571d2d64ece13381c1a0b480237"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/references/testing/test-priorities-matrix.md",
+          "sha256": "321c3b708cc19892884be0166afa2a7197028e5474acaf7bc65c17ac861964a5"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/SKILL.md",
+          "sha256": "79e7087bbd745e7973c3618ac1e3dbbc8332d6752d94696efab69c0433e2d5b5"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
+          "sha256": "eee115aad5225f4ebf3e4f99fd6ea46fd281a8beea7fc772cdbe2cd6250f59ae"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/references/workflows/prd-template.md",
+          "sha256": "0046bc5fbeba8c70aadb45005a18f9c16a4f0d44792f507dcaa284818ddad01b"
         },
         {
           "mode": "0644",
@@ -623,6 +1116,11 @@
           "mode": "0644",
           "path": "skills/quality-gate/SKILL.md",
           "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/ship-workflow/SKILL.md",
+          "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238"
         },
         {
           "mode": "0644",
@@ -641,6 +1139,13 @@
         },
         {
           "frontmatter": {
+            "description": "Single-thread sequential planning workflow inspired by D-EPCT+R discovery phase. Loaded by /discovery slash command in both Claude Code and Codex CLI. Use when the user has a new idea, vague project, or wants to go from an idea to actionable stories. Scales with levels 0-4 (tech-spec direct for small scopes, full Brainstorm \u2192 PRD \u2192 Architecture \u2192 Stories chain above), always ends with a consolidated approved-spec output, with validation checkpoints between phases.",
+            "name": "discovery-workflow"
+          },
+          "path": "skills/discovery-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
             "description": "Detect and cache a project's real verification commands into a versioned .agents/verification.yaml manifest. Use at the start of dev and ship workflows, before verification, when the manifest is missing or stale, or when a recorded command no longer exists. Covers Node, Python, shell-only, mixed and monorepo projects without executing destructive candidates.",
             "name": "project-probe"
           },
@@ -652,6 +1157,13 @@
             "name": "quality-gate"
           },
           "path": "skills/quality-gate/SKILL.md"
+        },
+        {
+          "frontmatter": {
+            "description": "Automated ship workflow that takes a feature branch from \"done\" to \"PR opened\" in a single non-interactive pass. Loaded by /ship slash command in both Claude Code and Codex CLI. Use when the user has finished implementing a feature and wants to merge main, manifest verification, quality-gate consumption (PASS required or explicit waiver), CHANGELOG, commit, push, and create a PR in one go.",
+            "name": "ship-workflow"
+          },
+          "path": "skills/ship-workflow/SKILL.md"
         },
         {
           "frontmatter": {
@@ -665,15 +1177,45 @@
     "opencode": {
       "aliases": [
         {
+          "alias": "dev",
+          "artifact_id": "dev",
+          "output": "commands/dev.md",
+          "type": "command"
+        },
+        {
+          "alias": "discovery",
+          "artifact_id": "discovery",
+          "output": "commands/discovery.md",
+          "type": "command"
+        },
+        {
           "alias": "quick-fix",
           "artifact_id": "quick-fix",
           "output": "commands/quick-fix.md",
           "type": "command"
         },
         {
+          "alias": "ship",
+          "artifact_id": "ship",
+          "output": "commands/ship.md",
+          "type": "command"
+        },
+        {
+          "alias": "status",
+          "artifact_id": "status",
+          "output": "commands/status.md",
+          "type": "command"
+        },
+        {
           "alias": "dev-workflow",
           "artifact_id": "dev-workflow",
           "output": "skills/dev-workflow/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "discovery-workflow",
+          "artifact_id": "discovery-workflow",
+          "output": "skills/discovery-workflow/SKILL.md",
           "type": "skill"
         },
         {
@@ -689,6 +1231,12 @@
           "type": "skill"
         },
         {
+          "alias": "ship-workflow",
+          "artifact_id": "ship-workflow",
+          "output": "skills/ship-workflow/SKILL.md",
+          "type": "skill"
+        },
+        {
           "alias": "status-workflow",
           "artifact_id": "status-workflow",
           "output": "skills/status-workflow/SKILL.md",
@@ -698,13 +1246,58 @@
       "files": [
         {
           "mode": "0644",
+          "path": "commands/dev.md",
+          "sha256": "8f583390bc248698033092c687c2f55784d7f535accb339130028b8bdab4664f"
+        },
+        {
+          "mode": "0644",
+          "path": "commands/discovery.md",
+          "sha256": "dd90f72bd7ffd82c81b661a1f1aa0bc37c809fee6c0f2df5ab8fab707cf0d6ac"
+        },
+        {
+          "mode": "0644",
           "path": "commands/quick-fix.md",
           "sha256": "f48490301efdc6a4042bd2f9e989510af5f35cb9e227bdfa20471fbb77e16db3"
         },
         {
           "mode": "0644",
+          "path": "commands/ship.md",
+          "sha256": "08f62e0db3f7d2d0e4db2fbbe2b8c15772b6aad416c70b91aaf0d814c6a40352"
+        },
+        {
+          "mode": "0644",
+          "path": "commands/status.md",
+          "sha256": "0291f1f029f74f5bd492e683d1373942dfa7ab7268e14896d7b96acc658f556d"
+        },
+        {
+          "mode": "0644",
           "path": "skills/dev-workflow/SKILL.md",
-          "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367"
+          "sha256": "868d49a30ad52c8e277bf41eebf628944ce2c3d84eb5b3af32de0d9d788739b3"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/references/testing/test-levels-framework.md",
+          "sha256": "80bbac7959a47a2e7e7de82613296f906954d571d2d64ece13381c1a0b480237"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/references/testing/test-priorities-matrix.md",
+          "sha256": "321c3b708cc19892884be0166afa2a7197028e5474acaf7bc65c17ac861964a5"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/SKILL.md",
+          "sha256": "79e7087bbd745e7973c3618ac1e3dbbc8332d6752d94696efab69c0433e2d5b5"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
+          "sha256": "eee115aad5225f4ebf3e4f99fd6ea46fd281a8beea7fc772cdbe2cd6250f59ae"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/discovery-workflow/references/workflows/prd-template.md",
+          "sha256": "0046bc5fbeba8c70aadb45005a18f9c16a4f0d44792f507dcaa284818ddad01b"
         },
         {
           "mode": "0644",
@@ -715,6 +1308,11 @@
           "mode": "0644",
           "path": "skills/quality-gate/SKILL.md",
           "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/ship-workflow/SKILL.md",
+          "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238"
         },
         {
           "mode": "0644",
@@ -733,6 +1331,13 @@
         },
         {
           "frontmatter": {
+            "description": "Single-thread sequential planning workflow inspired by D-EPCT+R discovery phase. Loaded by /discovery slash command in both Claude Code and Codex CLI. Use when the user has a new idea, vague project, or wants to go from an idea to actionable stories. Scales with levels 0-4 (tech-spec direct for small scopes, full Brainstorm \u2192 PRD \u2192 Architecture \u2192 Stories chain above), always ends with a consolidated approved-spec output, with validation checkpoints between phases.",
+            "name": "discovery-workflow"
+          },
+          "path": "skills/discovery-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
             "description": "Detect and cache a project's real verification commands into a versioned .agents/verification.yaml manifest. Use at the start of dev and ship workflows, before verification, when the manifest is missing or stale, or when a recorded command no longer exists. Covers Node, Python, shell-only, mixed and monorepo projects without executing destructive candidates.",
             "name": "project-probe"
           },
@@ -747,6 +1352,13 @@
         },
         {
           "frontmatter": {
+            "description": "Automated ship workflow that takes a feature branch from \"done\" to \"PR opened\" in a single non-interactive pass. Loaded by /ship slash command in both Claude Code and Codex CLI. Use when the user has finished implementing a feature and wants to merge main, manifest verification, quality-gate consumption (PASS required or explicit waiver), CHANGELOG, commit, push, and create a PR in one go.",
+            "name": "ship-workflow"
+          },
+          "path": "skills/ship-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
             "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
             "name": "status-workflow"
           },
@@ -756,5 +1368,5 @@
     }
   },
   "schema_version": 1,
-  "tree_hash": "3cf4a75602e966b195346e3ee8ec1e7c31d4605811029da057158ace45b2e2bb"
+  "tree_hash": "612c90e550601ac111810c984ae231a35505a6294d5746a4bf95fdce56ac501f"
 }

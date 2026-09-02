@@ -115,7 +115,7 @@ class ProviderCompilerTests(unittest.TestCase):
 
         self.assertEqual(
             (output / "kimi" / "skills" / "dev-workflow" / "SKILL.md").read_bytes(),
-            (self.fixture / ".claude" / "skills" / "dev-workflow" / "SKILL.md").read_bytes(),
+            (self.fixture / "core" / "skills" / "dev-workflow" / "SKILL.md").read_bytes(),
         )
         self.assertFalse((output / "kimi" / "commands").exists())
         quick_fix = next(
@@ -276,22 +276,34 @@ class ProviderCompilerTests(unittest.TestCase):
         with self.assertRaisesRegex(self.compiler.BuildError, "resource replaces SKILL.md"):
             self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
 
-    def test_vertical_slice_matches_legacy_sources_across_p0(self):
+    def test_core_workflow_slice_matches_canonical_sources_across_p0(self):
         output = self.temp_dir / "dist"
         self.compiler.build_repository(self.fixture, output)
 
-        skills = ("dev-workflow", "project-probe", "quality-gate", "status-workflow")
+        skills = (
+            "dev-workflow",
+            "discovery-workflow",
+            "project-probe",
+            "quality-gate",
+            "ship-workflow",
+            "status-workflow",
+        )
         for provider in ("claude", "codex", "opencode"):
             for skill in skills:
                 self.assertEqual(
                     (output / provider / "skills" / skill / "SKILL.md").read_bytes(),
-                    (self.fixture / ".claude" / "skills" / skill / "SKILL.md").read_bytes(),
+                    (self.fixture / "core" / "skills" / skill / "SKILL.md").read_bytes(),
                 )
-        for provider, directory in (("claude", "commands"), ("codex", "prompts"), ("opencode", "commands")):
-            self.assertEqual(
-                (output / provider / directory / "quick-fix.md").read_bytes(),
-                (self.fixture / ".claude" / "commands" / "quick-fix.md").read_bytes(),
-            )
+        for provider, directory in (
+            ("claude", "commands"),
+            ("codex", "prompts"),
+            ("opencode", "commands"),
+        ):
+            for command in ("dev", "discovery", "quick-fix", "ship", "status"):
+                self.assertEqual(
+                    (output / provider / directory / f"{command}.md").read_bytes(),
+                    (self.fixture / "core" / "commands" / f"{command}.md").read_bytes(),
+                )
 
     def test_alias_collision_blocks_build(self):
         catalog = self._catalog()

@@ -43,3 +43,5 @@ review, not a file to update automatically. Runtime certification is tracked sep
 - `golden/v6.1-p0-distribution.json` is the reviewed deterministic snapshot for every provider
   currently emitted by the compiler. Its historical filename is retained to avoid silently
   replacing the review anchor during the adapter rollout.
+- `core-workflow-migration.md` records which workflow artifacts now compile from `core/`, which
+  legacy files remain and the evidence required before deleting them.

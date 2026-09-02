@@ -25,66 +25,164 @@
       "id": "dev-workflow",
       "public_name": "Development workflow",
       "type": "skill",
-      "source": ".claude/skills/dev-workflow/SKILL.md",
+      "source": "core/skills/dev-workflow/SKILL.md",
       "dependencies": ["project-probe", "quality-gate"],
       "inputs": ["task", "approved-plan"],
       "outputs": ["implementation", "quality-gate"],
       "aliases": {"default": "dev-workflow"},
+      "resources": [
+        {
+          "source": "core/skills/dev-workflow/references/testing/test-levels-framework.md",
+          "output": "references/testing/test-levels-framework.md"
+        },
+        {
+          "source": "core/skills/dev-workflow/references/testing/test-priorities-matrix.md",
+          "output": "references/testing/test-priorities-matrix.md"
+        }
+      ],
       "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
       "risk": 4,
-      "migration_state": "legacy"
+      "migration_state": "canonical"
     },
     {
       "id": "project-probe",
       "public_name": "Project probe",
       "type": "skill",
-      "source": ".claude/skills/project-probe/SKILL.md",
+      "source": "core/skills/project-probe/SKILL.md",
       "dependencies": [],
       "inputs": ["repository"],
       "outputs": ["verification-manifest"],
       "aliases": {"default": "project-probe"},
       "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
       "risk": 3,
-      "migration_state": "legacy"
+      "migration_state": "canonical"
     },
     {
       "id": "quality-gate",
       "public_name": "Quality gate",
       "type": "skill",
-      "source": ".claude/skills/quality-gate/SKILL.md",
+      "source": "core/skills/quality-gate/SKILL.md",
       "dependencies": ["project-probe"],
       "inputs": ["committed-diff", "verification-manifest"],
       "outputs": ["gate-envelope", "proof-payload"],
       "aliases": {"default": "quality-gate"},
       "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
       "risk": 4,
-      "migration_state": "legacy"
+      "migration_state": "canonical"
+    },
+    {
+      "id": "discovery-workflow",
+      "public_name": "Discovery workflow",
+      "type": "skill",
+      "source": "core/skills/discovery-workflow/SKILL.md",
+      "dependencies": [],
+      "inputs": ["idea-or-need"],
+      "outputs": ["approved-spec"],
+      "aliases": {"default": "discovery-workflow"},
+      "resources": [
+        {
+          "source": "core/skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
+          "output": "references/brainstorming/brain-techniques.csv"
+        },
+        {
+          "source": "core/skills/discovery-workflow/references/workflows/prd-template.md",
+          "output": "references/workflows/prd-template.md"
+        }
+      ],
+      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "ship-workflow",
+      "public_name": "Ship workflow",
+      "type": "skill",
+      "source": "core/skills/ship-workflow/SKILL.md",
+      "dependencies": ["project-probe", "quality-gate"],
+      "inputs": ["verified-branch"],
+      "outputs": ["pull-request"],
+      "aliases": {"default": "ship-workflow"},
+      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
+      "risk": 4,
+      "migration_state": "canonical"
     },
     {
       "id": "status-workflow",
       "public_name": "Project status",
       "type": "skill",
-      "source": ".claude/skills/status-workflow/SKILL.md",
+      "source": "core/skills/status-workflow/SKILL.md",
       "dependencies": [],
       "inputs": ["repository"],
       "outputs": ["status-report"],
       "aliases": {"default": "status-workflow"},
       "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
       "risk": 1,
-      "migration_state": "legacy"
+      "migration_state": "canonical"
+    },
+    {
+      "id": "dev",
+      "public_name": "Develop",
+      "type": "command",
+      "source": "core/commands/dev.md",
+      "dependencies": ["dev-workflow"],
+      "inputs": ["task-or-issue"],
+      "outputs": ["workflow-invocation"],
+      "aliases": {"default": "dev"},
+      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "discovery",
+      "public_name": "Discovery",
+      "type": "command",
+      "source": "core/commands/discovery.md",
+      "dependencies": ["discovery-workflow"],
+      "inputs": ["idea-or-need"],
+      "outputs": ["workflow-invocation"],
+      "aliases": {"default": "discovery"},
+      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "ship",
+      "public_name": "Ship",
+      "type": "command",
+      "source": "core/commands/ship.md",
+      "dependencies": ["ship-workflow"],
+      "inputs": ["branch"],
+      "outputs": ["workflow-invocation"],
+      "aliases": {"default": "ship"},
+      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
+      "risk": 4,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "status",
+      "public_name": "Status",
+      "type": "command",
+      "source": "core/commands/status.md",
+      "dependencies": ["status-workflow"],
+      "inputs": ["repository"],
+      "outputs": ["workflow-invocation"],
+      "aliases": {"default": "status"},
+      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
+      "risk": 1,
+      "migration_state": "canonical"
     },
     {
       "id": "quick-fix",
       "public_name": "Quick fix",
       "type": "command",
-      "source": ".claude/commands/quick-fix.md",
+      "source": "core/commands/quick-fix.md",
       "dependencies": ["dev-workflow"],
       "inputs": ["problem-description"],
       "outputs": ["verified-fix"],
       "aliases": {"default": "quick-fix"},
       "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
       "risk": 2,
-      "migration_state": "legacy"
+      "migration_state": "canonical"
     },
     {
       "id": "gemini-instructions",

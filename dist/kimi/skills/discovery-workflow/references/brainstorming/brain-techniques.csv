@@ -1,0 +1,62 @@
+category,technique_name,description,best_for,energy_level
+collaborative,Yes And Building,"Build momentum through positive additions - each idea becomes a launching pad. Use 'Yes and we could also...' to create energetic collaborative flow.",Team ideation and building momentum,High
+collaborative,Brain Writing Round Robin,"Silent idea generation followed by building on others' concepts. Gives quieter voices equal contribution while maintaining documentation.",Inclusive group sessions,Medium
+collaborative,Random Stimulation,"Use random words/images as creative catalysts to force unexpected connections. Breaks through mental blocks with serendipitous inspiration.",Breaking creative blocks,High
+collaborative,Role Playing,"Generate solutions from multiple stakeholder perspectives. Embody different roles asking what they want and how they'd approach problems.",Empathy and comprehensive consideration,Medium
+collaborative,Ideation Relay Race,"Rapid-fire idea building under time pressure. 30-second additions with fast passing to maintain creative momentum and prevent overthinking.",Urgency and breakthroughs,High
+creative,What If Scenarios,"Explore radical possibilities by questioning all constraints. 'What if we had unlimited resources?' 'What if the opposite were true?'",Breaking stuck thinking,Medium
+creative,Analogical Thinking,"Find solutions by drawing parallels to other domains. 'This is like what?' 'How is this similar to...' to connect to existing solutions.",Transfer successful patterns,Medium
+creative,Reversal Inversion,"Deliberately flip problems upside down. 'What if we did the opposite?' 'How could we make this worse?' reveals hidden assumptions.",When conventional approaches fail,Medium
+creative,First Principles Thinking,"Strip away assumptions to rebuild from fundamental truths. 'What do we know for certain?' 'If we started from scratch?'",Breakthrough innovation,Low
+creative,Forced Relationships,"Connect unrelated concepts to spark innovative bridges. Take two unrelated things and explore how they could work together.",Unexpected solutions,High
+creative,Time Shifting,"Explore solutions across different time periods. 'How would this work in the past?' 'What about 100 years from now?'",Reveal constraints and opportunities,Medium
+creative,Metaphor Mapping,"Use extended metaphors as thinking tools. 'This problem is like [metaphor]' then extend and map elements to discover insights.",Transform abstract into tangible,Medium
+creative,Cross-Pollination,"Transfer solutions from completely different industries. 'How would industry X solve this?' 'What patterns work in field Y?'",Spark breakthrough innovations,High
+creative,Concept Blending,"Merge two or more existing concepts to create entirely new categories. Goes beyond simple combination to genuine innovation.",New category creation,High
+creative,Reverse Brainstorming,"Generate problems instead of solutions. 'What could go wrong?' 'How could we make this fail?' reveals solution insights.",Identify hidden opportunities,Medium
+creative,Sensory Exploration,"Engage all five senses to discover multi-dimensional solution spaces. 'What does this idea feel/smell/taste/sound like?'",Beyond analytical thinking,High
+deep,Five Whys,"Drill down through layers of causation. Ask 'Why?' repeatedly until reaching fundamental drivers and root causes.",Solving at source not symptoms,Low
+deep,Morphological Analysis,"Systematically explore all possible parameter combinations. Identify key parameters and try different combinations.",Complex systems mapping,Low
+deep,Provocation Technique,"Use deliberately provocative statements to extract useful ideas from absurd starting points. 'What if [provocative statement]?'",Catalyze breakthrough thinking,Medium
+deep,Assumption Reversal,"Challenge and flip core assumptions. 'What assumptions are we making?' 'What if the opposite were true?' then rebuild.",Paradigm shifts,Low
+deep,Question Storming,"Generate questions before seeking answers. Only questions no answers yet. Focus on what we don't know.",Properly define problem space,Low
+deep,Constraint Mapping,"Identify and visualize all constraints. Which are real vs imagined? How to work around or eliminate barriers?",Find pathways through limitations,Low
+deep,Failure Analysis,"Study successful failures to extract valuable insights. What went wrong? Why? What lessons emerged?",Learn from what didn't work,Low
+deep,Emergent Thinking,"Allow solutions to emerge organically. What patterns emerge? What wants to happen naturally? What's trying to emerge?",Embrace complexity,Low
+introspective,Inner Child Conference,"Channel pure childhood curiosity and wonder. What would 7-year-old you ask? Use 'why why why' questioning. Forbid boring thinking.",Rekindle playful exploration,High
+introspective,Shadow Work Mining,"Explore what you're actively avoiding or resisting. Where's resistance? What scares you? Mine the shadows for buried wisdom.",Uncover hidden insights,Low
+introspective,Values Archaeology,"Excavate deep personal values driving decisions. What really matters? Why you care? What's non-negotiable?",Clarify authentic priorities,Low
+introspective,Future Self Interview,"Seek wisdom from wiser future self. What would 80-year-old you tell younger you? What does long-term perspective reveal?",Long-term perspective,Medium
+introspective,Body Wisdom Dialogue,"Let physical sensations and gut feelings guide ideation. What does your body say? Where do you feel it? Trust tension.",Tap somatic intelligence,Medium
+introspective,Permission Giving,"Grant explicit permission to think impossible thoughts. Give yourself permission to explore break free from limitations.",Break creative barriers,High
+structured,SCAMPER Method,"Systematic creativity through seven lenses: Substitute Combine Adapt Modify Put-to-other-uses Eliminate Reverse.",Methodical product improvement,Medium
+structured,Six Thinking Hats,"Explore through six perspectives: White (facts) Red (emotions) Yellow (benefits) Black (risks) Green (creativity) Blue (process).",Comprehensive conflict-free analysis,Medium
+structured,Mind Mapping,"Visually branch ideas from central concept. Put main idea in center branch concepts and identify sub-branches.",Organize complex thoughts,Medium
+structured,Resource Constraints,"Generate solutions by imposing extreme limitations. What if you had only $1? No technology? One hour to solve?",Force essential priorities,Medium
+structured,Decision Tree Mapping,"Map out all possible decision paths and outcomes. Identify possible paths decision points and where different choices lead.",Visualize complex choices,Low
+structured,Solution Matrix,"Create systematic grid of problem variables and solution approaches. Identify key variables and test combinations.",Find optimal combinations,Low
+structured,Trait Transfer,"Borrow attributes from successful solutions in unrelated domains. What traits make success X work? How to transfer them?",Adapt winning characteristics,Medium
+theatrical,Time Travel Talk Show,"Interview past/present/future selves. Interview past self ask what future you'd say explore different timeline perspectives.",Gain temporal perspective,High
+theatrical,Alien Anthropologist,"Examine familiar problems through completely foreign eyes. Become alien observer. What seems strange? Get outside perspective.",Reveal hidden assumptions,High
+theatrical,Dream Fusion Laboratory,"Start with impossible fantasy solutions then reverse-engineer practical steps. Dream impossible work backwards to reality.",Make ambitious thinking actionable,High
+theatrical,Emotion Orchestra,"Let different emotions lead separate sessions then harmonize. Explore angry perspectives joyful approaches fearful considerations.",Emotional intelligence for comprehensiveness,Medium
+theatrical,Parallel Universe Cafe,"Explore solutions under alternative reality rules. Different physics universes alternative social norms changed historical events.",Break conventional thinking,High
+theatrical,Persona Journey,"Embody different archetypes or personas. Become the archetype. How would this persona solve it? What do they see that you miss?",Access diverse wisdom,Medium
+wild,Chaos Engineering,"Deliberately break things to discover robust solutions. What if everything went wrong? How does it fail gracefully? Build from rubble.",Build anti-fragility,High
+wild,Guerrilla Gardening Ideas,"Plant unexpected solutions in unlikely places. Where's the least expected place? Grow solutions underground implement with surprise.",Stealth innovation,High
+wild,Pirate Code Brainstorm,"Take what works from anywhere and remix without permission. What would pirates steal? Remix without asking. Need no permission.",Rule-bending rapid prototyping,High
+wild,Zombie Apocalypse Planning,"Design solutions for extreme survival scenarios. What happens when society collapses? What basics work? Think in survival mode.",Strip to essential functions,High
+wild,Drunk History Retelling,"Explain complex ideas with uninhibited simplicity. Explain like you're tipsy. No filter raw thoughts simplify to absurdity.",Remove overthinking barriers,High
+wild,Anti-Solution,"Generate ways to make the problem worse. How to sabotage this? What would make it fail spectacularly? More problems = solution insights.",Reveal assumptions through destruction,Medium
+wild,Quantum Superposition,"Hold multiple contradictory solutions simultaneously. How could all solutions be true? How do contradictions coexist?",Multiple solutions before collapse,Low
+wild,Elemental Forces,"Imagine solutions being sculpted by natural elements. How would earth sculpt this? What would fire forge? How does water flow?",Access primal creative energies,High
+biomimetic,Nature's Solutions,"Study how nature solves similar problems. How would nature solve this? What biological strategies apply? 3.8 billion years of R&D.",Adapt biological strategies,Medium
+biomimetic,Ecosystem Thinking,"Analyze problem as ecosystem. What symbiotic relationships exist? How does natural succession apply? What ecological principles?",Systems thinking,Medium
+biomimetic,Evolutionary Pressure,"Apply evolutionary principles. How would evolution optimize this? What selective pressures apply? How does this adapt over time?",Gradual improvement through selection,Medium
+quantum,Observer Effect,"Recognize how observing and measuring changes behavior. How does observing change this? How to use observer effect advantageously?",Quantum principles for innovation,Low
+quantum,Entanglement Thinking,"Explore how different elements might be connected regardless of distance. What elements are entangled? Hidden connections?",Reveal hidden relationships,Low
+quantum,Superposition Collapse,"Hold multiple potential solutions until constraints force single outcome. What if all options were possible? What forces collapse?",Quantum decision theory,Low
+cultural,Indigenous Wisdom,"Draw upon traditional knowledge systems. How would specific cultures approach this? What ancestral wisdom guides us?",Access overlooked methods,Medium
+cultural,Fusion Cuisine,"Mix cultural approaches like fusion cuisine. What happens when mixing culture A with B? What cultural hybrids emerge?",Innovation through cross-pollination,High
+cultural,Ritual Innovation,"Apply ritual design principles. What ritual would transform this? How to make it ceremonial? What transformation is needed?",Anthropological human-centered design,Medium
+cultural,Mythic Frameworks,"Use myths and archetypal stories as frameworks. What myth parallels this? What archetypes are involved? How does myth inform solution?",Tap collective unconscious,Medium

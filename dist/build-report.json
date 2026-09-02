@@ -1,14 +1,67 @@
 {
   "artifacts": [
     {
+      "artifact_id": "dev",
+      "migration_state": "canonical",
+      "provider": "agents-generic",
+      "status": "unsupported",
+      "type": "command"
+    },
+    {
       "alias": "dev-workflow",
       "artifact_id": "dev-workflow",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "agents-generic/skills/dev-workflow/SKILL.md",
       "provider": "agents-generic",
-      "resources": [],
-      "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "agents-generic/skills/dev-workflow/references/testing/test-levels-framework.md",
+          "sha256": "80bbac7959a47a2e7e7de82613296f906954d571d2d64ece13381c1a0b480237",
+          "source": "core/skills/dev-workflow/references/testing/test-levels-framework.md"
+        },
+        {
+          "mode": "0644",
+          "output": "agents-generic/skills/dev-workflow/references/testing/test-priorities-matrix.md",
+          "sha256": "321c3b708cc19892884be0166afa2a7197028e5474acaf7bc65c17ac861964a5",
+          "source": "core/skills/dev-workflow/references/testing/test-priorities-matrix.md"
+        }
+      ],
+      "sha256": "868d49a30ad52c8e277bf41eebf628944ce2c3d84eb5b3af32de0d9d788739b3",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "artifact_id": "discovery",
+      "migration_state": "canonical",
+      "provider": "agents-generic",
+      "status": "unsupported",
+      "type": "command"
+    },
+    {
+      "alias": "discovery-workflow",
+      "artifact_id": "discovery-workflow",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "agents-generic/skills/discovery-workflow/SKILL.md",
+      "provider": "agents-generic",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "agents-generic/skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
+          "sha256": "eee115aad5225f4ebf3e4f99fd6ea46fd281a8beea7fc772cdbe2cd6250f59ae",
+          "source": "core/skills/discovery-workflow/references/brainstorming/brain-techniques.csv"
+        },
+        {
+          "mode": "0644",
+          "output": "agents-generic/skills/discovery-workflow/references/workflows/prd-template.md",
+          "sha256": "0046bc5fbeba8c70aadb45005a18f9c16a4f0d44792f507dcaa284818ddad01b",
+          "source": "core/skills/discovery-workflow/references/workflows/prd-template.md"
+        }
+      ],
+      "sha256": "79e7087bbd745e7973c3618ac1e3dbbc8332d6752d94696efab69c0433e2d5b5",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -16,7 +69,7 @@
     {
       "alias": "project-probe",
       "artifact_id": "project-probe",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "agents-generic/skills/project-probe/SKILL.md",
       "provider": "agents-generic",
@@ -29,7 +82,7 @@
     {
       "alias": "quality-gate",
       "artifact_id": "quality-gate",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "agents-generic/skills/quality-gate/SKILL.md",
       "provider": "agents-generic",
@@ -41,7 +94,34 @@
     },
     {
       "artifact_id": "quick-fix",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
+      "provider": "agents-generic",
+      "status": "unsupported",
+      "type": "command"
+    },
+    {
+      "artifact_id": "ship",
+      "migration_state": "canonical",
+      "provider": "agents-generic",
+      "status": "unsupported",
+      "type": "command"
+    },
+    {
+      "alias": "ship-workflow",
+      "artifact_id": "ship-workflow",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "agents-generic/skills/ship-workflow/SKILL.md",
+      "provider": "agents-generic",
+      "resources": [],
+      "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "artifact_id": "status",
+      "migration_state": "canonical",
       "provider": "agents-generic",
       "status": "unsupported",
       "type": "command"
@@ -49,7 +129,7 @@
     {
       "alias": "status-workflow",
       "artifact_id": "status-workflow",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "agents-generic/skills/status-workflow/SKILL.md",
       "provider": "agents-generic",
@@ -60,14 +140,79 @@
       "type": "skill"
     },
     {
+      "alias": "dev",
+      "artifact_id": "dev",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "claude/commands/dev.md",
+      "provider": "claude",
+      "resources": [],
+      "sha256": "8f583390bc248698033092c687c2f55784d7f535accb339130028b8bdab4664f",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
       "alias": "dev-workflow",
       "artifact_id": "dev-workflow",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "claude/skills/dev-workflow/SKILL.md",
       "provider": "claude",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "claude/skills/dev-workflow/references/testing/test-levels-framework.md",
+          "sha256": "80bbac7959a47a2e7e7de82613296f906954d571d2d64ece13381c1a0b480237",
+          "source": "core/skills/dev-workflow/references/testing/test-levels-framework.md"
+        },
+        {
+          "mode": "0644",
+          "output": "claude/skills/dev-workflow/references/testing/test-priorities-matrix.md",
+          "sha256": "321c3b708cc19892884be0166afa2a7197028e5474acaf7bc65c17ac861964a5",
+          "source": "core/skills/dev-workflow/references/testing/test-priorities-matrix.md"
+        }
+      ],
+      "sha256": "868d49a30ad52c8e277bf41eebf628944ce2c3d84eb5b3af32de0d9d788739b3",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "discovery",
+      "artifact_id": "discovery",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "claude/commands/discovery.md",
+      "provider": "claude",
       "resources": [],
-      "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367",
+      "sha256": "dd90f72bd7ffd82c81b661a1f1aa0bc37c809fee6c0f2df5ab8fab707cf0d6ac",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
+      "alias": "discovery-workflow",
+      "artifact_id": "discovery-workflow",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "claude/skills/discovery-workflow/SKILL.md",
+      "provider": "claude",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "claude/skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
+          "sha256": "eee115aad5225f4ebf3e4f99fd6ea46fd281a8beea7fc772cdbe2cd6250f59ae",
+          "source": "core/skills/discovery-workflow/references/brainstorming/brain-techniques.csv"
+        },
+        {
+          "mode": "0644",
+          "output": "claude/skills/discovery-workflow/references/workflows/prd-template.md",
+          "sha256": "0046bc5fbeba8c70aadb45005a18f9c16a4f0d44792f507dcaa284818ddad01b",
+          "source": "core/skills/discovery-workflow/references/workflows/prd-template.md"
+        }
+      ],
+      "sha256": "79e7087bbd745e7973c3618ac1e3dbbc8332d6752d94696efab69c0433e2d5b5",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -75,7 +220,7 @@
     {
       "alias": "project-probe",
       "artifact_id": "project-probe",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "claude/skills/project-probe/SKILL.md",
       "provider": "claude",
@@ -88,7 +233,7 @@
     {
       "alias": "quality-gate",
       "artifact_id": "quality-gate",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "claude/skills/quality-gate/SKILL.md",
       "provider": "claude",
@@ -101,7 +246,7 @@
     {
       "alias": "quick-fix",
       "artifact_id": "quick-fix",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "claude/commands/quick-fix.md",
       "provider": "claude",
@@ -112,9 +257,48 @@
       "type": "command"
     },
     {
+      "alias": "ship",
+      "artifact_id": "ship",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "claude/commands/ship.md",
+      "provider": "claude",
+      "resources": [],
+      "sha256": "08f62e0db3f7d2d0e4db2fbbe2b8c15772b6aad416c70b91aaf0d814c6a40352",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
+      "alias": "ship-workflow",
+      "artifact_id": "ship-workflow",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "claude/skills/ship-workflow/SKILL.md",
+      "provider": "claude",
+      "resources": [],
+      "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "status",
+      "artifact_id": "status",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "claude/commands/status.md",
+      "provider": "claude",
+      "resources": [],
+      "sha256": "0291f1f029f74f5bd492e683d1373942dfa7ab7268e14896d7b96acc658f556d",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
       "alias": "status-workflow",
       "artifact_id": "status-workflow",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "claude/skills/status-workflow/SKILL.md",
       "provider": "claude",
@@ -125,14 +309,79 @@
       "type": "skill"
     },
     {
+      "alias": "dev",
+      "artifact_id": "dev",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "codex/prompts/dev.md",
+      "provider": "codex",
+      "resources": [],
+      "sha256": "8f583390bc248698033092c687c2f55784d7f535accb339130028b8bdab4664f",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
       "alias": "dev-workflow",
       "artifact_id": "dev-workflow",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "codex/skills/dev-workflow/SKILL.md",
       "provider": "codex",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "codex/skills/dev-workflow/references/testing/test-levels-framework.md",
+          "sha256": "80bbac7959a47a2e7e7de82613296f906954d571d2d64ece13381c1a0b480237",
+          "source": "core/skills/dev-workflow/references/testing/test-levels-framework.md"
+        },
+        {
+          "mode": "0644",
+          "output": "codex/skills/dev-workflow/references/testing/test-priorities-matrix.md",
+          "sha256": "321c3b708cc19892884be0166afa2a7197028e5474acaf7bc65c17ac861964a5",
+          "source": "core/skills/dev-workflow/references/testing/test-priorities-matrix.md"
+        }
+      ],
+      "sha256": "868d49a30ad52c8e277bf41eebf628944ce2c3d84eb5b3af32de0d9d788739b3",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "discovery",
+      "artifact_id": "discovery",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "codex/prompts/discovery.md",
+      "provider": "codex",
       "resources": [],
-      "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367",
+      "sha256": "dd90f72bd7ffd82c81b661a1f1aa0bc37c809fee6c0f2df5ab8fab707cf0d6ac",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
+      "alias": "discovery-workflow",
+      "artifact_id": "discovery-workflow",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "codex/skills/discovery-workflow/SKILL.md",
+      "provider": "codex",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "codex/skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
+          "sha256": "eee115aad5225f4ebf3e4f99fd6ea46fd281a8beea7fc772cdbe2cd6250f59ae",
+          "source": "core/skills/discovery-workflow/references/brainstorming/brain-techniques.csv"
+        },
+        {
+          "mode": "0644",
+          "output": "codex/skills/discovery-workflow/references/workflows/prd-template.md",
+          "sha256": "0046bc5fbeba8c70aadb45005a18f9c16a4f0d44792f507dcaa284818ddad01b",
+          "source": "core/skills/discovery-workflow/references/workflows/prd-template.md"
+        }
+      ],
+      "sha256": "79e7087bbd745e7973c3618ac1e3dbbc8332d6752d94696efab69c0433e2d5b5",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -140,7 +389,7 @@
     {
       "alias": "project-probe",
       "artifact_id": "project-probe",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "codex/skills/project-probe/SKILL.md",
       "provider": "codex",
@@ -153,7 +402,7 @@
     {
       "alias": "quality-gate",
       "artifact_id": "quality-gate",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "codex/skills/quality-gate/SKILL.md",
       "provider": "codex",
@@ -166,7 +415,7 @@
     {
       "alias": "quick-fix",
       "artifact_id": "quick-fix",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "codex/prompts/quick-fix.md",
       "provider": "codex",
@@ -177,9 +426,48 @@
       "type": "command"
     },
     {
+      "alias": "ship",
+      "artifact_id": "ship",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "codex/prompts/ship.md",
+      "provider": "codex",
+      "resources": [],
+      "sha256": "08f62e0db3f7d2d0e4db2fbbe2b8c15772b6aad416c70b91aaf0d814c6a40352",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
+      "alias": "ship-workflow",
+      "artifact_id": "ship-workflow",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "codex/skills/ship-workflow/SKILL.md",
+      "provider": "codex",
+      "resources": [],
+      "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "status",
+      "artifact_id": "status",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "codex/prompts/status.md",
+      "provider": "codex",
+      "resources": [],
+      "sha256": "0291f1f029f74f5bd492e683d1373942dfa7ab7268e14896d7b96acc658f556d",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
       "alias": "status-workflow",
       "artifact_id": "status-workflow",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "codex/skills/status-workflow/SKILL.md",
       "provider": "codex",
@@ -190,14 +478,79 @@
       "type": "skill"
     },
     {
+      "alias": "dev",
+      "artifact_id": "dev",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "gemini/commands/dev.toml",
+      "provider": "gemini",
+      "resources": [],
+      "sha256": "cd1d917c72deeb3d80e7d56828f7f5bbbcd2901086182720540b5063f6759357",
+      "status": "supported",
+      "transform": "gemini-command",
+      "type": "command"
+    },
+    {
       "alias": "dev-workflow",
       "artifact_id": "dev-workflow",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "gemini/skills/dev-workflow/SKILL.md",
       "provider": "gemini",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "gemini/skills/dev-workflow/references/testing/test-levels-framework.md",
+          "sha256": "80bbac7959a47a2e7e7de82613296f906954d571d2d64ece13381c1a0b480237",
+          "source": "core/skills/dev-workflow/references/testing/test-levels-framework.md"
+        },
+        {
+          "mode": "0644",
+          "output": "gemini/skills/dev-workflow/references/testing/test-priorities-matrix.md",
+          "sha256": "321c3b708cc19892884be0166afa2a7197028e5474acaf7bc65c17ac861964a5",
+          "source": "core/skills/dev-workflow/references/testing/test-priorities-matrix.md"
+        }
+      ],
+      "sha256": "868d49a30ad52c8e277bf41eebf628944ce2c3d84eb5b3af32de0d9d788739b3",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "discovery",
+      "artifact_id": "discovery",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "gemini/commands/discovery.toml",
+      "provider": "gemini",
       "resources": [],
-      "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367",
+      "sha256": "b94ed346ec955daa134cd3da70446a2ed84ab3bd4cd9f327db6c786c1e0498a9",
+      "status": "supported",
+      "transform": "gemini-command",
+      "type": "command"
+    },
+    {
+      "alias": "discovery-workflow",
+      "artifact_id": "discovery-workflow",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "gemini/skills/discovery-workflow/SKILL.md",
+      "provider": "gemini",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "gemini/skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
+          "sha256": "eee115aad5225f4ebf3e4f99fd6ea46fd281a8beea7fc772cdbe2cd6250f59ae",
+          "source": "core/skills/discovery-workflow/references/brainstorming/brain-techniques.csv"
+        },
+        {
+          "mode": "0644",
+          "output": "gemini/skills/discovery-workflow/references/workflows/prd-template.md",
+          "sha256": "0046bc5fbeba8c70aadb45005a18f9c16a4f0d44792f507dcaa284818ddad01b",
+          "source": "core/skills/discovery-workflow/references/workflows/prd-template.md"
+        }
+      ],
+      "sha256": "79e7087bbd745e7973c3618ac1e3dbbc8332d6752d94696efab69c0433e2d5b5",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -218,7 +571,7 @@
     {
       "alias": "project-probe",
       "artifact_id": "project-probe",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "gemini/skills/project-probe/SKILL.md",
       "provider": "gemini",
@@ -231,7 +584,7 @@
     {
       "alias": "quality-gate",
       "artifact_id": "quality-gate",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "gemini/skills/quality-gate/SKILL.md",
       "provider": "gemini",
@@ -244,7 +597,7 @@
     {
       "alias": "quick-fix",
       "artifact_id": "quick-fix",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "gemini/commands/quick-fix.toml",
       "provider": "gemini",
@@ -255,9 +608,48 @@
       "type": "command"
     },
     {
+      "alias": "ship",
+      "artifact_id": "ship",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "gemini/commands/ship.toml",
+      "provider": "gemini",
+      "resources": [],
+      "sha256": "f25e7a5f7136544e8d3c1c2ce4d55d49bdc470bd4444dd5668b90d2ae0c9c6d6",
+      "status": "supported",
+      "transform": "gemini-command",
+      "type": "command"
+    },
+    {
+      "alias": "ship-workflow",
+      "artifact_id": "ship-workflow",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "gemini/skills/ship-workflow/SKILL.md",
+      "provider": "gemini",
+      "resources": [],
+      "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "status",
+      "artifact_id": "status",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "gemini/commands/status.toml",
+      "provider": "gemini",
+      "resources": [],
+      "sha256": "1d13c695cb91f1337ba1b41b36b63fccdb77013da5b37d83ca0673a7eea2749e",
+      "status": "supported",
+      "transform": "gemini-command",
+      "type": "command"
+    },
+    {
       "alias": "status-workflow",
       "artifact_id": "status-workflow",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "gemini/skills/status-workflow/SKILL.md",
       "provider": "gemini",
@@ -268,14 +660,79 @@
       "type": "skill"
     },
     {
+      "alias": "dev",
+      "artifact_id": "dev",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "grok/commands/dev.md",
+      "provider": "grok",
+      "resources": [],
+      "sha256": "8f583390bc248698033092c687c2f55784d7f535accb339130028b8bdab4664f",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
       "alias": "dev-workflow",
       "artifact_id": "dev-workflow",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "grok/skills/dev-workflow/SKILL.md",
       "provider": "grok",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "grok/skills/dev-workflow/references/testing/test-levels-framework.md",
+          "sha256": "80bbac7959a47a2e7e7de82613296f906954d571d2d64ece13381c1a0b480237",
+          "source": "core/skills/dev-workflow/references/testing/test-levels-framework.md"
+        },
+        {
+          "mode": "0644",
+          "output": "grok/skills/dev-workflow/references/testing/test-priorities-matrix.md",
+          "sha256": "321c3b708cc19892884be0166afa2a7197028e5474acaf7bc65c17ac861964a5",
+          "source": "core/skills/dev-workflow/references/testing/test-priorities-matrix.md"
+        }
+      ],
+      "sha256": "868d49a30ad52c8e277bf41eebf628944ce2c3d84eb5b3af32de0d9d788739b3",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "discovery",
+      "artifact_id": "discovery",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "grok/commands/discovery.md",
+      "provider": "grok",
       "resources": [],
-      "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367",
+      "sha256": "dd90f72bd7ffd82c81b661a1f1aa0bc37c809fee6c0f2df5ab8fab707cf0d6ac",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
+      "alias": "discovery-workflow",
+      "artifact_id": "discovery-workflow",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "grok/skills/discovery-workflow/SKILL.md",
+      "provider": "grok",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "grok/skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
+          "sha256": "eee115aad5225f4ebf3e4f99fd6ea46fd281a8beea7fc772cdbe2cd6250f59ae",
+          "source": "core/skills/discovery-workflow/references/brainstorming/brain-techniques.csv"
+        },
+        {
+          "mode": "0644",
+          "output": "grok/skills/discovery-workflow/references/workflows/prd-template.md",
+          "sha256": "0046bc5fbeba8c70aadb45005a18f9c16a4f0d44792f507dcaa284818ddad01b",
+          "source": "core/skills/discovery-workflow/references/workflows/prd-template.md"
+        }
+      ],
+      "sha256": "79e7087bbd745e7973c3618ac1e3dbbc8332d6752d94696efab69c0433e2d5b5",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -283,7 +740,7 @@
     {
       "alias": "project-probe",
       "artifact_id": "project-probe",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "grok/skills/project-probe/SKILL.md",
       "provider": "grok",
@@ -296,7 +753,7 @@
     {
       "alias": "quality-gate",
       "artifact_id": "quality-gate",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "grok/skills/quality-gate/SKILL.md",
       "provider": "grok",
@@ -309,7 +766,7 @@
     {
       "alias": "quick-fix",
       "artifact_id": "quick-fix",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "grok/commands/quick-fix.md",
       "provider": "grok",
@@ -320,9 +777,48 @@
       "type": "command"
     },
     {
+      "alias": "ship",
+      "artifact_id": "ship",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "grok/commands/ship.md",
+      "provider": "grok",
+      "resources": [],
+      "sha256": "08f62e0db3f7d2d0e4db2fbbe2b8c15772b6aad416c70b91aaf0d814c6a40352",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
+      "alias": "ship-workflow",
+      "artifact_id": "ship-workflow",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "grok/skills/ship-workflow/SKILL.md",
+      "provider": "grok",
+      "resources": [],
+      "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "status",
+      "artifact_id": "status",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "grok/commands/status.md",
+      "provider": "grok",
+      "resources": [],
+      "sha256": "0291f1f029f74f5bd492e683d1373942dfa7ab7268e14896d7b96acc658f556d",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
       "alias": "status-workflow",
       "artifact_id": "status-workflow",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "grok/skills/status-workflow/SKILL.md",
       "provider": "grok",
@@ -333,14 +829,67 @@
       "type": "skill"
     },
     {
+      "artifact_id": "dev",
+      "migration_state": "canonical",
+      "provider": "kimi",
+      "status": "unsupported",
+      "type": "command"
+    },
+    {
       "alias": "dev-workflow",
       "artifact_id": "dev-workflow",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "kimi/skills/dev-workflow/SKILL.md",
       "provider": "kimi",
-      "resources": [],
-      "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "kimi/skills/dev-workflow/references/testing/test-levels-framework.md",
+          "sha256": "80bbac7959a47a2e7e7de82613296f906954d571d2d64ece13381c1a0b480237",
+          "source": "core/skills/dev-workflow/references/testing/test-levels-framework.md"
+        },
+        {
+          "mode": "0644",
+          "output": "kimi/skills/dev-workflow/references/testing/test-priorities-matrix.md",
+          "sha256": "321c3b708cc19892884be0166afa2a7197028e5474acaf7bc65c17ac861964a5",
+          "source": "core/skills/dev-workflow/references/testing/test-priorities-matrix.md"
+        }
+      ],
+      "sha256": "868d49a30ad52c8e277bf41eebf628944ce2c3d84eb5b3af32de0d9d788739b3",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "artifact_id": "discovery",
+      "migration_state": "canonical",
+      "provider": "kimi",
+      "status": "unsupported",
+      "type": "command"
+    },
+    {
+      "alias": "discovery-workflow",
+      "artifact_id": "discovery-workflow",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "kimi/skills/discovery-workflow/SKILL.md",
+      "provider": "kimi",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "kimi/skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
+          "sha256": "eee115aad5225f4ebf3e4f99fd6ea46fd281a8beea7fc772cdbe2cd6250f59ae",
+          "source": "core/skills/discovery-workflow/references/brainstorming/brain-techniques.csv"
+        },
+        {
+          "mode": "0644",
+          "output": "kimi/skills/discovery-workflow/references/workflows/prd-template.md",
+          "sha256": "0046bc5fbeba8c70aadb45005a18f9c16a4f0d44792f507dcaa284818ddad01b",
+          "source": "core/skills/discovery-workflow/references/workflows/prd-template.md"
+        }
+      ],
+      "sha256": "79e7087bbd745e7973c3618ac1e3dbbc8332d6752d94696efab69c0433e2d5b5",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -348,7 +897,7 @@
     {
       "alias": "project-probe",
       "artifact_id": "project-probe",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "kimi/skills/project-probe/SKILL.md",
       "provider": "kimi",
@@ -361,7 +910,7 @@
     {
       "alias": "quality-gate",
       "artifact_id": "quality-gate",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "kimi/skills/quality-gate/SKILL.md",
       "provider": "kimi",
@@ -373,7 +922,34 @@
     },
     {
       "artifact_id": "quick-fix",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
+      "provider": "kimi",
+      "status": "unsupported",
+      "type": "command"
+    },
+    {
+      "artifact_id": "ship",
+      "migration_state": "canonical",
+      "provider": "kimi",
+      "status": "unsupported",
+      "type": "command"
+    },
+    {
+      "alias": "ship-workflow",
+      "artifact_id": "ship-workflow",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "kimi/skills/ship-workflow/SKILL.md",
+      "provider": "kimi",
+      "resources": [],
+      "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "artifact_id": "status",
+      "migration_state": "canonical",
       "provider": "kimi",
       "status": "unsupported",
       "type": "command"
@@ -381,7 +957,7 @@
     {
       "alias": "status-workflow",
       "artifact_id": "status-workflow",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "kimi/skills/status-workflow/SKILL.md",
       "provider": "kimi",
@@ -392,14 +968,79 @@
       "type": "skill"
     },
     {
+      "alias": "dev",
+      "artifact_id": "dev",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "opencode/commands/dev.md",
+      "provider": "opencode",
+      "resources": [],
+      "sha256": "8f583390bc248698033092c687c2f55784d7f535accb339130028b8bdab4664f",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
       "alias": "dev-workflow",
       "artifact_id": "dev-workflow",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "opencode/skills/dev-workflow/SKILL.md",
       "provider": "opencode",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "opencode/skills/dev-workflow/references/testing/test-levels-framework.md",
+          "sha256": "80bbac7959a47a2e7e7de82613296f906954d571d2d64ece13381c1a0b480237",
+          "source": "core/skills/dev-workflow/references/testing/test-levels-framework.md"
+        },
+        {
+          "mode": "0644",
+          "output": "opencode/skills/dev-workflow/references/testing/test-priorities-matrix.md",
+          "sha256": "321c3b708cc19892884be0166afa2a7197028e5474acaf7bc65c17ac861964a5",
+          "source": "core/skills/dev-workflow/references/testing/test-priorities-matrix.md"
+        }
+      ],
+      "sha256": "868d49a30ad52c8e277bf41eebf628944ce2c3d84eb5b3af32de0d9d788739b3",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "discovery",
+      "artifact_id": "discovery",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "opencode/commands/discovery.md",
+      "provider": "opencode",
       "resources": [],
-      "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367",
+      "sha256": "dd90f72bd7ffd82c81b661a1f1aa0bc37c809fee6c0f2df5ab8fab707cf0d6ac",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
+      "alias": "discovery-workflow",
+      "artifact_id": "discovery-workflow",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "opencode/skills/discovery-workflow/SKILL.md",
+      "provider": "opencode",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "opencode/skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
+          "sha256": "eee115aad5225f4ebf3e4f99fd6ea46fd281a8beea7fc772cdbe2cd6250f59ae",
+          "source": "core/skills/discovery-workflow/references/brainstorming/brain-techniques.csv"
+        },
+        {
+          "mode": "0644",
+          "output": "opencode/skills/discovery-workflow/references/workflows/prd-template.md",
+          "sha256": "0046bc5fbeba8c70aadb45005a18f9c16a4f0d44792f507dcaa284818ddad01b",
+          "source": "core/skills/discovery-workflow/references/workflows/prd-template.md"
+        }
+      ],
+      "sha256": "79e7087bbd745e7973c3618ac1e3dbbc8332d6752d94696efab69c0433e2d5b5",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -407,7 +1048,7 @@
     {
       "alias": "project-probe",
       "artifact_id": "project-probe",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "opencode/skills/project-probe/SKILL.md",
       "provider": "opencode",
@@ -420,7 +1061,7 @@
     {
       "alias": "quality-gate",
       "artifact_id": "quality-gate",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "opencode/skills/quality-gate/SKILL.md",
       "provider": "opencode",
@@ -433,7 +1074,7 @@
     {
       "alias": "quick-fix",
       "artifact_id": "quick-fix",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "opencode/commands/quick-fix.md",
       "provider": "opencode",
@@ -444,9 +1085,48 @@
       "type": "command"
     },
     {
+      "alias": "ship",
+      "artifact_id": "ship",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "opencode/commands/ship.md",
+      "provider": "opencode",
+      "resources": [],
+      "sha256": "08f62e0db3f7d2d0e4db2fbbe2b8c15772b6aad416c70b91aaf0d814c6a40352",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
+      "alias": "ship-workflow",
+      "artifact_id": "ship-workflow",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "opencode/skills/ship-workflow/SKILL.md",
+      "provider": "opencode",
+      "resources": [],
+      "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "status",
+      "artifact_id": "status",
+      "migration_state": "canonical",
+      "mode": "0644",
+      "output": "opencode/commands/status.md",
+      "provider": "opencode",
+      "resources": [],
+      "sha256": "0291f1f029f74f5bd492e683d1373942dfa7ab7268e14896d7b96acc658f556d",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
       "alias": "status-workflow",
       "artifact_id": "status-workflow",
-      "migration_state": "legacy",
+      "migration_state": "canonical",
       "mode": "0644",
       "output": "opencode/skills/status-workflow/SKILL.md",
       "provider": "opencode",
@@ -669,7 +1349,7 @@
       "type": "hook"
     }
   ],
-  "catalog_hash": "23d49c38e13c5834f5b47e5ddd21beb74fc13bb3d356c0bc726009089caf8019",
+  "catalog_hash": "188d138ca607b70b4dedc8a0801e9f958289944d67686102a56a731c7e60f05a",
   "distribution": {
     "name": "skillz-claude",
     "version": "6.1.0-dev.1"
@@ -737,5 +1417,5 @@
     "opencode"
   ],
   "schema_version": 1,
-  "tree_hash": "3cf4a75602e966b195346e3ee8ec1e7c31d4605811029da057158ace45b2e2bb"
+  "tree_hash": "612c90e550601ac111810c984ae231a35505a6294d5746a4bf95fdce56ac501f"
 }

@@ -106,6 +106,6 @@ Present the final report: verdict + rounds + findings summary, **`decisions_pris
 - Verification manifest: `project-probe` skill (`.agents/verification.yaml`)
 - Quality loop & gate file: `quality-gate` skill (`docs/quality/GATE-*.yaml`)
 - Final structural maintainability lens: `thermo-nuclear-code-quality-review` skill (inside `quality-gate`, not as a separate post-gate review)
-- Testing strategy: `.claude/knowledge/testing/test-levels-framework.md`, `test-priorities-matrix.md`
+- Testing strategy: `references/testing/test-levels-framework.md`, `test-priorities-matrix.md`
 - Design/SEO gates: `design-audit`, `seo-geo-audit`, `a11y-enforcer` skills
 - Design system docs: `ds-doc` skill
