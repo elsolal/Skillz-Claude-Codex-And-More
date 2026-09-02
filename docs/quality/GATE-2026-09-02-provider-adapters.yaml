@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 3
+base_sha: "bd6c10dab24c965d9ea63ba7d81a6948a9796be7"
+head_sha: "5fa41e60822e748c79e99192757a4857a92c1798"
+code_diff_hash: "30a2d7e9e9419480a729a35ca1d849b563bef286f819a7fc0f28a0ec33afff25"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-09-02-provider-adapters.json"
+proof_payload_hash: "835f056c6ddc3e249810f594c70d89f7b4e4928d464f1a9612e58c7a4b1b99b5"
+integrity_sha256: "6173e801d0ee13c387d6d7ab75981d6023315492c6f54de571403b42402029cd"

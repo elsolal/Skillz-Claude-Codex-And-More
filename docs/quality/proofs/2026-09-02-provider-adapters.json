@@ -1,0 +1,71 @@
+{
+  "absents": [
+    "no configured typecheck command",
+    "no configured build command",
+    "Kimi Code CLI launcher is broken and has no observed version; native discovery and behavioral certification are absent",
+    "Grok Build is not installed locally; native discovery and behavioral certification are absent",
+    "Gemini CLI is not installed locally; extension discovery, project trust, context loading and behavioral certification are absent",
+    "Kimi model coexistence through the Codex adapter is documented but was not executed",
+    "PDF delivery engine absent in the unrelated SEO/GEO suite; Markdown previews remain internal-only evidence"
+  ],
+  "decisions_prises_en_ton_nom": [
+    "no provider runtime was installed, repaired, authenticated or configured during this structural adapter lot",
+    "Kimi native emits skills only and uses the documented --skills-dir route; it does not invent a package or command artifact",
+    "Grok emits a Claude-compatible plugin based on the official --plugin-dir and compatibility contract while agents, MCP and hooks remain pending",
+    "Gemini commands use a bounded pure Markdown-to-TOML transform and a provider-local context file with no duplicated workflow logic",
+    "all three new adapters remain C1 until a pinned runtime provides stronger evidence"
+  ],
+  "executions": [
+    {
+      "command": "bash scripts/lint-shell.sh",
+      "exit_code": 0,
+      "name": "lint",
+      "status": "passed",
+      "summary": "20 shell files parsed individually in two consecutive clean rounds"
+    },
+    {
+      "command": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/testing/golden_distribution.py --dist-root dist --output docs/compatibility/golden/v6.1-p0-distribution.json --check && bash tests/test-behavioral.sh && bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py --bundle dist/codex --output docs/compatibility/codex-plugin-0.152.0.json --check && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh",
+      "exit_code": 0,
+      "name": "test",
+      "status": "passed",
+      "summary": "85 repository tests, 266 memory tests, deterministic seven-provider compiler and reviewed golden checks, 8 structural behavioral cases, fresh Codex C2 and upstream evidence, migration cleanup, 25 SEO/GEO Python tests and 3 Node tests passed in two consecutive clean rounds"
+    }
+  ],
+  "manifest_fingerprint": "e2e3a6de8694d17a6dea818e538878d61d68758eb8d36bd785ff0c86e9af58fb",
+  "opinion": {
+    "findings": {
+      "confirmed": 2,
+      "fixed": 2,
+      "refuted": 0,
+      "remaining": 0,
+      "total": 2
+    },
+    "lenses": {
+      "correctness_security": "PASS",
+      "performance": "PASS",
+      "readability": "PASS",
+      "structural_maintainability": "PASS"
+    },
+    "rounds": [
+      {
+        "finding": "P1: the Gemini frontmatter transform removed a legitimate trailing quote from an unquoted description",
+        "resolution": "remove quotes only when they form a matching enclosing pair and cover the quoted description with a TOML regression test",
+        "round": 1
+      },
+      {
+        "finding": "P1: the first Gemini bundle copied a legacy repository wrapper that referenced absent .claude symlinks and the compiler did not require the manifest context to exist",
+        "resolution": "add a provider-local context surface without workflow duplication and fail the build when a Gemini manifest or declared package component has no generated output",
+        "round": 1
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 2
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 3
+      }
+    ]
+  },
+  "schema_version": 1
+}
