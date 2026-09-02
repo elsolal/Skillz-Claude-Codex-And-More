@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "stack": "mixed",
+  "python_required": ">=3.10",
+  "commands": {
+    "lint": "bash scripts/lint-shell.sh",
+    "test": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh"
+  },
+  "testability": {
+    "harness": "shell+unittest",
+    "e2e": "none",
+    "runtime_verify": "none"
+  },
+  "absence_reasons": {
+    "typecheck": "no configured typecheck command",
+    "build": "no configured build command",
+    "e2e": "no e2e harness",
+    "runtime_verify": "no runtime application surface; repository distributes shell and Markdown agent tooling"
+  }
+}

@@ -1,79 +1,100 @@
 ---
 name: project-probe
-description: Detect and cache a project's real verification commands (lint, typecheck, test, build, run) into .agents/verification.yaml. Use at the start of any dev/ship workflow (Phase 0), before running any verification, when verification commands are unknown, or when a hardcoded command fails. Works on any stack — Node, Python, Go, Rust, Ruby, PHP, monorepos.
+description: Detect and cache a project's real verification commands into a versioned .agents/verification.yaml manifest. Use at the start of dev and ship workflows, before verification, when the manifest is missing or stale, or when a recorded command no longer exists. Covers Node, Python, shell-only, mixed and monorepo projects without executing destructive candidates.
 ---
 
-# Project Probe — Verification Manifest
+# Project Probe v2 — Verification Manifest
 
-Make every workflow stack-agnostic: workflows never guess or hardcode verification commands, they read the manifest this skill maintains.
+Every workflow reads one provider-neutral manifest: `.agents/verification.yaml`. The probe is
+read-only; it inventories configuration and never runs application scripts while collecting.
 
-**Output**: `.agents/verification.yaml` at the repo root. It is committed — it is project truth, like `package.json`. One file, no `.claude/` mirror.
+## Runtime contract
 
-## When to (re)probe
-
-1. `.agents/verification.yaml` exists → compute the current `config_fingerprint` (below). If it matches the manifest's stored value → **read the manifest and stop, do not re-probe**. If it differs → re-probe and rewrite.
-2. Manifest absent → probe and write.
-
-Fingerprint = SHA-256 of the concatenated config files that exist, in this fixed order:
+Run the collector through the explicit Python selector:
 
 ```bash
-ci_files=$(find .github/workflows -name '*.yml' -o -name '*.yaml' 2>/dev/null | sort)
-cat package.json pnpm-lock.yaml yarn.lock Makefile justfile pyproject.toml setup.cfg \
-    Cargo.toml go.mod Gemfile composer.json $ci_files 2>/dev/null \
-  | (shasum -a 256 2>/dev/null || sha256sum) | cut -d' ' -f1
+bash scripts/run-python310.sh scripts/project_probe.py --root . --check
 ```
 
-(`find` avoids zsh unmatched-glob failures when `.github/workflows/` is empty; the `sha256sum` fallback covers minimal Linux containers without `shasum`.)
+Python 3.10+ is required. A generated manifest records the selected interpreter and version. If the
+selector cannot find a compatible runtime it fails before probing with the detected version.
 
-## Probe procedure
+## Freshness
 
-1. **Identify stack markers**: `package.json` (+ lockfile → package manager), `pyproject.toml`/`setup.cfg`, `Cargo.toml`, `go.mod`, `Gemfile`, `composer.json`, `Makefile`, `justfile`. Detect monorepo workspaces (`workspaces` key, `pnpm-workspace.yaml`, `turbo.json`).
-2. **Extract real commands** — in priority order:
-   - `package.json` `scripts` (or Makefile targets / pyproject tool sections): look for `lint`, `typecheck`, `check`, `test`, `test:unit`, `build`, `dev`, `start`.
-   - CI workflows (`.github/workflows/*.yml`): what CI actually runs is the strongest signal.
-   - Stack defaults as last resort (see fallback table in `.claude/knowledge/workflows/verification-matrix.md`): only record a default if its tool is verifiably present (config file or dependency exists).
-3. **Sanity-check each candidate** with a fast, safe invocation (`--help`, `--version`, or a dry run). Never run anything destructive (`db:reset`, `deploy`, `publish`, `clean`). If a candidate can't be confirmed, leave it out and record it in `absents` with the reason.
-4. **Detect testability**:
-   - `harness`: the test framework actually configured (vitest, jest, pytest, go test, cargo test…) or `none`.
-   - `e2e`: e2e harness (playwright, cypress…) or `none`.
-   - `runtime_verify`: how to launch the app for runtime verification (`npm run dev`, `python -m app`…) or `none` for libraries.
-5. **Write the manifest** (format below), then present a one-line summary: stack, commands found, absents.
+1. Run the command above.
+2. A zero exit means `config_fingerprint` is fresh: read the manifest and stop.
+3. If it is stale or absent, inspect `.agents/project-probe.json` when present, then regenerate:
 
-## Manifest format
+```bash
+bash scripts/run-python310.sh scripts/project_probe.py --root .
+```
+
+`fingerprint_schema_version: 2` hashes each repository-relative path and its bytes, sorted
+deterministically. In Git repositories only indexed files participate, so local user-owned files do
+not become project truth. The versioned collector covers shell scripts, `SKILL.md` and command
+workflows, provider manifests, CI workflows, lockfiles, workspace markers and consumed config. The
+manifest itself is excluded to avoid a self-invalidating hash.
+
+## Command detection
+
+Collect signals in this order:
+
+1. `.agents/project-probe.json` explicit overrides, if any;
+2. package scripts and Python tool configuration;
+3. allowlisted shell roles (`lint`, `check`, `test`, `verify`, `build`);
+4. CI evidence inspected by the agent when it strengthens or contradicts a candidate.
+
+Only `lint`, `typecheck`, `test` and `build` are verification commands. Reject a candidate whose
+name or body can deploy, publish, reset a database, destroy state, download remote content or remove
+files. Never execute `clean`, `seed`, `migrate`, `release`, `deploy` or a user-defined near-match as
+a sanity check. A safe `--help`, `--version` or documented dry-run may be used after collection; if
+it cannot be confirmed, omit the command and record the reason.
+
+Each accepted command remains a string under `commands` for v1 consumer compatibility. Its exact
+origin is mandatory under `command_sources`. Missing capabilities appear both as human-readable
+`absents` and keyed `absence_reasons`; never invent a fallback merely because a stack usually has
+one.
+
+## Manifest contract
 
 ```yaml
-# .agents/verification.yaml — generated by project-probe. Committed.
-stack: node-ts                  # node-ts | node-js | python | go | rust | ruby | php | mixed
+fingerprint_schema_version: 2
+generated_by: "project-probe/2.0.0"
+stack: "mixed"
 config_fingerprint: "<sha256>"
-commands:                       # only commands that verifiably exist; {} allowed — record nothing rather than invent
-  lint:      "npm run lint"
-  typecheck: "npm run typecheck"
-  test:      "npm test"
-  build:     "npm run build"
+fingerprint_sources:
+  - ".agents/project-probe.json"
+python:
+  required: ">=3.10"
+  selected_interpreter: "python3.12"
+  selected_version: "3.13.7"
+commands:
+  lint: "bash -n scripts/*.sh"
+command_sources:
+  lint: ".agents/project-probe.json#commands.lint"
 testability:
-  harness: vitest               # framework name or none
+  harness: "shell+unittest"
   e2e: none
-  runtime_verify: "npm run dev" # or none
-absents:                        # explicit, never silently skipped by consumers
-  - "no e2e harness"
-monorepo: {}                    # optional: per-package command overrides
+  runtime_verify: none
+absents:
+  - "no configured typecheck command"
+absence_reasons:
+  typecheck: "no configured typecheck command"
 ```
 
-## Rules for consumers (dev-workflow, ship-workflow, quality-gate)
+Optional `monorepo` metadata records the package manager and workspace globs. The override file may
+declare commands, stack, Python requirement, testability and absence reasons, but it cannot bypass
+the destructive-command filter.
 
-- Run verification **only** via `commands` from the manifest — never hardcode.
-- Everything listed in `commands` must be **auto-executable** by an agent. A human ceremony (live preproduction rehearsal, manual UAT, anything needing human Access/OTP/TOTP or a bounded waiver) is **never** a `commands` entry: record it in `absents` with its trigger condition, so ship reports it instead of executing it. If an existing manifest lists such a ceremony in `commands`, rewrite the manifest immediately (that authoring bug blocks every ship at evidence time).
-- An entry missing from `commands` means the project does not have that verification: **report it** (in the checkpoint summary or the gate file `absents`), never fake a green.
-- If a manifest command fails with "command not found" or similar breakage, re-run this skill (config drifted) before concluding anything.
+## Consumer rules
 
-## Runtime capabilities
-
-The probe procedure is identical on every runtime. Runtimes with parallel subagents may sanity-check command candidates concurrently; sequential runtimes check them one at a time. No step of this skill requires any runtime-specific tool.
-
-## Anti-patterns
-
-- Inventing a command because the stack "usually" has it — record what exists, not what should exist.
-- Listing a human-gated ceremony in `commands` — the ship runner executes every command literally and will hard-fail on it. Human ceremonies live in `absents` (with trigger + runbook reference), never in `commands`.
-- Re-probing on every run when the fingerprint is unchanged (wasted time).
-- Writing a `.claude/verification.yaml` mirror — one file only.
-- Running destructive scripts during the sanity check.
+- Run verification only from `commands`; provenance metadata is evidence, not an executable field.
+- Every `commands` entry must be auto-executable by an agent. Human ceremonies such as a live
+  preproduction rehearsal, manual UAT, Access/OTP/TOTP or a bounded waiver belong in `absents` with
+  their trigger condition. Rewrite any manifest that incorrectly lists one as a command.
+- Report every relevant absence in checkpoints and gate files.
+- If `--check` reports drift or a command fails because its tool disappeared, re-probe before
+  drawing a conclusion.
+- Never list a human-gated ceremony in `commands`; the ship runner executes every command literally.
+- Do not create provider-specific mirrors of the manifest.
+- Do not write outside the requested manifest path.

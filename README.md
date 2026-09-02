@@ -289,11 +289,20 @@ The heart of v6 — `project-probe` and `quality-gate` are consumed by `/dev`, `
 
 ```yaml
 # .agents/verification.yaml
-stack: node-ts
-commands: { lint: "npm run lint", test: "npm test", ... }
+fingerprint_schema_version: 2
+generated_by: "project-probe/2.0.0"
+stack: node-js
+python: { required: "collector >=3.10", selected_interpreter: "python3.12" }
+commands: { lint: "npm run lint", test: "npm test" }
+command_sources: { lint: "package.json#scripts.lint", test: "package.json#scripts.test" }
 testability: { harness: vitest, runtime_verify: "npm run dev" }
 absents: ["no e2e harness"]        # explicit, never silently skipped
 ```
+
+The v2 fingerprint hashes sorted repository-relative paths and bytes across consumed scripts,
+skills/workflows, provider manifests, CI and lockfiles. In Git repositories it uses the index as
+the ownership boundary, so untracked local provider files never enter project truth. Run the probe
+through `bash scripts/run-python310.sh scripts/project_probe.py --root . --check`.
 
 **`quality-gate`** runs a bounded convergence loop: execution evidence first (never skipped) → multi-lens reviews in fresh contexts (correctness/security, readability, performance — plus design/SEO/a11y lenses when the diff touches those surfaces) → final `thermo-nuclear-code-quality-review` maintainability lens for level ≥ 2, de-duplicated against prior findings → **adversarial counter-verification** of every new finding (a refuter attacks it; only confirmed findings get fixed) → repeat until two clean rounds. Output:
 
@@ -556,7 +565,7 @@ This runs the standard install **and** bootstraps the wiki: it asks for the vaul
 | Tool | Required | Install | Why |
 |------|----------|---------|-----|
 | **Obsidian** | Yes | [obsidian.md/download](https://obsidian.md/download) (free) | Editor for the vault. Open the chosen folder as a vault inside Obsidian after bootstrap. |
-| **Python 3.10+** | Yes | already required by Skillz-Claude | Powers the portable memory CLI and wiki scripts. Stdlib only — no pip install. |
+| **Python 3.10+** | Yes | already required by Skillz-Claude | Powers project-probe, the portable memory CLI and wiki scripts. Stdlib only — no pip install. |
 | **`qmd` CLI** | Recommended | `npm install -g @tobilu/qmd` with Node 22+, or `bun install -g @tobilu/qmd`; see [tobi/qmd](https://github.com/tobi/qmd) | Local vector search across the vault for when the index alone is not enough. The setup script warns but does not block if absent. |
 
 ### What the bootstrap does

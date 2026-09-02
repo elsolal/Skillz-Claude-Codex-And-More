@@ -47,6 +47,7 @@ Audit de sécurité complet pour les applications utilisant Supabase comme backe
 
 **Principes** :
 - Test en boîte grise (accès client-side uniquement)
+- Requêtes distantes strictement read-only (`GET`, `HEAD`, `OPTIONS`)
 - Evidence-based : chaque finding avec preuve reproductible
 - Progressive writes : sauvegarder au fur et à mesure
 - Remediation-first : chaque problème avec sa solution
@@ -55,6 +56,7 @@ Audit de sécurité complet pour les applications utilisant Supabase comme backe
 - ⛔ Ne JAMAIS lancer sans autorisation explicite
 - ⛔ Ne JAMAIS stocker de données sensibles non-redactées
 - ⛔ Ne JAMAIS modifier les données de production
+- ⛔ Ne JAMAIS envoyer `POST`, `PUT`, `PATCH` ou `DELETE`, même avec une promesse de rollback
 - ✅ Toujours sauvegarder les preuves immédiatement
 - ✅ Toujours proposer la remediation SQL/code
 - ✅ Toujours générer des commandes curl reproductibles
@@ -329,25 +331,16 @@ curl -s "$SUPABASE_URL/rest/v1/comments?select=*,posts(*)" \
   -H "apikey: $ANON_KEY"
 ```
 
-**Test 3 : Insert test (avec rollback)**
-```bash
-curl -X POST "$SUPABASE_URL/rest/v1/<TABLE>" \
-  -H "apikey: $ANON_KEY" \
-  -H "Content-Type: application/json" \
-  -H "Prefer: return=representation" \
-  -d '{"test": "security-audit-delete-me"}'
-```
+**Insert/update/delete : hors périmètre**
+
+Le skill n'écrit jamais de ligne de test. Une politique `INSERT`, `UPDATE` ou `DELETE` se vérifie
+par inspection locale des migrations/policies ou dans un audit sandbox distinct explicitement
+autorisé ; l'absence de rollback transactionnel démontré interdit toute mutation distante ici.
 
 **3.4 Tester les RPC functions**
 
-```bash
-# Lister les fonctions exposées (dans le schéma OpenAPI)
-# Pour chaque fonction :
-curl -X POST "$SUPABASE_URL/rest/v1/rpc/<FUNCTION_NAME>" \
-  -H "apikey: $ANON_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{}'
-```
+Lister uniquement les fonctions exposées dans le schéma OpenAPI. Ne jamais invoquer un RPC : un
+appel peut muter l'état même si son nom paraît descriptif.
 
 **3.5 Classification des findings**
 
@@ -424,18 +417,8 @@ curl -s "$SUPABASE_URL/auth/v1/settings" \
 
 **5.2 Vérifier si signup est ouvert**
 
-```bash
-curl -X POST "$SUPABASE_URL/auth/v1/signup" \
-  -H "apikey: $ANON_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"email": "test-probe@security-audit.local", "password": "TestProbe123!"}'
-```
-
-| Résultat | Signification |
-|----------|---------------|
-| 200 + user créé | Signup ouvert |
-| 400 "Signups disabled" | Signup fermé ✅ |
-| 429 | Rate limited ✅ |
+Lire la configuration retournée par `/auth/v1/settings`. Ne jamais tenter un signup : créer un
+utilisateur est une mutation distante et l'audit read-only ne peut pas garantir sa suppression.
 
 **5.3 Checklist Auth**
 
@@ -446,23 +429,11 @@ curl -X POST "$SUPABASE_URL/auth/v1/signup" \
 | Rate limiting | Enabled | |
 | CAPTCHA | Recommandé | |
 
-**5.4 [OPTIONNEL] Test IDOR avec user authentifié**
+**5.4 [OPTIONNEL] Test IDOR avec comptes sandbox préexistants**
 
-> ⚠️ Nécessite création d'un user test. Demander consentement.
-
-```
-Voulez-vous créer un utilisateur test pour détecter les vulnérabilités IDOR ?
-- Email : pentest-<random>@security-audit.local
-- Sera supprimé après l'audit (ou manuellement)
-
-[O]ui / [N]on
-```
-
-Si oui :
-1. Créer l'utilisateur
-2. Obtenir le JWT
-3. Comparer accès auth vs anon
-4. Tester accès cross-user
+Accepter uniquement deux JWT de comptes de test déjà créés dans un environnement non-production
+nommé. Comparer les lectures auth vs anon et cross-user ; ne créer, modifier ni supprimer aucun
+compte pendant l'audit. Sans ces préconditions, marquer le test `NOT_RUN`.
 
 ---
 
@@ -478,13 +449,8 @@ curl -s "$SUPABASE_URL/functions/v1/" \
   -H "apikey: $ANON_KEY"
 ```
 
-Pour chaque function détectée :
-```bash
-curl -X POST "$SUPABASE_URL/functions/v1/<FUNCTION>" \
-  -H "apikey: $ANON_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{}'
-```
+Ne pas invoquer les Functions détectées : leur méthode et leurs effets ne sont pas prouvés
+read-only. Rapporter seulement leur exposition observable.
 
 **6.2 Realtime channels**
 
@@ -707,7 +673,7 @@ Voulez-vous :
 
 | Option | Description |
 |--------|-------------|
-| `--skip-auth-test` | Ne pas tester création user (IDOR) |
+| `--skip-auth-test` | Ne pas tester les lectures IDOR avec comptes sandbox préexistants |
 | `--quick` | Audit rapide (detection + extraction + RLS) |
 | `--verbose` | Afficher tous les détails pendant l'exécution |
 
