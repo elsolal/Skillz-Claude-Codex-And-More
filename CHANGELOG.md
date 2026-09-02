@@ -45,9 +45,10 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ### Validation
 - Shell syntax: 20 files.
-- Repository tests: 117; llm-wiki tests: 273; behavioral structural cases: 8.
+- Repository tests: 122; llm-wiki tests: 273; behavioral structural cases: 8.
 - Compiler, full catalog, reviewed golden, lifecycle, upstream, removal safety and SEO/GEO suites:
-  PASS. The unrelated PDF delivery engine remains absent and explicitly warned.
+  PASS. A local Playwright/Chromium installation also produced a tagged one-page A4 PDF smoke
+  artifact; this is local execution evidence, not a bundled runtime dependency.
 
 ## [Unreleased] - 2026-09-01
 
