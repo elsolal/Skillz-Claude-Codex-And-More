@@ -292,7 +292,7 @@
       "alias": "project-probe",
       "id": "project-probe",
       "migration_state": "canonical",
-      "resource_count": 0,
+      "resource_count": 2,
       "source": "core/skills/project-probe/SKILL.md",
       "type": "skill"
     },
@@ -308,7 +308,7 @@
       "alias": "quality-gate",
       "id": "quality-gate",
       "migration_state": "canonical",
-      "resource_count": 0,
+      "resource_count": 2,
       "source": "core/skills/quality-gate/SKILL.md",
       "type": "skill"
     },
@@ -762,7 +762,7 @@
     }
   ],
   "catalog_artifacts": 95,
-  "catalog_resources": 407,
+  "catalog_resources": 411,
   "counts": {
     "command": 31,
     "instruction": 1,

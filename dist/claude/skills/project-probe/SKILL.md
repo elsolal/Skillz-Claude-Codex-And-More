@@ -10,11 +10,17 @@ read-only; it inventories configuration and never runs application scripts while
 
 ## Runtime contract
 
-Run the collector through the explicit Python selector:
+The collector and Python selector are resources owned by this skill. Resolve the semantic locators
+below through the active runtime's skill registry to absolute paths before invoking the shell; do
+not interpret `skill:` as a literal filesystem path and do not look for these files in the project:
 
 ```bash
-bash scripts/run-python310.sh scripts/project_probe.py --root . --check
+bash "skill:project-probe/scripts/run-python310.sh" "skill:project-probe/scripts/project_probe.py" --root . --check
 ```
+
+If either resource cannot be resolved or executed, classify the result as `tooling-unavailable`
+and recommend repairing/updating the Skillz installation. This is not project evidence and never
+justifies a quality waiver.
 
 Python 3.10+ is required. A generated manifest records the selected interpreter and version. If the
 selector cannot find a compatible runtime it fails before probing with the detected version.
@@ -26,7 +32,7 @@ selector cannot find a compatible runtime it fails before probing with the detec
 3. If it is stale or absent, inspect `.agents/project-probe.json` when present, then regenerate:
 
 ```bash
-bash scripts/run-python310.sh scripts/project_probe.py --root .
+bash "skill:project-probe/scripts/run-python310.sh" "skill:project-probe/scripts/project_probe.py" --root .
 ```
 
 `fingerprint_schema_version: 2` hashes each repository-relative path and its bytes, sorted

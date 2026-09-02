@@ -8,13 +8,20 @@ description: Bounded agentic quality loop that replaces human code re-reading be
 Replaces the one-shot "review ×3" with a bounded loop that produces an auditable verdict. The user reads the gate file instead of the diff.
 
 **Inputs**:
-- The diff to gate: `git diff <base>...HEAD` where `<base>` is the repo's default branch (`main`, or `master` if `main` does not exist), unless the caller designates another diff.
+- The diff to gate: `git diff <base>...HEAD`, where `<base>` is designated by the caller or resolved
+  from the remote HEAD/default branch without assuming a branch name. An ambiguous base is a blocker.
 - The validated plan / acceptance criteria, when the caller has one.
 - `.agents/verification.yaml` — if missing, run the `project-probe` skill first.
 - The task level (0-4). Default: 2. The caller passes it; level 0 changes are not gated (no gate file).
 - The mode: **integrated** (called by dev-workflow or ship-workflow — the loop fixes autonomously) or **standalone** (invoked via /gate or directly by the user — report first, the user arbitrates every fix; see step 4).
 
-**Output**: a v2 envelope `docs/quality/GATE-<YYYY-MM-DD>-<slug>.yaml`, its JSON proof payload under `docs/quality/proofs/`, and a short summary to the caller. Both evidence files are committed together and must pass `gate_verify.py verify`.
+**Output**: a v2 envelope `docs/quality/GATE-<YYYY-MM-DD>-<slug>.yaml`, its JSON proof payload under `docs/quality/proofs/`, and a short summary to the caller. Both evidence files are committed together and must pass the skill-owned `gate_verify.py verify` resource.
+
+Resolve `skill:quality-gate/scripts/run-python310.sh` and
+`skill:quality-gate/scripts/gate_verify.py` through the active runtime's skill registry to absolute
+paths before invoking the shell. Never require the project under review to contain Skillz tooling.
+An absent or incompatible resource is `tooling-unavailable`, not `CONCERNS`, and cannot be waived as
+a product-quality risk.
 
 ## Loop bounds by level
 
@@ -81,6 +88,15 @@ entry for every command in `.agents/verification.yaml`, absences, opinion findin
 autonomous decisions. Every execution records the exact command, status and exit code. A PASS
 payload contains no invented command, no missing command and no non-passing status.
 
+A `WAIVED` payload additionally contains the exact human decision:
+
+```json
+{"waiver":{"reason":"...","scope":"...","approved_by":"human","approved_at":"<ISO-8601>"}}
+```
+
+The verifier rejects missing, partial or empty waiver metadata. Other verdicts must not carry a
+waiver object. A waiver remains visibly `WAIVED`; it never becomes `PASS`.
+
 `base_sha` and `head_sha` identify the code diff. Because a committed gate cannot contain the SHA
 of its own commit, `head_sha` is the final code commit before the evidence-only commit. Verification
 accepts current `HEAD == head_sha` or descendants whose entire delta is limited to the exact gate,
@@ -92,15 +108,18 @@ The sole permitted code-diff exclusion is the exact `CHANGELOG.md` path. There i
 64-zero integrity placeholder, then run:
 
 ```bash
-bash scripts/run-python310.sh scripts/gate_verify.py seal docs/quality/GATE-<date>-<slug>.yaml
+bash "skill:quality-gate/scripts/run-python310.sh" "skill:quality-gate/scripts/gate_verify.py" seal docs/quality/GATE-<date>-<slug>.yaml
 git add docs/quality/GATE-<date>-<slug>.yaml docs/quality/proofs/<date>-<slug>.json
 git commit -m "chore(quality): gate <slug>"
-bash scripts/run-python310.sh scripts/gate_verify.py verify docs/quality/GATE-<date>-<slug>.yaml --root .
+bash "skill:quality-gate/scripts/run-python310.sh" "skill:quality-gate/scripts/gate_verify.py" verify docs/quality/GATE-<date>-<slug>.yaml --root .
 ```
 
-Never hand-edit a sealed gate or its proof. Regenerate and reseal instead. v1 gates remain historical
-evidence but are not accepted as fresh v2 proof. A future GitHub Check may invoke the same verifier;
-it is intentionally non-blocking until local rollout evidence is complete.
+Never hand-edit a sealed gate or its proof. Regenerate and reseal instead. A v1 gate is
+`legacy-evidence`, not stale merely because its schema is old. During the v6.1 compatibility window,
+the verifier may classify it `legacy-valid` only when `--allow-legacy` is explicit and its historical
+diff hash can still be recomputed against an explicit or locally detected base ref. Otherwise create
+a v2 gate; do not request a quality waiver for schema migration or missing tooling. A future GitHub
+Check may invoke the same verifier; it remains non-blocking until local rollout evidence is complete.
 
 `decisions_prises_en_ton_nom` lists every autonomous deviation from the validated plan. **For levels 3-4 the calling workflow must show this section to the user before proposing ship** — it is the only careful read left to the human.
 

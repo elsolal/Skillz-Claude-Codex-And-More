@@ -249,6 +249,31 @@ class ProviderCompilerTests(unittest.TestCase):
             "codex/skills/dev-workflow/references/testing/checklist.md",
         )
 
+    def test_verification_skills_ship_their_required_executables(self):
+        output = self.temp_dir / "dist"
+        report = self.compiler.build_repository(self.fixture, output)
+        expected = {
+            "project-probe": ("project_probe.py", "run-python310.sh"),
+            "quality-gate": ("gate_verify.py", "run-python310.sh"),
+        }
+
+        for provider in ("agents-generic", "claude", "codex", "gemini", "grok", "kimi", "opencode"):
+            for skill, names in expected.items():
+                for name in names:
+                    resource = output / provider / "skills" / skill / "scripts" / name
+                    self.assertTrue(resource.is_file(), f"missing {provider}/{skill}/{name}")
+                    self.assertEqual(resource.read_bytes(), (REPO_ROOT / "scripts" / name).read_bytes())
+
+        codex_gate = next(
+            item
+            for item in report["artifacts"]
+            if item["provider"] == "codex" and item["artifact_id"] == "quality-gate"
+        )
+        self.assertEqual(
+            {Path(item["output"]).name for item in codex_gate["resources"]},
+            {"gate_verify.py", "run-python310.sh"},
+        )
+
     def test_command_can_declare_namespaced_resources(self):
         catalog = self._catalog()
         quick_fix = next(item for item in catalog["artifacts"] if item["id"] == "quick-fix")

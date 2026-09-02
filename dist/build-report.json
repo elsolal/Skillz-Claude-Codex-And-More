@@ -2011,8 +2011,21 @@
       "output": "agents-generic/skills/project-probe/SKILL.md",
       "provider": "agents-generic",
       "provider_metadata_applied": false,
-      "resources": [],
-      "sha256": "80781022f32d74f867d7c1f08bfaae3873b634ffbc1675c6de3ffde20463449e",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "agents-generic/skills/project-probe/scripts/project_probe.py",
+          "sha256": "1c2e18fd2da7ef7a7f18d5001ace4ca0a57b8b7b8a3db4929b20f1ac63879ee1",
+          "source": "scripts/project_probe.py"
+        },
+        {
+          "mode": "0755",
+          "output": "agents-generic/skills/project-probe/scripts/run-python310.sh",
+          "sha256": "2c5298aba574c9b629b242d85b6a89bb98dfc60cf6e9b9fddea24dbb7b2d4040",
+          "source": "scripts/run-python310.sh"
+        }
+      ],
+      "sha256": "ce99a957f16896e5ef3c3f62a49c23fdded38bbb29bf0eede3b33537abc9da20",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -2053,8 +2066,21 @@
       "output": "agents-generic/skills/quality-gate/SKILL.md",
       "provider": "agents-generic",
       "provider_metadata_applied": false,
-      "resources": [],
-      "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "agents-generic/skills/quality-gate/scripts/gate_verify.py",
+          "sha256": "e217c8b1aa3247a32a8b5606c2add92388f0ea3cde8cefd2f74cd961c2a71b41",
+          "source": "scripts/gate_verify.py"
+        },
+        {
+          "mode": "0755",
+          "output": "agents-generic/skills/quality-gate/scripts/run-python310.sh",
+          "sha256": "2c5298aba574c9b629b242d85b6a89bb98dfc60cf6e9b9fddea24dbb7b2d4040",
+          "source": "scripts/run-python310.sh"
+        }
+      ],
+      "sha256": "c0464aef79cc59d9d260df97f296b2027a70f11621e750db01da47bb7b36676e",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -3132,7 +3158,7 @@
       "provider": "agents-generic",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238",
+      "sha256": "54321c9b3416bb7eb74911b50655e7b605029de57d09dc569e31b889da6a5ea1",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -3258,7 +3284,7 @@
       "provider": "agents-generic",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba",
+      "sha256": "2e7323fef7bb42d3fab85925e046c3ebf11840d93fc3985304b4b5a947d1a9f9",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -5673,8 +5699,21 @@
       "output": "claude/skills/project-probe/SKILL.md",
       "provider": "claude",
       "provider_metadata_applied": false,
-      "resources": [],
-      "sha256": "80781022f32d74f867d7c1f08bfaae3873b634ffbc1675c6de3ffde20463449e",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "claude/skills/project-probe/scripts/project_probe.py",
+          "sha256": "1c2e18fd2da7ef7a7f18d5001ace4ca0a57b8b7b8a3db4929b20f1ac63879ee1",
+          "source": "scripts/project_probe.py"
+        },
+        {
+          "mode": "0755",
+          "output": "claude/skills/project-probe/scripts/run-python310.sh",
+          "sha256": "2c5298aba574c9b629b242d85b6a89bb98dfc60cf6e9b9fddea24dbb7b2d4040",
+          "source": "scripts/run-python310.sh"
+        }
+      ],
+      "sha256": "ce99a957f16896e5ef3c3f62a49c23fdded38bbb29bf0eede3b33537abc9da20",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -5722,8 +5761,21 @@
       "output": "claude/skills/quality-gate/SKILL.md",
       "provider": "claude",
       "provider_metadata_applied": false,
-      "resources": [],
-      "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "claude/skills/quality-gate/scripts/gate_verify.py",
+          "sha256": "e217c8b1aa3247a32a8b5606c2add92388f0ea3cde8cefd2f74cd961c2a71b41",
+          "source": "scripts/gate_verify.py"
+        },
+        {
+          "mode": "0755",
+          "output": "claude/skills/quality-gate/scripts/run-python310.sh",
+          "sha256": "2c5298aba574c9b629b242d85b6a89bb98dfc60cf6e9b9fddea24dbb7b2d4040",
+          "source": "scripts/run-python310.sh"
+        }
+      ],
+      "sha256": "c0464aef79cc59d9d260df97f296b2027a70f11621e750db01da47bb7b36676e",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -6836,7 +6888,7 @@
       "provider": "claude",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "08f62e0db3f7d2d0e4db2fbbe2b8c15772b6aad416c70b91aaf0d814c6a40352",
+      "sha256": "93c85fab3dfbf622780761ffbd91257416ae06ce7e9bdf131b10bd7e9f976650",
       "status": "supported",
       "transform": "copy",
       "type": "command"
@@ -6850,7 +6902,7 @@
       "provider": "claude",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238",
+      "sha256": "54321c9b3416bb7eb74911b50655e7b605029de57d09dc569e31b889da6a5ea1",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -6990,7 +7042,7 @@
       "provider": "claude",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba",
+      "sha256": "2e7323fef7bb42d3fab85925e046c3ebf11840d93fc3985304b4b5a947d1a9f9",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -9454,8 +9506,21 @@
       "output": "codex/skills/project-probe/SKILL.md",
       "provider": "codex",
       "provider_metadata_applied": false,
-      "resources": [],
-      "sha256": "80781022f32d74f867d7c1f08bfaae3873b634ffbc1675c6de3ffde20463449e",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "codex/skills/project-probe/scripts/project_probe.py",
+          "sha256": "1c2e18fd2da7ef7a7f18d5001ace4ca0a57b8b7b8a3db4929b20f1ac63879ee1",
+          "source": "scripts/project_probe.py"
+        },
+        {
+          "mode": "0755",
+          "output": "codex/skills/project-probe/scripts/run-python310.sh",
+          "sha256": "2c5298aba574c9b629b242d85b6a89bb98dfc60cf6e9b9fddea24dbb7b2d4040",
+          "source": "scripts/run-python310.sh"
+        }
+      ],
+      "sha256": "ce99a957f16896e5ef3c3f62a49c23fdded38bbb29bf0eede3b33537abc9da20",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -9503,8 +9568,21 @@
       "output": "codex/skills/quality-gate/SKILL.md",
       "provider": "codex",
       "provider_metadata_applied": false,
-      "resources": [],
-      "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "codex/skills/quality-gate/scripts/gate_verify.py",
+          "sha256": "e217c8b1aa3247a32a8b5606c2add92388f0ea3cde8cefd2f74cd961c2a71b41",
+          "source": "scripts/gate_verify.py"
+        },
+        {
+          "mode": "0755",
+          "output": "codex/skills/quality-gate/scripts/run-python310.sh",
+          "sha256": "2c5298aba574c9b629b242d85b6a89bb98dfc60cf6e9b9fddea24dbb7b2d4040",
+          "source": "scripts/run-python310.sh"
+        }
+      ],
+      "sha256": "c0464aef79cc59d9d260df97f296b2027a70f11621e750db01da47bb7b36676e",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -10617,7 +10695,7 @@
       "provider": "codex",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "08f62e0db3f7d2d0e4db2fbbe2b8c15772b6aad416c70b91aaf0d814c6a40352",
+      "sha256": "93c85fab3dfbf622780761ffbd91257416ae06ce7e9bdf131b10bd7e9f976650",
       "status": "supported",
       "transform": "copy",
       "type": "command"
@@ -10631,7 +10709,7 @@
       "provider": "codex",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238",
+      "sha256": "54321c9b3416bb7eb74911b50655e7b605029de57d09dc569e31b889da6a5ea1",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -10771,7 +10849,7 @@
       "provider": "codex",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba",
+      "sha256": "2e7323fef7bb42d3fab85925e046c3ebf11840d93fc3985304b4b5a947d1a9f9",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -13249,8 +13327,21 @@
       "output": "gemini/skills/project-probe/SKILL.md",
       "provider": "gemini",
       "provider_metadata_applied": false,
-      "resources": [],
-      "sha256": "80781022f32d74f867d7c1f08bfaae3873b634ffbc1675c6de3ffde20463449e",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "gemini/skills/project-probe/scripts/project_probe.py",
+          "sha256": "1c2e18fd2da7ef7a7f18d5001ace4ca0a57b8b7b8a3db4929b20f1ac63879ee1",
+          "source": "scripts/project_probe.py"
+        },
+        {
+          "mode": "0755",
+          "output": "gemini/skills/project-probe/scripts/run-python310.sh",
+          "sha256": "2c5298aba574c9b629b242d85b6a89bb98dfc60cf6e9b9fddea24dbb7b2d4040",
+          "source": "scripts/run-python310.sh"
+        }
+      ],
+      "sha256": "ce99a957f16896e5ef3c3f62a49c23fdded38bbb29bf0eede3b33537abc9da20",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -13298,8 +13389,21 @@
       "output": "gemini/skills/quality-gate/SKILL.md",
       "provider": "gemini",
       "provider_metadata_applied": false,
-      "resources": [],
-      "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "gemini/skills/quality-gate/scripts/gate_verify.py",
+          "sha256": "e217c8b1aa3247a32a8b5606c2add92388f0ea3cde8cefd2f74cd961c2a71b41",
+          "source": "scripts/gate_verify.py"
+        },
+        {
+          "mode": "0755",
+          "output": "gemini/skills/quality-gate/scripts/run-python310.sh",
+          "sha256": "2c5298aba574c9b629b242d85b6a89bb98dfc60cf6e9b9fddea24dbb7b2d4040",
+          "source": "scripts/run-python310.sh"
+        }
+      ],
+      "sha256": "c0464aef79cc59d9d260df97f296b2027a70f11621e750db01da47bb7b36676e",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -14412,7 +14516,7 @@
       "provider": "gemini",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "f25e7a5f7136544e8d3c1c2ce4d55d49bdc470bd4444dd5668b90d2ae0c9c6d6",
+      "sha256": "e35a12111acd89589b80bc204ef3138ac2b678b7f7b736b26216acbe575cfd9f",
       "status": "supported",
       "transform": "gemini-command",
       "type": "command"
@@ -14426,7 +14530,7 @@
       "provider": "gemini",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238",
+      "sha256": "54321c9b3416bb7eb74911b50655e7b605029de57d09dc569e31b889da6a5ea1",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -14566,7 +14670,7 @@
       "provider": "gemini",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba",
+      "sha256": "2e7323fef7bb42d3fab85925e046c3ebf11840d93fc3985304b4b5a947d1a9f9",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -17030,8 +17134,21 @@
       "output": "grok/skills/project-probe/SKILL.md",
       "provider": "grok",
       "provider_metadata_applied": false,
-      "resources": [],
-      "sha256": "80781022f32d74f867d7c1f08bfaae3873b634ffbc1675c6de3ffde20463449e",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "grok/skills/project-probe/scripts/project_probe.py",
+          "sha256": "1c2e18fd2da7ef7a7f18d5001ace4ca0a57b8b7b8a3db4929b20f1ac63879ee1",
+          "source": "scripts/project_probe.py"
+        },
+        {
+          "mode": "0755",
+          "output": "grok/skills/project-probe/scripts/run-python310.sh",
+          "sha256": "2c5298aba574c9b629b242d85b6a89bb98dfc60cf6e9b9fddea24dbb7b2d4040",
+          "source": "scripts/run-python310.sh"
+        }
+      ],
+      "sha256": "ce99a957f16896e5ef3c3f62a49c23fdded38bbb29bf0eede3b33537abc9da20",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -17079,8 +17196,21 @@
       "output": "grok/skills/quality-gate/SKILL.md",
       "provider": "grok",
       "provider_metadata_applied": false,
-      "resources": [],
-      "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "grok/skills/quality-gate/scripts/gate_verify.py",
+          "sha256": "e217c8b1aa3247a32a8b5606c2add92388f0ea3cde8cefd2f74cd961c2a71b41",
+          "source": "scripts/gate_verify.py"
+        },
+        {
+          "mode": "0755",
+          "output": "grok/skills/quality-gate/scripts/run-python310.sh",
+          "sha256": "2c5298aba574c9b629b242d85b6a89bb98dfc60cf6e9b9fddea24dbb7b2d4040",
+          "source": "scripts/run-python310.sh"
+        }
+      ],
+      "sha256": "c0464aef79cc59d9d260df97f296b2027a70f11621e750db01da47bb7b36676e",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -18193,7 +18323,7 @@
       "provider": "grok",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "08f62e0db3f7d2d0e4db2fbbe2b8c15772b6aad416c70b91aaf0d814c6a40352",
+      "sha256": "93c85fab3dfbf622780761ffbd91257416ae06ce7e9bdf131b10bd7e9f976650",
       "status": "supported",
       "transform": "copy",
       "type": "command"
@@ -18207,7 +18337,7 @@
       "provider": "grok",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238",
+      "sha256": "54321c9b3416bb7eb74911b50655e7b605029de57d09dc569e31b889da6a5ea1",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -18347,7 +18477,7 @@
       "provider": "grok",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba",
+      "sha256": "2e7323fef7bb42d3fab85925e046c3ebf11840d93fc3985304b4b5a947d1a9f9",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -20694,8 +20824,21 @@
       "output": "kimi/skills/project-probe/SKILL.md",
       "provider": "kimi",
       "provider_metadata_applied": false,
-      "resources": [],
-      "sha256": "80781022f32d74f867d7c1f08bfaae3873b634ffbc1675c6de3ffde20463449e",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "kimi/skills/project-probe/scripts/project_probe.py",
+          "sha256": "1c2e18fd2da7ef7a7f18d5001ace4ca0a57b8b7b8a3db4929b20f1ac63879ee1",
+          "source": "scripts/project_probe.py"
+        },
+        {
+          "mode": "0755",
+          "output": "kimi/skills/project-probe/scripts/run-python310.sh",
+          "sha256": "2c5298aba574c9b629b242d85b6a89bb98dfc60cf6e9b9fddea24dbb7b2d4040",
+          "source": "scripts/run-python310.sh"
+        }
+      ],
+      "sha256": "ce99a957f16896e5ef3c3f62a49c23fdded38bbb29bf0eede3b33537abc9da20",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -20736,8 +20879,21 @@
       "output": "kimi/skills/quality-gate/SKILL.md",
       "provider": "kimi",
       "provider_metadata_applied": false,
-      "resources": [],
-      "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "kimi/skills/quality-gate/scripts/gate_verify.py",
+          "sha256": "e217c8b1aa3247a32a8b5606c2add92388f0ea3cde8cefd2f74cd961c2a71b41",
+          "source": "scripts/gate_verify.py"
+        },
+        {
+          "mode": "0755",
+          "output": "kimi/skills/quality-gate/scripts/run-python310.sh",
+          "sha256": "2c5298aba574c9b629b242d85b6a89bb98dfc60cf6e9b9fddea24dbb7b2d4040",
+          "source": "scripts/run-python310.sh"
+        }
+      ],
+      "sha256": "c0464aef79cc59d9d260df97f296b2027a70f11621e750db01da47bb7b36676e",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -21815,7 +21971,7 @@
       "provider": "kimi",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238",
+      "sha256": "54321c9b3416bb7eb74911b50655e7b605029de57d09dc569e31b889da6a5ea1",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -21941,7 +22097,7 @@
       "provider": "kimi",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba",
+      "sha256": "2e7323fef7bb42d3fab85925e046c3ebf11840d93fc3985304b4b5a947d1a9f9",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -24356,8 +24512,21 @@
       "output": "opencode/skills/project-probe/SKILL.md",
       "provider": "opencode",
       "provider_metadata_applied": false,
-      "resources": [],
-      "sha256": "80781022f32d74f867d7c1f08bfaae3873b634ffbc1675c6de3ffde20463449e",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "opencode/skills/project-probe/scripts/project_probe.py",
+          "sha256": "1c2e18fd2da7ef7a7f18d5001ace4ca0a57b8b7b8a3db4929b20f1ac63879ee1",
+          "source": "scripts/project_probe.py"
+        },
+        {
+          "mode": "0755",
+          "output": "opencode/skills/project-probe/scripts/run-python310.sh",
+          "sha256": "2c5298aba574c9b629b242d85b6a89bb98dfc60cf6e9b9fddea24dbb7b2d4040",
+          "source": "scripts/run-python310.sh"
+        }
+      ],
+      "sha256": "ce99a957f16896e5ef3c3f62a49c23fdded38bbb29bf0eede3b33537abc9da20",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -24405,8 +24574,21 @@
       "output": "opencode/skills/quality-gate/SKILL.md",
       "provider": "opencode",
       "provider_metadata_applied": false,
-      "resources": [],
-      "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180",
+      "resources": [
+        {
+          "mode": "0644",
+          "output": "opencode/skills/quality-gate/scripts/gate_verify.py",
+          "sha256": "e217c8b1aa3247a32a8b5606c2add92388f0ea3cde8cefd2f74cd961c2a71b41",
+          "source": "scripts/gate_verify.py"
+        },
+        {
+          "mode": "0755",
+          "output": "opencode/skills/quality-gate/scripts/run-python310.sh",
+          "sha256": "2c5298aba574c9b629b242d85b6a89bb98dfc60cf6e9b9fddea24dbb7b2d4040",
+          "source": "scripts/run-python310.sh"
+        }
+      ],
+      "sha256": "c0464aef79cc59d9d260df97f296b2027a70f11621e750db01da47bb7b36676e",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -25519,7 +25701,7 @@
       "provider": "opencode",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "08f62e0db3f7d2d0e4db2fbbe2b8c15772b6aad416c70b91aaf0d814c6a40352",
+      "sha256": "93c85fab3dfbf622780761ffbd91257416ae06ce7e9bdf131b10bd7e9f976650",
       "status": "supported",
       "transform": "copy",
       "type": "command"
@@ -25533,7 +25715,7 @@
       "provider": "opencode",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "c0e843a6405117f80c6714acb00bd92ffbf4344bfdd66f4d4b26a7b73f8ac238",
+      "sha256": "54321c9b3416bb7eb74911b50655e7b605029de57d09dc569e31b889da6a5ea1",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -25673,7 +25855,7 @@
       "provider": "opencode",
       "provider_metadata_applied": false,
       "resources": [],
-      "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba",
+      "sha256": "2e7323fef7bb42d3fab85925e046c3ebf11840d93fc3985304b4b5a947d1a9f9",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -26222,7 +26404,7 @@
       "type": "hook"
     }
   ],
-  "catalog_hash": "274a5df87ba566a887d825e2c537701a8ce536fe412058a6e0a549b47c1e125c",
+  "catalog_hash": "f75967ae8d6ac940a3cd7783707686dd093dd7e36d72870bcc17436b1180d4ab",
   "distribution": {
     "name": "skillz-claude",
     "version": "6.1.0-rc.1"
@@ -26290,5 +26472,5 @@
     "opencode"
   ],
   "schema_version": 1,
-  "tree_hash": "731b270f977ce0599fa77319b7def7f694d8f44c7f451331a5cf1b8aadd02565"
+  "tree_hash": "17b52183c76f1f7db6a6f5c125c27669b9cd83830bf57c2e5ac782e078cd297b"
 }

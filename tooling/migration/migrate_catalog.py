@@ -36,6 +36,16 @@ CURATED_CANONICAL = {
     "dev-workflow", "discovery-workflow", "project-probe", "quality-gate",
     "ship-workflow", "status-workflow",
 }
+SHARED_SKILL_RESOURCES = {
+    "project-probe": (
+        "scripts/project_probe.py",
+        "scripts/run-python310.sh",
+    ),
+    "quality-gate": (
+        "scripts/gate_verify.py",
+        "scripts/run-python310.sh",
+    ),
+}
 
 
 class MigrationError(RuntimeError):
@@ -165,6 +175,11 @@ def _resource_items(root: Path, artifact_type: str, identifier: str, source: Pat
                 "source": path.relative_to(root).as_posix(),
                 "output": path.relative_to(directory).as_posix(),
             })
+        for shared in SHARED_SKILL_RESOURCES.get(identifier, ()):
+            shared_path = root / shared
+            if not shared_path.is_file() or shared_path.is_symlink():
+                raise MigrationError(f"missing shared skill resource: {shared}")
+            resources.append({"source": shared, "output": shared})
 
     legacy_entry = (
         root / ".claude" / "skills" / identifier / "SKILL.md"
