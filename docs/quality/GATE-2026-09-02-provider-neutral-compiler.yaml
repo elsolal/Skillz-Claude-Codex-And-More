@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 3
+base_sha: "48bd7c46f72aa1aef329fbecb881a99c7b5b8a78"
+head_sha: "1c69dfcac3e1f0b6363c177be3061ba90e29af51"
+code_diff_hash: "71bac669ce7e9ce1e02c4683528fdf5586759c7ba20f209d73bec95d2d200625"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-09-02-provider-neutral-compiler.json"
+proof_payload_hash: "dcde619ed169f2798005adfd5ba8dbada5f77641bdb9783a4abde40072e77bb0"
+integrity_sha256: "e44b56c8b3d230068ac9965e595fae5863ba4e7f5891db5556557c24eaa4d7cc"
