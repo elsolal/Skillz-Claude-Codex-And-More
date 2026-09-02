@@ -1,0 +1,125 @@
+schema_version: 1
+baseline_id: legacy-v6
+observed_at: "2026-09-01"
+source_commit: "71bb93d5c48bfd365cad45a113cf84207954606e"
+generator: scripts/capture_distribution_baseline.py
+golden:
+  path: docs/compatibility/golden/legacy-v6-distribution.json
+  sha256: "0812fe3e0da35baad84e447c47e3ab6c058e39f6b19c78b960fb6312d324cfc5"
+  tracked_artifacts: 623
+  files: 615
+  symlinks: 8
+
+ownership:
+  inventory_boundary: git-index
+  tracked_distribution_files: skillz
+  untracked_files: user-owned
+  excluded_local_paths:
+    - path: .codex/hooks.json
+      state: present-untracked
+      reason: no Skillz ownership proof
+    - path: .codex/hooks/
+      state: present-untracked
+      reason: no Skillz ownership proof
+    - path: .claude/settings.local.json
+      state: not-observed
+      reason: always user-owned unless an install manifest proves otherwise
+
+legacy_surfaces:
+  canonical_source:
+    path: .claude/
+    status: legacy
+  claude:
+    skill_documents: 60
+    commands: 36
+    hooks: 1
+    native_plugin_manifest: .claude-plugin/plugin.json
+  codex:
+    prompts: 13
+    native_plugin_manifest: absent
+    install_route: flat-mirror-from-claude
+  opencode:
+    commands: 11
+    install_route: flat-mirror-from-claude
+  gemini:
+    commands: 11
+    extension_manifest: .gemini/gemini-extension.json
+  agents_generic:
+    instructions: AGENTS.md
+    skills_route: skills
+
+runtimes:
+  claude-code:
+    executable: claude
+    state: installed
+    version_observed: "2.1.257"
+    structural: existing-legacy-surface
+    discovery: not-run
+    behavioral: not-run
+  codex:
+    executable: codex
+    state: installed
+    version_observed: "0.152.0"
+    structural: existing-flat-surface
+    discovery: not-run
+    behavioral: not-run
+  opencode:
+    executable: opencode
+    state: installed
+    version_observed: "1.18.25"
+    structural: existing-flat-surface
+    discovery: not-run
+    behavioral: not-run
+  kimi-cli:
+    executable: kimi
+    state: broken
+    version_observed: null
+    reason: configured Python interpreter is missing
+    structural: not-tested
+    discovery: not-run
+    behavioral: not-run
+  gemini-cli:
+    executable: gemini
+    state: not-installed
+    version_observed: null
+    structural: existing-repository-extension-only
+    discovery: not-run
+    behavioral: not-run
+  grok-build:
+    executable: grok
+    state: not-installed
+    version_observed: null
+    structural: not-tested
+    discovery: not-run
+    behavioral: not-run
+  agents-generic:
+    executable: null
+    state: not-tested
+    version_observed: null
+    structural: existing-convention-surface
+    discovery: not-run
+    behavioral: not-run
+
+certification:
+  labels:
+    C0: non-supported
+    C1: generable
+    C2: structurally-compatible
+    C3: certified-on-pinned-version
+  current_claim: baseline-only
+  certified_runtimes: []
+
+absents:
+  - no v6.1 provider build contracts
+  - no native Codex v6.1 plugin bundle
+  - no deterministic provider compiler
+  - no runtime discovery certification
+  - no behavioral certification
+  - no hashed per-file installation manifest
+  - no doctor or restore lifecycle
+
+verification:
+  regenerate: bash tests/run-python310.sh scripts/capture_distribution_baseline.py --write docs/compatibility/golden/legacy-v6-distribution.json
+  check: bash tests/run-python310.sh scripts/capture_distribution_baseline.py --check docs/compatibility/golden/legacy-v6-distribution.json
+  determinism: run check twice and require byte-identical output
+  mutation_policy: repository read-only except explicit --write target

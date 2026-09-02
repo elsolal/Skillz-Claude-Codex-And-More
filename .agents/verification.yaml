@@ -3,7 +3,7 @@ stack: mixed
 config_fingerprint: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 commands:
   lint: "bash -n install.sh scripts/*.sh .claude/scripts/*.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
-  test: "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/test-seo-geo-v3.sh"
+  test: "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/test-seo-geo-v3.sh"
 testability:
   harness: shell+unittest
   e2e: none
