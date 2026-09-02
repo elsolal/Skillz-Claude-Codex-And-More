@@ -1,0 +1,69 @@
+verdict: PASS
+niveau: 3
+tours: 3
+base_commit: "7a51117"
+gated_commit: "139b414"
+diff_hash: "30f83e3b958e695ff8bef55ad4b6e09d210be8fd5f57e58da4a6a56c1dbce439"
+preuve:
+  executable:
+    probe_freshness:
+      cmd: "bash scripts/run-python310.sh scripts/project_probe.py --root . --check"
+      statut: "vert (schema 2, project-probe/2.0.0, fingerprint 81a01b56...)"
+    lint:
+      cmd: "bash scripts/lint-shell.sh"
+      statut: "vert (18 files checked individually)"
+    repository_tests:
+      cmd: "bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py'"
+      statut: "vert (22 tests)"
+    memory_installer:
+      cmd: "bash tests/test-install-memory-cli.sh"
+      statut: vert
+    memory_tests:
+      cmd: "bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py'"
+      statut: "vert (266 tests)"
+    removal_migration:
+      cmd: "bash tests/test-removed-owned-artifacts.sh"
+      statut: vert
+    seo_geo:
+      cmd: "bash tests/test-seo-geo-v3.sh"
+      statut: "vert (25 Python, 3 Node, shell preflight and cleanup fixtures)"
+  opinion:
+    findings:
+      total: 1
+      confirmes: 1
+      refutes: 0
+      corriges: 1
+      restants: 0
+    rounds:
+      - round: 1
+        finding: "P1 correctness: freshness checked only the fingerprint, not schema or generator identity"
+        resolution: "manifest_is_fresh now requires schema 2, project-probe/2.0.0 and the current fingerprint"
+      - round: 2
+        new_confirmed_p0_p1: 0
+      - round: 3
+        new_confirmed_p0_p1: 0
+    lenses:
+      correctness_security: PASS
+      readability: PASS
+      performance: PASS
+      structural_maintainability: PASS
+
+decisions_prises_en_ton_nom:
+  - "Git index membership is the fingerprint ownership boundary; untracked provider state is excluded."
+  - "Repository-specific composite commands live in .agents/project-probe.json and remain string-compatible with v1 consumers."
+  - "Supabase security auditing is now strictly remote read-only; mutating HTTP examples and audit-time account creation were removed."
+
+ownership_proof:
+  untouched_user_files:
+    - path: ".claude/settings.local.json"
+      sha256: "227ace3f19677ab9240cc489da54f7613d3dff5a94e1c62e75c93c23a3a633a7"
+    - path: ".codex/hooks.json"
+      sha256: "ddd57dbb5f18981bdfdfee2bdb8cfd7d68a40b77050447d24e5442230106c225"
+    - path: ".codex/hooks/stop-hook.sh"
+      sha256: "b6650d42d0269b06131cedba44f1b1994bceb89b6a77ae06c5019514d3d5a27d"
+
+absents:
+  - "no configured typecheck command"
+  - "no configured build command"
+  - "no e2e harness or runtime application surface"
+  - "PDF delivery engine absent in the unrelated SEO/GEO suite; Markdown previews remain internal-only evidence"
