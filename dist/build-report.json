@@ -359,6 +359,10 @@
     }
   ],
   "catalog_hash": "14bf52e964eb90ea94f495a6f4fa485604e5ab89573bbddebfa9dff608181b70",
+  "distribution": {
+    "name": "skillz-claude",
+    "version": "6.1.0-dev.1"
+  },
   "packages": [
     {
       "provider": "agents-generic",

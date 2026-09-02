@@ -108,6 +108,11 @@ LEGACY FLAGS (deprecated, still work with a warning):
   --update              → update <current dir>
 
 For full docs: https://github.com/elsolal/Skillz-Claude-Codex-And-More
+
+V6.1 COMPILED BUNDLE PREVIEW:
+  bin/skillz install|update --runtime <provider> --target <explicit-path> --dry-run
+  bin/skillz doctor --runtime <provider> --target <explicit-path> --json
+  This manifest-owned path consumes dist/ only. The commands above remain the legacy fallback.
 EOF
 }
 

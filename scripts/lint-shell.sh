@@ -23,6 +23,10 @@ memory_entrypoint="$target_root/.claude/skills/llm-wiki/bin/memory"
 if [ -f "$memory_entrypoint" ]; then
   shell_files+=("$memory_entrypoint")
 fi
+skillz_entrypoint="$target_root/bin/skillz"
+if [ -f "$skillz_entrypoint" ]; then
+  shell_files+=("$skillz_entrypoint")
+fi
 
 for shell_file in "${shell_files[@]}"; do
   if ! bash -n "$shell_file"; then

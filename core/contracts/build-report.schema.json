@@ -3,9 +3,17 @@
   "$id": "https://skillz.local/schemas/build-report.schema.json",
   "title": "Provider Build Report",
   "type": "object",
-  "required": ["schema_version", "catalog_hash", "providers", "packages", "artifacts", "tree_hash"],
+  "required": ["schema_version", "distribution", "catalog_hash", "providers", "packages", "artifacts", "tree_hash"],
   "properties": {
     "schema_version": {"const": 1},
+    "distribution": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"type": "string"},
+        "version": {"type": "string"}
+      }
+    },
     "catalog_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "providers": {"type": "array", "items": {"type": "string"}},
     "packages": {"type": "array"},

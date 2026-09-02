@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillz.local/schemas/install-manifest-v1.schema.json",
+  "title": "Skillz Installation Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "install_id",
+    "previous_install_id",
+    "release",
+    "runtime",
+    "installed_at",
+    "files"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "install_id": {"type": "string", "format": "uuid"},
+    "previous_install_id": {"type": ["string", "null"]},
+    "release": {"type": "string", "minLength": 1},
+    "runtime": {"type": "string", "minLength": 1},
+    "installed_at": {"type": "string", "format": "date-time"},
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "artifact",
+          "source_id",
+          "source_hash",
+          "installed_hash",
+          "mode",
+          "ownership",
+          "merge_strategy"
+        ],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "artifact": {"type": "string", "minLength": 1},
+          "source_id": {"type": "string", "minLength": 1},
+          "source_hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+          "installed_hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+          "mode": {"type": "string", "pattern": "^[0-7]{4}$"},
+          "ownership": {"const": "skillz"},
+          "merge_strategy": {"const": "replace_owned"}
+        }
+      }
+    }
+  }
+}

@@ -156,6 +156,32 @@ Claude must be installed first since the other providers mirror it.
 </details>
 
 <details>
+<summary><strong>V6.1 compiled installer preview</strong></summary>
+
+The v6.1 path consumes only generated files under `dist/<runtime>`. It records a local manifest with
+source and installed hashes, refuses modified or unowned collisions, keeps bounded rollback
+snapshots, and supports JSON diagnostics. Always inspect the dry-run before targeting an existing
+provider directory.
+
+```bash
+# Build and inspect without writing the target
+bash tests/run-python310.sh tooling/build/compiler.py build --root . --output dist
+bin/skillz --json install --dist-root dist --runtime codex --target /explicit/target --dry-run
+
+# Install, diagnose, update and roll back
+bin/skillz install --dist-root dist --runtime codex --target /explicit/target
+bin/skillz --json doctor --dist-root dist --runtime codex --target /explicit/target
+bin/skillz update --dist-root dist --runtime codex --target /explicit/target --dry-run
+bin/skillz restore --target /explicit/target --dry-run
+bin/skillz uninstall --target /explicit/target --dry-run
+```
+
+This preview is separate from the universal `install.sh` fallback. It never silently adopts an
+existing file and never scans or deletes content outside paths recorded as `ownership: skillz`.
+
+</details>
+
+<details>
 <summary><strong>Update and uninstall</strong></summary>
 
 ```bash

@@ -438,6 +438,10 @@ def _build_into(root: Path, output: Path) -> dict[str, Any]:
 
     report = {
         "schema_version": 1,
+        "distribution": {
+            "name": distribution["name"],
+            "version": distribution["version"],
+        },
         "catalog_hash": hashlib.sha256(catalog_path.read_bytes()).hexdigest(),
         "providers": [provider["id"] for provider in providers],
         "provider_contract_hashes": {

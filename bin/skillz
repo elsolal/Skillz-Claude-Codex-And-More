@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+skillz_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+exec bash "$skillz_root/scripts/run-python310.sh" "$skillz_root/tooling/install/skillz.py" "$@"

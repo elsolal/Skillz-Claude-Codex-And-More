@@ -100,6 +100,8 @@ def _is_fingerprint_source(path: Path, root: Path) -> bool:
     relative_text = relative.as_posix()
     if relative_text == ".agents/verification.yaml":
         return False
+    if relative_text == "bin/skillz":
+        return True
     if path.name in CONFIG_NAMES or path.suffix == ".sh" or path.name == "SKILL.md":
         return True
     if parts and parts[0] == "scripts" and path.suffix == ".py":

@@ -64,6 +64,10 @@ class ProviderCompilerTests(unittest.TestCase):
         report = self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
         statuses = {(item["provider"], item["artifact_id"]): item["status"] for item in report["artifacts"]}
 
+        self.assertEqual(
+            report["distribution"],
+            {"name": "skillz-claude", "version": "6.1.0-dev.1"},
+        )
         self.assertEqual(statuses[("claude", "quick-fix")], "supported")
         self.assertEqual(statuses[("agents-generic", "quick-fix")], "unsupported")
         self.assertTrue(any(item["status"] == "pending" for item in report["capabilities"]))
