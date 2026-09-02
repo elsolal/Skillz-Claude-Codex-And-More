@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "provider": "gemini",
+  "output_root": "gemini",
+  "package": {
+    "status": "supported",
+    "manifest_path": "gemini-extension.json",
+    "marketplace_path": null,
+    "manifest_format": "gemini-extension",
+    "context_file_name": "GEMINI.md",
+    "components": {}
+  },
+  "artifacts": {
+    "instruction": {"status": "supported", "output_template": "GEMINI.md", "transform": "copy"},
+    "skill": {"status": "supported", "output_template": "skills/{alias}/SKILL.md", "transform": "copy"},
+    "command": {"status": "supported", "output_template": "commands/{alias}.toml", "transform": "gemini-command"},
+    "agent": {"status": "pending", "output_template": null, "transform": "none"},
+    "mcp": {"status": "pending", "output_template": null, "transform": "none"},
+    "hook": {"status": "pending", "output_template": null, "transform": "none"}
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "provider": "gemini",
+  "runtime": {
+    "name": "Gemini CLI",
+    "executable": "gemini",
+    "state_observed": "not-installed",
+    "version_observed": null
+  },
+  "certification": "C1",
+  "package": "supported",
+  "capabilities": {
+    "instruction": "supported",
+    "skill": "supported",
+    "command": "supported",
+    "agent": "pending",
+    "mcp": "pending",
+    "hook": "pending"
+  }
+}

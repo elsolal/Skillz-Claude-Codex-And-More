@@ -30,7 +30,7 @@
       "inputs": ["task", "approved-plan"],
       "outputs": ["implementation", "quality-gate"],
       "aliases": {"default": "dev-workflow"},
-      "providers": ["claude", "codex", "opencode", "agents-generic"],
+      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
       "risk": 4,
       "migration_state": "legacy"
     },
@@ -43,7 +43,7 @@
       "inputs": ["repository"],
       "outputs": ["verification-manifest"],
       "aliases": {"default": "project-probe"},
-      "providers": ["claude", "codex", "opencode", "agents-generic"],
+      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
       "risk": 3,
       "migration_state": "legacy"
     },
@@ -56,7 +56,7 @@
       "inputs": ["committed-diff", "verification-manifest"],
       "outputs": ["gate-envelope", "proof-payload"],
       "aliases": {"default": "quality-gate"},
-      "providers": ["claude", "codex", "opencode", "agents-generic"],
+      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
       "risk": 4,
       "migration_state": "legacy"
     },
@@ -69,7 +69,7 @@
       "inputs": ["repository"],
       "outputs": ["status-report"],
       "aliases": {"default": "status-workflow"},
-      "providers": ["claude", "codex", "opencode", "agents-generic"],
+      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
       "risk": 1,
       "migration_state": "legacy"
     },
@@ -82,8 +82,21 @@
       "inputs": ["problem-description"],
       "outputs": ["verified-fix"],
       "aliases": {"default": "quick-fix"},
-      "providers": ["claude", "codex", "opencode", "agents-generic"],
+      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
       "risk": 2,
+      "migration_state": "legacy"
+    },
+    {
+      "id": "gemini-instructions",
+      "public_name": "Gemini extension instructions",
+      "type": "instruction",
+      "source": "providers/gemini/GEMINI.md",
+      "dependencies": [],
+      "inputs": ["gemini-session"],
+      "outputs": ["provider-context"],
+      "aliases": {"default": "gemini-instructions"},
+      "providers": ["gemini"],
+      "risk": 1,
       "migration_state": "legacy"
     }
   ]

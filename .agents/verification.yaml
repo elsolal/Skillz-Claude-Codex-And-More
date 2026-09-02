@@ -2,7 +2,7 @@
 fingerprint_schema_version: 2
 generated_by: "project-probe/2.0.0"
 stack: "mixed"
-config_fingerprint: "86eb90a3094271389cc7479f9ec0cd2ce56c80100c74009b7d874f80085c5762"
+config_fingerprint: "e2e3a6de8694d17a6dea818e538878d61d68758eb8d36bd785ff0c86e9af58fb"
 fingerprint_sources:
   - ".agents/AGENTS.md"
   - ".agents/README.md"
@@ -185,6 +185,13 @@ fingerprint_sources:
   - "providers/claude/capabilities.yaml"
   - "providers/codex/build-contract.json"
   - "providers/codex/capabilities.yaml"
+  - "providers/gemini/GEMINI.md"
+  - "providers/gemini/build-contract.json"
+  - "providers/gemini/capabilities.yaml"
+  - "providers/grok/build-contract.json"
+  - "providers/grok/capabilities.yaml"
+  - "providers/kimi/build-contract.json"
+  - "providers/kimi/capabilities.yaml"
   - "providers/opencode/build-contract.json"
   - "providers/opencode/capabilities.yaml"
   - "scripts/capture_distribution_baseline.py"

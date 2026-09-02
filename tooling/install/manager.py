@@ -22,6 +22,9 @@ DEFAULT_BACKUP_LIMIT = 3
 RUNTIME_BINARIES = {
     "claude": "claude",
     "codex": "codex",
+    "gemini": "gemini",
+    "grok": "grok",
+    "kimi": "kimi",
     "opencode": "opencode",
 }
 

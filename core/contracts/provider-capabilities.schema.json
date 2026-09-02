@@ -8,7 +8,18 @@
   "properties": {
     "schema_version": {"const": 1},
     "provider": {"type": "string"},
-    "runtime": {"type": "object"},
+    "runtime": {
+      "type": "object",
+      "required": ["name", "version_observed"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "executable": {"type": "string", "minLength": 1},
+        "state_observed": {"enum": ["available", "broken", "not-installed", "not-applicable"]},
+        "version_observed": {"type": ["string", "null"]},
+        "reason": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
     "certification": {"enum": ["C0", "C1", "C2", "C3"]},
     "package": {"enum": ["supported", "pending", "unsupported"]},
     "capabilities": {

@@ -180,6 +180,193 @@
       "artifact_id": "dev-workflow",
       "migration_state": "legacy",
       "mode": "0644",
+      "output": "gemini/skills/dev-workflow/SKILL.md",
+      "provider": "gemini",
+      "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "gemini-instructions",
+      "artifact_id": "gemini-instructions",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "gemini/GEMINI.md",
+      "provider": "gemini",
+      "sha256": "9202cd7fb9c76eed5a1bdf69c443a578c9978f506494b9fbbccb23b6695620e3",
+      "status": "supported",
+      "transform": "copy",
+      "type": "instruction"
+    },
+    {
+      "alias": "project-probe",
+      "artifact_id": "project-probe",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "gemini/skills/project-probe/SKILL.md",
+      "provider": "gemini",
+      "sha256": "c4839c14402889447fbc24e410b8d61b07f78c404e801822ad66759ac13125c2",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "quality-gate",
+      "artifact_id": "quality-gate",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "gemini/skills/quality-gate/SKILL.md",
+      "provider": "gemini",
+      "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "quick-fix",
+      "artifact_id": "quick-fix",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "gemini/commands/quick-fix.toml",
+      "provider": "gemini",
+      "sha256": "7539126a54fcef141a1752a2eafca0718ddf2db9c9d8c16c8ebdff0ea330b08b",
+      "status": "supported",
+      "transform": "gemini-command",
+      "type": "command"
+    },
+    {
+      "alias": "status-workflow",
+      "artifact_id": "status-workflow",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "gemini/skills/status-workflow/SKILL.md",
+      "provider": "gemini",
+      "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "dev-workflow",
+      "artifact_id": "dev-workflow",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "grok/skills/dev-workflow/SKILL.md",
+      "provider": "grok",
+      "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "project-probe",
+      "artifact_id": "project-probe",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "grok/skills/project-probe/SKILL.md",
+      "provider": "grok",
+      "sha256": "c4839c14402889447fbc24e410b8d61b07f78c404e801822ad66759ac13125c2",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "quality-gate",
+      "artifact_id": "quality-gate",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "grok/skills/quality-gate/SKILL.md",
+      "provider": "grok",
+      "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "quick-fix",
+      "artifact_id": "quick-fix",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "grok/commands/quick-fix.md",
+      "provider": "grok",
+      "sha256": "f48490301efdc6a4042bd2f9e989510af5f35cb9e227bdfa20471fbb77e16db3",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
+      "alias": "status-workflow",
+      "artifact_id": "status-workflow",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "grok/skills/status-workflow/SKILL.md",
+      "provider": "grok",
+      "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "dev-workflow",
+      "artifact_id": "dev-workflow",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "kimi/skills/dev-workflow/SKILL.md",
+      "provider": "kimi",
+      "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "project-probe",
+      "artifact_id": "project-probe",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "kimi/skills/project-probe/SKILL.md",
+      "provider": "kimi",
+      "sha256": "c4839c14402889447fbc24e410b8d61b07f78c404e801822ad66759ac13125c2",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "quality-gate",
+      "artifact_id": "quality-gate",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "kimi/skills/quality-gate/SKILL.md",
+      "provider": "kimi",
+      "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "artifact_id": "quick-fix",
+      "migration_state": "legacy",
+      "provider": "kimi",
+      "status": "unsupported",
+      "type": "command"
+    },
+    {
+      "alias": "status-workflow",
+      "artifact_id": "status-workflow",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "kimi/skills/status-workflow/SKILL.md",
+      "provider": "kimi",
+      "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "dev-workflow",
+      "artifact_id": "dev-workflow",
+      "migration_state": "legacy",
+      "mode": "0644",
       "output": "opencode/skills/dev-workflow/SKILL.md",
       "provider": "opencode",
       "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367",
@@ -328,6 +515,96 @@
       "type": "hook"
     },
     {
+      "provider": "gemini",
+      "status": "supported",
+      "type": "instruction"
+    },
+    {
+      "provider": "gemini",
+      "status": "supported",
+      "type": "skill"
+    },
+    {
+      "provider": "gemini",
+      "status": "supported",
+      "type": "command"
+    },
+    {
+      "provider": "gemini",
+      "status": "pending",
+      "type": "agent"
+    },
+    {
+      "provider": "gemini",
+      "status": "pending",
+      "type": "mcp"
+    },
+    {
+      "provider": "gemini",
+      "status": "pending",
+      "type": "hook"
+    },
+    {
+      "provider": "grok",
+      "status": "supported",
+      "type": "instruction"
+    },
+    {
+      "provider": "grok",
+      "status": "supported",
+      "type": "skill"
+    },
+    {
+      "provider": "grok",
+      "status": "supported",
+      "type": "command"
+    },
+    {
+      "provider": "grok",
+      "status": "pending",
+      "type": "agent"
+    },
+    {
+      "provider": "grok",
+      "status": "pending",
+      "type": "mcp"
+    },
+    {
+      "provider": "grok",
+      "status": "pending",
+      "type": "hook"
+    },
+    {
+      "provider": "kimi",
+      "status": "pending",
+      "type": "instruction"
+    },
+    {
+      "provider": "kimi",
+      "status": "supported",
+      "type": "skill"
+    },
+    {
+      "provider": "kimi",
+      "status": "unsupported",
+      "type": "command"
+    },
+    {
+      "provider": "kimi",
+      "status": "pending",
+      "type": "agent"
+    },
+    {
+      "provider": "kimi",
+      "status": "pending",
+      "type": "mcp"
+    },
+    {
+      "provider": "kimi",
+      "status": "pending",
+      "type": "hook"
+    },
+    {
       "provider": "opencode",
       "status": "supported",
       "type": "instruction"
@@ -358,7 +635,7 @@
       "type": "hook"
     }
   ],
-  "catalog_hash": "14bf52e964eb90ea94f495a6f4fa485604e5ab89573bbddebfa9dff608181b70",
+  "catalog_hash": "23d49c38e13c5834f5b47e5ddd21beb74fc13bb3d356c0bc726009089caf8019",
   "distribution": {
     "name": "skillz-claude",
     "version": "6.1.0-dev.1"
@@ -370,17 +647,37 @@
     },
     {
       "manifest": "claude/.claude-plugin/plugin.json",
+      "manifest_format": "distribution",
       "manifest_sha256": "04665801637078e039a102850b38cb4d8ebd008984125ad6b9cb7eb3cc4ef79e",
       "provider": "claude",
       "status": "supported"
     },
     {
       "manifest": "codex/.codex-plugin/plugin.json",
+      "manifest_format": "distribution",
       "manifest_sha256": "8a959332781418ab4936fe9eb5eab2dd73a3cefcfe37aa8997d95e5bb3fff225",
       "marketplace": "codex/.agents/plugins/marketplace.json",
       "marketplace_sha256": "7dc7f89096799300dd70b2ca3e2b78978554665c85f023b6fba1afb11a129c6d",
       "provider": "codex",
       "status": "supported"
+    },
+    {
+      "manifest": "gemini/gemini-extension.json",
+      "manifest_format": "gemini-extension",
+      "manifest_sha256": "1fa6af5a0a5aff5bd2088c3d38b3296154aa2b2cbc01f1b7af2c596e0893a9f0",
+      "provider": "gemini",
+      "status": "supported"
+    },
+    {
+      "manifest": "grok/.claude-plugin/plugin.json",
+      "manifest_format": "distribution",
+      "manifest_sha256": "586e04760f4c9e14589bd79d1c1c85ca10a380184f123976920091f48b042d0c",
+      "provider": "grok",
+      "status": "supported"
+    },
+    {
+      "provider": "kimi",
+      "status": "unsupported"
     },
     {
       "provider": "opencode",
@@ -391,14 +688,20 @@
     "agents-generic": "1995f17b3b7900b1e6e4a710156893f0a19046b793653a2d8d04e75b11d65618",
     "claude": "7f3524bb17b243cea8d53f6dad734bf5587562a766dfa2132a10080b352178ef",
     "codex": "1455225a1453eb0f15c7e3279455b0189b78aad9ff720a196309875c724d91eb",
+    "gemini": "807dc36f7f3a0aabe2341c01687734f1b9cc7b9f5be2ebe8bc63f26ec57101a0",
+    "grok": "a80af8d9f5105d3f6c7b73ef4532dabf6525ee7a15eeca0d6d831758f740ceed",
+    "kimi": "5356e91f6287bf584b84158f751bc1aae7205d3d741f0e7d10066cd024868ef5",
     "opencode": "d8e9da97a18b6e9d2d74a22b4d5d42a1c47dd3ac8dfcc2a7ced1b28cd6064375"
   },
   "providers": [
     "agents-generic",
     "claude",
     "codex",
+    "gemini",
+    "grok",
+    "kimi",
     "opencode"
   ],
   "schema_version": 1,
-  "tree_hash": "8872bd2603e3855e58900e3c2b87ae00c3775fa63b4eaec832537804a141c282"
+  "tree_hash": "3cf4a75602e966b195346e3ee8ec1e7c31d4605811029da057158ace45b2e2bb"
 }

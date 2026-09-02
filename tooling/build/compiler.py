@@ -18,7 +18,13 @@ import uuid
 
 ARTIFACT_TYPES = ("instruction", "skill", "command", "agent", "mcp", "hook")
 STATUSES = {"supported", "pending", "unsupported"}
+CERTIFICATIONS = {"C0", "C1", "C2", "C3"}
 PACKAGE_COMPONENTS = {"apps", "commands", "hooks", "mcpServers", "skills"}
+PACKAGE_MANIFEST_FORMATS = {"distribution", "gemini-extension"}
+TRANSFORM_TYPES = {
+    "copy": set(ARTIFACT_TYPES),
+    "gemini-command": {"command"},
+}
 ALIAS_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
 
@@ -165,6 +171,17 @@ def _load_providers(root: Path) -> list[dict[str, Any]]:
             raise BuildError(f"provider identity mismatch: {provider}")
         if capabilities.get("schema_version") != 1 or contract.get("schema_version") != 1:
             raise BuildError(f"unsupported provider schema: {provider}")
+        certification = capabilities.get("certification")
+        runtime = capabilities.get("runtime")
+        if certification not in CERTIFICATIONS or not isinstance(runtime, dict):
+            raise BuildError(f"invalid provider certification: {provider}")
+        if not isinstance(runtime.get("name"), str) or not runtime["name"]:
+            raise BuildError(f"provider runtime name missing: {provider}")
+        version_observed = runtime.get("version_observed")
+        if version_observed is not None and not isinstance(version_observed, str):
+            raise BuildError(f"provider runtime version is invalid: {provider}")
+        if certification in {"C2", "C3"} and not version_observed:
+            raise BuildError(f"provider certification lacks a pinned version: {provider}/{certification}")
         package_status = capabilities.get("package")
         package = contract.get("package")
         if package_status not in STATUSES or not isinstance(package, dict):
@@ -173,6 +190,8 @@ def _load_providers(root: Path) -> list[dict[str, Any]]:
             raise BuildError(f"package capability/build mismatch: {provider}")
         manifest_path = package.get("manifest_path")
         marketplace_path = package.get("marketplace_path")
+        manifest_format = package.get("manifest_format", "distribution")
+        context_file_name = package.get("context_file_name")
         components = package.get("components")
         if not isinstance(components, dict) or not all(
             isinstance(key, str) and isinstance(value, str)
@@ -187,6 +206,14 @@ def _load_providers(root: Path) -> list[dict[str, Any]]:
         if package_status == "supported":
             if not isinstance(manifest_path, str):
                 raise BuildError(f"supported package has no manifest: {provider}")
+            if manifest_format not in PACKAGE_MANIFEST_FORMATS:
+                raise BuildError(f"unknown package manifest format: {provider}/{manifest_format}")
+            if manifest_format == "gemini-extension":
+                if not isinstance(context_file_name, str) or not context_file_name:
+                    raise BuildError(f"Gemini extension has no context file: {provider}")
+                _safe_relative(context_file_name, "provider package context file")
+            elif context_file_name is not None:
+                raise BuildError(f"unexpected package context file: {provider}")
             _safe_relative(manifest_path, "provider package manifest")
             if marketplace_path is not None:
                 if not isinstance(marketplace_path, str):
@@ -196,7 +223,13 @@ def _load_providers(root: Path) -> list[dict[str, Any]]:
                 if not component_name or not component_path.startswith("./"):
                     raise BuildError(f"invalid package component: {provider}/{component_name}")
                 _safe_relative(component_path[2:], "provider package component")
-        elif manifest_path is not None or marketplace_path is not None or components:
+        elif (
+            manifest_path is not None
+            or marketplace_path is not None
+            or components
+            or "manifest_format" in package
+            or context_file_name is not None
+        ):
             raise BuildError(f"non-supported package has build behavior: {provider}")
         declared = capabilities.get("capabilities")
         implementations = contract.get("artifacts")
@@ -212,8 +245,11 @@ def _load_providers(root: Path) -> list[dict[str, Any]]:
             if implementation.get("status") != status:
                 raise BuildError(f"capability/build mismatch: {provider}/{artifact_type}")
             if status == "supported":
-                if implementation.get("transform") != "copy" or not isinstance(
-                    implementation.get("output_template"), str
+                transform = implementation.get("transform")
+                if (
+                    transform not in TRANSFORM_TYPES
+                    or artifact_type not in TRANSFORM_TYPES[transform]
+                    or not isinstance(implementation.get("output_template"), str)
                 ):
                     raise BuildError(f"supported capability is not implemented: {provider}/{artifact_type}")
             elif implementation.get("transform") != "none" or implementation.get("output_template") is not None:
@@ -275,6 +311,48 @@ def _write_json(path: Path, payload: dict[str, Any]) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _markdown_frontmatter(content: str) -> tuple[dict[str, str], str]:
+    if not content.startswith("---\n"):
+        return {}, content
+    closing = content.find("\n---\n", 4)
+    if closing < 0:
+        raise BuildError("unterminated Markdown frontmatter")
+    fields: dict[str, str] = {}
+    for line in content[4:closing].splitlines():
+        if not line or line.startswith((" ", "\t")) or ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        normalized = value.strip()
+        if (
+            len(normalized) >= 2
+            and normalized[0] in {'"', "'"}
+            and normalized[-1] == normalized[0]
+        ):
+            normalized = normalized[1:-1]
+        fields[key.strip()] = normalized
+    return fields, content[closing + 5 :]
+
+
+def _render_artifact(source: Path, transform: str) -> tuple[bytes, int]:
+    if transform == "copy":
+        return source.read_bytes(), source.stat().st_mode & 0o777
+    if transform == "gemini-command":
+        try:
+            content = source.read_text(encoding="utf-8")
+        except UnicodeDecodeError as error:
+            raise BuildError(f"Gemini command source is not UTF-8: {source}") from error
+        frontmatter, body = _markdown_frontmatter(content)
+        description = frontmatter.get("description", source.stem)
+        prompt = body.strip() + "\n"
+        prompt = prompt.replace("$ARGUMENTS", "{{args}}")
+        rendered = (
+            f"description = {json.dumps(description, ensure_ascii=False)}\n"
+            f"prompt = {json.dumps(prompt, ensure_ascii=False)}\n"
+        )
+        return rendered.encode("utf-8"), 0o644
+    raise BuildError(f"unknown artifact transform: {transform}")
+
+
 def _build_provider_package(
     provider: dict[str, Any],
     distribution: dict[str, Any],
@@ -298,24 +376,34 @@ def _build_provider_package(
     if manifest_text in outputs:
         raise BuildError(f"output collision: {manifest_text}")
     outputs.add(manifest_text)
-    manifest = {
-        key: distribution[key]
-        for key in (
-            "name",
-            "version",
-            "description",
-            "author",
-            "homepage",
-            "repository",
-            "license",
-            "keywords",
-        )
-    }
-    manifest.update(package["components"])
+    manifest_format = package.get("manifest_format", "distribution")
+    if manifest_format == "gemini-extension":
+        manifest = {
+            "name": distribution["name"],
+            "version": distribution["version"],
+            "description": distribution["description"],
+            "contextFileName": package["context_file_name"],
+        }
+    else:
+        manifest = {
+            key: distribution[key]
+            for key in (
+                "name",
+                "version",
+                "description",
+                "author",
+                "homepage",
+                "repository",
+                "license",
+                "keywords",
+            )
+        }
+        manifest.update(package["components"])
     report_item.update(
         {
             "manifest": manifest_text,
             "manifest_sha256": _write_json(output / manifest_relative, manifest),
+            "manifest_format": manifest_format,
         }
     )
 
@@ -423,18 +511,44 @@ def _build_into(root: Path, output: Path) -> dict[str, Any]:
                 target = output / relative
                 target.parent.mkdir(parents=True, exist_ok=True)
                 source = root / artifact["source"]
-                target.write_bytes(source.read_bytes())
-                target.chmod(source.stat().st_mode & 0o777)
+                transform = build_rule["transform"]
+                content, mode = _render_artifact(source, transform)
+                target.write_bytes(content)
+                target.chmod(mode)
                 report_item.update(
                     {
                         "alias": alias,
                         "output": relative_text,
                         "mode": f"{target.stat().st_mode & 0o777:04o}",
                         "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
-                        "transform": "copy",
+                        "transform": transform,
                     }
                 )
             report_artifacts.append(report_item)
+
+    for provider in providers:
+        contract = provider["contract"]
+        package = contract["package"]
+        if package["status"] != "supported":
+            continue
+        output_root = PurePosixPath(contract["output_root"])
+        if package.get("manifest_format", "distribution") == "gemini-extension":
+            context_output = (
+                output_root
+                / _safe_relative(package["context_file_name"], "provider package context file")
+            ).as_posix()
+            if context_output not in outputs:
+                raise BuildError(f"Gemini extension context is not generated: {context_output}")
+        for component_name, component_path in package["components"].items():
+            component_prefix = (
+                output_root
+                / _safe_relative(component_path[2:], "provider package component")
+            ).as_posix().rstrip("/") + "/"
+            if not any(output.startswith(component_prefix) for output in outputs):
+                raise BuildError(
+                    f"package component has no generated artifacts: "
+                    f"{provider['id']}/{component_name}"
+                )
 
     report = {
         "schema_version": 1,

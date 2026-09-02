@@ -17,6 +17,8 @@
         "status": {"enum": ["supported", "pending", "unsupported"]},
         "manifest_path": {"type": ["string", "null"]},
         "marketplace_path": {"type": ["string", "null"]},
+        "manifest_format": {"enum": ["distribution", "gemini-extension"]},
+        "context_file_name": {"type": "string"},
         "components": {"type": "object", "additionalProperties": {"type": "string"}}
       }
     },
@@ -29,7 +31,7 @@
         "properties": {
           "status": {"enum": ["supported", "pending", "unsupported"]},
           "output_template": {"type": ["string", "null"]},
-          "transform": {"enum": ["copy", "none"]}
+          "transform": {"enum": ["copy", "gemini-command", "none"]}
         }
       }
     }

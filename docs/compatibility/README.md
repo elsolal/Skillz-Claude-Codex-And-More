@@ -34,3 +34,12 @@ A post-v6 checkout is expected to differ from this snapshot. Regenerate it only 
 legacy source state when the capture itself is proven wrong. A changed golden is evidence to
 review, not a file to update automatically. Runtime certification is tracked separately at C1
 (structure), C2 (native discovery) and C3 (behavioral smoke).
+
+## v6.1 generated providers
+
+- `p0-vertical-slice.md` records the Claude, Codex and OpenCode pilot routes.
+- `provider-adapters.md` records the Kimi native, Kimi-via-Codex, Grok Build and Gemini routes,
+  including the exact structural command and the evidence that is still absent.
+- `golden/v6.1-p0-distribution.json` is the reviewed deterministic snapshot for every provider
+  currently emitted by the compiler. Its historical filename is retained to avoid silently
+  replacing the review anchor during the adapter rollout.

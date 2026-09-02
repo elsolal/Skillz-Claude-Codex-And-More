@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import shutil
 import tempfile
+import tomllib
 import unittest
 
 
@@ -100,10 +101,109 @@ class ProviderCompilerTests(unittest.TestCase):
 
         packages = {item["provider"]: item for item in report["packages"]}
         self.assertEqual(packages["claude"]["status"], "supported")
+        self.assertEqual(packages["grok"]["status"], "supported")
+        self.assertEqual(packages["gemini"]["status"], "supported")
+        self.assertEqual(packages["kimi"]["status"], "unsupported")
         self.assertEqual(packages["opencode"]["status"], "unsupported")
         self.assertEqual(packages["agents-generic"]["status"], "unsupported")
         self.assertFalse((output / "opencode" / ".codex-plugin").exists())
         self.assertFalse((output / "agents-generic" / ".codex-plugin").exists())
+
+    def test_kimi_adapter_generates_skills_without_claiming_a_package(self):
+        output = self.temp_dir / "dist"
+        report = self.compiler.build_repository(self.fixture, output)
+
+        self.assertEqual(
+            (output / "kimi" / "skills" / "dev-workflow" / "SKILL.md").read_bytes(),
+            (self.fixture / ".claude" / "skills" / "dev-workflow" / "SKILL.md").read_bytes(),
+        )
+        self.assertFalse((output / "kimi" / "commands").exists())
+        quick_fix = next(
+            item
+            for item in report["artifacts"]
+            if item["provider"] == "kimi" and item["artifact_id"] == "quick-fix"
+        )
+        self.assertEqual(quick_fix["status"], "unsupported")
+
+    def test_grok_adapter_generates_claude_compatible_plugin(self):
+        output = self.temp_dir / "dist"
+        report = self.compiler.build_repository(self.fixture, output)
+
+        manifest = json.loads(
+            (output / "grok" / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(manifest["skills"], "./skills/")
+        self.assertEqual(manifest["commands"], "./commands/")
+        self.assertTrue((output / "grok" / "commands" / "quick-fix.md").is_file())
+        package = next(item for item in report["packages"] if item["provider"] == "grok")
+        self.assertEqual(package["manifest_format"], "distribution")
+
+    def test_gemini_adapter_generates_extension_and_toml_command(self):
+        output = self.temp_dir / "dist"
+        report = self.compiler.build_repository(self.fixture, output)
+
+        manifest = json.loads(
+            (output / "gemini" / "gemini-extension.json").read_text(encoding="utf-8")
+        )
+        command = tomllib.loads(
+            (output / "gemini" / "commands" / "quick-fix.toml").read_text(encoding="utf-8")
+        )
+        self.assertEqual(manifest["contextFileName"], "GEMINI.md")
+        self.assertEqual(manifest["version"], "6.1.0-dev.1")
+        self.assertEqual(
+            (output / "gemini" / "GEMINI.md").read_bytes(),
+            (self.fixture / "providers" / "gemini" / "GEMINI.md").read_bytes(),
+        )
+        self.assertIn("# Quick Fix", command["prompt"])
+        self.assertIn("{{args}}", command["prompt"])
+        self.assertNotIn("$ARGUMENTS", command["prompt"])
+        self.assertTrue(command["description"].endswith('"description du problème"'))
+        package = next(item for item in report["packages"] if item["provider"] == "gemini")
+        self.assertEqual(package["manifest_format"], "gemini-extension")
+
+    def test_provider_certification_does_not_exceed_observed_runtime(self):
+        for provider, expected_state in (
+            ("kimi", "broken"),
+            ("grok", "not-installed"),
+            ("gemini", "not-installed"),
+        ):
+            capabilities = json.loads(
+                (self.fixture / "providers" / provider / "capabilities.yaml").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(capabilities["certification"], "C1")
+            self.assertEqual(capabilities["runtime"]["state_observed"], expected_state)
+            self.assertIsNone(capabilities["runtime"]["version_observed"])
+
+    def test_transform_cannot_be_used_for_wrong_artifact_type(self):
+        contract_path = self.fixture / "providers" / "gemini" / "build-contract.json"
+        contract = json.loads(contract_path.read_text(encoding="utf-8"))
+        contract["artifacts"]["skill"]["transform"] = "gemini-command"
+        contract_path.write_text(json.dumps(contract), encoding="utf-8")
+
+        with self.assertRaisesRegex(self.compiler.BuildError, "supported capability is not implemented"):
+            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
+    def test_native_discovery_certification_requires_a_pinned_version(self):
+        capabilities_path = self.fixture / "providers" / "gemini" / "capabilities.yaml"
+        capabilities = json.loads(capabilities_path.read_text(encoding="utf-8"))
+        capabilities["certification"] = "C2"
+        capabilities_path.write_text(json.dumps(capabilities), encoding="utf-8")
+
+        with self.assertRaisesRegex(self.compiler.BuildError, "certification lacks a pinned version"):
+            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
+    def test_gemini_manifest_cannot_reference_an_absent_context_file(self):
+        catalog = self._catalog()
+        instructions = next(
+            item for item in catalog["artifacts"] if item["id"] == "gemini-instructions"
+        )
+        instructions["providers"] = []
+        self._write_catalog(catalog)
+
+        with self.assertRaisesRegex(self.compiler.BuildError, "context is not generated"):
+            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
 
     def test_vertical_slice_matches_legacy_sources_across_p0(self):
         output = self.temp_dir / "dist"
