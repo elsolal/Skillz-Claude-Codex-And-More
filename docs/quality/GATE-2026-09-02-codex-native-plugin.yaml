@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 3
+base_sha: "731e835ace035dc54760fe3bc6f735759570f1db"
+head_sha: "bf77dd27d77751ca6cdcc58c96f146b356b2bfa9"
+code_diff_hash: "e30b9dc4f636a895c0586de2cfc4cdce433397e85eb08ff751392342324e9fc7"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-09-02-codex-native-plugin.json"
+proof_payload_hash: "9e0b17eb6a77a55cf9326fb73af58fc02e9311e86b103ddd106f2b208d4455fb"
+integrity_sha256: "1495ca97c5f7d973cc88271a3aaa447b93d8dfd2c04a2f2aa6e749dd56097b00"

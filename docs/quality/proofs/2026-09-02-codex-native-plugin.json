@@ -1,0 +1,69 @@
+{
+  "absents": [
+    "no configured typecheck command",
+    "no configured build command",
+    "no e2e harness",
+    "Codex headless behavioral skill invocation, hooks and alternate model providers remain C3 work",
+    "Claude and OpenCode native behavioral discovery remains pending beyond structural P0 parity",
+    "PDF delivery engine absent in the unrelated SEO/GEO suite; Markdown previews remain internal-only evidence"
+  ],
+  "decisions_prises_en_ton_nom": [
+    "publish the development package as 6.1.0-dev.1 rather than claiming a stable 6.1.0 release",
+    "certify Codex at C2 only for isolated native marketplace, installation, listing, enablement and installed skills",
+    "retain Codex flat prompts as a legacy diagnostic fallback while namespaced plugin skills are the native route"
+  ],
+  "executions": [
+    {
+      "command": "bash scripts/lint-shell.sh",
+      "exit_code": 0,
+      "name": "lint",
+      "status": "passed",
+      "summary": "18 shell files parsed individually in two consecutive clean rounds"
+    },
+    {
+      "command": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py --bundle dist/codex --output docs/compatibility/codex-plugin-0.152.0.json --check && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh",
+      "exit_code": 0,
+      "name": "test",
+      "status": "passed",
+      "summary": "48 repository tests, 266 memory tests, deterministic compiler check, isolated Codex C2 certification, upstream freshness, migration cleanup, 25 SEO/GEO Python tests and 3 Node tests passed in two consecutive clean rounds"
+    }
+  ],
+  "manifest_fingerprint": "b11f5d0ee41f53317df1bba498a9f1a8531e8d2b6cff3055bb1d66c81ac0c3bb",
+  "opinion": {
+    "findings": {
+      "confirmed": 2,
+      "fixed": 2,
+      "refuted": 0,
+      "remaining": 0,
+      "total": 2
+    },
+    "lenses": {
+      "correctness_security": "PASS",
+      "performance": "PASS",
+      "readability": "PASS",
+      "structural_maintainability": "PASS"
+    },
+    "rounds": [
+      {
+        "findings": [
+          "P1: URL marketplace source made the plugin visible but attempted to git-clone a non-repository dist bundle",
+          "P1: arbitrary package component keys could overwrite catalog-owned name or version fields"
+        ],
+        "resolutions": [
+          "use the observed Codex local source contract and prove add/list/install in an isolated Codex home",
+          "close package components to known manifest surfaces and cover identity override with a negative test"
+        ],
+        "round": 1
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 2
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 3
+      }
+    ]
+  },
+  "schema_version": 1
+}
