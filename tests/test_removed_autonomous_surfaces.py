@@ -21,6 +21,7 @@ PROHIBITED = re.compile(
 )
 ALLOWED_EXACT = {
     "CHANGELOG.md",
+    "docs/migrations/v6-to-v6.1.md",
     "docs/migrations/v6.1-" + "ra" + "lph-removal.md",
 }
 ALLOWED_PREFIXES = (
