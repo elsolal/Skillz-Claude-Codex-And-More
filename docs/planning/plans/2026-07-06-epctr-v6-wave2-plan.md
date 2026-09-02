@@ -1,3 +1,12 @@
+---
+document_id: plan.epctr-v6-wave2
+version: "1"
+lifecycle: archived
+superseded_by: null
+amended_by: []
+amends: []
+---
+
 # D-EPCT+R v6 — Vague 2 : /dev refondu (niveaux, stop unique, lanceurs) — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

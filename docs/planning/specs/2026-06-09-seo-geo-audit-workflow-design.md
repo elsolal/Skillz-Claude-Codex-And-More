@@ -1,5 +1,11 @@
 ---
 title: SEO/GEO Audit Workflow
+document_id: spec.seo-geo-audit-workflow
+version: "1"
+lifecycle: current
+superseded_by: null
+amended_by: []
+amends: []
 status: approved
 approved_by: human
 approved_at: 2026-06-09T19:45:00Z

@@ -1,5 +1,11 @@
 ---
 title: "Observable second-brain efficiency — Design"
+document_id: spec.second-brain-efficiency
+version: "1"
+lifecycle: current
+superseded_by: null
+amended_by: []
+amends: []
 status: approved
 approved_by: human
 approved_at: 2026-07-16

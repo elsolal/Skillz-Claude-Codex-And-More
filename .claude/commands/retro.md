@@ -6,6 +6,8 @@ description: Rétrospective engineering — analyse commits, sessions de travail
 
 Generates a comprehensive engineering retrospective analyzing commit history, work patterns, and code quality metrics. Team-aware: identifies contributors with per-person praise and growth opportunities.
 
+This command is observational and read-only. It may propose changes for human review, but it must not mutate workflow files, planning documents, retrospectives, Git state, or project configuration.
+
 ## Arguments
 - `/retro` — default: last 7 days
 - `/retro 24h` — last 24 hours
@@ -19,11 +21,11 @@ Generates a comprehensive engineering retrospective analyzing commit history, wo
 
 ## Step 1: Gather Raw Data
 
-First, fetch origin and identify the current user:
+Use the locally available `origin/main` ref and identify the current user. Do not fetch or mutate refs; report the ref timestamp so the human can judge freshness:
 ```bash
-git fetch origin main --quiet
 git config user.name
 git config user.email
+git log -1 --format="%H|%ai" origin/main
 ```
 
 The name returned by `git config user.name` is **"you"** — the person reading this retro.
@@ -187,13 +189,16 @@ If first retro, skip comparison.
 
 ---
 
-## Step 12: Save Snapshot
+## Step 12: Rework Lens
 
-```bash
-mkdir -p .context/retros
-```
+Answer these four stable questions using only evidence gathered in this retro. Clearly label an answer `Insufficient evidence` instead of inventing causality.
 
-Save JSON snapshot with: date, window, metrics, authors, streak_days, tweetable summary.
+1. **Quel délai ou détour aurait pu être évité ?**
+2. **Quel rework a été provoqué par une hypothèse ou une preuve insuffisante ?**
+3. **Quel contexte manquait au moment de décider ?**
+4. **Quelle étape doit être supprimée, simplifiée ou automatisée la prochaine fois ?**
+
+Each answer is an observation proposed to the human. It may include an evidence-backed suggestion, but it must never update a skill, command, process, plan, or configuration automatically.
 
 ---
 
@@ -214,7 +219,8 @@ Structure:
 9. Team Breakdown (per teammate)
 10. Top 3 Team Wins
 11. 3 Things to Improve
-12. 3 Habits for Next Week
+12. Rework Lens (the four stable questions from Step 12)
+13. 3 Habits for Next Week
 
 ---
 
@@ -233,7 +239,7 @@ When user runs `/retro compare`:
 - Specific and concrete — anchor in actual commits
 - Skip generic praise — say what was good and why
 - ~3000-4500 words output
-- ALL output to conversation (except `.context/retros/` JSON snapshot)
+- ALL output to conversation; do not save or mutate any project file
 
 ---
 

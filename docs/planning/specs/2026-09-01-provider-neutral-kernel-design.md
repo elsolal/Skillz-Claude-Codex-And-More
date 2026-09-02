@@ -1,5 +1,7 @@
 ---
 title: "D-EPCT+R v6.1 — Provider-neutral kernel"
+document_id: spec.provider-neutral-kernel
+version: "6.1"
 status: approved
 approved_by: aymeric
 approved_at: 2026-09-01
@@ -7,6 +9,9 @@ created_at: 2026-09-01
 slug: provider-neutral-kernel
 level: 4
 lifecycle: current
+superseded_by: null
+amended_by: []
+amends: []
 source_plan: docs/planning/plans/2026-07-24-d-epct-v6-1-provider-neutral-hardening-plan.md
 source_release: ai-driven-dev/framework@3082c8ff7f862df814f15f6e669a2005b50d3459
 ---

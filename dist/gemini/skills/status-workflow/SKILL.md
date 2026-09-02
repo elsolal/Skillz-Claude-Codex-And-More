@@ -1,97 +1,136 @@
 ---
 name: status-workflow
-description: Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.
+description: Evidence-backed, read-only project status guide that classifies installation, runtime capabilities, probe, planning, implementation, quality-gate, and ship readiness without inventing state.
 ---
 
-# Status Workflow — Project Dashboard
+# Status Workflow — Evidence-backed Project Guide
 
-This skill describes the read-only status workflow executed by `/status`. It gathers the project's current state across planning docs, GitHub, and git, then presents a dashboard and recommends the next action.
+`/status` is a read-only classifier. It reports only states supported by local evidence, cites that evidence next to every conclusion, and proposes one justified next action without executing it.
 
-**Input**: none (the command is invoked without arguments).
+**Input**: none. An explicit installation target or runtime supplied by the user may narrow the scan.
 
-**Output**: a dashboard table + next-step recommendation.
+**Output**: runtime/install health, project phase, evidence table, and one next-step recommendation.
 
----
+## Invariants
 
-## Data sources to scan
+- Never modify files, install or update anything, run project checks, commit, push, or fetch.
+- Never infer that an installation, phase, test, or gate is healthy from the presence of source files alone.
+- Distinguish `absent`, `stale`, `partial`, `ready`, and `unknown`. Missing proof means `unknown` unless the expected location was resolved and checked.
+- Cite an exact local path, command result, hash comparison, branch fact, or runtime probe for every state and recommendation.
+- Treat `docs/`, generated `dist/`, comments, and historical gates as context, not proof of current runtime or ship state.
 
-Scan all of these in parallel (independent reads):
+## Evidence collection
 
-| Source | How | What to extract |
+Collect independent reads in parallel when the runtime supports it. A sequential fallback must produce the same classifications.
+
+### 1. Runtime and installation
+
+1. Inspect `providers/*/capabilities.yaml` for declared artifact support and certification level.
+2. Probe only known runtime executables with `command -v`; record the resolved executable and observed version when available. A provider contract is not proof that its runtime is installed.
+3. If the active runtime and installation target can be resolved, run the manifest-owned doctor in read-only mode:
+
+   ```bash
+   bash tests/run-python310.sh tooling/install/skillz.py --json doctor \
+     --dist-root dist --runtime <runtime> --target <explicit-target>
+   ```
+
+4. Interpret doctor evidence exactly:
+   - no manifest at a resolved target plus missing expected files → `not-installed`;
+   - `broken`, file-state drift, or missing owned files → `partially-installed`;
+   - `partial` or release/version drift → `partially-installed`;
+   - `healthy` → `installed`;
+   - unresolved target or unavailable doctor evidence → `installation-unknown`.
+
+Never search an entire home directory. Never run install, update, restore, or uninstall from `/status`.
+
+### 2. Project probe
+
+- Missing `.agents/verification.yaml` → `project-unprobed`.
+- Otherwise run the read-only freshness check:
+
+  ```bash
+  bash tests/run-python310.sh scripts/project_probe.py \
+    --root . --output .agents/verification.yaml --check
+  ```
+
+- Non-zero freshness result → `project-unprobed` with reason `stale manifest`.
+- A fresh manifest proves only configured verification commands and declared absences; it does not prove those commands passed.
+
+### 3. Planning lifecycle
+
+Inspect current planning documents under `docs/planning/{plans,specs,prd,architecture}/`. When the lifecycle validator exists, run it read-only:
+
+```bash
+bash tests/run-python310.sh scripts/validate_planning_lifecycle.py --root . --json
+```
+
+For the work item associated with the current branch or user request:
+
+- an applicable draft or missing approval fields → `plan-awaiting-approval`;
+- an approved applicable spec plus no implementation evidence → planning is ready;
+- `archived` and `superseded` documents are never selected as active instructions;
+- multiple plausible current documents without a branch/task link → `planning-unknown`, not an invented match.
+
+### 4. Implementation and gate
+
+Read `git status --short`, `git branch --show-current`, `git log --oneline -5`, and local gate files under `docs/quality/`.
+
+- A non-main branch with commits or tracked work attributable to the current task → `implementation-in-progress`.
+- Unrelated or untracked files are reported separately and never treated as implementation proof.
+- Identify a candidate gate only when its scope/branch metadata matches the current work. Verify it mechanically:
+
+  ```bash
+  bash tests/run-python310.sh scripts/gate_verify.py --root . verify <gate-file>
+  ```
+
+- Missing matching gate, failed envelope verification, mismatched diff hash, mismatched manifest fingerprint, or commits after the gate → `gate-stale`.
+- A fresh `PASS` gate plus a clean scoped diff and a shippable feature branch → `ready-to-ship`.
+- `CONCERNS`, `FAIL`, or `WAIVED` never silently become `ready-to-ship`; report the exact verdict and required human decision.
+
+GitHub issue and PR reads are optional corroboration. A missing `gh` binary, authentication, or network is a limitation, not a reason to fail the local status report.
+
+## State precedence and next action
+
+Choose the first supported state in this order. Do not skip a higher-priority blocker.
+
+| State | Minimum proof | Justified next action |
 |---|---|---|
-| Brainstorms | `Glob: docs/planning/brainstorms/*.md` | count + most recent |
-| UX Design | `Glob: docs/planning/ux/*.md` | count + most recent |
-| PRD | `Glob: docs/planning/prd/*.md` | count + most recent |
-| UI Design | `Glob: docs/planning/ui/*.md` | count + most recent |
-| Architecture | `Glob: docs/planning/architecture/*.md` | count + most recent |
-| Stories | `Glob: docs/stories/*/STORY-*.md` | count per epic |
-| GitHub Issues | `gh issue list --limit 20 --state all` | open/closed/in-progress breakdown |
-| GitHub PRs | `gh pr list --limit 10` | open PRs |
-| Git state | `git status --short`, `git log --oneline -5`, `git branch --show-current` | clean/dirty, recent commits, current branch |
+| `not-installed` | resolved target checked; no manifest and expected bundle absent | show the explicit dry-run install command |
+| `partially-installed` | doctor reports broken/partial/drift | review doctor conflicts, then explicit update/restore action |
+| `project-unprobed` | manifest missing or freshness check fails | run `project-probe` |
+| `plan-awaiting-approval` | applicable plan/spec lacks required human approval | review and approve the named spec |
+| `implementation-in-progress` | scoped branch commits or tracked changes; no fresh PASS gate | continue `/dev` at the evidenced phase |
+| `gate-stale` | matching gate absent or mechanical verification fails | rerun `quality-gate` after checks |
+| `ready-to-ship` | fresh PASS gate, valid envelope, clean scoped state | `/ship <branch>` |
+| `idle-or-unknown` | no stronger state has adequate proof | ask for task scope or pick the next priority |
 
-If any source returns empty (directory doesn't exist, no matches), mark it as "—" in the output instead of erroring.
-
----
+The recommendation must name the evidence that caused it and must not execute the action.
 
 ## Output format
 
-Present the state in 4 sections:
-
-### Section 1 — Planning Checklist
-
 ```markdown
-| Document | Status | File |
-|---|---|---|
-| Brainstorm | ✅ / ❌ / — | <path> |
-| UX Design | ✅ / ❌ / ⏭️ (optional) | <path> |
-| PRD | ✅ / ❌ | <path> |
-| UI Design | ✅ / ❌ / ⏭️ | <path> |
-| Architecture | ✅ / ❌ | <path> |
-| Stories | ✅ (N stories) / ❌ | <path or count> |
+## Runtime and installation
+| Runtime | Detected/version | Declared capabilities | Certification | Install health | Evidence/limitations |
+
+## Project state
+| Layer | State | Evidence |
+| Installation | ... | ... |
+| Probe | ... | ... |
+| Planning | ... | ... |
+| Implementation | ... | ... |
+| Gate | ... | ... |
+
+Current state: `<classified-state>`
+Why: <one sentence citing exact proof>
+Next step: `<command or human action>` — <why it is the next safe transition>
 ```
 
-### Section 2 — GitHub Sync
-
-```markdown
-| Metric | Value |
-|---|---|
-| Open issues | N |
-| Closed issues (last 7 days) | N |
-| Open PRs | N |
-```
-
-### Section 3 — Git State
-
-```markdown
-- Current branch: `branch-name`
-- Working tree: clean / N files modified
-- Last 5 commits: <brief list>
-```
-
-### Section 4 — Recommendations
-
-Based on what's present and what's missing, suggest the next action:
-
-- No planning docs at all → `/discovery` to start from scratch
-- Brainstorm/PRD present but no stories → `/discovery` to finish planning
-- Stories ready but no dev started → `/dev #<first P0 story>`
-- Feature branch with work → `/ship` to open PR
-- Working tree dirty on main → recommend a feature branch
-- Everything clean + main up to date → "Project is idle — pick next priority"
-
-Present as a single `Next step: <command>` line at the end.
-
----
-
-## Read-only guarantee
-
-This workflow must NEVER modify files, NEVER commit, NEVER push. It's a pure read. If the user wants changes, they run another command based on your recommendations.
-
----
+Use `unknown` or `not checked` in cells that lack evidence. Never replace missing values with reassuring language.
 
 ## Anti-patterns
 
-- ❌ Failing the whole command if one data source is missing — use "—" instead
-- ❌ Running `git status -uall` (can be slow on large repos)
-- ❌ Fetching every issue in paginated form — stick to `--limit 20`
-- ❌ Writing to any file during `/status`
+- Treating `dist/<runtime>` or a provider contract as proof of installation
+- Treating any feature branch or dirty file as proof that the current task is implemented
+- Selecting the newest plan by date without checking lifecycle and task relevance
+- Recommending `/ship` because a gate file exists without verifying its envelope and freshness
+- Repairing installation drift, regenerating probe/gate files, or running checks from `/status`

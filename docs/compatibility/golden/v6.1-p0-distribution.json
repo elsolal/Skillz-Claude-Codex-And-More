@@ -92,7 +92,7 @@
         {
           "mode": "0644",
           "path": "skills/status-workflow/SKILL.md",
-          "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268"
+          "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba"
         }
       ],
       "manifests": [],
@@ -134,7 +134,7 @@
         },
         {
           "frontmatter": {
-            "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
+            "description": "Evidence-backed, read-only project status guide that classifies installation, runtime capabilities, probe, planning, implementation, quality-gate, and ship readiness without inventing state.",
             "name": "status-workflow"
           },
           "path": "skills/status-workflow/SKILL.md"
@@ -289,7 +289,7 @@
         {
           "mode": "0644",
           "path": "skills/status-workflow/SKILL.md",
-          "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268"
+          "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba"
         }
       ],
       "manifests": [
@@ -353,7 +353,7 @@
         },
         {
           "frontmatter": {
-            "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
+            "description": "Evidence-backed, read-only project status guide that classifies installation, runtime capabilities, probe, planning, implementation, quality-gate, and ship readiness without inventing state.",
             "name": "status-workflow"
           },
           "path": "skills/status-workflow/SKILL.md"
@@ -513,7 +513,7 @@
         {
           "mode": "0644",
           "path": "skills/status-workflow/SKILL.md",
-          "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268"
+          "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba"
         }
       ],
       "manifests": [
@@ -601,7 +601,7 @@
         },
         {
           "frontmatter": {
-            "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
+            "description": "Evidence-backed, read-only project status guide that classifies installation, runtime capabilities, probe, planning, implementation, quality-gate, and ship readiness without inventing state.",
             "name": "status-workflow"
           },
           "path": "skills/status-workflow/SKILL.md"
@@ -767,7 +767,7 @@
         {
           "mode": "0644",
           "path": "skills/status-workflow/SKILL.md",
-          "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268"
+          "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba"
         }
       ],
       "manifests": [],
@@ -809,7 +809,7 @@
         },
         {
           "frontmatter": {
-            "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
+            "description": "Evidence-backed, read-only project status guide that classifies installation, runtime capabilities, probe, planning, implementation, quality-gate, and ship readiness without inventing state.",
             "name": "status-workflow"
           },
           "path": "skills/status-workflow/SKILL.md"
@@ -964,7 +964,7 @@
         {
           "mode": "0644",
           "path": "skills/status-workflow/SKILL.md",
-          "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268"
+          "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba"
         }
       ],
       "manifests": [
@@ -1030,7 +1030,7 @@
         },
         {
           "frontmatter": {
-            "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
+            "description": "Evidence-backed, read-only project status guide that classifies installation, runtime capabilities, probe, planning, implementation, quality-gate, and ship readiness without inventing state.",
             "name": "status-workflow"
           },
           "path": "skills/status-workflow/SKILL.md"
@@ -1125,7 +1125,7 @@
         {
           "mode": "0644",
           "path": "skills/status-workflow/SKILL.md",
-          "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268"
+          "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba"
         }
       ],
       "manifests": [],
@@ -1167,7 +1167,7 @@
         },
         {
           "frontmatter": {
-            "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
+            "description": "Evidence-backed, read-only project status guide that classifies installation, runtime capabilities, probe, planning, implementation, quality-gate, and ship readiness without inventing state.",
             "name": "status-workflow"
           },
           "path": "skills/status-workflow/SKILL.md"
@@ -1317,7 +1317,7 @@
         {
           "mode": "0644",
           "path": "skills/status-workflow/SKILL.md",
-          "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268"
+          "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba"
         }
       ],
       "manifests": [],
@@ -1359,7 +1359,7 @@
         },
         {
           "frontmatter": {
-            "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
+            "description": "Evidence-backed, read-only project status guide that classifies installation, runtime capabilities, probe, planning, implementation, quality-gate, and ship readiness without inventing state.",
             "name": "status-workflow"
           },
           "path": "skills/status-workflow/SKILL.md"
@@ -1368,5 +1368,5 @@
     }
   },
   "schema_version": 1,
-  "tree_hash": "612c90e550601ac111810c984ae231a35505a6294d5746a4bf95fdce56ac501f"
+  "tree_hash": "9254e288c802b7bd442267ffda0d8485939837d6229291a7c78aed844b84642c"
 }

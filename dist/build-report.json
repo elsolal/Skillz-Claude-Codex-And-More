@@ -134,7 +134,7 @@
       "output": "agents-generic/skills/status-workflow/SKILL.md",
       "provider": "agents-generic",
       "resources": [],
-      "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268",
+      "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -303,7 +303,7 @@
       "output": "claude/skills/status-workflow/SKILL.md",
       "provider": "claude",
       "resources": [],
-      "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268",
+      "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -472,7 +472,7 @@
       "output": "codex/skills/status-workflow/SKILL.md",
       "provider": "codex",
       "resources": [],
-      "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268",
+      "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -654,7 +654,7 @@
       "output": "gemini/skills/status-workflow/SKILL.md",
       "provider": "gemini",
       "resources": [],
-      "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268",
+      "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -823,7 +823,7 @@
       "output": "grok/skills/status-workflow/SKILL.md",
       "provider": "grok",
       "resources": [],
-      "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268",
+      "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -962,7 +962,7 @@
       "output": "kimi/skills/status-workflow/SKILL.md",
       "provider": "kimi",
       "resources": [],
-      "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268",
+      "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -1131,7 +1131,7 @@
       "output": "opencode/skills/status-workflow/SKILL.md",
       "provider": "opencode",
       "resources": [],
-      "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268",
+      "sha256": "60ddd711554f60e87bcb749ec1cec1252e73cce80897e891edd4565c33dab2ba",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -1417,5 +1417,5 @@
     "opencode"
   ],
   "schema_version": 1,
-  "tree_hash": "612c90e550601ac111810c984ae231a35505a6294d5746a4bf95fdce56ac501f"
+  "tree_hash": "9254e288c802b7bd442267ffda0d8485939837d6229291a7c78aed844b84642c"
 }

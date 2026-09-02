@@ -1,5 +1,11 @@
 ---
 title: "D-EPCT+R v6.1 — architecture provider-neutral et durcissement de la distribution"
+document_id: plan.d-epct-v6-1-provider-neutral-hardening
+version: "6.1"
+lifecycle: current
+superseded_by: null
+amended_by: []
+amends: []
 status: draft
 created_at: 2026-07-24
 updated_at: 2026-09-01
