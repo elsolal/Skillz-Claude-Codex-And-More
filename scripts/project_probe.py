@@ -14,7 +14,7 @@ import sys
 from typing import Any, Iterable
 
 
-PROBE_VERSION = "2.0.0"
+PROBE_VERSION = "2.1.0"
 FINGERPRINT_SCHEMA_VERSION = 2
 MINIMUM_PYTHON = (3, 10)
 EXCLUDED_PARTS = {
@@ -141,14 +141,54 @@ def _candidate_paths(root: Path) -> list[Path]:
     return list(root.rglob("*"))
 
 
+def _catalog_declared_sources(root: Path) -> set[str]:
+    catalog_path = root / "core" / "catalog.yaml"
+    if not catalog_path.is_file() or catalog_path.is_symlink():
+        return set()
+    try:
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return set()
+    artifacts = catalog.get("artifacts")
+    if not isinstance(artifacts, list):
+        return set()
+    declared: set[str] = set()
+    for artifact in artifacts:
+        if not isinstance(artifact, dict):
+            continue
+        values = [artifact.get("source")]
+        resources = artifact.get("resources", [])
+        if isinstance(resources, list):
+            values.extend(
+                resource.get("source")
+                for resource in resources
+                if isinstance(resource, dict)
+            )
+        for value in values:
+            if not isinstance(value, str):
+                continue
+            relative = Path(value)
+            if relative.is_absolute() or ".." in relative.parts or not relative.parts:
+                continue
+            declared.add(relative.as_posix())
+    return declared
+
+
 def fingerprint_sources(root: Path) -> list[str]:
     root = root.resolve()
     sources: list[str] = []
-    for candidate in _candidate_paths(root):
+    candidates = _candidate_paths(root)
+    indexed = {
+        _relative(candidate, root)
+        for candidate in candidates
+        if candidate.is_file() or candidate.is_symlink()
+    }
+    for candidate in candidates:
         if not (candidate.is_file() or candidate.is_symlink()):
             continue
         if _is_fingerprint_source(candidate, root):
             sources.append(_relative(candidate, root))
+    sources.extend(_catalog_declared_sources(root) & indexed)
     return sorted(set(sources))
 
 

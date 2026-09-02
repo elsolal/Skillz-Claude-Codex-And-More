@@ -153,6 +153,30 @@ def _validate_catalog(root: Path, catalog: dict[str, Any]) -> list[dict[str, Any
             isinstance(key, str) and isinstance(value, str) for key, value in aliases.items()
         ):
             raise BuildError(f"artifact aliases invalid: {identifier}")
+        resources = artifact.get("resources", [])
+        if not isinstance(resources, list):
+            raise BuildError(f"artifact resources invalid: {identifier}")
+        if resources and artifact["type"] != "skill":
+            raise BuildError(f"only skills can declare resources: {identifier}")
+        resource_outputs: set[str] = set()
+        for resource in resources:
+            if not isinstance(resource, dict) or set(resource) != {"source", "output"}:
+                raise BuildError(f"artifact resource is invalid: {identifier}")
+            resource_source = resource.get("source")
+            resource_output = resource.get("output")
+            if not isinstance(resource_source, str) or not isinstance(resource_output, str):
+                raise BuildError(f"artifact resource path is invalid: {identifier}")
+            source_path = root / _safe_relative(resource_source, "artifact resource source")
+            if source_path.is_symlink() or not source_path.is_file():
+                raise BuildError(
+                    f"artifact resource missing or non-regular: {identifier}/{resource_source}"
+                )
+            normalized_output = _safe_relative(resource_output, "artifact resource output").as_posix()
+            if normalized_output == "SKILL.md":
+                raise BuildError(f"artifact resource replaces SKILL.md: {identifier}")
+            if normalized_output in resource_outputs:
+                raise BuildError(f"duplicate artifact resource output: {identifier}/{normalized_output}")
+            resource_outputs.add(normalized_output)
     for artifact in artifacts:
         for dependency in artifact["dependencies"]:
             if dependency not in identifiers:
@@ -515,6 +539,28 @@ def _build_into(root: Path, output: Path) -> dict[str, Any]:
                 content, mode = _render_artifact(source, transform)
                 target.write_bytes(content)
                 target.chmod(mode)
+                resource_items: list[dict[str, Any]] = []
+                for resource in artifact.get("resources", []):
+                    resource_source = root / resource["source"]
+                    resource_relative = relative.parent / _safe_relative(
+                        resource["output"], "artifact resource output"
+                    )
+                    resource_text = resource_relative.as_posix()
+                    if resource_text in outputs:
+                        raise BuildError(f"output collision: {resource_text}")
+                    outputs.add(resource_text)
+                    resource_target = output / resource_relative
+                    resource_target.parent.mkdir(parents=True, exist_ok=True)
+                    resource_target.write_bytes(resource_source.read_bytes())
+                    resource_target.chmod(resource_source.stat().st_mode & 0o777)
+                    resource_items.append(
+                        {
+                            "source": resource["source"],
+                            "output": resource_text,
+                            "mode": f"{resource_target.stat().st_mode & 0o777:04o}",
+                            "sha256": hashlib.sha256(resource_target.read_bytes()).hexdigest(),
+                        }
+                    )
                 report_item.update(
                     {
                         "alias": alias,
@@ -522,6 +568,7 @@ def _build_into(root: Path, output: Path) -> dict[str, Any]:
                         "mode": f"{target.stat().st_mode & 0o777:04o}",
                         "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
                         "transform": transform,
+                        "resources": resource_items,
                     }
                 )
             report_artifacts.append(report_item)

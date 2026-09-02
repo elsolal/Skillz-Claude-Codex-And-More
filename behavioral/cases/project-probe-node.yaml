@@ -16,7 +16,7 @@
     "files_exist": [".agents/verification.yaml"],
     "files_absent": [".git/refs/heads/unexpected"],
     "files_unchanged": ["package-lock.json"],
-    "file_contains": {".agents/verification.yaml": ["generated_by: \"project-probe/2.0.0\""]},
+    "file_contains": {".agents/verification.yaml": ["generated_by: \"project-probe/2.1.0\""]},
     "file_matches": {".agents/verification.yaml": ["config_fingerprint: \"[0-9a-f]{64}\""]},
     "stdout_contains": ["wrote"]
   }

@@ -120,6 +120,48 @@ class ProjectProbeTests(unittest.TestCase):
         self.assertNotIn(".codex/hooks.json", fingerprint["sources"])
         self.assertIn("package.json", fingerprint["sources"])
 
+    def test_fingerprint_includes_only_tracked_catalog_resources(self):
+        fixture = self.copy_fixture("node")
+        catalog = fixture / "core" / "catalog.yaml"
+        tracked_resource = fixture / "knowledge" / "tracked.csv"
+        untracked_resource = fixture / "knowledge" / "untracked.csv"
+        catalog.parent.mkdir(parents=True)
+        tracked_resource.parent.mkdir(parents=True)
+        tracked_resource.write_text("tracked\n", encoding="utf-8")
+        untracked_resource.write_text("untracked\n", encoding="utf-8")
+        catalog.write_text(
+            json.dumps(
+                {
+                    "artifacts": [
+                        {
+                            "source": "knowledge/tracked.csv",
+                            "resources": [
+                                {
+                                    "source": "knowledge/untracked.csv",
+                                    "output": "references/untracked.csv",
+                                }
+                            ],
+                        }
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+        subprocess.run(["git", "init", "-q"], cwd=fixture, check=True)
+        subprocess.run(
+            ["git", "add", "package.json", "package-lock.json", "core/catalog.yaml", "knowledge/tracked.csv"],
+            cwd=fixture,
+            check=True,
+        )
+
+        first = self.probe.compute_fingerprint(fixture)
+        tracked_resource.write_text("changed\n", encoding="utf-8")
+        changed = self.probe.compute_fingerprint(fixture)
+
+        self.assertIn("knowledge/tracked.csv", first["sources"])
+        self.assertNotIn("knowledge/untracked.csv", first["sources"])
+        self.assertNotEqual(first["sha256"], changed["sha256"])
+
     def test_manifest_has_versioned_generator_provenance_and_absence_reasons(self):
         result = self.probe.probe_project(FIXTURES / "shell")
         rendered = self.probe.render_manifest(result)
@@ -149,7 +191,7 @@ class ProjectProbeTests(unittest.TestCase):
         )
         self.assertFalse(self.probe.manifest_is_fresh(manifest, result))
         manifest.write_text(
-            rendered.replace("project-probe/2.0.0", "project-probe/1.0.0"),
+            rendered.replace("project-probe/2.1.0", "project-probe/1.0.0"),
             encoding="utf-8",
         )
         self.assertFalse(self.probe.manifest_is_fresh(manifest, result))

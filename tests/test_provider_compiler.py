@@ -205,6 +205,77 @@ class ProviderCompilerTests(unittest.TestCase):
         with self.assertRaisesRegex(self.compiler.BuildError, "context is not generated"):
             self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
 
+    def test_skill_resources_are_copied_and_reported_for_each_supported_provider(self):
+        resource = self.fixture / "knowledge" / "testing" / "checklist.md"
+        resource.parent.mkdir(parents=True)
+        resource.write_text("# Checklist\n", encoding="utf-8")
+        catalog = self._catalog()
+        dev = next(item for item in catalog["artifacts"] if item["id"] == "dev-workflow")
+        dev["resources"] = [
+            {
+                "source": "knowledge/testing/checklist.md",
+                "output": "references/testing/checklist.md",
+            }
+        ]
+        self._write_catalog(catalog)
+
+        output = self.temp_dir / "dist"
+        report = self.compiler.build_repository(self.fixture, output)
+
+        for provider in ("agents-generic", "claude", "codex", "gemini", "grok", "kimi", "opencode"):
+            generated = (
+                output
+                / provider
+                / "skills"
+                / "dev-workflow"
+                / "references"
+                / "testing"
+                / "checklist.md"
+            )
+            self.assertEqual(generated.read_text(encoding="utf-8"), "# Checklist\n")
+        codex_dev = next(
+            item
+            for item in report["artifacts"]
+            if item["provider"] == "codex" and item["artifact_id"] == "dev-workflow"
+        )
+        self.assertEqual(
+            codex_dev["resources"][0]["output"],
+            "codex/skills/dev-workflow/references/testing/checklist.md",
+        )
+
+    def test_non_skill_artifact_cannot_declare_resources(self):
+        catalog = self._catalog()
+        quick_fix = next(item for item in catalog["artifacts"] if item["id"] == "quick-fix")
+        quick_fix["resources"] = [
+            {"source": ".claude/commands/quick-fix.md", "output": "reference.md"}
+        ]
+        self._write_catalog(catalog)
+
+        with self.assertRaisesRegex(self.compiler.BuildError, "only skills can declare resources"):
+            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
+    def test_resource_path_traversal_is_rejected(self):
+        catalog = self._catalog()
+        dev = next(item for item in catalog["artifacts"] if item["id"] == "dev-workflow")
+        dev["resources"] = [
+            {"source": ".claude/commands/quick-fix.md", "output": "../escape.md"}
+        ]
+        self._write_catalog(catalog)
+
+        with self.assertRaisesRegex(self.compiler.BuildError, "unsafe artifact resource output"):
+            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
+    def test_resource_cannot_replace_skill_entrypoint(self):
+        catalog = self._catalog()
+        dev = next(item for item in catalog["artifacts"] if item["id"] == "dev-workflow")
+        dev["resources"] = [
+            {"source": ".claude/commands/quick-fix.md", "output": "SKILL.md"}
+        ]
+        self._write_catalog(catalog)
+
+        with self.assertRaisesRegex(self.compiler.BuildError, "resource replaces SKILL.md"):
+            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
     def test_vertical_slice_matches_legacy_sources_across_p0(self):
         output = self.temp_dir / "dist"
         self.compiler.build_repository(self.fixture, output)
