@@ -2,9 +2,9 @@ schema_version: 2
 verdict: "PASS"
 level: 4
 base_sha: "71bb93d5c48bfd365cad45a113cf84207954606e"
-head_sha: "01e006cca12c287a8eab038300e2be9fe69a0a12"
-code_diff_hash: "137b2bb32e54e9c306afe281eb70c5695559cf77221d3ef7bbda79ba6c1f10cf"
+head_sha: "de4e2d467d74a732f167dc39c8ab79e8aaaa6f3e"
+code_diff_hash: "50e624fb5862796f24120f69a8590fcdbcb33a61bca227fc8ff104c35e094b0e"
 code_diff_exclusions: ["CHANGELOG.md"]
 proof_payload: "docs/quality/proofs/2026-09-02-v6-1-release-candidate.json"
-proof_payload_hash: "7030d3934e5975f20b2fe43892dfc9574c10cb74f70e73a260643496420ba946"
-integrity_sha256: "7619c0e5065807483e9884cee6d2963ec3c76d491de166f49c4ef59a0b1368f2"
+proof_payload_hash: "9fd8757a59503951e2652ab54db2c9b02af648a5230a15ca4c3b080fbb6d7ca0"
+integrity_sha256: "de2ab9f8422cdfbdbbbf75ea30bd71d5302ee6788bc65175cda9b034a2a2f574"

@@ -31,17 +31,17 @@
       "exit_code": 0,
       "name": "test",
       "status": "passed",
-      "summary": "memory installer acceptance, 123 repository tests, 273 memory tests, 15 lifecycle documents, complete catalog report, router pilot, clean compiler and golden, installer lifecycle certification, 8 behavioral cases, Codex C2 discovery, upstream inventory, removal safety, and SEO/GEO suites with the locally installed PDF engine passed"
+      "summary": "memory installer acceptance, 124 repository tests, 273 memory tests, 15 lifecycle documents, complete catalog report, router pilot, clean compiler and golden, installer lifecycle certification, 8 behavioral cases, Codex C2 discovery, upstream inventory, removal safety, and SEO/GEO suites with the locally installed PDF engine passed; the GitHub structural workflow also passed in a clean local clone"
     }
   ],
-  "manifest_fingerprint": "3903ed21effaa28abcfb539c98b738702075c68a082e4300a379edb9f33c5c48",
+  "manifest_fingerprint": "c032ed34ed7dd1e7687967a253a2270cbd6b504650a1689e2c200c216f541340",
   "opinion": {
     "findings": {
-      "confirmed": 4,
-      "fixed": 4,
+      "confirmed": 5,
+      "fixed": 5,
       "refuted": 0,
       "remaining": 0,
-      "total": 4
+      "total": 5
     },
     "lenses": {
       "correctness_security": "PASS",
@@ -71,8 +71,13 @@
         "round": 4
       },
       {
-        "new_confirmed_p0_p1": 0,
+        "finding": "P1: catalog validation compared the canonical inventory to ignored local Claude projections, and the shallow CI checkout omitted the router pilot baseline commit",
+        "resolution": "derive inventory equality from core, verify legacy projections as a covered subset, validate canonical-only resources, fetch full Git history in the structural workflow, and reproduce the workflow in a clean clone",
         "round": 5
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 6
       }
     ]
   },
