@@ -89,6 +89,24 @@ class ProjectProbeTests(unittest.TestCase):
         self.assertNotEqual(changed_content["sha256"], changed_path["sha256"])
         self.assertIn(".claude/skills/critical/SKILL.md", first["sources"])
 
+    def test_fingerprint_includes_behavioral_cases_tests_and_goldens(self):
+        fixture = self.copy_fixture("node")
+        files = {
+            "behavioral/cases/probe.yaml": "{}\n",
+            "behavioral/fixtures/node/index.js": "export {};\n",
+            "tests/test_behavior.py": "# test\n",
+            "docs/compatibility/golden/provider.json": "{}\n",
+        }
+        for relative, content in files.items():
+            path = fixture / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+
+        fingerprint = self.probe.compute_fingerprint(fixture)
+
+        for relative in files:
+            self.assertIn(relative, fingerprint["sources"])
+
     def test_git_index_excludes_untracked_provider_state(self):
         fixture = self.copy_fixture("node")
         subprocess.run(["git", "init", "-q"], cwd=fixture, check=True)

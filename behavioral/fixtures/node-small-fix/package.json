@@ -1,0 +1,8 @@
+{
+  "name": "node-small-fix",
+  "private": true,
+  "scripts": {
+    "lint": "node --check index.js",
+    "test": "node --test"
+  }
+}

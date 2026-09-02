@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillz.local/schemas/behavioral-case-v1.schema.json",
+  "title": "Skillz Behavioral Case v1",
+  "type": "object",
+  "required": [
+    "id",
+    "runtime",
+    "skill",
+    "fixture",
+    "input",
+    "repeat",
+    "timeout_seconds",
+    "permissions",
+    "runner",
+    "expect"
+  ],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "runtime": {"type": "string"},
+    "skill": {"type": "string"},
+    "fixture": {"type": "string"},
+    "input": {"type": "string"},
+    "repeat": {"type": "integer", "minimum": 1},
+    "timeout_seconds": {"type": "integer", "minimum": 1},
+    "permissions": {"const": "workspace_fixture_only"},
+    "runner": {"type": "object"},
+    "expect": {"type": "object"}
+  }
+}

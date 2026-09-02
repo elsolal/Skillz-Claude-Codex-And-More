@@ -1,0 +1,12 @@
+{
+  "id": "dev-plan-stop",
+  "runtime": "fixture",
+  "skill": "dev-workflow",
+  "fixture": "workflow-contract",
+  "input": "Implement a non-trivial change and stop at the plan checkpoint.",
+  "repeat": 1,
+  "timeout_seconds": 10,
+  "permissions": "workspace_fixture_only",
+  "runner": {"type": "command", "command": ["python3", "runner.py", "dev"]},
+  "expect": {"events_in_order": ["probe", "explore", "plan"], "files_exist": ["run-result.json"], "files_absent": ["implementation.txt"], "files_unchanged": ["package-lock.json"], "file_contains": {"run-result.json": ["\"fixture_only\": true"]}, "file_matches": {"run-result.json": ["\"verdict\": \"PASS\""]}, "stdout_contains": ["Plan presented before write"]}
+}

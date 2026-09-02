@@ -1,0 +1,12 @@
+{
+  "id": "runtime-absent",
+  "runtime": "fixture",
+  "skill": "unsupported-runtime",
+  "fixture": "workflow-contract",
+  "input": "Fail closed when the requested runtime is absent.",
+  "repeat": 1,
+  "timeout_seconds": 10,
+  "permissions": "workspace_fixture_only",
+  "runner": {"type": "command", "command": ["definitely-missing-skillz-runtime"]},
+  "expect": {"exit_code": 127, "events_in_order": [], "files_absent": ["run-result.json"], "files_unchanged": ["package-lock.json"]}
+}

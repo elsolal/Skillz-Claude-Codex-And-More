@@ -102,6 +102,12 @@ def _is_fingerprint_source(path: Path, root: Path) -> bool:
         return False
     if relative_text == "bin/skillz":
         return True
+    if parts and parts[0] == "behavioral" and path.suffix in {".json", ".js", ".md", ".py", ".yaml", ".yml"}:
+        return True
+    if parts and parts[0] == "tests" and path.suffix == ".py":
+        return True
+    if parts[:3] == ("docs", "compatibility", "golden") and path.suffix == ".json":
+        return True
     if path.name in CONFIG_NAMES or path.suffix == ".sh" or path.name == "SKILL.md":
         return True
     if parts and parts[0] == "scripts" and path.suffix == ".py":

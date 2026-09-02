@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillz.local/schemas/run-result-v1.schema.json",
+  "title": "Skillz Behavioral Run Result v1",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "base_sha", "head_sha", "summary", "results"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "base_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "head_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "summary": {
+      "type": "object",
+      "required": ["passed", "failed", "total"],
+      "properties": {
+        "passed": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0},
+        "total": {"type": "integer", "minimum": 0}
+      }
+    },
+    "results": {"type": "array", "items": {"type": "object"}}
+  }
+}

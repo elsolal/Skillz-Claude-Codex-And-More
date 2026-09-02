@@ -1,0 +1,450 @@
+{
+  "distribution": {
+    "name": "skillz-claude",
+    "version": "6.1.0-dev.1"
+  },
+  "providers": {
+    "agents-generic": {
+      "aliases": [
+        {
+          "alias": "dev-workflow",
+          "artifact_id": "dev-workflow",
+          "output": "skills/dev-workflow/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "project-probe",
+          "artifact_id": "project-probe",
+          "output": "skills/project-probe/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "quality-gate",
+          "artifact_id": "quality-gate",
+          "output": "skills/quality-gate/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "status-workflow",
+          "artifact_id": "status-workflow",
+          "output": "skills/status-workflow/SKILL.md",
+          "type": "skill"
+        }
+      ],
+      "files": [
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/SKILL.md",
+          "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/project-probe/SKILL.md",
+          "sha256": "c4839c14402889447fbc24e410b8d61b07f78c404e801822ad66759ac13125c2"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/quality-gate/SKILL.md",
+          "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/status-workflow/SKILL.md",
+          "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268"
+        }
+      ],
+      "manifests": [],
+      "skills": [
+        {
+          "frontmatter": {
+            "description": "Adaptive single-source feature development workflow (D-EPCT+R v6). Loaded by /dev and /quick-fix in Claude Code and by their prompt equivalents in Codex/Gemini/OpenCode. Scales rigor to task levels 0-4 (typo fix \u2192 epic) with automatic escalation, a single human checkpoint at the plan, conditional acceptance-test-first (RED), and a bounded quality-gate loop replacing human code re-reading. Use for any implementation task: bug fix, feature, GitHub issue.",
+            "name": "dev-workflow"
+          },
+          "path": "skills/dev-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
+            "description": "Detect and cache a project's real verification commands into a versioned .agents/verification.yaml manifest. Use at the start of dev and ship workflows, before verification, when the manifest is missing or stale, or when a recorded command no longer exists. Covers Node, Python, shell-only, mixed and monorepo projects without executing destructive candidates.",
+            "name": "project-probe"
+          },
+          "path": "skills/project-probe/SKILL.md"
+        },
+        {
+          "frontmatter": {
+            "description": "Bounded agentic quality loop that replaces human code re-reading before PR. Runs execution evidence (lint/types/tests/runtime verify), multi-lens reviews in fresh contexts, final structural maintainability review via thermo-nuclear-code-quality-review, adversarial counter-verification of every finding, loops until convergence, and writes a versioned gate file (PASS/CONCERNS/FAIL/WAIVED) with proof. Use after implementation in /dev, before PR in /ship, or standalone via /gate on any diff the user wants gated.",
+            "name": "quality-gate"
+          },
+          "path": "skills/quality-gate/SKILL.md"
+        },
+        {
+          "frontmatter": {
+            "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
+            "name": "status-workflow"
+          },
+          "path": "skills/status-workflow/SKILL.md"
+        }
+      ]
+    },
+    "claude": {
+      "aliases": [
+        {
+          "alias": "quick-fix",
+          "artifact_id": "quick-fix",
+          "output": "commands/quick-fix.md",
+          "type": "command"
+        },
+        {
+          "alias": "dev-workflow",
+          "artifact_id": "dev-workflow",
+          "output": "skills/dev-workflow/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "project-probe",
+          "artifact_id": "project-probe",
+          "output": "skills/project-probe/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "quality-gate",
+          "artifact_id": "quality-gate",
+          "output": "skills/quality-gate/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "status-workflow",
+          "artifact_id": "status-workflow",
+          "output": "skills/status-workflow/SKILL.md",
+          "type": "skill"
+        }
+      ],
+      "files": [
+        {
+          "mode": "0644",
+          "path": ".claude-plugin/plugin.json",
+          "sha256": "04665801637078e039a102850b38cb4d8ebd008984125ad6b9cb7eb3cc4ef79e"
+        },
+        {
+          "mode": "0644",
+          "path": "commands/quick-fix.md",
+          "sha256": "f48490301efdc6a4042bd2f9e989510af5f35cb9e227bdfa20471fbb77e16db3"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/SKILL.md",
+          "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/project-probe/SKILL.md",
+          "sha256": "c4839c14402889447fbc24e410b8d61b07f78c404e801822ad66759ac13125c2"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/quality-gate/SKILL.md",
+          "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/status-workflow/SKILL.md",
+          "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268"
+        }
+      ],
+      "manifests": [
+        {
+          "path": ".claude-plugin/plugin.json",
+          "payload": {
+            "author": {
+              "name": "elsolal",
+              "url": "https://github.com/elsolal"
+            },
+            "description": "Provider-neutral D-EPCT development workflows for coding agents.",
+            "homepage": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
+            "keywords": [
+              "workflow",
+              "d-epct",
+              "provider-neutral",
+              "coding-agents"
+            ],
+            "license": "MIT",
+            "name": "skillz-claude",
+            "repository": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
+            "version": "6.1.0-dev.1"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "frontmatter": {
+            "description": "Adaptive single-source feature development workflow (D-EPCT+R v6). Loaded by /dev and /quick-fix in Claude Code and by their prompt equivalents in Codex/Gemini/OpenCode. Scales rigor to task levels 0-4 (typo fix \u2192 epic) with automatic escalation, a single human checkpoint at the plan, conditional acceptance-test-first (RED), and a bounded quality-gate loop replacing human code re-reading. Use for any implementation task: bug fix, feature, GitHub issue.",
+            "name": "dev-workflow"
+          },
+          "path": "skills/dev-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
+            "description": "Detect and cache a project's real verification commands into a versioned .agents/verification.yaml manifest. Use at the start of dev and ship workflows, before verification, when the manifest is missing or stale, or when a recorded command no longer exists. Covers Node, Python, shell-only, mixed and monorepo projects without executing destructive candidates.",
+            "name": "project-probe"
+          },
+          "path": "skills/project-probe/SKILL.md"
+        },
+        {
+          "frontmatter": {
+            "description": "Bounded agentic quality loop that replaces human code re-reading before PR. Runs execution evidence (lint/types/tests/runtime verify), multi-lens reviews in fresh contexts, final structural maintainability review via thermo-nuclear-code-quality-review, adversarial counter-verification of every finding, loops until convergence, and writes a versioned gate file (PASS/CONCERNS/FAIL/WAIVED) with proof. Use after implementation in /dev, before PR in /ship, or standalone via /gate on any diff the user wants gated.",
+            "name": "quality-gate"
+          },
+          "path": "skills/quality-gate/SKILL.md"
+        },
+        {
+          "frontmatter": {
+            "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
+            "name": "status-workflow"
+          },
+          "path": "skills/status-workflow/SKILL.md"
+        }
+      ]
+    },
+    "codex": {
+      "aliases": [
+        {
+          "alias": "quick-fix",
+          "artifact_id": "quick-fix",
+          "output": "prompts/quick-fix.md",
+          "type": "command"
+        },
+        {
+          "alias": "dev-workflow",
+          "artifact_id": "dev-workflow",
+          "output": "skills/dev-workflow/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "project-probe",
+          "artifact_id": "project-probe",
+          "output": "skills/project-probe/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "quality-gate",
+          "artifact_id": "quality-gate",
+          "output": "skills/quality-gate/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "status-workflow",
+          "artifact_id": "status-workflow",
+          "output": "skills/status-workflow/SKILL.md",
+          "type": "skill"
+        }
+      ],
+      "files": [
+        {
+          "mode": "0644",
+          "path": ".agents/plugins/marketplace.json",
+          "sha256": "7dc7f89096799300dd70b2ca3e2b78978554665c85f023b6fba1afb11a129c6d"
+        },
+        {
+          "mode": "0644",
+          "path": ".codex-plugin/plugin.json",
+          "sha256": "8a959332781418ab4936fe9eb5eab2dd73a3cefcfe37aa8997d95e5bb3fff225"
+        },
+        {
+          "mode": "0644",
+          "path": "prompts/quick-fix.md",
+          "sha256": "f48490301efdc6a4042bd2f9e989510af5f35cb9e227bdfa20471fbb77e16db3"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/SKILL.md",
+          "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/project-probe/SKILL.md",
+          "sha256": "c4839c14402889447fbc24e410b8d61b07f78c404e801822ad66759ac13125c2"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/quality-gate/SKILL.md",
+          "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/status-workflow/SKILL.md",
+          "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268"
+        }
+      ],
+      "manifests": [
+        {
+          "path": ".agents/plugins/marketplace.json",
+          "payload": {
+            "interface": {
+              "displayName": "Skillz Claude Dev"
+            },
+            "name": "skillz-claude-dev",
+            "plugins": [
+              {
+                "category": "Developer Tools",
+                "name": "skillz-claude",
+                "policy": {
+                  "authentication": "ON_INSTALL",
+                  "installation": "AVAILABLE"
+                },
+                "source": {
+                  "path": "./",
+                  "source": "local"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": ".codex-plugin/plugin.json",
+          "payload": {
+            "author": {
+              "name": "elsolal",
+              "url": "https://github.com/elsolal"
+            },
+            "description": "Provider-neutral D-EPCT development workflows for coding agents.",
+            "homepage": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
+            "keywords": [
+              "workflow",
+              "d-epct",
+              "provider-neutral",
+              "coding-agents"
+            ],
+            "license": "MIT",
+            "name": "skillz-claude",
+            "repository": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
+            "skills": "./skills/",
+            "version": "6.1.0-dev.1"
+          }
+        }
+      ],
+      "skills": [
+        {
+          "frontmatter": {
+            "description": "Adaptive single-source feature development workflow (D-EPCT+R v6). Loaded by /dev and /quick-fix in Claude Code and by their prompt equivalents in Codex/Gemini/OpenCode. Scales rigor to task levels 0-4 (typo fix \u2192 epic) with automatic escalation, a single human checkpoint at the plan, conditional acceptance-test-first (RED), and a bounded quality-gate loop replacing human code re-reading. Use for any implementation task: bug fix, feature, GitHub issue.",
+            "name": "dev-workflow"
+          },
+          "path": "skills/dev-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
+            "description": "Detect and cache a project's real verification commands into a versioned .agents/verification.yaml manifest. Use at the start of dev and ship workflows, before verification, when the manifest is missing or stale, or when a recorded command no longer exists. Covers Node, Python, shell-only, mixed and monorepo projects without executing destructive candidates.",
+            "name": "project-probe"
+          },
+          "path": "skills/project-probe/SKILL.md"
+        },
+        {
+          "frontmatter": {
+            "description": "Bounded agentic quality loop that replaces human code re-reading before PR. Runs execution evidence (lint/types/tests/runtime verify), multi-lens reviews in fresh contexts, final structural maintainability review via thermo-nuclear-code-quality-review, adversarial counter-verification of every finding, loops until convergence, and writes a versioned gate file (PASS/CONCERNS/FAIL/WAIVED) with proof. Use after implementation in /dev, before PR in /ship, or standalone via /gate on any diff the user wants gated.",
+            "name": "quality-gate"
+          },
+          "path": "skills/quality-gate/SKILL.md"
+        },
+        {
+          "frontmatter": {
+            "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
+            "name": "status-workflow"
+          },
+          "path": "skills/status-workflow/SKILL.md"
+        }
+      ]
+    },
+    "opencode": {
+      "aliases": [
+        {
+          "alias": "quick-fix",
+          "artifact_id": "quick-fix",
+          "output": "commands/quick-fix.md",
+          "type": "command"
+        },
+        {
+          "alias": "dev-workflow",
+          "artifact_id": "dev-workflow",
+          "output": "skills/dev-workflow/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "project-probe",
+          "artifact_id": "project-probe",
+          "output": "skills/project-probe/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "quality-gate",
+          "artifact_id": "quality-gate",
+          "output": "skills/quality-gate/SKILL.md",
+          "type": "skill"
+        },
+        {
+          "alias": "status-workflow",
+          "artifact_id": "status-workflow",
+          "output": "skills/status-workflow/SKILL.md",
+          "type": "skill"
+        }
+      ],
+      "files": [
+        {
+          "mode": "0644",
+          "path": "commands/quick-fix.md",
+          "sha256": "f48490301efdc6a4042bd2f9e989510af5f35cb9e227bdfa20471fbb77e16db3"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/dev-workflow/SKILL.md",
+          "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/project-probe/SKILL.md",
+          "sha256": "c4839c14402889447fbc24e410b8d61b07f78c404e801822ad66759ac13125c2"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/quality-gate/SKILL.md",
+          "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180"
+        },
+        {
+          "mode": "0644",
+          "path": "skills/status-workflow/SKILL.md",
+          "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268"
+        }
+      ],
+      "manifests": [],
+      "skills": [
+        {
+          "frontmatter": {
+            "description": "Adaptive single-source feature development workflow (D-EPCT+R v6). Loaded by /dev and /quick-fix in Claude Code and by their prompt equivalents in Codex/Gemini/OpenCode. Scales rigor to task levels 0-4 (typo fix \u2192 epic) with automatic escalation, a single human checkpoint at the plan, conditional acceptance-test-first (RED), and a bounded quality-gate loop replacing human code re-reading. Use for any implementation task: bug fix, feature, GitHub issue.",
+            "name": "dev-workflow"
+          },
+          "path": "skills/dev-workflow/SKILL.md"
+        },
+        {
+          "frontmatter": {
+            "description": "Detect and cache a project's real verification commands into a versioned .agents/verification.yaml manifest. Use at the start of dev and ship workflows, before verification, when the manifest is missing or stale, or when a recorded command no longer exists. Covers Node, Python, shell-only, mixed and monorepo projects without executing destructive candidates.",
+            "name": "project-probe"
+          },
+          "path": "skills/project-probe/SKILL.md"
+        },
+        {
+          "frontmatter": {
+            "description": "Bounded agentic quality loop that replaces human code re-reading before PR. Runs execution evidence (lint/types/tests/runtime verify), multi-lens reviews in fresh contexts, final structural maintainability review via thermo-nuclear-code-quality-review, adversarial counter-verification of every finding, loops until convergence, and writes a versioned gate file (PASS/CONCERNS/FAIL/WAIVED) with proof. Use after implementation in /dev, before PR in /ship, or standalone via /gate on any diff the user wants gated.",
+            "name": "quality-gate"
+          },
+          "path": "skills/quality-gate/SKILL.md"
+        },
+        {
+          "frontmatter": {
+            "description": "Project status dashboard workflow that scans planning docs, GitHub issues, git state, and produces a concise summary of the current project state plus recommended next actions. Loaded by /status slash command in both Claude Code and Codex CLI.",
+            "name": "status-workflow"
+          },
+          "path": "skills/status-workflow/SKILL.md"
+        }
+      ]
+    }
+  },
+  "schema_version": 1,
+  "tree_hash": "8872bd2603e3855e58900e3c2b87ae00c3775fa63b4eaec832537804a141c282"
+}

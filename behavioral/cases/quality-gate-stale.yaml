@@ -1,0 +1,12 @@
+{
+  "id": "quality-gate-stale",
+  "runtime": "fixture",
+  "skill": "quality-gate",
+  "fixture": "workflow-contract",
+  "input": "Reject a stale quality gate.",
+  "repeat": 1,
+  "timeout_seconds": 10,
+  "permissions": "workspace_fixture_only",
+  "runner": {"type": "command", "command": ["python3", "runner.py", "quality-gate-stale"]},
+  "expect": {"exit_code": 3, "events_in_order": ["gate-verify", "reject"], "files_exist": ["run-result.json"], "files_unchanged": ["package-lock.json"], "file_contains": {"run-result.json": ["\"verdict\": \"REJECTED\""]}, "stdout_contains": ["Stale gate rejected"]}
+}
