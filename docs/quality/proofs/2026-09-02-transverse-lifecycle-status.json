@@ -1,0 +1,63 @@
+{
+  "absents": [
+    "no configured typecheck command",
+    "no configured build command",
+    "no e2e harness",
+    "no runtime application surface; repository distributes shell, Python and Markdown agent tooling",
+    "PDF delivery engine absent in the unrelated SEO/GEO suite; Markdown previews remain internal-only evidence",
+    "retro command is not yet catalog-migrated; this tranche changes its legacy canonical command only"
+  ],
+  "decisions_prises_en_ton_nom": [
+    "the four completed v6 wave plans are archived rather than superseded because they remain useful historical execution records and have no single normative successor",
+    "the lifecycle schema includes amends as the explicit reverse of amended_by so bidirectional links can be validated deterministically",
+    "retro no longer fetches or persists snapshots automatically because rework answers must remain read-only observations proposed to the human"
+  ],
+  "executions": [
+    {
+      "command": "bash scripts/lint-shell.sh",
+      "exit_code": 0,
+      "name": "lint",
+      "status": "passed",
+      "summary": "20 shell files passed syntax verification twice"
+    },
+    {
+      "command": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh scripts/validate_planning_lifecycle.py --root . && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/testing/golden_distribution.py --dist-root dist --output docs/compatibility/golden/v6.1-p0-distribution.json --check && bash tests/test-behavioral.sh && bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py --bundle dist/codex --output docs/compatibility/codex-plugin-0.152.0.json --check && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh",
+      "exit_code": 0,
+      "name": "test",
+      "status": "passed",
+      "summary": "two clean rounds: 104 repository tests, 266 memory tests, 15 lifecycle documents, 8 behavioral cases, Codex C2 certification, upstream inventory, removal safety, and SEO/GEO suites"
+    }
+  ],
+  "manifest_fingerprint": "540b7b2ffbed7eb310d753ce1f58b457e1f8115eb6e2a7f20bca6332538bea5f",
+  "opinion": {
+    "findings": {
+      "confirmed": 1,
+      "fixed": 1,
+      "refuted": 0,
+      "remaining": 0,
+      "total": 1
+    },
+    "lenses": {
+      "correctness_security": "PASS",
+      "performance": "PASS",
+      "readability": "PASS",
+      "structural_maintainability": "PASS"
+    },
+    "rounds": [
+      {
+        "finding": "P1: strict JSON parsing of unrelated existing YAML lists rejected valid planning documents",
+        "resolution": "accept the repository's existing scalar inline-list subset while keeping lifecycle field validation strict",
+        "round": 1
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 2
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 3
+      }
+    ]
+  },
+  "schema_version": 1
+}
