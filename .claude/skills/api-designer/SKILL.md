@@ -24,12 +24,6 @@ hooks:
     - tool: Write
       match: "openapi*.yaml"
       run: "npx @redocly/cli lint $file 2>/dev/null || true"
-knowledge:
-  core:
-    - .claude/knowledge/workflows/api-design-template.md
-  advanced:
-    - .claude/knowledge/workflows/api-versioning.md
-    - .claude/knowledge/workflows/api-security.md
 ---
 
 # API Designer 🔌

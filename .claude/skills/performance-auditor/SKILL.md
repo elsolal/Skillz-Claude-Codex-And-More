@@ -23,11 +23,6 @@ hooks:
     - tool: Bash
       match: "lighthouse"
       run: "echo '📊 Lighthouse report generated'"
-knowledge:
-  core:
-    - .claude/knowledge/workflows/performance-checklist.md
-  advanced:
-    - .claude/knowledge/workflows/bundle-optimization.md
 ---
 
 # Performance Auditor 🚀

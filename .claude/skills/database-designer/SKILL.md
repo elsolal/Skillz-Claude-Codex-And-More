@@ -24,12 +24,6 @@ hooks:
     - tool: Write
       match: "*.sql"
       run: "npx sql-formatter --check $file 2>/dev/null || true"
-knowledge:
-  core:
-    - .claude/knowledge/workflows/database-template.md
-  advanced:
-    - .claude/knowledge/workflows/database-optimization.md
-    - .claude/knowledge/workflows/database-migrations.md
 ---
 
 # Database Designer 🗄️
