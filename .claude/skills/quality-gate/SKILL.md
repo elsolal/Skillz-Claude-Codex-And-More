@@ -14,7 +14,7 @@ Replaces the one-shot "review ×3" with a bounded loop that produces an auditabl
 - The task level (0-4). Default: 2. The caller passes it; level 0 changes are not gated (no gate file).
 - The mode: **integrated** (called by dev-workflow or ship-workflow — the loop fixes autonomously) or **standalone** (invoked via /gate or directly by the user — report first, the user arbitrates every fix; see step 4).
 
-**Output**: `docs/quality/GATE-<YYYY-MM-DD>-<slug>.yaml` (slug = branch name or story slug, kebab-case) + a short summary to the caller.
+**Output**: a v2 envelope `docs/quality/GATE-<YYYY-MM-DD>-<slug>.yaml`, its JSON proof payload under `docs/quality/proofs/`, and a short summary to the caller. Both evidence files are committed together and must pass `gate_verify.py verify`.
 
 ## Loop bounds by level
 
@@ -60,29 +60,47 @@ Replaces the one-shot "review ×3" with a bounded loop that produces an auditabl
 - `CONCERNS`: cap reached without convergence, or executable evidence too weak for PASS, or unfixed confirmed P1.
 - `WAIVED`: only on explicit user request, with the reason recorded in the gate file.
 
-## Gate file format
+## Gate v2 evidence and integrity
 
 ```yaml
 # docs/quality/GATE-2026-07-05-auth-refresh.yaml
-verdict: PASS                # PASS | CONCERNS | FAIL | WAIVED
-niveau: 2
-tours: 3
-diff_hash: "<sha256 of the gated diff>"   # freshness: consumers recompute and compare
-preuve:
-  executable:                # the only possible basis for a PASS
-    lint:   { cmd: "npm run lint", statut: vert }
-    types:  { cmd: "tsc --noEmit", statut: vert }
-    tests:  { cmd: "npm test", statut: "vert (47 passed)" }
-    verify: { flow: "login -> refresh -> logout", statut: vert }
-  opinion:
-    findings: { total: 9, confirmes: 4, refutes: 5, corriges: 4, restants: 0 }
-decisions_prises_en_ton_nom:
-  - "refresh token stored in httpOnly cookie instead of localStorage as the issue suggested — XSS"
-absents:
-  - "no e2e harness"
+schema_version: 2
+verdict: "PASS"
+level: 2
+base_sha: "<full 40-char code base SHA>"
+head_sha: "<full 40-char last code SHA before evidence commit>"
+code_diff_hash: "<sha256 of git diff base...head>"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-07-05-auth-refresh.json"
+proof_payload_hash: "<sha256 of exact JSON bytes>"
+integrity_sha256: "<self-integrity hash written by gate seal>"
 ```
 
-Compute `diff_hash` by hashing the gated diff excluding gate files themselves: `git diff <base>...HEAD -- ':(exclude)docs/quality' ':(exclude)CHANGELOG.md' | (shasum -a 256 2>/dev/null || sha256sum) | cut -d' ' -f1` — so neither committing the gate file nor the ship workflow's CHANGELOG entry invalidates the hash. Consumers recompute with the same exclusion.
+The proof payload is strict JSON (`schema_version: 1`) with the manifest fingerprint, one execution
+entry for every command in `.agents/verification.yaml`, absences, opinion findings, rounds and
+autonomous decisions. Every execution records the exact command, status and exit code. A PASS
+payload contains no invented command, no missing command and no non-passing status.
+
+`base_sha` and `head_sha` identify the code diff. Because a committed gate cannot contain the SHA
+of its own commit, `head_sha` is the final code commit before the evidence-only commit. Verification
+accepts current `HEAD == head_sha` or descendants whose entire delta is limited to the exact gate,
+its named proof payload and `CHANGELOG.md`. Any other path, including another file below
+`docs/quality/`, makes the gate stale.
+
+The sole permitted code-diff exclusion is the exact `CHANGELOG.md` path. There is no blanket
+`docs/quality` exclusion. Build the JSON payload, compute its byte hash, create the YAML with a
+64-zero integrity placeholder, then run:
+
+```bash
+bash scripts/run-python310.sh scripts/gate_verify.py seal docs/quality/GATE-<date>-<slug>.yaml
+git add docs/quality/GATE-<date>-<slug>.yaml docs/quality/proofs/<date>-<slug>.json
+git commit -m "chore(quality): gate <slug>"
+bash scripts/run-python310.sh scripts/gate_verify.py verify docs/quality/GATE-<date>-<slug>.yaml --root .
+```
+
+Never hand-edit a sealed gate or its proof. Regenerate and reseal instead. v1 gates remain historical
+evidence but are not accepted as fresh v2 proof. A future GitHub Check may invoke the same verifier;
+it is intentionally non-blocking until local rollout evidence is complete.
 
 `decisions_prises_en_ton_nom` lists every autonomous deviation from the validated plan. **For levels 3-4 the calling workflow must show this section to the user before proposing ship** — it is the only careful read left to the human.
 

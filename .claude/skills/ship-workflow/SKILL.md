@@ -59,9 +59,9 @@ Run the `project-probe` skill (read `.agents/verification.yaml`, create if absen
 Quality is proven by the gate file, not by a fresh review. One definition of quality in the whole system: the `quality-gate` skill.
 
 1. Find the most recent `docs/quality/GATE-*.yaml` committed on this branch.
-2. Check **freshness**: recompute the diff hash with the gate's exclusion rule —
-   `git diff <base>...HEAD -- ':(exclude)docs/quality' ':(exclude)CHANGELOG.md' | (shasum -a 256 2>/dev/null || sha256sum) | cut -d' ' -f1`
-   (`<base>` = `main`, or `master` if `main` does not exist) and compare with the gate's `diff_hash`.
+2. Check schema, SHAs, code diff, exact exclusions, proof payload, manifest commands and envelope integrity mechanically:
+   `bash scripts/run-python310.sh scripts/gate_verify.py verify <gate-path> --root .`.
+   A v1 gate or a v2 gate that fails any check is stale; never fall back to trusting `verdict` text.
 3. Decide:
    - **Gate PASS and fresh** → proceed. The gate file content goes into the PR body verbatim.
    - **Gate absent, stale, FAIL, or CONCERNS** → run the `quality-gate` skill now (level from the gate file if present, else 2; the run includes design/SEO/a11y lenses when the diff touches those surfaces — they live inside the gate, not as separate ship passes). Then:

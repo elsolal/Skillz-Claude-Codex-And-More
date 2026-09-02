@@ -308,12 +308,20 @@ through `bash scripts/run-python310.sh scripts/project_probe.py --root . --check
 
 ```yaml
 # docs/quality/GATE-2026-07-06-my-feature.yaml
-verdict: PASS                      # PASS | CONCERNS | FAIL | WAIVED
-preuve:
-  executable: { lint: vert, tests: "vert (47 passed)", ... }
-  opinion: { findings: { total: 9, confirmes: 4, corriges: 4, restants: 0 } }
-decisions_prises_en_ton_nom: [...]  # the only careful read left to the human
+schema_version: 2
+verdict: "PASS"                    # PASS | CONCERNS | FAIL | WAIVED
+base_sha: "<full Git SHA>"
+head_sha: "<last code SHA>"
+code_diff_hash: "<sha256>"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-07-06-my-feature.json"
+proof_payload_hash: "<sha256>"
+integrity_sha256: "<sealed sha256>"
 ```
+
+`gate_verify.py verify` rejects stale code, edited evidence, missing SHAs, invented commands and
+non-passing PASS payloads. The JSON payload carries executable results and review findings; the
+YAML envelope binds those bytes to the exact code diff.
 
 **Hard rules**: no PASS without real executable evidence (a project without tests caps at CONCERNS — the gate never claims more than it knows) ; CONCERNS is never auto-accepted (explicit waiver → WAIVED, recorded) ; the loop is bounded (never infinite).
 

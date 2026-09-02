@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillz.local/schemas/proof-v1.schema.json",
+  "title": "D-EPCT Quality Gate Proof v1",
+  "type": "object",
+  "required": ["schema_version", "manifest_fingerprint", "executions", "absents"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "manifest_fingerprint": {"type": "string", "minLength": 1},
+    "executions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "command", "status", "exit_code"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "command": {"type": "string", "minLength": 1},
+          "status": {"enum": ["passed", "failed", "not_run"]},
+          "exit_code": {"type": ["integer", "null"]}
+        }
+      }
+    },
+    "absents": {"type": "array", "items": {"type": "string"}},
+    "opinion": {"type": "object"},
+    "decisions_prises_en_ton_nom": {"type": "array", "items": {"type": "string"}}
+  }
+}

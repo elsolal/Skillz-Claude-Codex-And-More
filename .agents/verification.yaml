@@ -2,7 +2,7 @@
 fingerprint_schema_version: 2
 generated_by: "project-probe/2.0.0"
 stack: "mixed"
-config_fingerprint: "81a01b56dbd3c4228c9525a0f57a080e34c3c242c93534106dd7fbff173b4bd8"
+config_fingerprint: "8c4172592863b9ff605f7ec930be858a3cba7200d9106490f4ab100f56597838"
 fingerprint_sources:
   - ".agents/AGENTS.md"
   - ".agents/README.md"
@@ -152,8 +152,10 @@ fingerprint_sources:
   - ".opencode/commands/status.md"
   - ".opencode/opencode.json"
   - "install.sh"
+  - "scripts/capture_distribution_baseline.py"
   - "scripts/cleanup-removed-owned-artifacts.sh"
   - "scripts/create-project-memory-pointer.sh"
+  - "scripts/gate_verify.py"
   - "scripts/lint-shell.sh"
   - "scripts/project_probe.py"
   - "scripts/run-python310.sh"

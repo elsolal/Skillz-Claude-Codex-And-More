@@ -102,6 +102,8 @@ def _is_fingerprint_source(path: Path, root: Path) -> bool:
         return False
     if path.name in CONFIG_NAMES or path.suffix == ".sh" or path.name == "SKILL.md":
         return True
+    if parts and parts[0] == "scripts" and path.suffix == ".py":
+        return True
     if parts[:2] == (".github", "workflows") and path.suffix in {".yml", ".yaml"}:
         return True
     if parts and parts[0] in PROVIDER_ROOTS and path.suffix in PROVIDER_SUFFIXES:
