@@ -20,6 +20,8 @@ KNOWLEDGE_TOKEN = re.compile(
     r"(?:(?<!~/)\.claude/knowledge/|(?:\.\./)+knowledge/)([A-Za-z0-9_./-]+)"
 )
 PORTABLE_FRONTMATTER = {"name", "description", "license"}
+GENERATED_RESOURCE_DIRECTORIES = {"__pycache__", "node_modules"}
+GENERATED_RESOURCE_SUFFIXES = {".pyc", ".pyo"}
 
 RISK_FOUR = {
     "dev-workflow", "quality-gate", "ship-workflow", "security-auditor",
@@ -71,6 +73,12 @@ def _safe_knowledge_path(value: str) -> PurePosixPath:
 def _regular_files(directory: Path, entrypoint: Path | None = None) -> list[Path]:
     files: list[Path] = []
     for item in sorted(directory.rglob("*")):
+        relative = item.relative_to(directory)
+        if (
+            GENERATED_RESOURCE_DIRECTORIES.intersection(relative.parts)
+            or item.suffix in GENERATED_RESOURCE_SUFFIXES
+        ):
+            continue
         if item.is_symlink():
             raise MigrationError(f"symlink is not allowed in canonical resources: {item}")
         if item.is_file() and item != entrypoint:

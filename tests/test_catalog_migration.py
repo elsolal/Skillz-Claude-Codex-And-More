@@ -80,6 +80,23 @@ class CatalogMigrationTests(unittest.TestCase):
                 "output": "resources/review/knowledge/testing/x.md",
             }])
 
+    def test_generated_python_bytecode_is_not_a_canonical_resource(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            skill = Path(temporary) / "demo"
+            cache = skill / "__pycache__"
+            cache.mkdir(parents=True)
+            entrypoint = skill / "SKILL.md"
+            entrypoint.write_text("# Demo\n", encoding="utf-8")
+            helper = skill / "helper.py"
+            helper.write_text("VALUE = 1\n", encoding="utf-8")
+            (skill / "helper.pyc").write_bytes(b"bytecode")
+            (cache / "helper.cpython-310.pyc").write_bytes(b"cached bytecode")
+            dependency_bin = skill / "node_modules" / ".bin"
+            dependency_bin.mkdir(parents=True)
+            (dependency_bin / "tool").symlink_to("../tool/bin.js")
+
+            self.assertEqual(MIGRATION._regular_files(skill, entrypoint), [helper])
+
     def test_knowledge_path_traversal_is_rejected(self):
         with self.assertRaisesRegex(MIGRATION.MigrationError, "unsafe knowledge resource path"):
             MIGRATION._safe_knowledge_path("../../secret.md")

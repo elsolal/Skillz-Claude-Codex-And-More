@@ -2,7 +2,7 @@
 fingerprint_schema_version: 2
 generated_by: "project-probe/2.1.0"
 stack: "mixed"
-config_fingerprint: "1d64f868e51a115b23102b49eee2ce0d59fcec3511eeb16240bdf1c8e46bc230"
+config_fingerprint: "3903ed21effaa28abcfb539c98b738702075c68a082e4300a379edb9f33c5c48"
 fingerprint_sources:
   - ".agents/AGENTS.md"
   - ".agents/README.md"

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+export PYTHONDONTWRITEBYTECODE=1
+
 candidates=()
 if [ -n "${SKILLZ_PYTHON:-}" ]; then
   candidates+=("$SKILLZ_PYTHON")

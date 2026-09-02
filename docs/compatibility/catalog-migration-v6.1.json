@@ -220,7 +220,7 @@
       "alias": "llm-wiki",
       "id": "llm-wiki",
       "migration_state": "canonical",
-      "resource_count": 274,
+      "resource_count": 148,
       "source": "core/skills/llm-wiki/SKILL.md",
       "type": "skill"
     },
@@ -762,7 +762,7 @@
     }
   ],
   "catalog_artifacts": 95,
-  "catalog_resources": 533,
+  "catalog_resources": 407,
   "counts": {
     "command": 31,
     "instruction": 1,
