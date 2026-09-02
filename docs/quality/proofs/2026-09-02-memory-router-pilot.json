@@ -1,0 +1,63 @@
+{
+  "absents": [
+    "no configured typecheck command",
+    "no configured build command",
+    "no e2e harness",
+    "no live Figma mutation was executed; router equivalence is structural and measured against the committed baseline",
+    "PDF delivery engine absent in the unrelated SEO/GEO suite; Markdown previews remain internal-only evidence"
+  ],
+  "decisions_prises_en_ton_nom": [
+    "legacy unmarked wiki indexes are blocked and require an explicit reviewed migration; there is no silent adoption override",
+    "the closed JSON shape of memory.local.json is its whole-file ownership contract, while Markdown index ownership uses exact hash-attested marker pairs",
+    "the figma-generate-library router pattern is approved for future manual migrations because all six measured routes reduce context and preserve 16 of 16 assertions; it does not trigger automatic mass conversion",
+    "figma-use and figma-generate-library enter the provider catalog from legacy sources with explicit resource closure; canonical core relocation remains a later migration"
+  ],
+  "executions": [
+    {
+      "command": "bash scripts/lint-shell.sh",
+      "exit_code": 0,
+      "name": "lint",
+      "status": "passed",
+      "summary": "20 shell files passed syntax verification twice"
+    },
+    {
+      "command": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh scripts/validate_planning_lifecycle.py --root . && bash tests/run-python310.sh tooling/evals/router_pilot.py --root . --output docs/compatibility/router-pilot-figma-generate-library.json --check && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/testing/golden_distribution.py --dist-root dist --output docs/compatibility/golden/v6.1-p0-distribution.json --check && bash tests/test-behavioral.sh && bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py --bundle dist/codex --output docs/compatibility/codex-plugin-0.152.0.json --check && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh",
+      "exit_code": 0,
+      "name": "test",
+      "status": "passed",
+      "summary": "two clean rounds: 107 repository tests, 273 memory tests, 15 lifecycle documents, 6 router routes, 8 behavioral cases, Codex C2 certification, upstream inventory, removal safety, and SEO/GEO suites"
+    }
+  ],
+  "manifest_fingerprint": "10dfb301cd3cd3ceb1af9af9d66197886c4fe427a75c02f7afbce49fb596f589",
+  "opinion": {
+    "findings": {
+      "confirmed": 1,
+      "fixed": 1,
+      "refuted": 0,
+      "remaining": 0,
+      "total": 1
+    },
+    "lenses": {
+      "correctness_security": "PASS",
+      "performance": "PASS",
+      "readability": "PASS",
+      "structural_maintainability": "PASS"
+    },
+    "rounds": [
+      {
+        "finding": "P1: provider compiler tests copied a hard-coded legacy source list and failed when catalog artifacts were added",
+        "resolution": "derive the isolated fixture source and resource closure from core/catalog.yaml while retaining the explicit negative-test helper",
+        "round": 1
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 2
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 3
+      }
+    ]
+  },
+  "schema_version": 1
+}
