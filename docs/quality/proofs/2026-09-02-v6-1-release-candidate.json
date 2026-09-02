@@ -34,7 +34,7 @@
       "summary": "memory installer acceptance, 124 repository tests, 273 memory tests, 15 lifecycle documents, complete catalog report, router pilot, clean compiler and golden, installer lifecycle certification, 8 behavioral cases, Codex C2 discovery, upstream inventory, removal safety, and SEO/GEO suites with the locally installed PDF engine passed; the GitHub structural workflow also passed in a clean local clone"
     }
   ],
-  "manifest_fingerprint": "c032ed34ed7dd1e7687967a253a2270cbd6b504650a1689e2c200c216f541340",
+  "manifest_fingerprint": "21deeb4bcdaca2658840553a25d3fdb588fdb2ca2a9912c0b31c328a73f436ec",
   "opinion": {
     "findings": {
       "confirmed": 5,
@@ -71,8 +71,8 @@
         "round": 4
       },
       {
-        "finding": "P1: catalog validation compared the canonical inventory to ignored local Claude projections, and the shallow CI checkout omitted the router pilot baseline commit",
-        "resolution": "derive inventory equality from core, verify legacy projections as a covered subset, validate canonical-only resources, fetch full Git history in the structural workflow, and reproduce the workflow in a clean clone",
+        "finding": "P1: catalog validation compared canonical inventory to ignored local Claude projections, while the router pilot still referenced an orphaned pre-rewrite baseline commit unavailable on GitHub",
+        "resolution": "derive inventory equality from core, verify legacy projections as a covered subset, validate canonical-only resources, reanchor the byte-identical baseline to its reachable rewritten commit, fetch full history, and reproduce the workflow in clean branch and PR-merge clones",
         "round": 5
       },
       {
