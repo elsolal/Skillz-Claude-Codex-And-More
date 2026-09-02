@@ -15,7 +15,7 @@ from typing import Any, Iterable
 
 
 SCHEMA_VERSION = 1
-BASELINE_COMMIT = "ffa29cae73b0ec47d5cd84bfb5eb6c1b82c66a7c"
+BASELINE_COMMIT = "274e0323e3d9e91c2a74005170a0f3a99d12af61"
 ENTRY = ".claude/skills/figma-generate-library/SKILL.md"
 BASELINE_SHA256 = "079d4427d8afe582c3202dd0fd6ff8cbb0260b2c2b37cdac2d7bc1ea4c624b0b"
 BASELINE_BYTES = 12141
