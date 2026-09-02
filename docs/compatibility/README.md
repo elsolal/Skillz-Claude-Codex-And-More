@@ -17,19 +17,20 @@ because it lives below `.claude/`, `.codex/`, `.gemini/` or another provider dir
 The baseline collector itself and `.agents/verification.yaml` are control-plane evidence, not
 legacy installed artifacts, and are explicitly excluded from this snapshot.
 
-Regenerate intentionally:
+The original snapshot was generated from the pinned legacy source state:
 
 ```bash
 bash tests/run-python310.sh scripts/capture_distribution_baseline.py \
   --write docs/compatibility/golden/legacy-v6-distribution.json
 ```
 
-Check for drift without writing:
+Routine verification checks the historical snapshot itself:
 
 ```bash
-bash tests/run-python310.sh scripts/capture_distribution_baseline.py \
-  --check docs/compatibility/golden/legacy-v6-distribution.json
+bash tests/run-python310.sh -m unittest tests.test_distribution_baseline
 ```
 
-A changed golden is evidence to review, not a file to update automatically. Runtime certification
-is tracked separately at C1 (structure), C2 (native discovery) and C3 (behavioral smoke).
+A post-v6 checkout is expected to differ from this snapshot. Regenerate it only from the pinned
+legacy source state when the capture itself is proven wrong. A changed golden is evidence to
+review, not a file to update automatically. Runtime certification is tracked separately at C1
+(structure), C2 (native discovery) and C3 (behavioral smoke).

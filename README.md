@@ -18,9 +18,8 @@ One engine, four runtimes (Claude Code, Codex CLI, Gemini CLI, OpenCode), a sing
 | **One human stop per feature** | `/dev` scales its rigor to the task level (0-4) and stops exactly once: at the plan. Levels 3-4 (auth, migrations, data) add one careful read before ship. |
 | **Proven quality, not re-read code** | The `quality-gate` loop (execution evidence → multi-lens reviews → adversarial counter-verification) converges to a versioned **gate file** (`PASS/CONCERNS/FAIL/WAIVED`). `/ship` consumes it — no PASS without real executable proof. |
 | **Any stack** | `project-probe` detects the project's real lint/typecheck/test/build commands into `.agents/verification.yaml`. Nothing hardcoded. |
-| **Adaptive planning** | `/discovery` uses the same 0-4 grid: direct tech-spec for small scopes, full Brainstorm → PRD → Architecture → Stories above — always ending with an approved spec that mandates `/auto-dev`. |
+| **Adaptive planning** | `/discovery` uses the same 0-4 grid: direct tech-spec for small scopes, full Brainstorm → PRD → Architecture → Stories above — always ending with an approved spec required by `/dev` at level 4. |
 | **Thinking tools** | `/elicit` (12 named reasoning lenses), `/rodin` (socratic anti-echo), `multi-mind` with its **anti-consensus Contrarian**, and a `[P]` pressure-test before any brainstorm. |
-| **Autonomous mode (RALPH)** | `/auto-discovery`, `/auto-dev`, `/auto-loop` — zero stops, hard safety gates (mandate required, gate PASS required, structural-CONCERNS early stop). |
 | **Quality squads** | `/design-audit(-squad)` — 12-agent Lyse Design Squad ; `/seo-geo-audit(-squad)` — SEO/GEO V3.1 with 21 routed specialists. |
 | **Second-brain memory** | Optional Obsidian LLM Wiki: durable decisions, sources and syntheses that compound across sessions. |
 | **55+ skills, 55+ knowledge files** | Planning, design, Figma (8 skills), audio/video, security, web navigation — all auto-triggered from descriptions. |
@@ -236,13 +235,13 @@ Copy-Item -Recurse -Force Skillz-Claude\.agents\ .\.agents\
 Copy-Item -Recurse -Force Skillz-Claude\.codex\ .\.codex\
 Copy-Item -Recurse -Force Skillz-Claude\.gemini\ .\.gemini\
 Copy-Item -Recurse -Force Skillz-Claude\.opencode\ .\.opencode\
-New-Item -ItemType Directory -Force -Path docs\planning\brainstorms, docs\planning\ux, docs\planning\prd, docs\planning\ui, docs\planning\architecture, docs\stories, docs\ralph-logs, docs\debates, docs\security
+New-Item -ItemType Directory -Force -Path docs\planning\brainstorms, docs\planning\ux, docs\planning\prd, docs\planning\ui, docs\planning\architecture, docs\stories, docs\quality, docs\debates, docs\security
 Remove-Item -Recurse -Force Skillz-Claude
 ```
 
 </details>
 
-Diagnostic: `/skillz-doctor` (v5.8.0+) and autonomous safety gates (v5.7.0+) are documented in [CHANGELOG.md](./CHANGELOG.md).
+Diagnostic: `/skillz-doctor` and the workflow safety gates are documented in [CHANGELOG.md](./CHANGELOG.md).
 
 ---
 
@@ -255,7 +254,7 @@ Diagnostic: `/skillz-doctor` (v5.8.0+) and autonomous safety gates (v5.7.0+) are
 > "I want to build a personal expense tracker with categories and budget alerts"
 ```
 
-The workflow assesses the level (0-4). Small scope → direct tech-spec. Bigger → Brainstorm → PRD → Architecture → Stories, validated at each checkpoint (`[P]` pressure-tests the idea first, `[E]` applies a reasoning lens before validating). Every discovery ends with an **approved spec** in `docs/planning/specs/` — the mandate for `/auto-dev`.
+The workflow assesses the level (0-4). Small scope → direct tech-spec. Bigger → Brainstorm → PRD → Architecture → Stories, validated at each checkpoint (`[P]` pressure-tests the idea first, `[E]` applies a reasoning lens before validating). Every discovery ends with an **approved spec** in `docs/planning/specs/`, required before `/dev` can implement a level-4 scope.
 
 ### 2. Implement — one stop only
 
@@ -281,17 +280,6 @@ Standalone quality-gate loop on any diff — same engine, same gate file as `/de
 ```
 
 Merges main, runs the manifest evidence, **consumes the gate file** (PASS and fresh → straight to PR with the gate in the body; stale or CONCERNS → re-gates or asks for an explicit waiver), generates the changelog, creates the PR.
-
-### 5. Autonomous mode (RALPH)
-
-```
-/auto-discovery "Personal expense tracker app"
-/auto-dev #123
-```
-
-Zero stops. `/auto-dev` refuses to start without a mandate (GitHub issue or approved spec) and never ships without a PASS gate.
-
----
 
 ## The Quality Engine
 
@@ -327,10 +315,8 @@ decisions_prises_en_ton_nom: [...]  # the only careful read left to the human
 | Category | Command | Description |
 |---|---|---|
 | **Planning** | `/discovery "idea"` | Planning in levels 0-4 — tech-spec direct (0-1) or full chain (2-4), approved spec output |
-| | `/auto-discovery "idea"` | Autonomous planning (RALPH), spec stays draft until a human approves |
 | **Dev** | `/dev [issue]` | Adaptive implementation, levels 0-4, single plan stop, quality-gate loop |
 | | `/quick-fix "desc"` | Level-0 short circuit of the same engine, auto-escalates by the grid |
-| | `/auto-dev #123` | Autonomous implementation (RALPH), mandate + PASS gate required |
 | | `/refactor <file>` | Targeted refactor with review passes |
 | **Quality** | `/gate [level] [target]` | **Standalone quality-gate loop** (default level 3 = complete review) → gate file |
 | | `/pr-review #123` | Review a GitHub PR (3 core passes + UI/SEO gates when relevant) |
@@ -345,7 +331,7 @@ decisions_prises_en_ton_nom: [...]  # the only careful read left to the human
 | | `/design-audit-squad <target>` | Full 12-agent Lyse Design Squad audit |
 | | `/seo-geo-audit <target>` | SEO/GEO audit + AI visibility roadmap |
 | | `/seo-geo-squad <target>` | SEO/GEO V3.1 orchestration with 21 routed specialists |
-| **Utilities** | `/status` | Project state (docs, issues, RALPH) |
+| **Utilities** | `/status` | Project state (Git, planning documents, quality gates, issues) |
 | | `/retro [--since 7d]` | Engineering retrospective |
 | | `/docs [type]` | Generate docs (readme\|api\|guide\|all) |
 | | `/changelog [version]` | Generate CHANGELOG.md |
@@ -355,20 +341,6 @@ decisions_prises_en_ton_nom: [...]  # the only careful read left to the human
 | **Memory** | `/wiki-*` | Obsidian LLM Wiki commands — see [the wiki section](#obsidian-llm-wiki--second-brain-memory) |
 
 > Figma skills, `ds-doc` (design-system documenter) and `supabase-security` (full Supabase audit) are auto-triggered via descriptions — no slash commands needed.
-
-<details>
-<summary><strong>RALPH autonomous commands (limits and overrides)</strong></summary>
-
-| Command | Max Iter | Timeout | Completion Promise |
-|---|---|---|---|
-| `/auto-loop "prompt"` | 20 | 1h | `DONE` |
-| `/auto-discovery "idea"` | 30 | 1h | `DISCOVERY COMPLETE` |
-| `/auto-dev #123` | 50 | 2h | `DEV COMPLETE` |
-
-Options: `--max N`, `--timeout Xh`, `--verbose`
-Stop: `/cancel-ralph` — Resume: `/resume-ralph [session-id]`
-
-</details>
 
 <details>
 <summary><strong>Command availability per provider</strong></summary>
@@ -381,7 +353,7 @@ Claude Code receives the full command set. Codex, Gemini, and OpenCode receive t
 | `/rodin` | Yes | Yes | Yes | Yes |
 | `/design-audit(-squad)`, `/seo-geo-audit(-squad)` | Yes | Yes | Yes | Yes |
 | `/elicit`, `/gate` | Yes | Yes | No | No |
-| `/refactor`, `/pr-review`, `/retro`, RALPH commands, etc. | Yes | No | No | No |
+| `/refactor`, `/pr-review`, `/retro`, and other Claude-only utilities | Yes | No | No | No |
 
 Model choice does not change command discovery — each CLI discovers commands from its own folder.
 
@@ -408,8 +380,7 @@ The orchestrator (main thread) keeps ALL context. Rigor scales with the task lev
 │  DELIVERY (/ship)                                                           │
 │  merge main → manifest evidence → gate consumption → changelog → PR        │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  MANUAL: one stop at PLAN ⛔ — levels 3-4 add a handoff read                │
-│  RALPH: zero stops — mandate gate + PASS gate replace them                  │
+│  INTERACTIVE: one stop at PLAN ⛔ — levels 3-4 add a handoff read           │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -707,14 +678,13 @@ Works with Claude Code, OpenAI Codex CLI, Google Gemini CLI, OpenCode, and gener
 ├── CLAUDE.md                        # Project instructions (D-EPCT+R section = installer template)
 ├── commands/                        # Claude slash commands (thin launchers)
 │   ├── dev.md, quick-fix.md         # → dev-workflow (interactive / level-0)
-│   ├── auto-dev.md                  # → dev-workflow (autonomous, RALPH)
-│   ├── discovery.md, auto-discovery.md  # → discovery-workflow
+│   ├── discovery.md                 # → discovery-workflow
 │   ├── ship.md                      # → ship-workflow
 │   ├── gate.md                      # → quality-gate (standalone)
 │   ├── elicit.md                    # → elicitation
 │   └── ...
 ├── skills/                          # Canonical skills (single source of truth)
-│   ├── dev-workflow/                # The adaptive engine (levels 0-4, 3 modes)
+│   ├── dev-workflow/                # The adaptive engine (levels 0-4, interactive + quick-fix)
 │   ├── discovery-workflow/          # Planning in levels + spec output
 │   ├── ship-workflow/               # Gate consumption → PR
 │   ├── project-probe/               # Verification manifest
@@ -740,8 +710,7 @@ docs/                                # Generated output
 ├── planning/                        # brainstorms/, prd/, architecture/, specs/, forge/
 ├── quality/                         # GATE-*.yaml (gate files)
 ├── stories/                         # EPIC-{num}-{slug}/
-├── debates/                         # Multi-Mind reports
-└── ralph-logs/                      # RALPH session logs
+└── debates/                         # Multi-Mind reports
 
 .agents/, .codex/, .gemini/, .opencode/  # Multi-agent compatibility (symlinks + native launchers)
 ```
@@ -776,7 +745,6 @@ You are free to use, copy, and adapt this workflow for your own projects.
 ## Credits
 
 - **[BMAD-METHOD](https://github.com/bmadcode/BMAD-METHOD)** — 32 knowledge files + agent structure; the v6 gate files, scale-adaptive levels, elicitation lenses and anti-consensus room are inspired by BMAD Method v6
-- **[RALPH Protocol](https://ghuntley.com/ralph/)** — Autonomous loop mode
 - **[Benjamin Debon's Rodin prompt](https://gist.github.com/bdebon/e22d0b728abc5f393227440907b334cf)** — anti-echo Socratic challenge posture adapted as the `rodin` skill
 - **[alirezarezvani/claude-skills](https://github.com/alirezarezvani/claude-skills)** — LLM Wiki foundation (MIT), see [ATTRIBUTION](./skills/ATTRIBUTION.md)
 

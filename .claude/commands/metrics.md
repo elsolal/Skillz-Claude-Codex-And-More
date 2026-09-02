@@ -1,5 +1,5 @@
 ---
-description: Affiche un dashboard des métriques du projet (coverage, issues, qualité, RALPH). Usage: /metrics [--full]
+description: Affiche un dashboard des métriques du projet (coverage, issues, qualité, gates). Usage: /metrics [--full]
 ---
 
 # Project Metrics Dashboard 📊
@@ -21,7 +21,7 @@ Je vais collecter et afficher les métriques clés du projet.
 | **Code** | Fichiers source, fichiers test | `Glob: **/*.ts **/*.tsx` (compter) |
 | **Coverage** | Pourcentage | `Read: coverage/coverage-summary.json` |
 | **Dependencies** | Vulnérabilités | `Bash: npm audit --json` |
-| **RALPH** | Sessions | `Glob: docs/ralph-logs/*.md` (compter) |
+| **Quality** | Gates PASS/CONCERNS/FAIL | `Glob: docs/quality/GATE-*.yaml` (compter) |
 | **Docs** | PRDs, Architecture, Stories | `Glob: docs/planning/**/*.md docs/stories/**/*.md` |
 
 ### Instructions de chargement
@@ -65,12 +65,12 @@ Je vais collecter et afficher les métriques clés du projet.
 ║  │ Milestones:   [X]           │      │   Critical: [X] High: [X]   │       ║
 ║  └─────────────────────────────┘      └─────────────────────────────┘       ║
 ║                                                                              ║
-║  📚 DOCUMENTATION                     🤖 RALPH SESSIONS                      ║
+║  📚 DOCUMENTATION                     ✅ QUALITY GATES                       ║
 ║  ┌─────────────────────────────┐      ┌─────────────────────────────┐       ║
-║  │ PRDs:         [X]           │      │ Total:         [X]          │       ║
-║  │ Architecture: [X]           │      │ Completed:     [X] ✅       │       ║
-║  │ Stories:      [XX]          │      │ Interrupted:   [X] ⚠️       │       ║
-║  │ API specs:    [X]           │      │ Avg iterations:[X.X]        │       ║
+║  │ PRDs:         [X]           │      │ PASS:          [X] ✅       │       ║
+║  │ Architecture: [X]           │      │ CONCERNS:      [X] ⚠️       │       ║
+║  │ Stories:      [XX]          │      │ FAIL:          [X]          │       ║
+║  │ API specs:    [X]           │      │ Latest:        [date]       │       ║
 ║  └─────────────────────────────┘      └─────────────────────────────┘       ║
 ║                                                                              ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
@@ -142,21 +142,6 @@ Ajoute les détails suivants :
     ├── Minor:       [X]
     └── Patch:       [X]
 ```
-
-### RALPH Session History
-
-```
-🤖 Recent RALPH Sessions
-┌────────────┬─────────────────┬────────┬────────────┐
-│ Date       │ Type            │ Iters  │ Status     │
-├────────────┼─────────────────┼────────┼────────────┤
-│ 2024-01-20 │ auto-dev        │ 12/50  │ ✅ Complete │
-│ 2024-01-19 │ auto-discovery  │ 8/30   │ ✅ Complete │
-│ 2024-01-18 │ auto-loop       │ 20/20  │ ⚠️ Max iter │
-└────────────┴─────────────────┴────────┴────────────┘
-```
-
----
 
 ## Mode --compare
 

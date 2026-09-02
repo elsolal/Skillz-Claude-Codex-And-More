@@ -1,5 +1,5 @@
 ---
-description: Diagnostic complet de l'install Skillz-Claude. Vérifie symlinks providers (~/.gemini, ~/.codex, ~/.config/opencode, ~/.agents), drift du manifest, locks RALPH orphelins, frontmatter des specs, fichiers provider présents. Usage: /skillz-doctor [--fix]
+description: Diagnostic complet de l'install Skillz-Claude. Vérifie symlinks providers (~/.gemini, ~/.codex, ~/.config/opencode, ~/.agents), drift du manifest, frontmatter des specs et fichiers provider présents. Usage: /skillz-doctor [--fix]
 ---
 
 # Skillz-Doctor — Health Check Install
@@ -15,7 +15,6 @@ description: Diagnostic complet de l'install Skillz-Claude. Vérifie symlinks pr
 │                                                                          │
 │  Health checks  → Symlinks       (.gemini, .codex, opencode, .agents)   │
 │                 → Manifest drift (skillz-manifest vs ~/.claude/skills/) │
-│                 → RALPH locks    (sessions orphelines > 24h)            │
 │                 → Spec frontmatter (status/approved_by valides)        │
 │                 → Provider files (GEMINI.md, AGENTS.md, ext.json)      │
 │                                                                          │
@@ -29,9 +28,9 @@ description: Diagnostic complet de l'install Skillz-Claude. Vérifie symlinks pr
 
 | Argument | Default | Description |
 |----------|---------|-------------|
-| `--fix` | false | Applique les corrections sûres (recreate symlinks cassés, purge RALPH locks > 7j) |
+| `--fix` | false | Applique les corrections sûres (recréation de symlinks cassés) |
 | `--verbose` | false | Affiche le détail de chaque check |
-| `--scope` | all | `all`, `symlinks`, `manifest`, `ralph`, `specs`, `providers` |
+| `--scope` | all | `all`, `symlinks`, `manifest`, `specs`, `providers` |
 
 ---
 
@@ -147,31 +146,7 @@ missing=$(comm -13 <(echo "$present_skills") <(echo "$manifest_skills"))
 
 **Si `--fix`** : ne PAS toucher au manifest (il est censé refléter le dernier install). Suggérer de relancer `./install.sh update claude`.
 
-### 3. RALPH locks orphelins
-
-```bash
-logs_dir="docs/ralph-logs"
-if [ ! -d "$logs_dir" ]; then
-  echo "OK   | No ralph-logs/ — pas d'historique"
-else
-  # Sessions sans completion marker, modifiées il y a > 24h
-  for log in "$logs_dir"/*.md; do
-    [ -f "$log" ] || continue
-    last_mod=$(stat -f %m "$log" 2>/dev/null || stat -c %Y "$log")
-    age_hours=$(( ($(date +%s) - last_mod) / 3600 ))
-
-    if [ $age_hours -gt 24 ]; then
-      if ! grep -q "COMPLETE\|CANCELLED\|TIMEOUT" "$log"; then
-        echo "WARN | $log : session orpheline ($age_hours h, no completion marker)"
-      fi
-    fi
-  done
-fi
-```
-
-**Si `--fix`** : déplacer les logs orphelins > 7j vers `docs/ralph-logs/.archive/`.
-
-### 4. Spec frontmatter
+### 3. Spec frontmatter
 
 ```bash
 specs_dir="docs/planning/specs"
@@ -204,9 +179,9 @@ else
 fi
 ```
 
-**Si `--fix`** : ne PAS modifier les frontmatter automatiquement (risque d'auto-approbation par RALPH). Proposer le diff à l'utilisateur.
+**Si `--fix`** : ne PAS modifier les frontmatter automatiquement. Proposer le diff à l'utilisateur.
 
-### 5. Provider files
+### 4. Provider files
 
 Vérifier que chaque provider a son fichier d'instructions :
 
@@ -243,11 +218,6 @@ MANIFEST
 ⚠️  3 user-added skills not in manifest: my-custom, foo, bar
 
 ──────────────────────────────────────────────────────────────────
-RALPH LOCKS
-──────────────────────────────────────────────────────────────────
-⚠️  docs/ralph-logs/abc123.md : session orpheline (72h, no completion marker)
-
-──────────────────────────────────────────────────────────────────
 SPECS
 ──────────────────────────────────────────────────────────────────
 ✅ All 5 specs have valid frontmatter
@@ -261,7 +231,7 @@ PROVIDERS
 NEXT
 ──────────────────────────────────────────────────────────────────
 Run with --fix to apply the 1 safe correction (Gemini symlink).
-Manual review needed for: manifest user-skills, ralph orphans.
+Manual review needed for: manifest user-skills.
 ```
 
 ---
@@ -276,4 +246,4 @@ J'analyse l'état d'install et je produis le rapport.
 2. Exécuter les checks Bash dans l'ordre ci-dessus
 3. Compter OK/WARN/FAIL
 4. Produire le rapport au format ci-dessus
-5. Si `--fix` passé : appliquer uniquement les corrections sûres (symlinks cassés, archive RALPH > 7j) et reporter
+5. Si `--fix` passé : appliquer uniquement les corrections sûres (symlinks cassés) et reporter

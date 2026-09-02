@@ -1,6 +1,6 @@
 ---
 name: skillz-writing-skills
-description: Guide la création ou la modification d'un skill Skillz-Claude. Utiliser quand l'utilisateur demande "crée un skill", "ajoute un skill", "améliore ce skill", ou quand on doit ajouter/refactorer un fichier dans .claude/skills/. Garantit cohérence avec le vocabulaire D-EPCT+R, RALPH, et conventions FR du projet. Inspiré de superpowers/writing-skills mais réécrit pour notre stack.
+description: Guide la création ou la modification d'un skill Skillz-Claude. Utiliser quand l'utilisateur demande "crée un skill", "ajoute un skill", "améliore ce skill", ou quand on doit ajouter/refactorer un fichier dans .claude/skills/. Garantit cohérence avec le vocabulaire D-EPCT+R et les conventions FR du projet. Inspiré de superpowers/writing-skills mais réécrit pour notre stack.
 ---
 
 # Skillz-Writing-Skills — Méta-skill création de skills
@@ -94,7 +94,7 @@ description: ...
 ### 5. Vocabulaire et conventions
 
 - **Langue** : FR par défaut (cohérence projet). EN OK si le skill est purement technique sans contexte projet.
-- **Workflow vocabulary** : D-EPCT+R, RALPH, Discovery, /dev, /quick-fix — utiliser ce vocabulaire quand pertinent
+- **Workflow vocabulary** : D-EPCT+R, Discovery, /dev, /quick-fix — utiliser ce vocabulaire quand pertinent
 - **Phases** : Explore → Plan → Implement → Review → Ship (référencer les phases si applicable)
 - **Pas de jargon LLM** : éviter "I will analyze", "let me think", "as an AI". Écrire en mode procédural.
 - **Pas d'over-engineering** : KISS. Un skill = un objectif clair. Si tu décris 5 sous-skills, c'est 5 skills séparés.
@@ -117,7 +117,7 @@ Avant de considérer le skill comme prêt :
 
 Un fichier `.claude/skills/<nom>/SKILL.md` :
 - Frontmatter `name` + `description` riche en triggers
-- Sections claires, FR, vocabulaire D-EPCT+R/RALPH
+- Sections claires, FR, vocabulaire D-EPCT+R
 - < 200 lignes typiquement (sinon découper en plusieurs skills)
 - Au moins 1 exemple concret
 - Pas de copie de texte d'autres skills (DRY)
@@ -135,11 +135,11 @@ Un fichier `.claude/skills/<nom>/SKILL.md` :
 | Description vague ("helper for X") | Claude n'activera jamais le skill | Reformuler avec triggers concrets + verbe d'action |
 | Skill > 500 lignes | Trop de scopes mélangés | Découper en 2-3 skills orthogonaux |
 | Description en EN, contenu en FR (ou inverse) | Incohérence avec le projet | Aligner sur la langue du projet (FR par défaut) |
-| Importer du texte d'un skill upstream sans réécrire | Risque licence + incohérence vocabulaire | Réécrire avec nos termes (D-EPCT+R, RALPH, etc.) |
+| Importer du texte d'un skill upstream sans réécrire | Risque licence + incohérence vocabulaire | Réécrire avec nos termes D-EPCT+R |
 | Pas d'exemple concret | Skill abstrait, peu utilisable | Ajouter au moins 1 exemple end-to-end |
 | Pas de "Quand NE PAS utiliser" | Skill sur-déclenché | Lister explicitement les cas adjacents avec leur skill correct |
 | Skill massif sans progressive disclosure | Les agents chargent trop de contexte inutile | Garder le workflow coeur dans `SKILL.md`, mettre les matrices/exemples en `references/` |
 
 ## Référence
 
-Inspiré de la philosophie `superpowers/writing-skills` (obra/superpowers), réécrit pour le vocabulaire D-EPCT+R + RALPH + multi-agent + FR de Skillz-Claude. Pas de dépendance runtime, pas de copie de contenu.
+Inspiré de la philosophie `superpowers/writing-skills` (obra/superpowers), réécrit pour le vocabulaire D-EPCT+R + multi-agent + FR de Skillz-Claude. Pas de dépendance runtime, pas de copie de contenu.

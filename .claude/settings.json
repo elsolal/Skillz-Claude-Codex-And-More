@@ -1,17 +1,4 @@
 {
-  "hooks": {
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/stop-hook.sh"
-          }
-        ]
-      }
-    ]
-  },
   "permissions": {
     "allow": ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
   }

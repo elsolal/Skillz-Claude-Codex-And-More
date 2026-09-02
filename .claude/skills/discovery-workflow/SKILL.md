@@ -166,13 +166,13 @@ Reference: `.claude/skills/pm-stories/SKILL.md`.
 Whatever the level, discovery ends by writing the consolidated spec that the dev chain consumes:
 
 - File: `docs/planning/specs/YYYY-MM-DD-<slug>-design.md`
-- Frontmatter (the `/auto-dev` mandate gate reads exactly these keys):
+- Frontmatter consumed by level-4 development mandate checks:
 
 ```yaml
 ---
 title: <need title>
 status: draft            # human flips to approved
-approved_by: null        # human name — never "ralph"
+approved_by: null        # human name
 approved_at: null        # ISO date, set by the human
 created_at: <ISO-8601>
 slug: <slug>
@@ -182,8 +182,6 @@ level: <0-4>
 
 - Content: PRD synthesis + architecture decisions + acceptance criteria (3-5 sections max). Level 0-1: this IS the whole discovery output. Level 4: include the NFR & security section.
 - **Interactive mode**: at the final checkpoint, ask the user to approve — on yes, set `status: approved`, `approved_by: <user>`, `approved_at: <today>`.
-- **Autonomous mode** (`/auto-discovery`): always leave `status: draft`, `approved_by: ralph` — a human must approve before `/auto-dev` will start.
-
 **STOP CHECKPOINT 7-bis** — Spec written (and approved in interactive mode).
 
 ---

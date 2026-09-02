@@ -1,5 +1,7 @@
 ---
 status: approved
+lifecycle: superseded
+superseded_by: 2026-09-01-provider-neutral-kernel-design.md
 approved_by: aymeric
 approved_at: 2026-07-05
 date: 2026-07-05

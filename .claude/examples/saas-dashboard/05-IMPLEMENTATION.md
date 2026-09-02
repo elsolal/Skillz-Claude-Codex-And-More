@@ -1,42 +1,32 @@
 # Notes d'implémentation - SaaS Dashboard
 
-## Mode RALPH utilisé
+## Workflow interactif utilisé
 
 ```bash
-# Discovery complet en mode autonome
-/auto-discovery "Dashboard SaaS pour gestion de projets avec auth, équipes, et billing"
+# Discovery complète avec checkpoints
+/discovery "Dashboard SaaS pour gestion de projets avec auth, équipes, et billing"
 
-# Sortie après 12 itérations:
-# "DISCOVERY COMPLETE"
+# Sortie approuvée :
 # - Brainstorm validé (research-first)
 # - PRD créé (mode FULL)
 # - Architecture documentée
 # - Stories créées + Readiness Check 15/15
 
 # Implémentation par Epic
-/auto-dev #epic-1-auth --max 30
-# Sortie après 18 itérations: "FEATURE COMPLETE"
-
-/auto-dev #epic-2-core --max 50
-# Sortie après 42 itérations: "FEATURE COMPLETE"
-
-/auto-dev #epic-3-billing --max 30
-# Sortie après 22 itérations: "FEATURE COMPLETE"
+/dev #epic-1-auth
+/dev #epic-2-core
+/dev #epic-3-billing
 ```
 
-## Logs RALPH
+## Preuves d'implémentation
 
-Les logs complets sont dans `docs/ralph-logs/`:
-- `2025-01-20-discovery-saas.md`
-- `2025-01-21-epic-1-auth.md`
-- `2025-01-22-epic-2-core.md`
-- `2025-01-24-epic-3-billing.md`
+Chaque epic conserve son plan validé, ses tests RED→GREEN et son gate dans `docs/quality/`.
 
 ## Temps réel vs estimé
 
 | Phase | Estimé | Réel | Notes |
 |-------|--------|------|-------|
-| Discovery | 4h | 3h | RALPH efficace |
+| Discovery | 4h | 3h | Checkpoints ciblés |
 | Epic 1: Auth | 2j | 1.5j | Supabase simple |
 | Epic 2: Core | 4j | 5j | Kanban complexe |
 | Epic 3: Billing | 2j | 2j | Stripe docs good |

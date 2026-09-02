@@ -1,17 +1,16 @@
 ---
 name: dev-workflow
-description: Adaptive single-source feature development workflow (D-EPCT+R v6). Loaded by /dev, /quick-fix and /auto-dev in Claude Code and by their prompt equivalents in Codex/Gemini/OpenCode. Scales rigor to task levels 0-4 (typo fix → epic) with automatic escalation, a single human checkpoint at the plan, conditional acceptance-test-first (RED), and a bounded quality-gate loop replacing human code re-reading. Use for any implementation task: bug fix, feature, GitHub issue.
+description: Adaptive single-source feature development workflow (D-EPCT+R v6). Loaded by /dev and /quick-fix in Claude Code and by their prompt equivalents in Codex/Gemini/OpenCode. Scales rigor to task levels 0-4 (typo fix → epic) with automatic escalation, a single human checkpoint at the plan, conditional acceptance-test-first (RED), and a bounded quality-gate loop replacing human code re-reading. Use for any implementation task: bug fix, feature, GitHub issue.
 ---
 
 # Dev Workflow — Adaptive Feature Implementation
 
-One engine, three entry modes. The caller (slash command / prompt) sets the mode; everything else lives here.
+One engine, two interactive entry modes. The caller (slash command / prompt) sets the mode; everything else lives here.
 
 | Mode | Entry | Human checkpoints |
 |---|---|---|
 | `interactive` | `/dev` | ONE: the plan (Phase 2) — none at level 0. Levels 3-4 add the handoff read (Phase 6). |
 | `quick-fix` | `/quick-fix` | None below level 1; starts at level 0 and may escalate. |
-| `autonomous` | `/auto-dev` (RALPH) | None; the mandate gate (below) replaces the plan stop. |
 
 **Inputs**: task description or issue reference, plus the mode.
 **Output**: implemented + tested + gated code, ready to `/ship`, with a gate file as proof.
@@ -44,7 +43,7 @@ Run the `project-probe` skill: read `.agents/verification.yaml`, create or refre
 | **1** | small localized bug or adjustment, 1 file cluster | Light explore → mini-plan ⛔ (interactive) → fix → gate, 1 round, 1 reviewer. |
 | **2** | standard feature, one component | Full flow below. |
 | **3** | multi-component, public surface, rich UI | Full flow + design/SEO/a11y lenses in the gate + human handoff read. |
-| **4** | epic, migration, auth, DB schema, data handling | REFUSE to start without an approved spec (`docs/planning/specs/*-design.md`, frontmatter `status: approved`, `approved_by` set and ≠ `ralph`, `approved_at` non-empty). Route the user to `/discovery`. Then execute per story at level 2-3 with the human handoff read. |
+| **4** | epic, migration, auth, DB schema, data handling | REFUSE to start without an approved spec (`docs/planning/specs/*-design.md`, frontmatter `status: approved`, `approved_by` and `approved_at` non-empty). Route the user to `/discovery`. Then execute per story at level 2-3 with the human handoff read. |
 
 State the detected level and why. In interactive mode the user can override it at the Phase 2 stop.
 
@@ -58,7 +57,6 @@ Build the plan: numbered atomic steps — each with what / where (absolute paths
 
 - **interactive** → ⛔ **THE STOP**: present ONE screen = explore synthesis + detected level + full plan + acceptance criteria + test strategy. The user validates, adjusts, or changes the level. This is the only stop before Phase 6.
 - **quick-fix (escalated to level ≥ 1)** → present the (mini-)plan as the stop, exactly like interactive at that level.
-- **autonomous** → no stop. **Mandate gate instead** (checked before Phase 1): a valid GitHub issue OR an approved spec (criteria above). No mandate → refuse with the exact remediation options (`/discovery`, `gh issue create`, or `--allow-no-spec` for prototyping only, logged as such). Track iterations in `docs/ralph-logs/<session>.md` per RALPH conventions; `/cancel-ralph` stops the loop.
 
 ## Phase 3 — RED (conditional)
 
@@ -80,8 +78,6 @@ Level 0: run the manifest commands, present the fix (no gate file). Done — Pha
 
 Levels 1-4: commit the implementation first — the gate evaluates the committed diff (`<base>...HEAD`); uncommitted work is invisible to it. Then run the `quality-gate` skill on the default-branch diff with the validated plan and the manifest. Gate level = task level (1 → 1 round with a quick structural-smell check; 2 → ≤3 + final `thermo-nuclear-code-quality-review`; 3-4 → ≤4 + design-audit / seo-geo-audit / a11y-enforcer lenses for the surfaces detected in Phase 1, then final `thermo-nuclear-code-quality-review`). Do not run a separate maintainability review outside the gate; the final thermo-nuclear lens is part of the gate and is de-duplicated against earlier findings. Commit the gate file with the branch.
 
-**Autonomous mode**: verdict PASS required — CONCERNS is never auto-accepted. If the CONCERNS is *structural* (the project offers no executable evidence at all), STOP immediately with the explanation — iterating cannot change it. FAIL → one more iteration to fix; >3 attempts → STOP with a clear report.
-
 ## Phase 6 — HANDOFF
 
 Present the final report: verdict + rounds + findings summary, **`decisions_prises_en_ton_nom`** (every deviation from the validated plan), `absents`, diff stats, and the RED→GREEN evidence when Phase 3 ran.
@@ -90,7 +86,6 @@ Present the final report: verdict + rounds + findings summary, **`decisions_pris
 - Levels 0-2 (interactive): propose **[S] `/ship`** | **[C] commit only** | **[R] re-run the gate** (levels 1-2). This menu is the handoff decision, not a second checkpoint — do not re-open the plan here.
 - Levels 3-4 (interactive): require the user to read `decisions_prises_en_ton_nom` (quote it in full) before proposing the same options. This is the only careful read left to the human.
 - Frontend + new components: propose `/ds-doc --update` before ship.
-- Autonomous: chain `/ship` directly when the gate is PASS; the PR body carries the gate file.
 
 ## Runtime capabilities
 
@@ -104,7 +99,6 @@ Present the final report: verdict + rounds + findings summary, **`decisions_pris
 - ❌ More than one human stop in interactive mode (the plan is THE stop; Phase 6 levels 3-4 is a read, not a re-plan)
 - ❌ Hardcoding verification commands instead of reading the manifest
 - ❌ Writing RED tests that can't fail, or skipping the failing run
-- ❌ Accepting CONCERNS in autonomous mode, or iterating on a structural CONCERNS
 - ❌ Shipping levels 3-4 without surfacing `decisions_prises_en_ton_nom`
 
 ## Referenced knowledge & skills

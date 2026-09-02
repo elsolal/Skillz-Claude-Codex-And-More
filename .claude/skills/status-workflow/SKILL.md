@@ -27,7 +27,6 @@ Scan all of these in parallel (independent reads):
 | Stories | `Glob: docs/stories/*/STORY-*.md` | count per epic |
 | GitHub Issues | `gh issue list --limit 20 --state all` | open/closed/in-progress breakdown |
 | GitHub PRs | `gh pr list --limit 10` | open PRs |
-| RALPH logs | `Glob: docs/ralph-logs/*.md` | latest session + status |
 | Git state | `git status --short`, `git log --oneline -5`, `git branch --show-current` | clean/dirty, recent commits, current branch |
 
 If any source returns empty (directory doesn't exist, no matches), mark it as "—" in the output instead of erroring.

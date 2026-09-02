@@ -119,7 +119,7 @@ absents:
   - no doctor or restore lifecycle
 
 verification:
-  regenerate: bash tests/run-python310.sh scripts/capture_distribution_baseline.py --write docs/compatibility/golden/legacy-v6-distribution.json
-  check: bash tests/run-python310.sh scripts/capture_distribution_baseline.py --check docs/compatibility/golden/legacy-v6-distribution.json
-  determinism: run check twice and require byte-identical output
-  mutation_policy: repository read-only except explicit --write target
+  integrity: bash tests/run-python310.sh -m unittest tests.test_distribution_baseline
+  historical_policy: do not regenerate from a post-v6 checkout
+  comparison: use scripts/capture_distribution_baseline.py on an explicit checkout when reviewing migration drift
+  mutation_policy: golden is immutable unless the legacy source commit or capture algorithm is proven incorrect

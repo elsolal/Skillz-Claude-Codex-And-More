@@ -117,13 +117,22 @@ class DistributionBaselineTests(unittest.TestCase):
         self.assertIn("README.md", "\n".join(differences))
         self.assertEqual(snapshot.read_bytes(), original)
 
-    def test_committed_golden_matches_current_distribution(self):
-        differences = baseline.check_snapshot(
-            baseline.capture_repository(REPO_ROOT),
-            GOLDEN_PATH,
-        )
+    def test_committed_golden_is_a_well_formed_legacy_snapshot(self):
+        payload = json.loads(GOLDEN_PATH.read_text(encoding="utf-8"))
+        artifacts = payload["artifacts"]
+        paths = [artifact["path"] for artifact in artifacts]
 
-        self.assertEqual(differences, [])
+        self.assertEqual(payload["baseline_id"], "legacy-v6")
+        self.assertEqual(len(artifacts), 623)
+        self.assertEqual(paths, sorted(paths))
+        self.assertEqual(len(paths), len(set(paths)))
+        self.assertTrue(
+            all(
+                artifact["ownership"] == "skillz"
+                and artifact["type"] in {"file", "symlink"}
+                for artifact in artifacts
+            )
+        )
 
     def test_baseline_metadata_hash_matches_committed_golden(self):
         metadata = BASELINE_PATH.read_text(encoding="utf-8")
