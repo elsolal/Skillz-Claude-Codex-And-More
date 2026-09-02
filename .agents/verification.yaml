@@ -2,7 +2,7 @@
 fingerprint_schema_version: 2
 generated_by: "project-probe/2.0.0"
 stack: "mixed"
-config_fingerprint: "bf8794a2f88ade42a0797fc151fbee5466ef980700a57f0315694189671870c8"
+config_fingerprint: "b11f5d0ee41f53317df1bba498a9f1a8531e8d2b6cff3055bb1d66c81ac0c3bb"
 fingerprint_sources:
   - ".agents/AGENTS.md"
   - ".agents/README.md"
@@ -188,6 +188,7 @@ fingerprint_sources:
   - "tests/test-install-memory-cli.sh"
   - "tests/test-removed-owned-artifacts.sh"
   - "tests/test-seo-geo-v3.sh"
+  - "tooling/runtime/certify_codex_plugin.py"
   - "tooling/upstream/scan.py"
   - "tooling/upstream/sources.yaml"
 python:
@@ -196,21 +197,19 @@ python:
   selected_version: "3.12.7"
 commands:
   lint: "bash scripts/lint-shell.sh"
-  test: "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh"
+  test: "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py --bundle dist/codex --output docs/compatibility/codex-plugin-0.152.0.json --check && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh"
 command_sources:
   lint: ".agents/project-probe.json#commands.lint"
   test: ".agents/project-probe.json#commands.test"
 testability:
   e2e: none
   harness: "shell+unittest"
-  runtime_verify: none
+  runtime_verify: "codex-plugin-C2"
 absents:
   - "no configured typecheck command"
   - "no configured build command"
   - "no e2e harness"
-  - "no runtime application surface; repository distributes shell and Markdown agent tooling"
 absence_reasons:
   build: "no configured build command"
   e2e: "no e2e harness"
-  runtime_verify: "no runtime application surface; repository distributes shell and Markdown agent tooling"
   typecheck: "no configured typecheck command"

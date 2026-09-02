@@ -15,7 +15,7 @@
 #      Claude Code  → claude --plugin-dir ./Skillz-Claude-Codex-And-More       (.claude-plugin/plugin.json)
 #      Gemini CLI   → gemini --extension-dir ./Skillz-Claude-Codex-And-More/.gemini
 #      OpenCode     → use ./install.sh install opencode (no bundled JS/TS plugin yet)
-#      Codex CLI    → install.sh mirrors ~/.claude/ → ~/.codex/ (no native plugin format yet)
+#      Codex CLI    → native v6.1 bundle in dist/codex; install.sh mirror is the legacy fallback
 #
 # USAGE (v5.6.0+ subcommand syntax — recommended):
 #

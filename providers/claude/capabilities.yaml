@@ -3,6 +3,7 @@
   "provider": "claude",
   "runtime": {"name": "Claude Code", "version_observed": "2.1.257"},
   "certification": "C1",
+  "package": "supported",
   "capabilities": {
     "instruction": "supported",
     "skill": "supported",

@@ -18,6 +18,7 @@ import uuid
 
 ARTIFACT_TYPES = ("instruction", "skill", "command", "agent", "mcp", "hook")
 STATUSES = {"supported", "pending", "unsupported"}
+PACKAGE_COMPONENTS = {"apps", "commands", "hooks", "mcpServers", "skills"}
 ALIAS_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 
 
@@ -40,6 +41,56 @@ def _safe_relative(value: str, label: str) -> PurePosixPath:
     if relative.is_absolute() or ".." in relative.parts or not relative.parts:
         raise BuildError(f"unsafe {label}: {value}")
     return relative
+
+
+def _validate_distribution(catalog: dict[str, Any]) -> dict[str, Any]:
+    distribution = catalog.get("distribution")
+    if not isinstance(distribution, dict):
+        raise BuildError("catalog distribution must be an object")
+    required = {
+        "name",
+        "version",
+        "description",
+        "author",
+        "homepage",
+        "repository",
+        "license",
+        "keywords",
+        "marketplace",
+    }
+    missing = required - set(distribution)
+    if missing:
+        raise BuildError(f"catalog distribution fields missing: {sorted(missing)}")
+    if not isinstance(distribution.get("name"), str) or not ALIAS_RE.fullmatch(
+        distribution["name"]
+    ):
+        raise BuildError("catalog distribution name is invalid")
+    for field in ("version", "description", "homepage", "repository", "license"):
+        if not isinstance(distribution.get(field), str) or not distribution[field]:
+            raise BuildError(f"catalog distribution {field} is invalid")
+    author = distribution.get("author")
+    if not isinstance(author, dict) or not isinstance(author.get("name"), str):
+        raise BuildError("catalog distribution author is invalid")
+    keywords = distribution.get("keywords")
+    if not isinstance(keywords, list) or not all(isinstance(item, str) for item in keywords):
+        raise BuildError("catalog distribution keywords are invalid")
+    marketplace = distribution.get("marketplace")
+    marketplace_fields = {
+        "name",
+        "display_name",
+        "category",
+        "installation_policy",
+        "authentication_policy",
+    }
+    if not isinstance(marketplace, dict) or marketplace_fields - set(marketplace):
+        raise BuildError("catalog distribution marketplace is invalid")
+    if not ALIAS_RE.fullmatch(str(marketplace.get("name", ""))):
+        raise BuildError("catalog marketplace name is invalid")
+    if marketplace.get("installation_policy") not in {"AVAILABLE", "REQUIRED"}:
+        raise BuildError("catalog marketplace installation policy is invalid")
+    if marketplace.get("authentication_policy") not in {"ON_INSTALL", "ON_USE"}:
+        raise BuildError("catalog marketplace authentication policy is invalid")
+    return distribution
 
 
 def _validate_catalog(root: Path, catalog: dict[str, Any]) -> list[dict[str, Any]]:
@@ -114,6 +165,39 @@ def _load_providers(root: Path) -> list[dict[str, Any]]:
             raise BuildError(f"provider identity mismatch: {provider}")
         if capabilities.get("schema_version") != 1 or contract.get("schema_version") != 1:
             raise BuildError(f"unsupported provider schema: {provider}")
+        package_status = capabilities.get("package")
+        package = contract.get("package")
+        if package_status not in STATUSES or not isinstance(package, dict):
+            raise BuildError(f"invalid package capability: {provider}")
+        if package.get("status") != package_status:
+            raise BuildError(f"package capability/build mismatch: {provider}")
+        manifest_path = package.get("manifest_path")
+        marketplace_path = package.get("marketplace_path")
+        components = package.get("components")
+        if not isinstance(components, dict) or not all(
+            isinstance(key, str) and isinstance(value, str)
+            for key, value in components.items()
+        ):
+            raise BuildError(f"invalid package components: {provider}")
+        unknown_components = set(components) - PACKAGE_COMPONENTS
+        if unknown_components:
+            raise BuildError(
+                f"unknown package components for {provider}: {sorted(unknown_components)}"
+            )
+        if package_status == "supported":
+            if not isinstance(manifest_path, str):
+                raise BuildError(f"supported package has no manifest: {provider}")
+            _safe_relative(manifest_path, "provider package manifest")
+            if marketplace_path is not None:
+                if not isinstance(marketplace_path, str):
+                    raise BuildError(f"invalid package marketplace: {provider}")
+                _safe_relative(marketplace_path, "provider package marketplace")
+            for component_name, component_path in components.items():
+                if not component_name or not component_path.startswith("./"):
+                    raise BuildError(f"invalid package component: {provider}/{component_name}")
+                _safe_relative(component_path[2:], "provider package component")
+        elif manifest_path is not None or marketplace_path is not None or components:
+            raise BuildError(f"non-supported package has build behavior: {provider}")
         declared = capabilities.get("capabilities")
         implementations = contract.get("artifacts")
         if not isinstance(declared, dict) or set(declared) != set(ARTIFACT_TYPES):
@@ -184,9 +268,95 @@ def _tree_hash(root: Path) -> str:
     return digest.hexdigest()
 
 
+def _write_json(path: Path, payload: dict[str, Any]) -> str:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.chmod(0o644)
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _build_provider_package(
+    provider: dict[str, Any],
+    distribution: dict[str, Any],
+    output: Path,
+    outputs: set[str],
+) -> dict[str, Any]:
+    provider_id = provider["id"]
+    contract = provider["contract"]
+    package = contract["package"]
+    report_item: dict[str, Any] = {
+        "provider": provider_id,
+        "status": package["status"],
+    }
+    if package["status"] != "supported":
+        return report_item
+
+    manifest_relative = PurePosixPath(contract["output_root"]) / _safe_relative(
+        package["manifest_path"], "provider package manifest"
+    )
+    manifest_text = manifest_relative.as_posix()
+    if manifest_text in outputs:
+        raise BuildError(f"output collision: {manifest_text}")
+    outputs.add(manifest_text)
+    manifest = {
+        key: distribution[key]
+        for key in (
+            "name",
+            "version",
+            "description",
+            "author",
+            "homepage",
+            "repository",
+            "license",
+            "keywords",
+        )
+    }
+    manifest.update(package["components"])
+    report_item.update(
+        {
+            "manifest": manifest_text,
+            "manifest_sha256": _write_json(output / manifest_relative, manifest),
+        }
+    )
+
+    marketplace_path = package["marketplace_path"]
+    if marketplace_path is not None:
+        marketplace_relative = PurePosixPath(contract["output_root"]) / _safe_relative(
+            marketplace_path, "provider package marketplace"
+        )
+        marketplace_text = marketplace_relative.as_posix()
+        if marketplace_text in outputs:
+            raise BuildError(f"output collision: {marketplace_text}")
+        outputs.add(marketplace_text)
+        marketplace_metadata = distribution["marketplace"]
+        marketplace = {
+            "name": marketplace_metadata["name"],
+            "interface": {"displayName": marketplace_metadata["display_name"]},
+            "plugins": [
+                {
+                    "name": distribution["name"],
+                    "source": {"source": "local", "path": "./"},
+                    "policy": {
+                        "installation": marketplace_metadata["installation_policy"],
+                        "authentication": marketplace_metadata["authentication_policy"],
+                    },
+                    "category": marketplace_metadata["category"],
+                }
+            ],
+        }
+        report_item.update(
+            {
+                "marketplace": marketplace_text,
+                "marketplace_sha256": _write_json(output / marketplace_relative, marketplace),
+            }
+        )
+    return report_item
+
+
 def _build_into(root: Path, output: Path) -> dict[str, Any]:
     catalog_path = root / "core" / "catalog.yaml"
     catalog = _load_object(catalog_path, "catalog")
+    distribution = _validate_distribution(catalog)
     artifacts = _validate_catalog(root, catalog)
     providers = _load_providers(root)
     provider_ids = {provider["id"] for provider in providers}
@@ -197,12 +367,16 @@ def _build_into(root: Path, output: Path) -> dict[str, Any]:
     output.mkdir(parents=True, exist_ok=False)
     report_artifacts: list[dict[str, Any]] = []
     report_capabilities: list[dict[str, Any]] = []
+    report_packages: list[dict[str, Any]] = []
     outputs: set[str] = set()
     aliases: set[tuple[str, str, str]] = set()
 
     for provider in providers:
         provider_id = provider["id"]
         contract = provider["contract"]
+        report_packages.append(
+            _build_provider_package(provider, distribution, output, outputs)
+        )
         for artifact_type in ARTIFACT_TYPES:
             report_capabilities.append(
                 {
@@ -269,6 +443,7 @@ def _build_into(root: Path, output: Path) -> dict[str, Any]:
         "provider_contract_hashes": {
             provider["id"]: provider["contract_hash"] for provider in providers
         },
+        "packages": report_packages,
         "capabilities": report_capabilities,
         "artifacts": report_artifacts,
         "tree_hash": _tree_hash(output),

@@ -4,11 +4,22 @@
   "title": "Provider Build Contract",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "provider", "output_root", "artifacts"],
+  "required": ["schema_version", "provider", "output_root", "package", "artifacts"],
   "properties": {
     "schema_version": {"const": 1},
     "provider": {"type": "string"},
     "output_root": {"type": "string"},
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "manifest_path", "marketplace_path", "components"],
+      "properties": {
+        "status": {"enum": ["supported", "pending", "unsupported"]},
+        "manifest_path": {"type": ["string", "null"]},
+        "marketplace_path": {"type": ["string", "null"]},
+        "components": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
     "artifacts": {
       "type": "object",
       "required": ["instruction", "skill", "command", "agent", "mcp", "hook"],

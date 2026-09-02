@@ -186,13 +186,14 @@ Claude must be installed first since the other providers mirror it.
 </details>
 
 <details>
-<summary><strong>Provider-native packages (Claude plugin, Gemini extension)</strong></summary>
+<summary><strong>Provider-native packages (Claude, Codex, Gemini)</strong></summary>
 
 Use these only when you explicitly want a provider package instead of the universal installer.
 
 | Provider | Command | Scope |
 |---|---|---|
 | Claude Code | `claude --plugin-dir /path/to/Skillz-Claude-Codex-And-More` | Loads the plugin from `.claude-plugin/plugin.json`. |
+| Codex CLI | `codex plugin marketplace add /path/to/repo/dist/codex && codex plugin add skillz-claude@skillz-claude-dev` | Loads the generated v6.1 development plugin; flat `install codex` remains the legacy fallback. |
 | Gemini CLI | `gemini --extension-dir /path/to/Skillz-Claude-Codex-And-More/.gemini` | Loads Gemini-native TOML commands plus `.gemini/GEMINI.md`. |
 | OpenCode | `./install.sh install opencode` | No bundled JS/TS plugin yet — use the universal installer. |
 
@@ -201,6 +202,12 @@ gh repo clone elsolal/Skillz-Claude-Codex-And-More
 
 # Claude Code plugin
 claude --plugin-dir ./Skillz-Claude-Codex-And-More
+
+# Codex native development plugin (build first)
+cd Skillz-Claude-Codex-And-More
+bash tests/run-python310.sh tooling/build/compiler.py build --root . --output dist
+codex plugin marketplace add "$PWD/dist/codex"
+codex plugin add skillz-claude@skillz-claude-dev
 
 # Gemini CLI extension
 gemini --extension-dir ./Skillz-Claude-Codex-And-More/.gemini

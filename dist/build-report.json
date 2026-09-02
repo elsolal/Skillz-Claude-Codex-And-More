@@ -358,12 +358,36 @@
       "type": "hook"
     }
   ],
-  "catalog_hash": "0476131b2faab8c5118fc2d3a2330cc404633d2783e5ecee09fba31d73c4e1cc",
+  "catalog_hash": "14bf52e964eb90ea94f495a6f4fa485604e5ab89573bbddebfa9dff608181b70",
+  "packages": [
+    {
+      "provider": "agents-generic",
+      "status": "unsupported"
+    },
+    {
+      "manifest": "claude/.claude-plugin/plugin.json",
+      "manifest_sha256": "04665801637078e039a102850b38cb4d8ebd008984125ad6b9cb7eb3cc4ef79e",
+      "provider": "claude",
+      "status": "supported"
+    },
+    {
+      "manifest": "codex/.codex-plugin/plugin.json",
+      "manifest_sha256": "8a959332781418ab4936fe9eb5eab2dd73a3cefcfe37aa8997d95e5bb3fff225",
+      "marketplace": "codex/.agents/plugins/marketplace.json",
+      "marketplace_sha256": "7dc7f89096799300dd70b2ca3e2b78978554665c85f023b6fba1afb11a129c6d",
+      "provider": "codex",
+      "status": "supported"
+    },
+    {
+      "provider": "opencode",
+      "status": "unsupported"
+    }
+  ],
   "provider_contract_hashes": {
-    "agents-generic": "24114a2bb963e9c9241b020ae90757b1080bb4f7358133e5c9f97c920dd9301f",
-    "claude": "49cff116b757efc43a2265336d39e2735b257a68f7b604561f60ddd50d4fc48e",
-    "codex": "32f0e8128e725f8b28939217efd11ab1e73ad130e1ddb0b982e0504c0d6a1ec1",
-    "opencode": "3afb26bae4b4c86292b3435f058063928dca0c59104d785861cfcb2acf091b99"
+    "agents-generic": "1995f17b3b7900b1e6e4a710156893f0a19046b793653a2d8d04e75b11d65618",
+    "claude": "7f3524bb17b243cea8d53f6dad734bf5587562a766dfa2132a10080b352178ef",
+    "codex": "1455225a1453eb0f15c7e3279455b0189b78aad9ff720a196309875c724d91eb",
+    "opencode": "d8e9da97a18b6e9d2d74a22b4d5d42a1c47dd3ac8dfcc2a7ced1b28cd6064375"
   },
   "providers": [
     "agents-generic",
@@ -372,5 +396,5 @@
     "opencode"
   ],
   "schema_version": 1,
-  "tree_hash": "debaab43eab813f3e23fffe2f425db3d692ae9da6e91fd0aa180feae2842a69a"
+  "tree_hash": "8872bd2603e3855e58900e3c2b87ae00c3775fa63b4eaec832537804a141c282"
 }

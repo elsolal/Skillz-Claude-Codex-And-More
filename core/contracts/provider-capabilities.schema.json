@@ -4,12 +4,13 @@
   "title": "Provider Capabilities",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "provider", "runtime", "certification", "capabilities"],
+  "required": ["schema_version", "provider", "runtime", "certification", "package", "capabilities"],
   "properties": {
     "schema_version": {"const": 1},
     "provider": {"type": "string"},
     "runtime": {"type": "object"},
     "certification": {"enum": ["C0", "C1", "C2", "C3"]},
+    "package": {"enum": ["supported", "pending", "unsupported"]},
     "capabilities": {
       "type": "object",
       "required": ["instruction", "skill", "command", "agent", "mcp", "hook"],

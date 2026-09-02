@@ -3,6 +3,7 @@
   "provider": "opencode",
   "runtime": {"name": "OpenCode", "version_observed": "1.18.25"},
   "certification": "C1",
+  "package": "unsupported",
   "capabilities": {
     "instruction": "supported",
     "skill": "supported",

@@ -2,6 +2,12 @@
   "schema_version": 1,
   "provider": "opencode",
   "output_root": "opencode",
+  "package": {
+    "status": "unsupported",
+    "manifest_path": null,
+    "marketplace_path": null,
+    "components": {}
+  },
   "artifacts": {
     "instruction": {"status": "supported", "output_template": "instructions/{alias}.md", "transform": "copy"},
     "skill": {"status": "supported", "output_template": "skills/{alias}/SKILL.md", "transform": "copy"},

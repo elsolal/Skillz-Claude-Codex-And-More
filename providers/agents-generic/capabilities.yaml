@@ -3,6 +3,7 @@
   "provider": "agents-generic",
   "runtime": {"name": "AGENTS.md convention", "version_observed": null},
   "certification": "C1",
+  "package": "unsupported",
   "capabilities": {
     "instruction": "supported",
     "skill": "supported",

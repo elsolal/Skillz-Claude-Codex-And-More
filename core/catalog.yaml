@@ -1,5 +1,25 @@
 {
   "schema_version": 1,
+  "distribution": {
+    "name": "skillz-claude",
+    "version": "6.1.0-dev.1",
+    "description": "Provider-neutral D-EPCT development workflows for coding agents.",
+    "author": {
+      "name": "elsolal",
+      "url": "https://github.com/elsolal"
+    },
+    "homepage": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
+    "repository": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
+    "license": "MIT",
+    "keywords": ["workflow", "d-epct", "provider-neutral", "coding-agents"],
+    "marketplace": {
+      "name": "skillz-claude-dev",
+      "display_name": "Skillz Claude Dev",
+      "category": "Developer Tools",
+      "installation_policy": "AVAILABLE",
+      "authentication_policy": "ON_INSTALL"
+    }
+  },
   "artifacts": [
     {
       "id": "dev-workflow",

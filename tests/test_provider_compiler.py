@@ -68,6 +68,56 @@ class ProviderCompilerTests(unittest.TestCase):
         self.assertEqual(statuses[("agents-generic", "quick-fix")], "unsupported")
         self.assertTrue(any(item["status"] == "pending" for item in report["capabilities"]))
 
+    def test_codex_native_package_is_generated_from_catalog(self):
+        output = self.temp_dir / "dist"
+        report = self.compiler.build_repository(self.fixture, output)
+
+        manifest = json.loads(
+            (output / "codex" / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8")
+        )
+        marketplace = json.loads(
+            (output / "codex" / ".agents" / "plugins" / "marketplace.json").read_text(
+                encoding="utf-8"
+            )
+        )
+
+        self.assertEqual(manifest["name"], "skillz-claude")
+        self.assertEqual(manifest["version"], "6.1.0-dev.1")
+        self.assertEqual(manifest["skills"], "./skills/")
+        self.assertEqual(marketplace["plugins"][0]["name"], manifest["name"])
+        self.assertEqual(marketplace["plugins"][0]["source"], {"source": "local", "path": "./"})
+        codex_package = next(item for item in report["packages"] if item["provider"] == "codex")
+        self.assertEqual(codex_package["status"], "supported")
+        self.assertEqual(codex_package["manifest"], "codex/.codex-plugin/plugin.json")
+
+    def test_native_package_status_does_not_invent_provider_support(self):
+        output = self.temp_dir / "dist"
+        report = self.compiler.build_repository(self.fixture, output)
+
+        packages = {item["provider"]: item for item in report["packages"]}
+        self.assertEqual(packages["claude"]["status"], "supported")
+        self.assertEqual(packages["opencode"]["status"], "unsupported")
+        self.assertEqual(packages["agents-generic"]["status"], "unsupported")
+        self.assertFalse((output / "opencode" / ".codex-plugin").exists())
+        self.assertFalse((output / "agents-generic" / ".codex-plugin").exists())
+
+    def test_vertical_slice_matches_legacy_sources_across_p0(self):
+        output = self.temp_dir / "dist"
+        self.compiler.build_repository(self.fixture, output)
+
+        skills = ("dev-workflow", "project-probe", "quality-gate", "status-workflow")
+        for provider in ("claude", "codex", "opencode"):
+            for skill in skills:
+                self.assertEqual(
+                    (output / provider / "skills" / skill / "SKILL.md").read_bytes(),
+                    (self.fixture / ".claude" / "skills" / skill / "SKILL.md").read_bytes(),
+                )
+        for provider, directory in (("claude", "commands"), ("codex", "prompts"), ("opencode", "commands")):
+            self.assertEqual(
+                (output / provider / directory / "quick-fix.md").read_bytes(),
+                (self.fixture / ".claude" / "commands" / "quick-fix.md").read_bytes(),
+            )
+
     def test_alias_collision_blocks_build(self):
         catalog = self._catalog()
         quality = next(item for item in catalog["artifacts"] if item["id"] == "quality-gate")
@@ -92,6 +142,33 @@ class ProviderCompilerTests(unittest.TestCase):
         capabilities_path.write_text(json.dumps(capabilities), encoding="utf-8")
 
         with self.assertRaisesRegex(self.compiler.BuildError, "capability/build mismatch"):
+            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
+    def test_package_claim_without_implementation_blocks_build(self):
+        capabilities_path = self.fixture / "providers" / "opencode" / "capabilities.yaml"
+        capabilities = json.loads(capabilities_path.read_text(encoding="utf-8"))
+        capabilities["package"] = "supported"
+        capabilities_path.write_text(json.dumps(capabilities), encoding="utf-8")
+
+        with self.assertRaisesRegex(self.compiler.BuildError, "package capability/build mismatch"):
+            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
+    def test_unsafe_package_manifest_path_blocks_build(self):
+        contract_path = self.fixture / "providers" / "codex" / "build-contract.json"
+        contract = json.loads(contract_path.read_text(encoding="utf-8"))
+        contract["package"]["manifest_path"] = "../plugin.json"
+        contract_path.write_text(json.dumps(contract), encoding="utf-8")
+
+        with self.assertRaisesRegex(self.compiler.BuildError, "unsafe provider package manifest"):
+            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
+    def test_package_components_cannot_override_catalog_identity(self):
+        contract_path = self.fixture / "providers" / "codex" / "build-contract.json"
+        contract = json.loads(contract_path.read_text(encoding="utf-8"))
+        contract["package"]["components"]["name"] = "./spoofed-name"
+        contract_path.write_text(json.dumps(contract), encoding="utf-8")
+
+        with self.assertRaisesRegex(self.compiler.BuildError, "unknown package components"):
             self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
 
     def test_unknown_catalog_provider_blocks_build(self):

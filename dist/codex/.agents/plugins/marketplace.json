@@ -1,0 +1,20 @@
+{
+  "interface": {
+    "displayName": "Skillz Claude Dev"
+  },
+  "name": "skillz-claude-dev",
+  "plugins": [
+    {
+      "category": "Developer Tools",
+      "name": "skillz-claude",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./",
+        "source": "local"
+      }
+    }
+  ]
+}
