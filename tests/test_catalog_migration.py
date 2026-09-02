@@ -72,6 +72,23 @@ class CatalogMigrationTests(unittest.TestCase):
                 "output": "resources/review/knowledge/testing/x.md",
             }])
 
+    def test_knowledge_path_traversal_is_rejected(self):
+        with self.assertRaisesRegex(MIGRATION.MigrationError, "unsafe knowledge resource path"):
+            MIGRATION._safe_knowledge_path("../../secret.md")
+
+    def test_apply_refuses_to_overwrite_canonical_drift(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            legacy = root / ".claude" / "skills" / "demo" / "SKILL.md"
+            legacy.parent.mkdir(parents=True)
+            legacy.write_text("# Legacy\n", encoding="utf-8")
+            (root / ".claude" / "commands").mkdir(parents=True)
+            canonical = root / "core" / "skills" / "demo" / "SKILL.md"
+            canonical.parent.mkdir(parents=True)
+            canonical.write_text("# Canonical edit\n", encoding="utf-8")
+            with self.assertRaisesRegex(MIGRATION.MigrationError, "canonical entry drift"):
+                MIGRATION._copy_artifacts(root)
+
 
 if __name__ == "__main__":
     unittest.main()

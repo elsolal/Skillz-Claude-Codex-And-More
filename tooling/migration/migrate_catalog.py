@@ -9,6 +9,7 @@ import re
 import shutil
 import sys
 from pathlib import Path
+from pathlib import PurePosixPath
 from typing import Any
 
 
@@ -56,6 +57,23 @@ def _knowledge_paths(text: str) -> list[str]:
     return sorted({match.rstrip("`'\"),.:;") for match in KNOWLEDGE_TOKEN.findall(text)})
 
 
+def _safe_knowledge_path(value: str) -> PurePosixPath:
+    path = PurePosixPath(value)
+    if path.is_absolute() or ".." in path.parts or not path.parts:
+        raise MigrationError(f"unsafe knowledge resource path: {value}")
+    return path
+
+
+def _regular_files(directory: Path, entrypoint: Path | None = None) -> list[Path]:
+    files: list[Path] = []
+    for item in sorted(directory.rglob("*")):
+        if item.is_symlink():
+            raise MigrationError(f"symlink is not allowed in canonical resources: {item}")
+        if item.is_file() and item != entrypoint:
+            files.append(item)
+    return files
+
+
 def _normalize_entry(text: str, artifact_type: str, identifier: str) -> str:
     text = COMMAND_TOKEN.sub(lambda match: f"command:{match.group(1)}", text)
 
@@ -97,7 +115,7 @@ def _resource_items(root: Path, artifact_type: str, identifier: str, source: Pat
     resources: list[dict[str, str]] = []
     if artifact_type == "skill":
         directory = source.parent
-        for path in sorted(item for item in directory.rglob("*") if item.is_file() and item != source):
+        for path in _regular_files(directory, source):
             resources.append({
                 "source": path.relative_to(root).as_posix(),
                 "output": path.relative_to(directory).as_posix(),
@@ -114,7 +132,8 @@ def _resource_items(root: Path, artifact_type: str, identifier: str, source: Pat
         else source.read_text(encoding="utf-8")
     )
     for knowledge in _knowledge_paths(reference_text):
-        knowledge_source = root / "core" / "knowledge" / knowledge
+        safe_knowledge = _safe_knowledge_path(knowledge)
+        knowledge_source = root / "core" / "knowledge" / safe_knowledge
         if not knowledge_source.is_file() or knowledge_source.is_symlink():
             raise MigrationError(f"missing knowledge resource: {knowledge_source.relative_to(root)}")
         output = (
@@ -138,19 +157,29 @@ def _copy_artifacts(root: Path) -> None:
         pairs.append((legacy, root / "core" / "commands" / legacy.name, "command", identifier))
 
     for legacy, canonical, artifact_type, identifier in pairs:
-        if not canonical.exists() or identifier not in CURATED_CANONICAL:
+        if legacy.is_symlink():
+            raise MigrationError(f"symlink entrypoint is not allowed: {legacy.relative_to(root)}")
+        expected = _normalize_entry(legacy.read_text(encoding="utf-8"), artifact_type, identifier)
+        if canonical.is_symlink():
+            raise MigrationError(f"symlink canonical entrypoint is not allowed: {canonical.relative_to(root)}")
+        if canonical.exists() and identifier not in CURATED_CANONICAL:
+            if canonical.read_text(encoding="utf-8") != expected:
+                raise MigrationError(f"canonical entry drift blocks migration: {canonical.relative_to(root)}")
+        elif not canonical.exists():
             canonical.parent.mkdir(parents=True, exist_ok=True)
-            canonical.write_text(
-                _normalize_entry(legacy.read_text(encoding="utf-8"), artifact_type, identifier),
-                encoding="utf-8",
-            )
+            canonical.write_text(expected, encoding="utf-8")
             canonical.chmod(legacy.stat().st_mode & 0o777)
         if artifact_type != "skill":
             continue
-        for resource in sorted(item for item in legacy.parent.rglob("*") if item.is_file() and item != legacy):
+        for resource in _regular_files(legacy.parent, legacy):
             target = canonical.parent / resource.relative_to(legacy.parent)
+            if target.is_symlink():
+                raise MigrationError(f"symlink canonical resource is not allowed: {target.relative_to(root)}")
+            if target.exists() and target.read_bytes() != resource.read_bytes():
+                raise MigrationError(f"canonical resource drift blocks migration: {target.relative_to(root)}")
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(resource, target)
+            if not target.exists():
+                shutil.copy2(resource, target)
 
     referenced_knowledge: set[str] = set()
     for entry in [
@@ -159,12 +188,18 @@ def _copy_artifacts(root: Path) -> None:
     ]:
         referenced_knowledge.update(_knowledge_paths(entry.read_text(encoding="utf-8")))
     for relative in sorted(referenced_knowledge):
-        source = root / ".claude" / "knowledge" / relative
+        safe_relative = _safe_knowledge_path(relative)
+        source = root / ".claude" / "knowledge" / safe_relative
         if not source.is_file() or source.is_symlink():
             raise MigrationError(f"missing knowledge resource: {source.relative_to(root)}")
-        target = root / "core" / "knowledge" / relative
+        target = root / "core" / "knowledge" / safe_relative
+        if target.is_symlink():
+            raise MigrationError(f"symlink canonical knowledge is not allowed: {target.relative_to(root)}")
+        if target.exists() and target.read_bytes() != source.read_bytes():
+            raise MigrationError(f"canonical knowledge drift blocks migration: {target.relative_to(root)}")
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source, target)
+        if not target.exists():
+            shutil.copy2(source, target)
 
 
 def _artifact(
