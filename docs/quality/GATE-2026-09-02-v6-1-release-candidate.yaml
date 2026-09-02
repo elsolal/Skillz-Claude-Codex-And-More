@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 4
+base_sha: "3daf42fb85d885af0fb2e7ee7007d160146ef1ec"
+head_sha: "6a7d6ca5f1ac85516a71e51149756fde39c6a943"
+code_diff_hash: "76ce164b87151d053e1015fe3e48d9cc6ecb220f3383f9a4e5fe2ba449739448"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-09-02-v6-1-release-candidate.json"
+proof_payload_hash: "ee4ea7204304563593ee9a6aa8122618cdfd4dda5bcc9651dcc9e65c064e20d6"
+integrity_sha256: "da565da781ca13281ff5cae705a55bee9e9373b94663e2c8d614b44cdf67fb9e"
