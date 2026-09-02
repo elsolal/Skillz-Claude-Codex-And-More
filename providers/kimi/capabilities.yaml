@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "provider": "kimi",
+  "runtime": {
+    "name": "Kimi Code CLI",
+    "executable": "kimi",
+    "state_observed": "broken",
+    "version_observed": null,
+    "reason": "launcher exists but its configured Python interpreter is missing"
+  },
+  "certification": "C1",
+  "package": "unsupported",
+  "capabilities": {
+    "instruction": "pending",
+    "skill": "supported",
+    "command": "unsupported",
+    "agent": "pending",
+    "mcp": "pending",
+    "hook": "pending"
+  }
+}

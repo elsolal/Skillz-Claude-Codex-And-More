@@ -1,5 +1,11 @@
 ---
 title: SEO/GEO Squad V3.1 Integration
+document_id: spec.seo-geo-v3-integration
+version: "3.1"
+lifecycle: current
+superseded_by: null
+amended_by: []
+amends: []
 status: approved
 approved_by: human
 approved_at: 2026-08-03T12:00:00+01:00

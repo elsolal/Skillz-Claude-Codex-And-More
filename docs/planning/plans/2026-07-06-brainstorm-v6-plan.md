@@ -1,3 +1,12 @@
+---
+document_id: plan.brainstorm-v6
+version: "1"
+lifecycle: archived
+superseded_by: null
+amended_by: []
+amends: []
+---
+
 # Brainstorm v6 — Implementation Plan (second temps)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

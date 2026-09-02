@@ -1,0 +1,85 @@
+{
+  "network_used": false,
+  "p0_runtimes": [
+    {
+      "absolute_target_recorded": false,
+      "bundle_release": "6.1.0-rc.1",
+      "doctor": {
+        "all_files_ok": true,
+        "mutation_free": true,
+        "runtime_probe": "true --version (synthetic installer-only probe)",
+        "status": "partial"
+      },
+      "install": "installed",
+      "install_dry_run": "dry-run",
+      "managed_files": 502,
+      "runtime": "claude",
+      "uninstall": "uninstalled",
+      "uninstall_dry_run": "dry-run",
+      "update": "updated",
+      "update_dry_run": "dry-run",
+      "user_file_preserved": true
+    },
+    {
+      "absolute_target_recorded": false,
+      "bundle_release": "6.1.0-rc.1",
+      "doctor": {
+        "all_files_ok": true,
+        "mutation_free": true,
+        "runtime_probe": "true --version (synthetic installer-only probe)",
+        "status": "partial"
+      },
+      "install": "installed",
+      "install_dry_run": "dry-run",
+      "managed_files": 503,
+      "runtime": "codex",
+      "uninstall": "uninstalled",
+      "uninstall_dry_run": "dry-run",
+      "update": "updated",
+      "update_dry_run": "dry-run",
+      "user_file_preserved": true
+    },
+    {
+      "absolute_target_recorded": false,
+      "bundle_release": "6.1.0-rc.1",
+      "doctor": {
+        "all_files_ok": true,
+        "mutation_free": true,
+        "runtime_probe": "true --version (synthetic installer-only probe)",
+        "status": "partial"
+      },
+      "install": "installed",
+      "install_dry_run": "dry-run",
+      "managed_files": 501,
+      "runtime": "opencode",
+      "uninstall": "uninstalled",
+      "uninstall_dry_run": "dry-run",
+      "update": "updated",
+      "update_dry_run": "dry-run",
+      "user_file_preserved": true
+    },
+    {
+      "absolute_target_recorded": false,
+      "bundle_release": "6.1.0-rc.1",
+      "doctor": {
+        "all_files_ok": true,
+        "mutation_free": true,
+        "runtime_probe": "true --version (synthetic installer-only probe)",
+        "status": "healthy"
+      },
+      "install": "installed",
+      "install_dry_run": "dry-run",
+      "managed_files": 467,
+      "runtime": "agents-generic",
+      "uninstall": "uninstalled",
+      "uninstall_dry_run": "dry-run",
+      "update": "updated",
+      "update_dry_run": "dry-run",
+      "user_file_preserved": true
+    }
+  ],
+  "runtime_certification_claim": "none",
+  "schema_version": 1,
+  "scope": "installer-lifecycle-only",
+  "status": "PASS"
+}

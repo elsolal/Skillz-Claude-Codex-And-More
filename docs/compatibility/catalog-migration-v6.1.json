@@ -1,0 +1,803 @@
+{
+  "artifacts": [
+    {
+      "alias": "a11y-enforcer",
+      "id": "a11y-enforcer",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/a11y-enforcer/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "ai-native-ui",
+      "id": "ai-native-ui",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/ai-native-ui/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "api-designer",
+      "id": "api-designer",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/api-designer/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "architect",
+      "id": "architect",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/architect/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "brutalist-skill",
+      "id": "brutalist-skill",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/brutalist-skill/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "code-implementer",
+      "id": "code-implementer",
+      "migration_state": "canonical",
+      "resource_count": 2,
+      "source": "core/skills/code-implementer/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "code-reviewer",
+      "id": "code-reviewer",
+      "migration_state": "canonical",
+      "resource_count": 7,
+      "source": "core/skills/code-reviewer/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "database-designer",
+      "id": "database-designer",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/database-designer/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "design-audit",
+      "id": "design-audit",
+      "migration_state": "canonical",
+      "resource_count": 20,
+      "source": "core/skills/design-audit/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "dev-workflow",
+      "id": "dev-workflow",
+      "migration_state": "canonical",
+      "resource_count": 2,
+      "source": "core/skills/dev-workflow/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "discovery-workflow",
+      "id": "discovery-workflow",
+      "migration_state": "canonical",
+      "resource_count": 2,
+      "source": "core/skills/discovery-workflow/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "ds-doc",
+      "id": "ds-doc",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/ds-doc/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "elevenlabs",
+      "id": "elevenlabs",
+      "migration_state": "canonical",
+      "resource_count": 3,
+      "source": "core/skills/elevenlabs/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "elicitation",
+      "id": "elicitation",
+      "migration_state": "canonical",
+      "resource_count": 1,
+      "source": "core/skills/elicitation/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "figma-code-connect",
+      "id": "figma-code-connect",
+      "migration_state": "canonical",
+      "resource_count": 2,
+      "source": "core/skills/figma-code-connect/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "figma-create-design-system-rules",
+      "id": "figma-create-design-system-rules",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/figma-create-design-system-rules/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "figma-create-new-file",
+      "id": "figma-create-new-file",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/figma-create-new-file/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "figma-design-code-sync",
+      "id": "figma-design-code-sync",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/figma-design-code-sync/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "figma-generate-design",
+      "id": "figma-generate-design",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/figma-generate-design/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "figma-generate-library",
+      "id": "figma-generate-library",
+      "migration_state": "canonical",
+      "resource_count": 16,
+      "source": "core/skills/figma-generate-library/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "figma-implement-design",
+      "id": "figma-implement-design",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/figma-implement-design/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "figma-use",
+      "id": "figma-use",
+      "migration_state": "canonical",
+      "resource_count": 20,
+      "source": "core/skills/figma-use/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "github-issue-reader",
+      "id": "github-issue-reader",
+      "migration_state": "canonical",
+      "resource_count": 2,
+      "source": "core/skills/github-issue-reader/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "gpt-tasteskill",
+      "id": "gpt-tasteskill",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/gpt-tasteskill/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "idea-brainstorm",
+      "id": "idea-brainstorm",
+      "migration_state": "canonical",
+      "resource_count": 1,
+      "source": "core/skills/idea-brainstorm/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "images-taste-skill",
+      "id": "images-taste-skill",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/images-taste-skill/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "landing-copy",
+      "id": "landing-copy",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/landing-copy/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "llm-wiki",
+      "id": "llm-wiki",
+      "migration_state": "canonical",
+      "resource_count": 148,
+      "source": "core/skills/llm-wiki/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "minimalist-skill",
+      "id": "minimalist-skill",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/minimalist-skill/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "multi-mind",
+      "id": "multi-mind",
+      "migration_state": "canonical",
+      "resource_count": 2,
+      "source": "core/skills/multi-mind/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "orchestrate",
+      "id": "orchestrate",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/orchestrate/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "output-skill",
+      "id": "output-skill",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/output-skill/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "performance-auditor",
+      "id": "performance-auditor",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/performance-auditor/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "pm-prd",
+      "id": "pm-prd",
+      "migration_state": "canonical",
+      "resource_count": 3,
+      "source": "core/skills/pm-prd/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "pm-stories",
+      "id": "pm-stories",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/pm-stories/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "product-microcopy",
+      "id": "product-microcopy",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/product-microcopy/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "project-probe",
+      "id": "project-probe",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/project-probe/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "qmd",
+      "id": "qmd",
+      "migration_state": "canonical",
+      "resource_count": 1,
+      "source": "core/skills/qmd/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "quality-gate",
+      "id": "quality-gate",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/quality-gate/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "redesign-skill",
+      "id": "redesign-skill",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/redesign-skill/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "remotion",
+      "id": "remotion",
+      "migration_state": "canonical",
+      "resource_count": 40,
+      "source": "core/skills/remotion/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "rodin",
+      "id": "rodin",
+      "migration_state": "canonical",
+      "resource_count": 1,
+      "source": "core/skills/rodin/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "security-auditor",
+      "id": "security-auditor",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/security-auditor/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "seo-geo-audit",
+      "id": "seo-geo-audit",
+      "migration_state": "canonical",
+      "resource_count": 116,
+      "source": "core/skills/seo-geo-audit/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "ship-workflow",
+      "id": "ship-workflow",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/ship-workflow/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "skillz-writing-skills",
+      "id": "skillz-writing-skills",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/skillz-writing-skills/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "soft-skill",
+      "id": "soft-skill",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/soft-skill/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "source-command-wiki-ingest",
+      "id": "source-command-wiki-ingest",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/source-command-wiki-ingest/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "source-command-wiki-init",
+      "id": "source-command-wiki-init",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/source-command-wiki-init/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "source-command-wiki-lint",
+      "id": "source-command-wiki-lint",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/source-command-wiki-lint/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "source-command-wiki-log",
+      "id": "source-command-wiki-log",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/source-command-wiki-log/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "source-command-wiki-query",
+      "id": "source-command-wiki-query",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/source-command-wiki-query/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "status-workflow",
+      "id": "status-workflow",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/status-workflow/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "stitch-skill",
+      "id": "stitch-skill",
+      "migration_state": "canonical",
+      "resource_count": 1,
+      "source": "core/skills/stitch-skill/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "supabase-security",
+      "id": "supabase-security",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/supabase-security/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "taste-critic",
+      "id": "taste-critic",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/taste-critic/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "taste-router",
+      "id": "taste-router",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/taste-router/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "taste-skill",
+      "id": "taste-skill",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/taste-skill/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "test-runner",
+      "id": "test-runner",
+      "migration_state": "canonical",
+      "resource_count": 10,
+      "source": "core/skills/test-runner/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "thermo-nuclear-code-quality-review",
+      "id": "thermo-nuclear-code-quality-review",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/thermo-nuclear-code-quality-review/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "ui-designer",
+      "id": "ui-designer",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/ui-designer/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "ux-designer",
+      "id": "ux-designer",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/skills/ux-designer/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "web-navigator",
+      "id": "web-navigator",
+      "migration_state": "canonical",
+      "resource_count": 4,
+      "source": "core/skills/web-navigator/SKILL.md",
+      "type": "skill"
+    },
+    {
+      "alias": "changelog",
+      "id": "changelog",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/changelog.md",
+      "type": "command"
+    },
+    {
+      "alias": "design-audit-squad",
+      "id": "design-audit-squad",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/design-audit-squad.md",
+      "type": "command"
+    },
+    {
+      "alias": "design-audit",
+      "id": "design-audit-command",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/design-audit.md",
+      "type": "command"
+    },
+    {
+      "alias": "dev",
+      "id": "dev",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/dev.md",
+      "type": "command"
+    },
+    {
+      "alias": "discovery",
+      "id": "discovery",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/discovery.md",
+      "type": "command"
+    },
+    {
+      "alias": "docs",
+      "id": "docs",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/docs.md",
+      "type": "command"
+    },
+    {
+      "alias": "elicit",
+      "id": "elicit",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/elicit.md",
+      "type": "command"
+    },
+    {
+      "alias": "gate",
+      "id": "gate",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/gate.md",
+      "type": "command"
+    },
+    {
+      "alias": "init",
+      "id": "init",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/init.md",
+      "type": "command"
+    },
+    {
+      "alias": "metrics",
+      "id": "metrics",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/metrics.md",
+      "type": "command"
+    },
+    {
+      "alias": "multi-mind",
+      "id": "multi-mind-command",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/multi-mind.md",
+      "type": "command"
+    },
+    {
+      "alias": "orchestrate",
+      "id": "orchestrate-command",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/orchestrate.md",
+      "type": "command"
+    },
+    {
+      "alias": "plan-review",
+      "id": "plan-review",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/plan-review.md",
+      "type": "command"
+    },
+    {
+      "alias": "pr-review",
+      "id": "pr-review",
+      "migration_state": "canonical",
+      "resource_count": 3,
+      "source": "core/commands/pr-review.md",
+      "type": "command"
+    },
+    {
+      "alias": "qa",
+      "id": "qa",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/qa.md",
+      "type": "command"
+    },
+    {
+      "alias": "quick-fix",
+      "id": "quick-fix",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/quick-fix.md",
+      "type": "command"
+    },
+    {
+      "alias": "refactor",
+      "id": "refactor",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/refactor.md",
+      "type": "command"
+    },
+    {
+      "alias": "retro",
+      "id": "retro",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/retro.md",
+      "type": "command"
+    },
+    {
+      "alias": "rodin",
+      "id": "rodin-command",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/rodin.md",
+      "type": "command"
+    },
+    {
+      "alias": "seo-geo-audit",
+      "id": "seo-geo-audit-command",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/seo-geo-audit.md",
+      "type": "command"
+    },
+    {
+      "alias": "seo-geo-squad",
+      "id": "seo-geo-squad",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/seo-geo-squad.md",
+      "type": "command"
+    },
+    {
+      "alias": "ship",
+      "id": "ship",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/ship.md",
+      "type": "command"
+    },
+    {
+      "alias": "skillz-doctor",
+      "id": "skillz-doctor",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/skillz-doctor.md",
+      "type": "command"
+    },
+    {
+      "alias": "status",
+      "id": "status",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/status.md",
+      "type": "command"
+    },
+    {
+      "alias": "wiki-bootstrap",
+      "id": "wiki-bootstrap",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/wiki-bootstrap.md",
+      "type": "command"
+    },
+    {
+      "alias": "wiki-capture-session",
+      "id": "wiki-capture-session",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/wiki-capture-session.md",
+      "type": "command"
+    },
+    {
+      "alias": "wiki-ingest",
+      "id": "wiki-ingest",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/wiki-ingest.md",
+      "type": "command"
+    },
+    {
+      "alias": "wiki-init",
+      "id": "wiki-init",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/wiki-init.md",
+      "type": "command"
+    },
+    {
+      "alias": "wiki-lint",
+      "id": "wiki-lint",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/wiki-lint.md",
+      "type": "command"
+    },
+    {
+      "alias": "wiki-log",
+      "id": "wiki-log",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/wiki-log.md",
+      "type": "command"
+    },
+    {
+      "alias": "wiki-query",
+      "id": "wiki-query",
+      "migration_state": "canonical",
+      "resource_count": 0,
+      "source": "core/commands/wiki-query.md",
+      "type": "command"
+    },
+    {
+      "alias": "gemini-instructions",
+      "id": "gemini-instructions",
+      "migration_state": "legacy",
+      "resource_count": 0,
+      "source": "providers/gemini/GEMINI.md",
+      "type": "instruction"
+    }
+  ],
+  "catalog_artifacts": 95,
+  "catalog_resources": 407,
+  "counts": {
+    "command": 31,
+    "instruction": 1,
+    "skill": 63
+  },
+  "legacy_mirrors_preserved": true,
+  "migration_states": {
+    "canonical": 94,
+    "legacy": 1,
+    "pending": 0,
+    "retired": 0
+  },
+  "provider_metadata_artifacts": 37,
+  "schema_version": 1,
+  "shared_aliases": {
+    "design-audit": [
+      "command:design-audit-command",
+      "skill:design-audit"
+    ],
+    "multi-mind": [
+      "command:multi-mind-command",
+      "skill:multi-mind"
+    ],
+    "orchestrate": [
+      "command:orchestrate-command",
+      "skill:orchestrate"
+    ],
+    "rodin": [
+      "command:rodin-command",
+      "skill:rodin"
+    ],
+    "seo-geo-audit": [
+      "command:seo-geo-audit-command",
+      "skill:seo-geo-audit"
+    ]
+  },
+  "status": "PASS"
+}

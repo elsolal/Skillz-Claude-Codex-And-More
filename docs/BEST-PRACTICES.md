@@ -33,12 +33,12 @@ Pour les gros projets, utiliser plusieurs instances :
 Préférer plusieurs petites tâches à une grosse :
 ```bash
 # ❌ Éviter
-/auto-dev #big-feature --max 100
+/dev #big-feature-with-unclear-boundaries
 
 # ✅ Préférer
-/auto-dev #feature-part1 --max 30
-/auto-dev #feature-part2 --max 30
-/auto-dev #feature-part3 --max 30
+/dev #feature-part1
+/dev #feature-part2
+/dev #feature-part3
 ```
 
 ---
@@ -284,11 +284,12 @@ claude --model opus
 
 ## 10. Debugging efficace
 
-### Logs RALPH
+### Preuves du quality gate
 
-Toujours consulter les logs en cas de problème :
+Toujours consulter le dernier gate file en cas de problème de validation :
 ```bash
-cat docs/ralph-logs/$(ls -t docs/ralph-logs/ | head -1)
+gate_file=$(ls -t docs/quality/GATE-*.yaml | head -1)
+cat "$gate_file"
 ```
 
 ### Pattern de debug

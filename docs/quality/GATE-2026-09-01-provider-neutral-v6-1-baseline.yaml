@@ -1,0 +1,65 @@
+verdict: PASS
+niveau: 3
+tours: 3
+base: main
+base_sha: "0959123ae65a26393382ae5e092b71f5ed0ad4f3"
+head_sha: "8ab9673fc17b67b199f252a89a3ba781cc7347b3"
+diff_hash: "4125b1a3b54b6f03d5b2c707787407d848a52ef448c42f6c629a54a6a66c772d"
+preuve:
+  executable:
+    lint:
+      cmd: "bash -n install.sh scripts/*.sh .claude/scripts/*.sh .claude/skills/llm-wiki/bin/memory tests/*.sh"
+      statut: vert
+    tests:
+      cmd: "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/test-seo-geo-v3.sh"
+      statut: "vert (7 tests baseline, 266 tests llm-wiki, 25 tests Python SEO/GEO, 3 tests Node et suites shell)"
+    baseline_check:
+      cmd: "bash tests/run-python310.sh scripts/capture_distribution_baseline.py --check docs/compatibility/golden/legacy-v6-distribution.json"
+      statut: "vert deux executions consecutives"
+    diff_check:
+      cmd: "git diff --check main...HEAD"
+      statut: vert
+    user_owned_hooks:
+      cmd: "find .codex/hooks .codex/hooks.json -type f -print0 | sort -z | xargs -0 shasum -a 256"
+      statut: "vert (hashes avant/apres identiques)"
+  opinion:
+    findings:
+      total: 2
+      confirmes: 2
+      refutes: 0
+      corriges_p0_p1: 2
+      restants_p0_p1: 0
+      notes_p2_p3: 0
+    registry:
+      - id: "tests/test_distribution_baseline.py:integrity:a1e083ba"
+        severite: P1
+        statut: confirme-corrige
+        finding: "Le SHA du golden declare dans la baseline n'etait pas couvert par une assertion executable."
+        correction: "Ajout d'un test qui recalcule SHA-256 et le compare a la metadata YAML."
+      - id: "scripts/capture_distribution_baseline.py:security:1ca0e426"
+        severite: P1
+        statut: confirme-corrige
+        finding: "Une cible de symlink absolue aurait pu exposer un chemin machine dans le golden portable."
+        correction: "Refus fail-closed des cibles absolues et test negatif dedie."
+  lenses:
+    correctness_security: vert
+    readability: vert
+    performance: "vert; parcours lineaire des 623 artefacts et lecture unique de chaque contenu"
+    design_audit: non-applicable
+    seo_geo_audit: non-applicable
+    a11y: non-applicable
+    thermo_nuclear: "vert; collecteur cohesif de 255 lignes, sans couche generique ni branchement runtime"
+red_green:
+  - red: "ImportError/FileNotFoundError: scripts/capture_distribution_baseline.py absent"
+    green: "7 tests baseline passent apres implementation et durcissement"
+  - red: "snapshot missing: legacy-v6-distribution.json"
+    green: "golden de 623 artefacts genere puis verifie deux fois byte-for-byte"
+decisions_prises_en_ton_nom:
+  - "Le collecteur de baseline et .agents/verification.yaml sont exclus du golden legacy: ce sont des preuves de controle, pas des artefacts installes v6; cette frontiere evite une auto-reference du snapshot."
+absents:
+  - "Aucune commande typecheck ou build configuree dans le manifeste."
+  - "Aucun harness E2E ni surface applicative runtime; cette tranche produit la baseline de distribution."
+  - "Aucune certification C2/C3 n'est revendiquee: Claude, Codex et OpenCode sont seulement observes; les smokes runtime appartiennent aux tranches suivantes."
+  - "Kimi CLI est casse par un interpreteur Python absent; Gemini CLI et Grok Build ne sont pas installes."
+  - "Playwright/Chromium est absent; l'avertissement PDF SEO/GEO est sans rapport avec cette tranche."
+diff_stats: "21 files changed, 8102 insertions, 36 deletions (6291 lignes sont le golden genere)"

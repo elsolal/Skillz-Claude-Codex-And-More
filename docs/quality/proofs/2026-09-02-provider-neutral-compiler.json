@@ -1,0 +1,62 @@
+{
+  "absents": [
+    "no configured typecheck command",
+    "no configured build command",
+    "no e2e harness",
+    "no runtime application surface; repository distributes agent tooling and provider bundles",
+    "PDF delivery engine absent in the unrelated SEO/GEO suite; Markdown previews remain internal-only evidence"
+  ],
+  "decisions_prises_en_ton_nom": [
+    "provider directories are discovered dynamically so adding a provider does not require a compiler edit",
+    "catalog and provider YAML files use the JSON-compatible YAML subset to keep the compiler dependency-free",
+    "the pilot dist tree is committed so provider migrations and deterministic drift are reviewable"
+  ],
+  "executions": [
+    {
+      "command": "bash scripts/lint-shell.sh",
+      "exit_code": 0,
+      "name": "lint",
+      "status": "passed",
+      "summary": "18 shell files parsed individually in two consecutive clean rounds"
+    },
+    {
+      "command": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh",
+      "exit_code": 0,
+      "name": "test",
+      "status": "passed",
+      "summary": "42 repository tests, 266 memory tests, compiler drift check, upstream freshness, migration cleanup, 25 SEO/GEO Python tests and 3 Node tests passed in two consecutive clean rounds"
+    }
+  ],
+  "manifest_fingerprint": "bf8794a2f88ade42a0797fc151fbee5466ef980700a57f0315694189671870c8",
+  "opinion": {
+    "findings": {
+      "confirmed": 1,
+      "fixed": 1,
+      "refuted": 0,
+      "remaining": 0,
+      "total": 1
+    },
+    "lenses": {
+      "correctness_security": "PASS",
+      "performance": "PASS",
+      "readability": "PASS",
+      "structural_maintainability": "PASS"
+    },
+    "rounds": [
+      {
+        "finding": "P1: compiled artifact identity ignored Unix file modes, so executable drift could pass build --check",
+        "resolution": "include normalized mode and content hash in tree identity, expose mode in the report and cover chmod drift with a regression test",
+        "round": 1
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 2
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 3
+      }
+    ]
+  },
+  "schema_version": 1
+}

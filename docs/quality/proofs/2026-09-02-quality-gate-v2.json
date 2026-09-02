@@ -1,0 +1,62 @@
+{
+  "absents": [
+    "no configured typecheck command",
+    "no configured build command",
+    "no e2e harness",
+    "no runtime application surface; repository distributes shell and Markdown agent tooling",
+    "PDF delivery engine absent in the unrelated SEO/GEO suite; Markdown previews remain internal-only evidence"
+  ],
+  "decisions_prises_en_ton_nom": [
+    "head_sha identifies the last code commit; only the exact gate, proof payload and optional CHANGELOG may follow it",
+    "schema-v1 gates remain historical but cannot satisfy v2 freshness",
+    "CHANGELOG.md is the only supported code diff exclusion"
+  ],
+  "executions": [
+    {
+      "command": "bash scripts/lint-shell.sh",
+      "exit_code": 0,
+      "name": "lint",
+      "status": "passed",
+      "summary": "18 shell files parsed individually"
+    },
+    {
+      "command": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh",
+      "exit_code": 0,
+      "name": "test",
+      "status": "passed",
+      "summary": "30 repository tests, 266 memory tests, 25 SEO/GEO Python tests, 3 Node tests and shell fixtures"
+    }
+  ],
+  "manifest_fingerprint": "8c4172592863b9ff605f7ec930be858a3cba7200d9106490f4ab100f56597838",
+  "opinion": {
+    "findings": {
+      "confirmed": 1,
+      "fixed": 1,
+      "refuted": 0,
+      "remaining": 0,
+      "total": 1
+    },
+    "lenses": {
+      "correctness_security": "PASS",
+      "performance": "PASS",
+      "readability": "PASS",
+      "structural_maintainability": "PASS"
+    },
+    "rounds": [
+      {
+        "finding": "P1: duplicate or unknown top-level gate fields could diverge from the closed schema",
+        "resolution": "enforce an exact ten-field envelope plus typed payload statuses",
+        "round": 1
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 2
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 3
+      }
+    ]
+  },
+  "schema_version": 1
+}

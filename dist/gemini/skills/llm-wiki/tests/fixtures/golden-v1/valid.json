@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "install-runtime",
+      "query": "How is the memory runtime installed?",
+      "task_category": "onboarding",
+      "expected": {
+        "pages": ["wiki/entities/skillz-claude.md"],
+        "sources": []
+      },
+      "baseline": {
+        "pages": [
+          "wiki/entities/project.md",
+          "wiki/entities/skillz-claude.md",
+          "wiki/concepts/project-memory-workflow.md"
+        ]
+      }
+    },
+    {
+      "id": "project-memory-route",
+      "query": "Which project memory route should an agent use?",
+      "task_category": "architecture",
+      "expected": {
+        "pages": ["wiki/concepts/project-memory-workflow.md"],
+        "sources": []
+      },
+      "baseline": {
+        "pages": [
+          "wiki/entities/project.md",
+          "wiki/entities/skillz-claude.md",
+          "wiki/concepts/project-memory-workflow.md"
+        ]
+      }
+    },
+    {
+      "id": "agent-tooling",
+      "query": "Where is the multi-runtime agent tooling documented?",
+      "task_category": "general",
+      "expected": {
+        "pages": ["wiki/entities/skillz-claude.md"],
+        "sources": []
+      },
+      "baseline": {
+        "pages": [
+          "wiki/entities/project.md",
+          "wiki/entities/skillz-claude.md",
+          "wiki/concepts/project-memory-workflow.md"
+        ]
+      }
+    },
+    {
+      "id": "source-of-truth",
+      "query": "What remains the immediate source of truth during development?",
+      "task_category": "architecture",
+      "expected": {
+        "pages": ["wiki/concepts/project-memory-workflow.md"],
+        "sources": []
+      },
+      "baseline": {
+        "pages": [
+          "wiki/entities/project.md",
+          "wiki/entities/skillz-claude.md",
+          "wiki/concepts/project-memory-workflow.md"
+        ]
+      }
+    },
+    {
+      "id": "portable-workflows",
+      "query": "Which page explains portable agent workflows?",
+      "task_category": "operations",
+      "expected": {
+        "pages": ["wiki/entities/skillz-claude.md"],
+        "sources": []
+      },
+      "baseline": {
+        "pages": [
+          "wiki/entities/project.md",
+          "wiki/entities/skillz-claude.md",
+          "wiki/concepts/project-memory-workflow.md"
+        ]
+      }
+    },
+    {
+      "id": "bounded-retrieval",
+      "query": "How is project retrieval bounded?",
+      "task_category": "data",
+      "expected": {
+        "pages": ["wiki/concepts/project-memory-workflow.md"],
+        "sources": []
+      },
+      "baseline": {
+        "pages": [
+          "wiki/entities/project.md",
+          "wiki/entities/skillz-claude.md",
+          "wiki/concepts/project-memory-workflow.md"
+        ]
+      }
+    },
+    {
+      "id": "freshness-policy",
+      "query": "Where is project memory freshness described?",
+      "task_category": "operations",
+      "expected": {
+        "pages": ["wiki/concepts/project-memory-workflow.md"],
+        "sources": []
+      },
+      "baseline": {
+        "pages": [
+          "wiki/entities/project.md",
+          "wiki/entities/skillz-claude.md",
+          "wiki/concepts/project-memory-workflow.md"
+        ]
+      }
+    },
+    {
+      "id": "project-identity",
+      "query": "What is Skillz-Claude?",
+      "task_category": "onboarding",
+      "expected": {
+        "pages": ["wiki/entities/skillz-claude.md"],
+        "sources": []
+      },
+      "baseline": {
+        "pages": [
+          "wiki/entities/project.md",
+          "wiki/entities/skillz-claude.md",
+          "wiki/concepts/project-memory-workflow.md"
+        ]
+      }
+    }
+  ]
+}

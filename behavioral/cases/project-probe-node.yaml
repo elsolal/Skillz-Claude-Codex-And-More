@@ -1,0 +1,23 @@
+{
+  "id": "project-probe-node",
+  "runtime": "fixture",
+  "skill": "project-probe",
+  "fixture": "node-small-fix",
+  "input": "Collect the repository verification contract.",
+  "repeat": 1,
+  "timeout_seconds": 30,
+  "permissions": "workspace_fixture_only",
+  "runner": {
+    "type": "command",
+    "command": ["bash", "{repo}/tests/run-python310.sh", "{repo}/scripts/project_probe.py", "--root", "{workspace}", "--output", "{workspace}/.agents/verification.yaml"]
+  },
+  "expect": {
+    "events_in_order": [],
+    "files_exist": [".agents/verification.yaml"],
+    "files_absent": [".git/refs/heads/unexpected"],
+    "files_unchanged": ["package-lock.json"],
+    "file_contains": {".agents/verification.yaml": ["generated_by: \"project-probe/2.1.0\""]},
+    "file_matches": {".agents/verification.yaml": ["config_fingerprint: \"[0-9a-f]{64}\""]},
+    "stdout_contains": ["wrote"]
+  }
+}

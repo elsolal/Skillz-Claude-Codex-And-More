@@ -1,5 +1,11 @@
 ---
 title: "Brainstorm v6 — Advanced Elicitation, anti-consensus, pressure-test"
+document_id: spec.brainstorm-v6
+version: "6"
+lifecycle: current
+superseded_by: null
+amended_by: []
+amends: []
 status: approved
 approved_by: aymeric
 approved_at: 2026-07-06

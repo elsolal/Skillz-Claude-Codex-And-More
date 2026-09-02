@@ -1,0 +1,71 @@
+{
+  "absents": [
+    "no configured typecheck command",
+    "no configured build command",
+    "no e2e harness beyond isolated filesystem and real Codex bundle integration",
+    "restore covers fresh install and update snapshots; uninstall removes the active manifest and is not automatically restorable",
+    "the universal install.sh path remains the documented legacy fallback during the v6.1 preview",
+    "PDF delivery engine absent in the unrelated SEO/GEO suite; Markdown previews remain internal-only evidence"
+  ],
+  "decisions_prises_en_ton_nom": [
+    "introduce bin/skillz as the compiled-bundle installer without silently changing legacy install.sh behavior",
+    "require an explicit target and treat even byte-identical unowned files as conflicts rather than adopting them",
+    "retain three bounded managed-path snapshots by default and allow explicit downgrade through update"
+  ],
+  "executions": [
+    {
+      "command": "bash scripts/lint-shell.sh",
+      "exit_code": 0,
+      "name": "lint",
+      "status": "passed",
+      "summary": "19 shell entrypoints parsed individually in two consecutive clean rounds"
+    },
+    {
+      "command": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py --bundle dist/codex --output docs/compatibility/codex-plugin-0.152.0.json --check && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh",
+      "exit_code": 0,
+      "name": "test",
+      "status": "passed",
+      "summary": "67 repository tests including 19 installer scenarios, 266 memory tests, compiler drift, isolated Codex C2 certification, upstream freshness, migration cleanup, 25 SEO/GEO Python tests and 3 Node tests passed in two consecutive clean rounds"
+    }
+  ],
+  "manifest_fingerprint": "4d4fc3bf8a71a84173e85caf2ebd24b268a58c93a94f37e015df25172bdd5169",
+  "opinion": {
+    "findings": {
+      "confirmed": 3,
+      "fixed": 3,
+      "refuted": 0,
+      "remaining": 0,
+      "total": 3
+    },
+    "lenses": {
+      "correctness_security": "PASS",
+      "performance": "PASS",
+      "readability": "PASS",
+      "structural_maintainability": "PASS"
+    },
+    "rounds": [
+      {
+        "findings": [
+          "P1: a symlinked target or .skillz state directory could redirect managed state outside the explicit target",
+          "P1: broken symlinks and special files in a bundle could be skipped instead of rejected",
+          "P1: a bundle could collide with the installer-owned .skillz namespace"
+        ],
+        "resolutions": [
+          "reject target and state symlinks before manifest or backup access",
+          "walk all bundle entries and fail closed on symlinks or special files",
+          "reserve the complete .skillz namespace and cover the boundary with a negative test"
+        ],
+        "round": 1
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 2
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 3
+      }
+    ]
+  },
+  "schema_version": 1
+}

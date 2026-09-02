@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillz.local/schemas/provider-build.schema.json",
+  "title": "Provider Build Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "provider", "output_root", "package", "artifacts"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "provider": {"type": "string"},
+    "output_root": {"type": "string"},
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "manifest_path", "marketplace_path", "components"],
+      "properties": {
+        "status": {"enum": ["supported", "pending", "unsupported"]},
+        "manifest_path": {"type": ["string", "null"]},
+        "marketplace_path": {"type": ["string", "null"]},
+        "manifest_format": {"enum": ["distribution", "gemini-extension"]},
+        "context_file_name": {"type": "string"},
+        "components": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "required": ["instruction", "skill", "command", "agent", "mcp", "hook"],
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status", "output_template", "transform"],
+        "properties": {
+          "status": {"enum": ["supported", "pending", "unsupported"]},
+          "output_template": {"type": ["string", "null"]},
+          "transform": {"enum": ["copy", "gemini-command", "none"]}
+        }
+      }
+    }
+  }
+}

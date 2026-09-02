@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "provider": "codex",
+  "output_root": "codex",
+  "package": {
+    "status": "supported",
+    "manifest_path": ".codex-plugin/plugin.json",
+    "marketplace_path": ".agents/plugins/marketplace.json",
+    "components": {"skills": "./skills/"}
+  },
+  "artifacts": {
+    "instruction": {"status": "supported", "output_template": "instructions/{alias}.md", "transform": "copy"},
+    "skill": {"status": "supported", "output_template": "skills/{alias}/SKILL.md", "transform": "copy"},
+    "command": {"status": "supported", "output_template": "prompts/{alias}.md", "transform": "copy"},
+    "agent": {"status": "pending", "output_template": null, "transform": "none"},
+    "mcp": {"status": "pending", "output_template": null, "transform": "none"},
+    "hook": {"status": "pending", "output_template": null, "transform": "none"}
+  }
+}

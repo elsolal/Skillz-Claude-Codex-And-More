@@ -1,5 +1,11 @@
 ---
 title: Design Audit Loop
+document_id: spec.design-audit-loop
+version: "1"
+lifecycle: current
+superseded_by: null
+amended_by: []
+amends: []
 status: approved
 approved_by: human
 approved_at: 2026-06-09T19:15:20Z

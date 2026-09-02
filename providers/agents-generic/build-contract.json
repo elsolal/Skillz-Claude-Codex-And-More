@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "provider": "agents-generic",
+  "output_root": "agents-generic",
+  "package": {
+    "status": "unsupported",
+    "manifest_path": null,
+    "marketplace_path": null,
+    "components": {}
+  },
+  "artifacts": {
+    "instruction": {"status": "supported", "output_template": "instructions/{alias}.md", "transform": "copy"},
+    "skill": {"status": "supported", "output_template": "skills/{alias}/SKILL.md", "transform": "copy"},
+    "command": {"status": "unsupported", "output_template": null, "transform": "none"},
+    "agent": {"status": "unsupported", "output_template": null, "transform": "none"},
+    "mcp": {"status": "unsupported", "output_template": null, "transform": "none"},
+    "hook": {"status": "unsupported", "output_template": null, "transform": "none"}
+  }
+}

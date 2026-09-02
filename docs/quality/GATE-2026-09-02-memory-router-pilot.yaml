@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 3
+base_sha: "274e0323e3d9e91c2a74005170a0f3a99d12af61"
+head_sha: "3e19292b581179b2bdaa0a41dd9b1626cf41d04a"
+code_diff_hash: "fbbe414277c18fbbc4425bb6783d9544e25d74aa4f730882953117b95a88be90"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-09-02-memory-router-pilot.json"
+proof_payload_hash: "8a815394361588761c2b5a35178856822b35f0d0be9ebb2201e2d884704003b1"
+integrity_sha256: "c45a6ed20320984a146186ff544c474c04caae615f3e95230a7f64d82392da0f"

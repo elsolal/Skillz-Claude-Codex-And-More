@@ -1,0 +1,68 @@
+{
+  "absents": [
+    "no configured typecheck command",
+    "no configured build command",
+    "no catalog artifact consumes the new resource closure yet; this lot intentionally changes compiler infrastructure only",
+    "provider behavioral certification remains unchanged by this infrastructure lot",
+    "PDF delivery engine absent in the unrelated SEO/GEO suite; Markdown previews remain internal-only evidence"
+  ],
+  "decisions_prises_en_ton_nom": [
+    "resources are explicit catalog entries with source and skill-relative output rather than implicit sibling-directory copies",
+    "only skill artifacts can declare resources and a resource cannot replace SKILL.md or escape the skill directory",
+    "project-probe 2.1 fingerprints only catalog-declared resources that are tracked by Git, preserving the user-owned untracked-file boundary",
+    "workflow migration is deferred to the next lot so compiler behavior and canonical-source movement remain separately reviewable"
+  ],
+  "executions": [
+    {
+      "command": "bash scripts/lint-shell.sh",
+      "exit_code": 0,
+      "name": "lint",
+      "status": "passed",
+      "summary": "20 shell files parsed individually in two consecutive clean rounds"
+    },
+    {
+      "command": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/testing/golden_distribution.py --dist-root dist --output docs/compatibility/golden/v6.1-p0-distribution.json --check && bash tests/test-behavioral.sh && bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py --bundle dist/codex --output docs/compatibility/codex-plugin-0.152.0.json --check && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh",
+      "exit_code": 0,
+      "name": "test",
+      "status": "passed",
+      "summary": "90 repository tests, 266 memory tests, deterministic compiler and reviewed golden checks, 8 structural behavioral cases, fresh Codex C2 and upstream evidence, migration cleanup, 25 SEO/GEO Python tests and 3 Node tests passed in two consecutive clean rounds"
+    }
+  ],
+  "manifest_fingerprint": "c58d210d71dd1b515ca74fb002ee958ca32111493911b2d20a95d37319b25ad7",
+  "opinion": {
+    "findings": {
+      "confirmed": 2,
+      "fixed": 2,
+      "refuted": 0,
+      "remaining": 0,
+      "total": 2
+    },
+    "lenses": {
+      "correctness_security": "PASS",
+      "performance": "PASS",
+      "readability": "PASS",
+      "structural_maintainability": "PASS"
+    },
+    "rounds": [
+      {
+        "finding": "P1: declared knowledge resources were outside the project-probe fingerprint and could drift without invalidating verification",
+        "resolution": "include tracked catalog source and resource paths in project-probe 2.1 while excluding untracked lookalikes",
+        "round": 1
+      },
+      {
+        "finding": "P1: the project-probe behavioral contracts still asserted the 2.0.0 generator after the provenance bump",
+        "resolution": "update both structural and manual headless cases to assert project-probe/2.1.0; the structural harness caught the mismatch before commit",
+        "round": 1
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 2
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 3
+      }
+    ]
+  },
+  "schema_version": 1
+}

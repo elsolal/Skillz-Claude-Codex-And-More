@@ -1,0 +1,12 @@
+{
+  "id": "ship-fresh-gate",
+  "runtime": "fixture",
+  "skill": "ship-workflow",
+  "fixture": "workflow-contract",
+  "input": "Ship only after mechanically verifying a fresh gate.",
+  "repeat": 1,
+  "timeout_seconds": 10,
+  "permissions": "workspace_fixture_only",
+  "runner": {"type": "command", "command": ["python3", "runner.py", "ship"]},
+  "expect": {"events_in_order": ["gate-verify", "handoff"], "files_exist": ["run-result.json"], "files_unchanged": ["package-lock.json"], "stdout_contains": ["Fresh gate required"]}
+}

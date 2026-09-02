@@ -1,0 +1,12 @@
+{
+  "id": "quick-fix-gated",
+  "runtime": "fixture",
+  "skill": "quick-fix",
+  "fixture": "workflow-contract",
+  "input": "Apply a level-zero fix and gate it.",
+  "repeat": 1,
+  "timeout_seconds": 10,
+  "permissions": "workspace_fixture_only",
+  "runner": {"type": "command", "command": ["python3", "runner.py", "quick-fix"]},
+  "expect": {"events_in_order": ["probe", "implement", "gate"], "files_exist": ["run-result.json"], "files_unchanged": ["package-lock.json"], "stdout_contains": ["Quick fix gated"]}
+}

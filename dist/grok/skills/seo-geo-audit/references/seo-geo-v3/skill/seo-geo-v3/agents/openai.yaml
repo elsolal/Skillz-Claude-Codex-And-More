@@ -1,0 +1,4 @@
+interface:
+  display_name: "SEO/GEO V3"
+  short_description: "Audit SEO/GEO fondé sur les preuves"
+  default_prompt: "Utilise $seo-geo-v3 pour auditer ce site, produire des constats sourcés et construire un plan d’exécution mesurable."

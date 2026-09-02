@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "stack": "mixed",
+  "python_required": ">=3.10",
+  "commands": {
+    "lint": "bash scripts/lint-shell.sh",
+    "test": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh scripts/validate_planning_lifecycle.py --root . && bash tests/run-python310.sh tooling/migration/migrate_catalog.py --root . --report docs/compatibility/catalog-migration-v6.1.json && bash tests/run-python310.sh tooling/evals/router_pilot.py --root . --output docs/compatibility/router-pilot-figma-generate-library.json --check && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/testing/golden_distribution.py --dist-root dist --output docs/compatibility/golden/v6.1-p0-distribution.json --check && bash tests/run-python310.sh tooling/runtime/certify_install_lifecycle.py --root . --output docs/compatibility/install-lifecycle-v6.1.json --check && bash tests/test-behavioral.sh && bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py --bundle dist/codex --output docs/compatibility/codex-plugin-0.152.0.json --check && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh"
+  },
+  "testability": {
+    "harness": "shell+unittest",
+    "e2e": "none",
+    "runtime_verify": "codex-plugin-C2"
+  },
+  "absence_reasons": {
+    "typecheck": "no configured typecheck command",
+    "build": "no configured build command",
+    "e2e": "no e2e harness"
+  }
+}

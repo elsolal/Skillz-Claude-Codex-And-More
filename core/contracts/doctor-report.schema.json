@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillz.local/schemas/doctor-report-v1.schema.json",
+  "title": "Skillz Doctor Report v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "status",
+    "runtime",
+    "certification",
+    "release_expected",
+    "release_installed",
+    "release_drift",
+    "runtime_mismatch",
+    "manifest_present",
+    "summary",
+    "files",
+    "repairs"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "status": {"enum": ["healthy", "partial", "broken"]},
+    "runtime": {"type": "object"},
+    "certification": {"type": "object"},
+    "release_expected": {"type": "string"},
+    "release_installed": {"type": ["string", "null"]},
+    "release_drift": {"type": "boolean"},
+    "runtime_mismatch": {"type": "boolean"},
+    "manifest_present": {"type": "boolean"},
+    "summary": {"type": "object"},
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "state"],
+        "properties": {
+          "path": {"type": "string"},
+          "state": {
+            "enum": ["ok", "missing", "modified", "unexpected", "orphaned", "unverifiable"]
+          }
+        }
+      }
+    },
+    "repairs": {"type": "array", "items": {"type": "string"}}
+  }
+}

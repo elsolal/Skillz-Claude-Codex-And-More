@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillz.local/schemas/provider-capabilities.schema.json",
+  "title": "Provider Capabilities",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "provider", "runtime", "certification", "package", "capabilities"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "provider": {"type": "string"},
+    "runtime": {
+      "type": "object",
+      "required": ["name", "version_observed"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "executable": {"type": "string", "minLength": 1},
+        "state_observed": {"enum": ["available", "broken", "not-installed", "not-applicable"]},
+        "version_observed": {"type": ["string", "null"]},
+        "reason": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "certification": {"enum": ["C0", "C1", "C2", "C3"]},
+    "package": {"enum": ["supported", "pending", "unsupported"]},
+    "capabilities": {
+      "type": "object",
+      "required": ["instruction", "skill", "command", "agent", "mcp", "hook"],
+      "additionalProperties": false,
+      "properties": {
+        "instruction": {"enum": ["supported", "pending", "unsupported"]},
+        "skill": {"enum": ["supported", "pending", "unsupported"]},
+        "command": {"enum": ["supported", "pending", "unsupported"]},
+        "agent": {"enum": ["supported", "pending", "unsupported"]},
+        "mcp": {"enum": ["supported", "pending", "unsupported"]},
+        "hook": {"enum": ["supported", "pending", "unsupported"]}
+      }
+    }
+  }
+}

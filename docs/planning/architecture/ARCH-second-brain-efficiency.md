@@ -6,6 +6,11 @@ status: validated
 validated_at: 2026-07-16
 validated_by: Aymeric
 version: 1.0
+document_id: architecture.second-brain-efficiency
+lifecycle: current
+superseded_by: null
+amended_by: []
+amends: []
 level: 4
 project_type: cli_tool
 prd: docs/planning/prd/PRD-second-brain-efficiency.md

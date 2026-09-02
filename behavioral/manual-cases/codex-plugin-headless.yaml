@@ -1,0 +1,22 @@
+{
+  "id": "codex-plugin-headless",
+  "runtime": "codex",
+  "skill": "skillz-claude:project-probe",
+  "fixture": "node-small-fix",
+  "input": "Load the installed $skillz-claude:project-probe skill, generate .agents/verification.yaml, then end with SKILL_LOADED:project-probe.",
+  "repeat": 3,
+  "timeout_seconds": 180,
+  "permissions": "workspace_fixture_only",
+  "runner": {
+    "type": "command",
+    "command": ["codex", "exec", "--sandbox", "workspace-write", "--ephemeral", "--skip-git-repo-check", "--json", "Load the installed $skillz-claude:project-probe skill, generate .agents/verification.yaml, then end with SKILL_LOADED:project-probe."]
+  },
+  "expect": {
+    "events_in_order": [],
+    "files_exist": [".agents/verification.yaml"],
+    "files_absent": [".git/refs/heads/unexpected"],
+    "files_unchanged": ["package-lock.json"],
+    "file_contains": {".agents/verification.yaml": ["generated_by: \"project-probe/2.1.0\""]},
+    "stdout_contains": ["SKILL_LOADED:project-probe"]
+  }
+}

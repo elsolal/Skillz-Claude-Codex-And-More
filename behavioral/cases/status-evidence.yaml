@@ -1,0 +1,12 @@
+{
+  "id": "status-evidence",
+  "runtime": "fixture",
+  "skill": "status-workflow",
+  "fixture": "workflow-contract",
+  "input": "Report evidence-labelled status.",
+  "repeat": 1,
+  "timeout_seconds": 10,
+  "permissions": "workspace_fixture_only",
+  "runner": {"type": "command", "command": ["python3", "runner.py", "status"]},
+  "expect": {"events_in_order": ["probe", "status"], "files_exist": ["run-result.json"], "files_unchanged": ["package-lock.json"], "stdout_contains": ["Status is evidence-labelled"]}
+}

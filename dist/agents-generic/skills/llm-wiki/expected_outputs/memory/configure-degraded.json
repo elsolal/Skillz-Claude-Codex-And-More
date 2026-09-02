@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "command": "configure",
+  "status": "degraded",
+  "project_id": "skillz-claude",
+  "event_id": null,
+  "data": {
+    "principal": {"role": "collaborator"},
+    "configured_stores": ["project"],
+    "local_files": [
+      ".agents/memory.local.json",
+      ".claude/project-memory.md",
+      ".agents/project-memory.md"
+    ],
+    "changed_files": [
+      ".agents/memory.local.json",
+      ".claude/project-memory.md",
+      ".agents/project-memory.md"
+    ]
+  },
+  "warnings": [
+    {
+      "code": "missing_entry_pages",
+      "message": "The local projection is usable, but declared entry pages are missing.",
+      "paths": ["wiki/concepts/project-memory-workflow.md"],
+      "correction": "Restore the missing pages in the project store or update the shared manifest through review."
+    }
+  ],
+  "errors": []
+}

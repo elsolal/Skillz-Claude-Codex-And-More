@@ -1,0 +1,9 @@
+Memory · PROJECT · skillz-claude
+Route: elsolal-wiki -> shared-wiki in declared trust/policy order
+Budget: 2,500 estimated tokens · hard cap 4,000 · task: architecture
+Status: retrieving project context
+---
+Memory sufficient · project-only · event <event-id>
+Measured: 2 retrieved · 1 read · ~27/2500 tokens · <duration>
+Freshness: fresh
+Fallback: not used

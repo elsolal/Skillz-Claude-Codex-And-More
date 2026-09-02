@@ -1,0 +1,25 @@
+{
+  "certification": "C2",
+  "checks": {
+    "installed_vertical_slice_skills": 4,
+    "marketplace_listed": true,
+    "marketplace_registered": true,
+    "plugin_available": true,
+    "plugin_enabled": true,
+    "plugin_installed": true
+  },
+  "isolation": "temporary CODEX_HOME; user configuration unchanged",
+  "limitations": [
+    "C2 proves native discovery and installation, not behavioral invocation",
+    "headless skill invocation, hooks and alternate model providers remain pending"
+  ],
+  "plugin": {
+    "id": "skillz-claude@skillz-claude-dev",
+    "manifest_sha256": "0aca375fdc1f96cb7771bbe56568cb5770870b0643e1f638f8fb5d18be8b2876",
+    "marketplace_sha256": "7dc7f89096799300dd70b2ca3e2b78978554665c85f023b6fba1afb11a129c6d",
+    "version": "6.1.0-rc.1"
+  },
+  "provider": "codex",
+  "runtime": "codex-cli 0.152.0",
+  "schema_version": 1
+}

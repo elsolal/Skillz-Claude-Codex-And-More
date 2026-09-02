@@ -1,0 +1,2 @@
+description = "Lance l'orchestrateur multi-agent pour decomposer et executer un objectif en parallele"
+prompt = "Utilise le skill \"orchestrate\" pour decomposer et executer l'objectif suivant en agents paralleles :\n\n{{args}}\n"

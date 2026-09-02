@@ -2,7 +2,7 @@
 
 # ============================================================
 # D-EPCT+R Workflow Installer — Universal fallback (all providers)
-# Install Skillz-Claude skills + RALPH Mode + Knowledge Files + Templates
+# Install Skillz-Claude skills + Knowledge Files + Templates
 # into Claude Code, Codex CLI, Gemini CLI, OpenCode, and generic agents.
 #
 # INSTALLATION PATHS (pick one) :
@@ -15,7 +15,7 @@
 #      Claude Code  → claude --plugin-dir ./Skillz-Claude-Codex-And-More       (.claude-plugin/plugin.json)
 #      Gemini CLI   → gemini --extension-dir ./Skillz-Claude-Codex-And-More/.gemini
 #      OpenCode     → use ./install.sh install opencode (no bundled JS/TS plugin yet)
-#      Codex CLI    → install.sh mirrors ~/.claude/ → ~/.codex/ (no native plugin format yet)
+#      Codex CLI    → native v6.1 bundle in dist/codex; install.sh mirror is the legacy fallback
 #
 # USAGE (v5.6.0+ subcommand syntax — recommended):
 #
@@ -108,6 +108,11 @@ LEGACY FLAGS (deprecated, still work with a warning):
   --update              → update <current dir>
 
 For full docs: https://github.com/elsolal/Skillz-Claude-Codex-And-More
+
+V6.1 COMPILED BUNDLE PREVIEW:
+  bin/skillz install|update --runtime <provider> --target <explicit-path> --dry-run
+  bin/skillz doctor --runtime <provider> --target <explicit-path> --json
+  This manifest-owned path consumes dist/ only. The commands above remain the legacy fallback.
 EOF
 }
 
@@ -153,6 +158,29 @@ global_target_enabled() {
 
 project_provider_enabled() {
     provider_list_contains "$PROJECT_PROVIDERS" "$1"
+}
+
+cleanup_removed_owned_artifacts() {
+    local source_claude="$1"
+    local target_claude="$2"
+    local cleanup_script
+    local removal_manifest
+    cleanup_script="$(dirname "$source_claude")/scripts/cleanup-removed-owned-artifacts.sh"
+    removal_manifest="$source_claude/migrations/v6.1-removed-artifacts.sha256"
+    if [ -f "$cleanup_script" ] && [ -f "$removal_manifest" ] && [ -d "$target_claude" ]; then
+        bash "$cleanup_script" "$removal_manifest" "$target_claude" "$source_claude"
+    fi
+}
+
+has_checksum_removal_rule() {
+    local source_claude="$1"
+    local relative_path="$2"
+    local removal_manifest="$source_claude/migrations/v6.1-removed-artifacts.sha256"
+    [ -f "$removal_manifest" ] || return 1
+    awk -v expected_path="$relative_path" '
+        $1 !~ /^#/ && $3 == expected_path { found = 1 }
+        END { exit(found ? 0 : 1) }
+    ' "$removal_manifest"
 }
 
 SOURCE_COMMAND_MARKER="Auto-generated source-command skill by Skillz-Claude installer."
@@ -1132,6 +1160,9 @@ if [ "$GLOBAL_MODE" = true ]; then
             case "$type" in
                 skill)
                     if ! echo "$NEW_SKILLS" | grep -qx "$name"; then
+                        if has_checksum_removal_rule "$SOURCE_DIR" "skills/$name"; then
+                            continue
+                        fi
                         if [ -d "$HOME/.claude/skills/$name" ] || [ -L "$HOME/.claude/skills/$name" ]; then
                             rm -rf "$HOME/.claude/skills/$name"
                             echo -e "   ${YELLOW}🗑️  skill: $name (removed, no longer in source)${NC}"
@@ -1141,6 +1172,9 @@ if [ "$GLOBAL_MODE" = true ]; then
                     ;;
                 command)
                     if ! echo "$NEW_COMMANDS" | grep -qx "$name"; then
+                        if has_checksum_removal_rule "$SOURCE_DIR" "commands/$name"; then
+                            continue
+                        fi
                         if [ -f "$HOME/.claude/commands/$name" ] || [ -L "$HOME/.claude/commands/$name" ]; then
                             rm -f "$HOME/.claude/commands/$name"
                             echo -e "   ${YELLOW}🗑️  command: $name (removed, no longer in source)${NC}"
@@ -1169,6 +1203,8 @@ if [ "$GLOBAL_MODE" = true ]; then
         --exclude='skills/source-command-*' \
         --exclude='.skillz-manifest' \
         "$SOURCE_DIR/" ~/.claude/
+
+    cleanup_removed_owned_artifacts "$SOURCE_DIR" "$HOME/.claude"
 
     # SEO/GEO V3 replaces a vendored V1 prompt pack. Remove only files whose
     # bytes still match the Skillz-managed V1 checksums; preserve user edits.
@@ -1663,7 +1699,7 @@ echo "║             D-EPCT+R Workflow $WORKFLOW_VERSION Installer            �
 fi
 echo "║                                                                       ║"
 echo "║   SKILLS:       50+ (Planning, Web nav, Design, Dev, Security, Figma)  ║"
-echo "║   COMMANDS:     30+ (Manuel + RALPH + Rodin + Ship/QA/Retro)          ║"
+echo "║   COMMANDS:     30+ (Dev + Rodin + Ship/QA/Retro)                     ║"
 echo "║   TEMPLATES:    18 (CI/CD, Git Hooks, DevContainer, GitHub)           ║"
 echo "║   KNOWLEDGE:    56 fichiers (testing, workflows, security, figma)     ║"
 echo "╚═══════════════════════════════════════════════════════════════════════╝"
@@ -1775,7 +1811,6 @@ mkdir -p "$TARGET_DOCS/planning/prd"
 mkdir -p "$TARGET_DOCS/planning/ui"
 mkdir -p "$TARGET_DOCS/planning/architecture"
 mkdir -p "$TARGET_DOCS/stories"
-mkdir -p "$TARGET_DOCS/ralph-logs"
 mkdir -p "$TARGET_DOCS/debates"
 mkdir -p "$TARGET_DOCS/security"
 echo -e "   ${GREEN}✅ docs/planning/brainstorms/${NC}"
@@ -1784,7 +1819,6 @@ echo -e "   ${GREEN}✅ docs/planning/prd/${NC}"
 echo -e "   ${GREEN}✅ docs/planning/ui/${NC}"
 echo -e "   ${GREEN}✅ docs/planning/architecture/${NC}"
 echo -e "   ${GREEN}✅ docs/stories/${NC}"
-echo -e "   ${GREEN}✅ docs/ralph-logs/${NC}"
 echo -e "   ${GREEN}✅ docs/debates/${NC}"
 echo -e "   ${GREEN}✅ docs/security/${NC}"
 
@@ -1927,7 +1961,7 @@ for cmd_file in "$SOURCE_CLAUDE/commands"/*.md; do
 done
 
 # Copy hooks
-echo -e "${GREEN}📁 Installing RALPH hooks...${NC}"
+echo -e "${GREEN}📁 Installing runtime hooks...${NC}"
 if [ -d "$SOURCE_CLAUDE/hooks" ]; then
     for hook_file in "$SOURCE_CLAUDE/hooks"/*; do
         if [ -f "$hook_file" ]; then
@@ -2181,15 +2215,17 @@ if [ -f "$SOURCE_CLAUDE/settings.json" ]; then
         if [ "$UPDATE_MODE" = true ]; then
             echo -e "   ${GREEN}✅ settings.json (preserved - your config)${NC}"
         else
-            echo -e "   ${YELLOW}⚠️  settings.json exists - creating settings.ralph.json${NC}"
-            cp "$SOURCE_CLAUDE/settings.json" "$TARGET_CLAUDE/settings.ralph.json"
-            echo -e "   ${YELLOW}📝 NOTE: Merge settings.ralph.json into your existing settings.json${NC}"
+            echo -e "   ${YELLOW}⚠️  settings.json exists - creating settings.d-epct.json${NC}"
+            cp "$SOURCE_CLAUDE/settings.json" "$TARGET_CLAUDE/settings.d-epct.json"
+            echo -e "   ${YELLOW}📝 NOTE: Merge settings.d-epct.json into your existing settings.json${NC}"
         fi
     else
         cp "$SOURCE_CLAUDE/settings.json" "$TARGET_CLAUDE/"
         echo -e "   ${GREEN}✅ settings.json${NC}"
     fi
 fi
+
+cleanup_removed_owned_artifacts "$SOURCE_CLAUDE" "$TARGET_CLAUDE"
 
 # Handle CLAUDE.md (MERGE in update mode - preserve user's PROJECT-RULES section)
 echo -e "${GREEN}📄 Installing CLAUDE.md...${NC}"
@@ -2263,7 +2299,6 @@ touch "$TARGET_DOCS/planning/prd/.gitkeep"
 touch "$TARGET_DOCS/planning/ui/.gitkeep"
 touch "$TARGET_DOCS/planning/architecture/.gitkeep"
 touch "$TARGET_DOCS/stories/.gitkeep"
-touch "$TARGET_DOCS/ralph-logs/.gitkeep"
 touch "$TARGET_DOCS/debates/.gitkeep"
 touch "$TARGET_DOCS/security/.gitkeep"
 
@@ -2357,7 +2392,7 @@ echo ""
 echo -e "${BLUE}  📂 Examples (3 projects):${NC}"
 echo "    simple-api/      API REST simple (mode LIGHT)"
 echo "    blog-nextjs/     Blog Next.js (mode FULL)"
-echo "    saas-dashboard/  Dashboard SaaS (mode RALPH)"
+echo "    saas-dashboard/  Dashboard SaaS (workflow complet)"
 echo ""
 echo -e "${BLUE}  🤖 Provider Compatibility:${NC}"
 echo "    Requested:        $PROJECT_PROVIDERS"
@@ -2390,13 +2425,6 @@ echo "    /discovery           Planning avec validation"
 echo "    /dev #123            Dev avec validation"
 echo "    /ship                Ship: merge → tests → review → PR"
 echo ""
-echo -e "${MAGENTA}  Commands - Mode RALPH (autonome):${NC}"
-echo "    /auto-loop \"prompt\"  Boucle générique"
-echo "    /auto-discovery      Planning autonome"
-echo "    /auto-dev #123       Dev autonome"
-echo "    /cancel-ralph        Arrêter la boucle"
-echo "    /resume-ralph        Reprendre session"
-echo ""
 echo -e "${BLUE}  Commands - Ship & QA:${NC}"
 echo "    /ship                Ship workflow automatisé"
 echo "    /qa                  QA testing + health score"
@@ -2428,10 +2456,6 @@ echo ""
 echo -e "  ${BLUE}# Mode Manuel (validation humaine)${NC}"
 echo "  /discovery"
 echo "  /dev #123"
-echo ""
-echo -e "  ${MAGENTA}# Mode RALPH (autonome)${NC}"
-echo "  /auto-discovery \"Je veux créer une app de todo\""
-echo "  /auto-dev #123 --max 50"
 echo ""
 if [ "$UPDATE_MODE" != true ]; then
 echo -e "${CYAN}Workflow:${NC}"

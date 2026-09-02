@@ -1,0 +1,79 @@
+{
+  "mode": "read-only",
+  "schema_version": 1,
+  "sources": [
+    {
+      "files": [
+        {
+          "path": "docs/planning/upstream/aidd-v5.9.0/README.md",
+          "sha256": "d2ba61499c30eb633c301f7cdc68720bbac9ad1c390335f4a79e978c9bec4802",
+          "size": 5172
+        },
+        {
+          "path": "docs/planning/upstream/aidd-v5.9.0/candidates/context-artifact-router.md",
+          "sha256": "63ac8aa0a574603955736aab869fcda1075382fd9afd1c2a867b9d68048609e0",
+          "size": 1211
+        },
+        {
+          "path": "docs/planning/upstream/aidd-v5.9.0/candidates/fact-checking-cascade.md",
+          "sha256": "b16545df97fb5511e929fd3442fca13b14d35e5eacb8e3210e1b3b51bfbd89bb",
+          "size": 1483
+        },
+        {
+          "path": "docs/planning/upstream/aidd-v5.9.0/candidates/guided-status-onboarding.md",
+          "sha256": "214be076f95e5984ae1e5cf9862ea26a43a064d97d3ad7029100d5f85694f31e",
+          "size": 1605
+        },
+        {
+          "path": "docs/planning/upstream/aidd-v5.9.0/candidates/learning-and-retro.md",
+          "sha256": "bec7c086885a70bb4f87e3d7bee99472dc32cac4175a160a7efcca7a90e7792a",
+          "size": 1575
+        },
+        {
+          "path": "docs/planning/upstream/aidd-v5.9.0/candidates/planning-shadow-areas.md",
+          "sha256": "ac6b70d4b5bbae2e4af7b6024427a2b2c9a4b98efc26c5c31ad507e7ee5de443",
+          "size": 1492
+        },
+        {
+          "path": "docs/planning/upstream/aidd-v5.9.0/candidates/project-memory-write-safety.md",
+          "sha256": "5822458e66e985ce02e2fc9653f769a2fd360f5a3bc7593faa3dc2d2344961f4",
+          "size": 1863
+        },
+        {
+          "path": "docs/planning/upstream/aidd-v5.9.0/candidates/provider-artifact-generators.md",
+          "sha256": "220f8ebb2f397b1c162bf3665cddd34853650b3b8b9c3a39ead00beb20b3f857",
+          "size": 1872
+        },
+        {
+          "path": "docs/planning/upstream/aidd-v5.9.0/candidates/runtime-capability-explorer.md",
+          "sha256": "53efbdcdea53d8af823dc7546b91ee0887c9a0434a6f51d22d7f1d363fdc0093",
+          "size": 1436
+        },
+        {
+          "path": "docs/planning/upstream/aidd-v5.9.0/candidates/skill-authoring-contract.md",
+          "sha256": "6dcf432ffe0a2153b74f969ffca99935b49ebab8888cecbda5bdb63ebf756543",
+          "size": 1583
+        },
+        {
+          "path": "docs/planning/upstream/aidd-v5.9.0/candidates/three-amigos-lenses.md",
+          "sha256": "9d5d73f226a0effa5b5d277a749c97e598f1b85728ed3f352e2a9b331066058f",
+          "size": 1565
+        },
+        {
+          "path": "docs/planning/upstream/aidd-v5.9.0/mechanisms.md",
+          "sha256": "4f94ea376084049aaaf9fda24ad00c5d505e5ebbb5ade95eaffe85e24fdc25ee",
+          "size": 3442
+        },
+        {
+          "path": "docs/planning/upstream/aidd-v5.9.0/skills-inventory.md",
+          "sha256": "cf74e22ff9a85c6a0ed3fadec6f83399faa286fe675732342be75de41f4ae4c1",
+          "size": 12169
+        }
+      ],
+      "id": "aidd-v5.9.0",
+      "policy": "metadata-only-no-network-no-execution",
+      "ref": "3082c8ff7f862df814f15f6e669a2005b50d3459",
+      "upstream_url": "https://github.com/ai-driven-dev/framework"
+    }
+  ]
+}

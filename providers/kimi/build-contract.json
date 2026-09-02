@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "provider": "kimi",
+  "output_root": "kimi",
+  "package": {
+    "status": "unsupported",
+    "manifest_path": null,
+    "marketplace_path": null,
+    "components": {}
+  },
+  "artifacts": {
+    "instruction": {"status": "pending", "output_template": null, "transform": "none"},
+    "skill": {"status": "supported", "output_template": "skills/{alias}/SKILL.md", "transform": "copy"},
+    "command": {"status": "unsupported", "output_template": null, "transform": "none"},
+    "agent": {"status": "pending", "output_template": null, "transform": "none"},
+    "mcp": {"status": "pending", "output_template": null, "transform": "none"},
+    "hook": {"status": "pending", "output_template": null, "transform": "none"}
+  }
+}

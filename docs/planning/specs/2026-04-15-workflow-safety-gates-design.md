@@ -1,6 +1,12 @@
 ---
 title: Workflow Safety Gates
+document_id: spec.workflow-safety-gates
+version: "1"
 status: approved
+lifecycle: superseded
+superseded_by: 2026-09-01-provider-neutral-kernel-design.md
+amended_by: []
+amends: []
 approved_by: human
 approved_at: 2026-04-15T11:00:00Z
 slug: workflow-safety-gates

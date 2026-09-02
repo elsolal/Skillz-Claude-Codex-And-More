@@ -1,6 +1,6 @@
 # Exemple : SaaS Dashboard
 
-> Projet exemple pour illustrer le workflow D-EPCT+R complet avec mode RALPH (v2.6)
+> Projet exemple pour illustrer le workflow D-EPCT+R complet (v2.6)
 
 ## Contexte
 
@@ -20,14 +20,14 @@ saas-dashboard/
 ├── 04-UI-DESIGN.md        # Design Tokens et Composants (NEW v2.6)
 ├── 05-ARCHITECTURE.md     # Architecture complète avec ADRs
 ├── 06-STORIES.md          # 3 Epics, 15+ Stories
-└── 07-IMPLEMENTATION.md   # Notes avec mode RALPH
+└── 07-IMPLEMENTATION.md   # Notes d'implémentation et preuves
 ```
 
 ## Workflow utilisé
 
 ```bash
-# Mode RALPH pour discovery complet avec verbose
-/auto-discovery "Dashboard SaaS pour gestion de projets" --verbose
+# Discovery complète avec checkpoints
+/discovery "Dashboard SaaS pour gestion de projets"
 
 # Le workflow génère automatiquement :
 # - Brainstorm (Research-first)
@@ -37,10 +37,10 @@ saas-dashboard/
 # - Architecture (ADRs inclus)
 # - Stories (15+ avec Readiness Check)
 
-# Mode RALPH pour chaque Epic avec verbose
-/auto-dev #epic-1 --max 50 --verbose
-/auto-dev #epic-2 --max 50 --verbose
-/auto-dev #epic-3 --max 50 --verbose
+# Implémentation de chaque Epic avec un plan validé
+/dev #epic-1
+/dev #epic-2
+/dev #epic-3
 ```
 
 ## Particularités de cet exemple
@@ -48,7 +48,7 @@ saas-dashboard/
 1. **Research-first** : Analyse de la concurrence avant brainstorm
 2. **UX/UI Design** : Auto-triggered car 5+ écrans et design system nécessaire
 3. **Architecture complexe** : Multi-tenant, Row Level Security
-4. **Mode RALPH verbose** : Logs détaillés dans `docs/ralph-logs/`
+4. **Preuves versionnées** : un quality gate par epic
 5. **3 Epics** : Auth, Projects, Billing
 
 ## Fonctionnalités v2.6 utilisées
@@ -82,16 +82,10 @@ saas-dashboard/
 /refactor src/features/auth/
 ```
 
-## Logs RALPH
+## Preuves de qualité
 
-Avec `--verbose`, les logs sont sauvegardés dans :
-```
-docs/ralph-logs/
-├── auto-discovery-2024-01-20-143022.md
-├── auto-dev-epic-1-2024-01-21-091500.md
-├── auto-dev-epic-2-2024-01-22-140000.md
-└── auto-dev-epic-3-2024-01-23-100000.md
-```
+Les gates de chaque epic sont sauvegardés dans `docs/quality/` et référencent les commandes de
+vérification réellement exécutées.
 
 ---
 

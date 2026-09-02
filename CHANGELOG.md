@@ -2,6 +2,54 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## [6.1.0-rc.1] - 2026-09-02
+
+**Provider-neutral kernel release candidate — not stable**
+
+### Added
+- Canonical `core/` graph covering 63 skills, 31 commands, shared knowledge, transitive resources,
+  semantic aliases, risk and provider metadata.
+- Deterministic compiler and reviewed distributions for Claude, Codex, OpenCode, generic agents,
+  Gemini, Grok and Kimi, with explicit `supported`, `pending` and `unsupported` artifact types.
+- Manifest-owned installer with dry-run, update, doctor, restore and uninstall; clean full-bundle
+  lifecycle evidence for all four P0 targets.
+- v2 project probe and sealed quality gates anchored to base/head SHAs, diff hash, manifest
+  fingerprint and JSON proof payload.
+- Behavioral harness, provider goldens, Codex native C2 discovery, catalog coverage report,
+  compatibility matrix, provider/eval contribution guide and RC blocker report.
+- Evidence-backed `/status`, rework-oriented `/retro`, planning lifecycle validation, controlled
+  llm-wiki writes and the measured `figma-generate-library` router pilot.
+
+### Changed
+- Runtime-only frontmatter is removed from canonical Markdown and rehydrated only for its declared
+  provider. Historical knowledge paths resolve to artifact-local bundled resources.
+- `dist/` is the inspected RC distribution; generated files are never edited by hand.
+- Claude is no longer the architectural source of truth. `.claude/` remains only as a transitional
+  compatibility mirror until the relevant route has C3 evidence.
+- Model, provider and runtime are documented separately: Kimi through Codex uses the Codex adapter,
+  while native Kimi CLI uses the Kimi skill-only adapter.
+
+### Breaking
+- Removed RALPH commands `/auto-loop`, `/auto-discovery`, `/auto-dev`, `/cancel-ralph` and
+  `/resume-ralph`, plus their hook and active-state surfaces.
+- Provider command syntax is not promised to be identical. Codex native uses namespaced skills
+  where literal plugin slash commands are unavailable; Kimi and generic agents expose skills only.
+- Canonical contributions now target `core/` and `core/catalog.yaml`, not provider directories.
+
+### Certification
+- Codex CLI `0.152.0`: C2 native plugin discovery.
+- Claude Code `2.1.257`, OpenCode `1.18.25`, agents-generic, Gemini, Grok and Kimi native: C1 only.
+- Kimi-via-Codex inherits the Codex adapter route but has no alternate-model behavioral result.
+- RC remains non-stable until Claude/Codex/OpenCode reach C3, agents-generic reaches C2 on a named
+  runner, real-use bake completes, and a fresh final release gate passes.
+
+### Validation
+- Shell syntax: 20 files.
+- Repository tests: 122; llm-wiki tests: 273; behavioral structural cases: 8.
+- Compiler, full catalog, reviewed golden, lifecycle, upstream, removal safety and SEO/GEO suites:
+  PASS. A local Playwright/Chromium installation also produced a tagged one-page A4 PDF smoke
+  artifact; this is local execution evidence, not a bundled runtime dependency.
+
 ## [Unreleased] - 2026-09-01
 
 **Provider-neutral v6.1 architecture plan**

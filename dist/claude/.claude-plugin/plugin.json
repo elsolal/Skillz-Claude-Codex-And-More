@@ -1,0 +1,18 @@
+{
+  "author": {
+    "name": "elsolal",
+    "url": "https://github.com/elsolal"
+  },
+  "description": "Provider-neutral D-EPCT development workflows for coding agents.",
+  "homepage": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
+  "keywords": [
+    "workflow",
+    "d-epct",
+    "provider-neutral",
+    "coding-agents"
+  ],
+  "license": "MIT",
+  "name": "skillz-claude",
+  "repository": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
+  "version": "6.1.0-rc.1"
+}

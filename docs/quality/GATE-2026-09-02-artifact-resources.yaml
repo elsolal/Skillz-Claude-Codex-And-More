@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 3
+base_sha: "92c3dd4e9dfa1f2e381ffb4a541e0695b3ab41aa"
+head_sha: "3a65839249d9c6cb2f8f55ee07de0c3d52fb6f75"
+code_diff_hash: "d288c50508558167bd381d1381df3589d5b503b83763b2b5b277f6b7ee57d6f0"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-09-02-artifact-resources.json"
+proof_payload_hash: "6e0cb2ebcc77d105a222cc9e53aa5f125cc079dfacd8e74c26e9b3dede76b91e"
+integrity_sha256: "efa96ba32feb765c3343ebff85caaea8d81ac63e313e188f6ee2894623bdd553"

@@ -1,0 +1,411 @@
+"""Immutable public contracts for portable memory manifests."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path, PurePosixPath
+from types import MappingProxyType
+from typing import Mapping
+
+
+PUBLIC_SCHEMA_VERSION = 1
+MANIFEST_SCHEMA_VERSION = 1
+DEFAULT_SUFFICIENCY_THRESHOLDS_VERSION = "qmd-0.9-v1"
+IMPACT_TAXONOMY_VERSION = "impact-v1"
+CONFLICT_POLICY_VERSION = "conflict-v1"
+DEBT_ACTION_POLICY_VERSION = "debt-action-v1"
+CONTRACT_FILE_EXTENSIONS = frozenset({".json", ".markdown", ".md", ".sql", ".yaml", ".yml"})
+
+
+class RetrievalMode(str, Enum):
+    MINIMAL = "minimal"
+    PROJECT = "project"
+    HISTORICAL = "historical"
+
+
+class SemanticRetrieval(str, Enum):
+    EXPLICIT = "explicit"
+
+
+class RepositorySourceKind(str, Enum):
+    QMD = "qmd"
+
+
+class TrustLevel(str, Enum):
+    CURRENT_CONTRACT = "current_contract"
+    DURABLE_MEMORY = "durable_memory"
+
+
+class PrincipalRole(str, Enum):
+    OWNER = "owner"
+    COLLABORATOR = "collaborator"
+
+
+class TaskCategory(str, Enum):
+    BUG = "bug"
+    ARCHITECTURE = "architecture"
+    PRODUCT = "product"
+    OPERATIONS = "operations"
+    SECURITY = "security"
+    DATA = "data"
+    HISTORICAL = "historical"
+    ONBOARDING = "onboarding"
+    GENERAL = "general"
+
+
+class FreshnessStatus(str, Enum):
+    FRESH = "fresh"
+    STALE = "stale"
+    UNKNOWN = "unknown"
+
+
+class ProvenanceKind(str, Enum):
+    PAGE = "page"
+    SOURCE = "source"
+    SYNTHESIS = "synthesis"
+    UNKNOWN = "unknown"
+
+
+class SufficiencyStatus(str, Enum):
+    SUFFICIENT = "sufficient"
+    INSUFFICIENT = "insufficient"
+    AMBIGUOUS = "ambiguous"
+    BLOCKED = "blocked"
+
+
+class AssemblyStatus(str, Enum):
+    READY = "ready"
+    PARTIAL = "partial"
+    INSUFFICIENT = "insufficient"
+
+
+class RiskReason(str, Enum):
+    SECURITY = "security"
+    DATA = "data"
+    ARCHITECTURE = "architecture"
+    PRODUCT = "product"
+    INCIDENT = "incident"
+
+
+class ImpactCode(str, Enum):
+    PROJECT_CONVENTION_APPLIED = "project_convention_applied"
+    HISTORICAL_DECISION_REUSED = "historical_decision_reused"
+    KNOWN_PROBLEM_AVOIDED = "known_problem_avoided"
+    VALIDATION_COMMAND_REUSED = "validation_command_reused"
+    NEXT_STEP_REUSED = "next_step_reused"
+
+
+class ConflictRisk(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
+class ConflictCategory(str, Enum):
+    PRODUCT = "product"
+    ARCHITECTURE = "architecture"
+    SECURITY = "security"
+    DATA = "data"
+    OPERATIONS = "operations"
+    GENERAL = "general"
+
+
+class ConflictEvidenceType(str, Enum):
+    CODE = "code"
+    TEST = "test"
+    CONTRACT = "contract"
+    CONFIG = "config"
+    DOCUMENTATION = "documentation"
+
+
+class DebtAction(str, Enum):
+    FIX = "fix"
+    IGNORE = "ignore"
+    SNOOZE = "snooze"
+
+
+class SufficiencyReason(str, Enum):
+    NO_RESULT = "no_result"
+    BELOW_SCORE = "below_score"
+    INSUFFICIENT_COVERAGE = "insufficient_coverage"
+    STALE = "stale"
+    MISSING_PROVENANCE = "missing_provenance"
+    TASK_REQUIRES_TRANSVERSE = "task_requires_transverse"
+    AMBIGUOUS = "ambiguous"
+
+
+@dataclass(frozen=True, slots=True)
+class ProjectConfig:
+    id: str
+    name: str
+    owner: str
+
+
+@dataclass(frozen=True, slots=True)
+class StoreConfig:
+    remote: str
+    collection: str
+    entry_pages: tuple[PurePosixPath, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class StoresConfig:
+    project: StoreConfig
+
+
+@dataclass(frozen=True, slots=True)
+class RepositorySourceConfig:
+    id: str
+    kind: RepositorySourceKind
+    trust: TrustLevel
+    collection: str
+    include: tuple[str, ...]
+    exclude: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class FallbackConfig:
+    id: str
+    collection: str
+    allowed_roles: tuple[PrincipalRole, ...]
+    task_categories: tuple[TaskCategory, ...]
+    entry_pages: tuple[PurePosixPath, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class BudgetConfig:
+    target_tokens: int
+    hard_tokens: int
+
+
+@dataclass(frozen=True, slots=True)
+class PolicyConfig:
+    semantic_retrieval: SemanticRetrieval
+    full_index_fallback: bool
+    retention_days: int
+    sufficiency_thresholds_version: str
+
+
+@dataclass(frozen=True, slots=True)
+class GoldenPaths:
+    visible_path: PurePosixPath
+    quality_rubric: PurePosixPath
+    start_question: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class MemoryManifest:
+    schema_version: int
+    project: ProjectConfig
+    stores: StoresConfig
+    sources: tuple[RepositorySourceConfig, ...]
+    fallbacks: tuple[FallbackConfig, ...]
+    budgets: Mapping[RetrievalMode, BudgetConfig]
+    policy: PolicyConfig
+    golden: GoldenPaths
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        schema_version: int,
+        project: ProjectConfig,
+        stores: StoresConfig,
+        sources: tuple[RepositorySourceConfig, ...],
+        fallbacks: tuple[FallbackConfig, ...],
+        budgets: dict[RetrievalMode, BudgetConfig],
+        policy: PolicyConfig,
+        golden: GoldenPaths,
+    ) -> "MemoryManifest":
+        return cls(
+            schema_version=schema_version,
+            project=project,
+            stores=stores,
+            sources=sources,
+            fallbacks=fallbacks,
+            budgets=MappingProxyType(dict(budgets)),
+            policy=policy,
+            golden=golden,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class LocalStoreConfig:
+    root: Path
+
+
+@dataclass(frozen=True, slots=True)
+class MemoryProjection:
+    schema_version: int
+    principal_role: PrincipalRole
+    stores: Mapping[str, LocalStoreConfig]
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        principal_role: PrincipalRole,
+        stores: dict[str, LocalStoreConfig],
+    ) -> "MemoryProjection":
+        return cls(
+            schema_version=PUBLIC_SCHEMA_VERSION,
+            principal_role=principal_role,
+            stores=MappingProxyType(dict(stores)),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class RetrievalHit:
+    """Normalized QMD result kept independent from the external JSON shape."""
+
+    docid: str
+    collection: str
+    relative_path: PurePosixPath
+    title: str
+    score: float
+    snippet_line: int
+    snippet: str
+    trust: TrustLevel = TrustLevel.DURABLE_MEMORY
+
+
+@dataclass(frozen=True, slots=True)
+class SufficiencyHit:
+    """Minimal normalized evidence consumed by the pure sufficiency gate."""
+
+    docid: str
+    score: float
+    provenance: ProvenanceKind
+    trust: TrustLevel = TrustLevel.DURABLE_MEMORY
+
+
+@dataclass(frozen=True, slots=True)
+class SufficiencyEvidence:
+    mode: RetrievalMode
+    task_category: TaskCategory
+    hits: tuple[SufficiencyHit, ...]
+    freshness: FreshnessStatus
+    thresholds_version: str = DEFAULT_SUFFICIENCY_THRESHOLDS_VERSION
+
+
+@dataclass(frozen=True, slots=True)
+class SufficiencyDecision:
+    status: SufficiencyStatus
+    reason_codes: tuple[SufficiencyReason, ...]
+    thresholds_version: str
+    evidence: SufficiencyEvidence
+
+
+@dataclass(frozen=True, slots=True)
+class ContextSection:
+    """A relative, bounded Markdown section actually emitted by the CLI."""
+
+    docid: str | None
+    collection: str
+    relative_path: PurePosixPath
+    title: str
+    provenance: ProvenanceKind
+    line_start: int
+    line_end: int
+    frontmatter: Mapping[str, str]
+    content: str
+    estimated_tokens: int
+    truncated: bool
+    trust: TrustLevel = TrustLevel.DURABLE_MEMORY
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        docid: str | None,
+        collection: str,
+        relative_path: PurePosixPath,
+        title: str,
+        provenance: ProvenanceKind,
+        line_start: int,
+        line_end: int,
+        frontmatter: dict[str, str],
+        content: str,
+        estimated_tokens: int,
+        truncated: bool,
+        trust: TrustLevel = TrustLevel.DURABLE_MEMORY,
+    ) -> "ContextSection":
+        return cls(
+            docid=docid,
+            collection=collection,
+            relative_path=relative_path,
+            title=title,
+            provenance=provenance,
+            line_start=line_start,
+            line_end=line_end,
+            frontmatter=MappingProxyType(dict(frontmatter)),
+            content=content,
+            estimated_tokens=estimated_tokens,
+            truncated=truncated,
+            trust=trust,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class ContextAssembly:
+    """Measured context plus a metadata-only projection for later events."""
+
+    status: AssemblyStatus
+    decision: SufficiencyDecision | None
+    retrieved: tuple[RetrievalHit, ...]
+    sections: tuple[ContextSection, ...]
+    estimator_version: str
+    target_tokens: int
+    hard_tokens: int
+    estimated_tokens: int
+    hard_cap_exceeded: bool
+    risk_reason: RiskReason | None
+    source: str = "qmd"
+    page_limit: int | None = None
+    reason_codes: tuple[str, ...] = ()
+
+    def receipt_metadata(self) -> dict[str, object]:
+        return {
+            "status": self.status.value,
+            "estimator_version": self.estimator_version,
+            "target_tokens": self.target_tokens,
+            "hard_tokens": self.hard_tokens,
+            "estimated_tokens": self.estimated_tokens,
+            "remaining_target_tokens": max(
+                self.target_tokens - self.estimated_tokens,
+                0,
+            ),
+            "retrieved_count": len(self.retrieved),
+            "read_count": len(self.sections),
+            "hard_cap_exceeded": self.hard_cap_exceeded,
+            "risk_reason": self.risk_reason.value if self.risk_reason else None,
+            "source": self.source,
+            "page_limit": self.page_limit,
+            "reason_codes": list(self.reason_codes),
+        }
+
+    def event_metadata(self) -> dict[str, object]:
+        return {
+            "retrieved": [
+                {
+                    "docid": hit.docid,
+                    "collection": hit.collection,
+                    "path": hit.relative_path.as_posix(),
+                    "score": hit.score,
+                }
+                for hit in self.retrieved
+            ],
+            "read": [
+                {
+                    "docid": section.docid,
+                    "collection": section.collection,
+                    "path": section.relative_path.as_posix(),
+                }
+                for section in self.sections
+            ],
+            "estimated_context_tokens": self.estimated_tokens,
+            "estimated_tokens": self.estimated_tokens,
+            "estimator_version": self.estimator_version,
+            "budget_tokens": self.target_tokens,
+            "risk_reason": self.risk_reason.value if self.risk_reason else None,
+        }

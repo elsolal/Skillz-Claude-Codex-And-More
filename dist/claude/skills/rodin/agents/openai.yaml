@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rodin"
+  short_description: "Challenge socratique anti-echo"
+  default_prompt: "Utilise Rodin pour challenger ce plan, cette decision ou ce raisonnement avec steelman, angles morts, objections fortes et tests de realite."

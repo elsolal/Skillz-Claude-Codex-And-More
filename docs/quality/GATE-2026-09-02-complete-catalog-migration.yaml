@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 4
+base_sha: "455028e5921f358708441627364032aeef4a41d0"
+head_sha: "f07c8327aebdcfa857f9350bc1eb76500433662e"
+code_diff_hash: "5d43f02672afed049b04bc77b9b11c94343f8aaf23f21d8da44567c1d411ff40"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-09-02-complete-catalog-migration.json"
+proof_payload_hash: "b807f95fd35ae1e959945e2a78e518875438c1059b667005b2e56d8669d3726c"
+integrity_sha256: "dd5a015ce5ab9da963179c614ce74b04242e0febeb44391f42ff6faed1a8d63e"

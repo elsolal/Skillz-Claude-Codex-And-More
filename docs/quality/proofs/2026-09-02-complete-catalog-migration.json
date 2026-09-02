@@ -1,0 +1,70 @@
+{
+  "absents": [
+    "no configured typecheck command",
+    "no configured build command",
+    "no e2e harness",
+    "Claude, OpenCode, Gemini, Grok, Kimi, and generic-agent C3 behavioral certification was not claimed by this migration gate",
+    "the behavioral harness covers eight P0 workflow cases rather than invoking every migrated domain skill",
+    "PDF delivery engine absent in the unrelated SEO/GEO suite; Markdown previews remain internal-only evidence"
+  ],
+  "decisions_prises_en_ton_nom": [
+    "the six recommended catalog families were migrated in one mechanical catalog lot because the compiler and coverage validator were already gated; functional skill changes remained excluded",
+    "skill and command aliases that share a public name use distinct internal catalog ids while preserving the exact public alias",
+    "legacy .claude mirrors remain in place until the corresponding P0 runtime route reaches C3 behavioral evidence",
+    "portable frontmatter remains in core while Claude-only fields are stored as catalog provider metadata and rehydrated only for the Claude bundle",
+    "two historical knowledge path syntaxes are normalized to artifact-local references and every resolved file is declared in the resource closure"
+  ],
+  "executions": [
+    {
+      "command": "bash scripts/lint-shell.sh",
+      "exit_code": 0,
+      "name": "lint",
+      "status": "passed",
+      "summary": "20 shell files passed syntax verification"
+    },
+    {
+      "command": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh scripts/validate_planning_lifecycle.py --root . && bash tests/run-python310.sh tooling/migration/migrate_catalog.py --root . --report docs/compatibility/catalog-migration-v6.1.json && bash tests/run-python310.sh tooling/evals/router_pilot.py --root . --output docs/compatibility/router-pilot-figma-generate-library.json --check && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/testing/golden_distribution.py --dist-root dist --output docs/compatibility/golden/v6.1-p0-distribution.json --check && bash tests/test-behavioral.sh && bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py --bundle dist/codex --output docs/compatibility/codex-plugin-0.152.0.json --check && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh",
+      "exit_code": 0,
+      "name": "test",
+      "status": "passed",
+      "summary": "117 repository tests, 273 memory tests, 15 lifecycle documents, complete catalog report, router pilot, clean compiler and golden, 8 behavioral cases, Codex C2 discovery, upstream inventory, removal safety, and SEO/GEO suites passed"
+    }
+  ],
+  "manifest_fingerprint": "5fd18b2a2e78bc5f8fa462e64aaedab865394f5122d5257fbfe83998d16c3123",
+  "opinion": {
+    "findings": {
+      "confirmed": 3,
+      "fixed": 3,
+      "refuted": 0,
+      "remaining": 0,
+      "total": 3
+    },
+    "lenses": {
+      "correctness_security": "PASS",
+      "performance": "PASS",
+      "readability": "PASS",
+      "structural_maintainability": "PASS"
+    },
+    "rounds": [
+      {
+        "finding": "P1: apply mode could follow resource symlinks or overwrite divergent canonical content",
+        "resolution": "reject symlinks, unsafe knowledge traversal, and all drift except an explicit byte-identical provider-metadata extraction transition",
+        "round": 1
+      },
+      {
+        "finding": "P1: migrated core entries still carried Claude-only frontmatter and relative knowledge paths were absent from resource closure",
+        "resolution": "partition portable and Claude metadata, rehydrate only the Claude bundle, normalize both historical knowledge syntaxes, and add every referenced file to the catalog",
+        "round": 2
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 3
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 4
+      }
+    ]
+  },
+  "schema_version": 1
+}

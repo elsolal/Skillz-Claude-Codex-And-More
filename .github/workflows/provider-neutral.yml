@@ -1,0 +1,37 @@
+name: Provider-neutral verification
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  structural:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit and contract tests
+        run: python -m unittest discover -s tests -p 'test_*.py'
+      - name: Deterministic provider build
+        run: python tooling/build/compiler.py check --root . --output dist
+      - name: Reviewed distribution golden
+        run: python tooling/testing/golden_distribution.py --dist-root dist --output docs/compatibility/golden/v6.1-p0-distribution.json --check
+      - name: Structural behavioral cases
+        env:
+          SKILLZ_RUN_RESULT_OUTPUT: .artifacts/run-result.json
+          SKILLZ_FAILURE_OUTPUT: .artifacts/failures
+        run: bash tests/test-behavioral.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: provider-neutral-run-result
+          path: .artifacts/
+          if-no-files-found: warn

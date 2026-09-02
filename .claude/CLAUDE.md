@@ -35,8 +35,8 @@ Do not store secrets, credentials, full logs, stack traces, or raw transcripts i
 ```
 Utilisateur dit...                    → Workflow
 ─────────────────────────────────────────────────
-"j'ai une idée / on pourrait..."      → /discovery (ou /auto-discovery)
-"implémente l'issue #XX"              → /dev #XX (ou /auto-dev #XX)
+"j'ai une idée / on pourrait..."      → /discovery
+"implémente l'issue #XX"              → /dev #XX
 "fix ce bug / ce truc est cassé"      → /quick-fix "desc"
 "refactorise ce fichier"              → /refactor <file>
 "review cette PR"                     → /pr-review #123
@@ -71,7 +71,7 @@ Utilisateur dit...                    → Workflow
 ORCHESTRATEUR garde tout le contexte → Niveau 0-1 : tech-spec directe → Niveau 2-4 : Brainstorm → [UX] → PRD → [UI] → Architecture → Stories → GitHub (subagent)
 ```
 
-Niveaux 0-4 auto-détectés (même grille que `/dev`). Niveau 0-1 : tech-spec directe, pas de brainstorm ni de PRD complet. Niveau 2-4 : chaîne complète, UX/UI optionnels et auto-triggered si pertinent. Sortie obligatoire : spec consolidée et approuvée dans `docs/planning/specs/` — mandat obligatoire pour `/auto-dev` et pour `/dev` niveau 4.
+Niveaux 0-4 auto-détectés (même grille que `/dev`). Niveau 0-1 : tech-spec directe, pas de brainstorm ni de PRD complet. Niveau 2-4 : chaîne complète, UX/UI optionnels et auto-triggered si pertinent. Sortie obligatoire : spec consolidée et approuvée dans `docs/planning/specs/` — mandat obligatoire pour `/dev` niveau 4.
 Seule la publication GitHub est dispatchée en subagent (travail mécanique).
 
 ### Dev (workflow adaptatif niveaux 0-4)
@@ -82,24 +82,14 @@ PROBE → EXPLORE → PLAN ⛔ → RED (conditionnel) → IMPLEMENT → GATE (bo
 
 L'orchestrateur principal garde tout le contexte. La rigueur s'adapte au niveau détecté (0 = fix trivial sans plan ni gate file, 4 = epic avec spec approuvée obligatoire). Un seul stop humain : le plan (Phase 2) ; niveaux 3-4 ajoutent la lecture des « décisions prises en ton nom » avant ship. La qualité vient de la boucle `quality-gate` (PASS/CONCERNS/FAIL), qui produit un gate file, pas d'une relecture humaine du diff.
 
-### Mode RALPH (autonome)
-
-Préfixer avec `auto-` : `/auto-loop`, `/auto-discovery`, `/auto-dev`.
-Options : `--max N`, `--timeout Xh`, `--promise "TEXT"`
-Logger chaque itération dans `docs/ralph-logs/`.
-
----
-
 ## Commandes
 
 ```bash
 # Planning
 /discovery                  # Planning niveaux 0-4 (validation à chaque étape)
-/auto-discovery "idée"      # Planning autonome
 
 # Développement
 /dev [issue]                # Workflow adaptatif niveaux 0-4, stop unique au plan
-/auto-dev #123              # Workflow adaptatif autonome (RALPH), gate obligatoire
 /quick-fix "desc"           # Circuit court niveau 0 du moteur dev-workflow, escalade auto
 /refactor <file>            # Refactoring ciblé
 
@@ -166,11 +156,6 @@ Logger chaque itération dans `docs/ralph-logs/`.
 # Sécurité
 /supabase-security <url>    # Audit Supabase
 
-# RALPH
-/auto-loop "prompt"         # Boucle autonome générique
-/auto-dev #123              # Dev autonome (alias RALPH)
-/cancel-ralph               # Arrêter RALPH
-/resume-ralph [session-id]  # Reprendre une session
 ```
 
 ---
@@ -226,7 +211,6 @@ fix/[issue-number]-description-courte
 |------|-------------|
 | Planning (brainstorms, PRD, archi, UX, UI) | `docs/planning/` |
 | Stories | `docs/stories/EPIC-{num}-{slug}/` |
-| Logs RALPH | `docs/ralph-logs/` |
 
 ---
 

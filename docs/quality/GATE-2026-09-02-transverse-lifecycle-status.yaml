@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 3
+base_sha: "e9e6f770df5b9040d7dd921e08d3473ab46ef9a3"
+head_sha: "e82b6cc3fd3f2632a736b10c8fb8807cbe5c7b1b"
+code_diff_hash: "021c83acf68f29dfd3722cac90791503a00d4fd9154ce29395bdc9fecc6eab05"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-09-02-transverse-lifecycle-status.json"
+proof_payload_hash: "682353b139504f5777dba60488a436ca261cbffa19ee459795ea778742bbf127"
+integrity_sha256: "e66ba1d429d6dbc6c2c22c0409564b4f5104644749c24d42e9f0d0752bfa9311"

@@ -1,0 +1,85 @@
+{
+  "absents": [
+    "no configured typecheck command",
+    "no configured build command beyond deterministic provider compilation",
+    "no configured end-to-end application harness",
+    "Claude Code, Codex CLI, and OpenCode C3 authenticated behavioral smoke evidence is not present",
+    "agents-generic has no named C2 reference runner",
+    "Kimi-via-Codex alternate-model behavioral execution is not present",
+    "Gemini, Grok, and native Kimi runtimes were not installed or authenticated during this implementation session",
+    "real-usage bake and post-bake remediation have not started"
+  ],
+  "decisions_prises_en_ton_nom": [
+    "6.1.0-rc.1 is proposed through the existing PR #82; no tag, package publication, merge, or stable claim was made",
+    "the synthetic true --version probe certifies installer lifecycle behavior only and is explicitly excluded from runtime certification claims",
+    "the published v6 curl route remains documented as a compatibility path until the generated v6.1 route earns runtime certification",
+    "missing provider runtimes were not installed or authenticated merely to manufacture stronger evidence",
+    "the v6-to-v6.1 migration guide is the only new exact historical allowlist entry for removed autonomous command names",
+    "the PR #82 human-gated command rule was propagated from the Claude projection into the canonical project-probe skill and every generated provider bundle",
+    "stable promotion remains blocked on C3 runtime smokes, a named generic runner, alternate-model execution, real usage bake, remediation, and a fresh final gate"
+  ],
+  "executions": [
+    {
+      "command": "bash scripts/lint-shell.sh",
+      "exit_code": 0,
+      "name": "lint",
+      "status": "passed",
+      "summary": "20 shell files passed syntax verification"
+    },
+    {
+      "command": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh scripts/validate_planning_lifecycle.py --root . && bash tests/run-python310.sh tooling/migration/migrate_catalog.py --root . --report docs/compatibility/catalog-migration-v6.1.json && bash tests/run-python310.sh tooling/evals/router_pilot.py --root . --output docs/compatibility/router-pilot-figma-generate-library.json --check && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/testing/golden_distribution.py --dist-root dist --output docs/compatibility/golden/v6.1-p0-distribution.json --check && bash tests/run-python310.sh tooling/runtime/certify_install_lifecycle.py --root . --output docs/compatibility/install-lifecycle-v6.1.json --check && bash tests/test-behavioral.sh && bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py --bundle dist/codex --output docs/compatibility/codex-plugin-0.152.0.json --check && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh",
+      "exit_code": 0,
+      "name": "test",
+      "status": "passed",
+      "summary": "memory installer acceptance, 124 repository tests, 273 memory tests, 15 lifecycle documents, complete catalog report, router pilot, clean compiler and golden, installer lifecycle certification, 8 behavioral cases, Codex C2 discovery, upstream inventory, removal safety, and SEO/GEO suites with the locally installed PDF engine passed; the GitHub structural workflow also passed in a clean local clone"
+    }
+  ],
+  "manifest_fingerprint": "21deeb4bcdaca2658840553a25d3fdb588fdb2ca2a9912c0b31c328a73f436ec",
+  "opinion": {
+    "findings": {
+      "confirmed": 5,
+      "fixed": 5,
+      "refuted": 0,
+      "remaining": 0,
+      "total": 5
+    },
+    "lenses": {
+      "correctness_security": "PASS",
+      "performance": "PASS",
+      "readability": "PASS",
+      "structural_maintainability": "PASS"
+    },
+    "rounds": [
+      {
+        "finding": "P1: doctor mutation-free evidence hashed file bytes but omitted entry types, modes, symlinks, and empty directories",
+        "resolution": "hash the complete target tree structure, entry types, portable permission modes, file bytes, and symlink targets around doctor",
+        "round": 1
+      },
+      {
+        "finding": "P1: repository and provider compiler tests still pinned the development version after the RC version bump",
+        "resolution": "retain exact version assertions and update all expected manifests and golden metadata to 6.1.0-rc.1",
+        "round": 2
+      },
+      {
+        "finding": "P2: the removal guard treated the required v6-to-v6.1 historical migration guide as an active autonomous surface",
+        "resolution": "allow exactly that migration guide while keeping every executable, generated bundle, and other document fail-closed",
+        "round": 3
+      },
+      {
+        "finding": "P1: the migration catalog captured generated Python bytecode, while an optional local PDF runtime made node_modules symlinks fail migration",
+        "resolution": "exclude Python bytecode and node_modules from canonical resources, disable bytecode writes in the shared runner, rebuild all bundles, and cover the local-runtime case with a regression test",
+        "round": 4
+      },
+      {
+        "finding": "P1: catalog validation compared canonical inventory to ignored local Claude projections, while the router pilot still referenced an orphaned pre-rewrite baseline commit unavailable on GitHub",
+        "resolution": "derive inventory equality from core, verify legacy projections as a covered subset, validate canonical-only resources, reanchor the byte-identical baseline to its reachable rewritten commit, fetch full history, and reproduce the workflow in clean branch and PR-merge clones",
+        "round": 5
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 6
+      }
+    ]
+  },
+  "schema_version": 1
+}

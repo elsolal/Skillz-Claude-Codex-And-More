@@ -16,7 +16,7 @@ D-EPCT+R v6 workflow (Probe → Explore → Plan → Red → Implement → Gate 
 
 ## Règles projet
 
-1. **Lire `.claude/CLAUDE.md`** pour le workflow complet (D-EPCT+R, RALPH, conventions).
+1. **Lire `.claude/CLAUDE.md`** pour le workflow complet (D-EPCT+R et conventions).
 2. **Avant d'utiliser un skill**, ouvrir son `SKILL.md` et suivre ce fichier exactement.
 3. **Traiter `.claude/` comme source de vérité unique.** Ne pas dupliquer la logique des skills.
 4. **Spec convention** : toute nouvelle feature doit avoir une spec dans `docs/planning/specs/YYYY-MM-DD-<slug>-design.md` avec frontmatter `status: approved, approved_by: human` avant d'être codée en mode autonome.
@@ -37,7 +37,7 @@ D-EPCT+R v6 workflow (Probe → Explore → Plan → Red → Implement → Gate 
 | `/seo-geo-audit` | Audit SEO/GEO V3.1 routé |
 | `/seo-geo-squad` | Squad V3.1, 21 spécialistes routés |
 
-Les autres commandes (`/auto-dev`, `/skillz-doctor`, `/pr-review`, etc.) restent Claude-native dans `.claude/commands/`. Gemini peut lire leurs instructions comme contexte, mais elles ne sont pas packagées en TOML natif.
+Les autres commandes (`/skillz-doctor`, `/pr-review`, etc.) restent Claude-native dans `.claude/commands/`. Gemini peut lire leurs instructions comme contexte, mais elles ne sont pas packagées en TOML natif.
 
 ## Skills partages
 

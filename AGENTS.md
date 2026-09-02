@@ -19,10 +19,10 @@ D-EPCT+R v6 workflow (Probe → Explore → Plan → Red → Implement → Gate 
 
 ## Règles projet
 
-1. **Lire `.claude/CLAUDE.md`** pour le workflow complet (D-EPCT+R, RALPH, conventions).
+1. **Lire `.claude/CLAUDE.md`** pour le workflow complet (D-EPCT+R et conventions).
 2. **Avant d'utiliser un skill**, ouvrir son `SKILL.md` et suivre ce fichier exactement.
 3. **Traiter `.claude/` comme source de vérité unique.** Ne pas dupliquer la logique des skills.
-4. **Spec convention** : toute nouvelle feature doit avoir une spec dans `docs/planning/specs/YYYY-MM-DD-<slug>-design.md` avec frontmatter `status: approved, approved_by: human` avant d'être codée en mode autonome (RALPH).
+4. **Spec convention** : toute feature de niveau 4 doit avoir une spec dans `docs/planning/specs/YYYY-MM-DD-<slug>-design.md` avec frontmatter `status: approved, approved_by: human` avant d'être codée.
 
 ## Commandes clés
 
@@ -32,7 +32,6 @@ D-EPCT+R v6 workflow (Probe → Explore → Plan → Red → Implement → Gate 
 | `/discovery` | Planning niveaux 0-4 : tech-spec directe ou chaîne complète, spec approuvée en sortie |
 | `/ship` | Merge main + preuves manifeste + gate file (PASS ou waiver) + PR |
 | `/quick-fix "desc"` | Fix rapide — niveau 0 du moteur dev-workflow, escalade auto |
-| `/auto-dev #123` | RALPH mode (autonome, gate pre-flight obligatoire) |
 | `/skillz-doctor` | Diagnostic install |
 
 Voir `.claude/CLAUDE.md` pour la liste complète des commandes.

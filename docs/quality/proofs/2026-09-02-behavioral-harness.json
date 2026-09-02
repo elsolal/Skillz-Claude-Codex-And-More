@@ -1,0 +1,73 @@
+{
+  "absents": [
+    "no configured typecheck command",
+    "no configured build command",
+    "structural fixture cases provide C1 contract evidence only and do not prove authenticated provider runtime behavior",
+    "the Codex headless manual case is defined but was not executed with an authenticated model, so C3 remains absent",
+    "no Gemini runtime trust or project-context behavioral proof",
+    "PDF delivery engine absent in the unrelated SEO/GEO suite; Markdown previews remain internal-only evidence"
+  ],
+  "decisions_prises_en_ton_nom": [
+    "continuous integration runs deterministic structural fixtures only; authenticated provider runs remain explicit manual certification",
+    "run-result.json is retained as a CI artifact rather than committed because durations, runtime versions and bounded output are execution-specific",
+    "golden distribution updates require both the update flag and an explicit review-approval flag"
+  ],
+  "executions": [
+    {
+      "command": "bash scripts/lint-shell.sh",
+      "exit_code": 0,
+      "name": "lint",
+      "status": "passed",
+      "summary": "20 shell files parsed individually in two consecutive clean rounds"
+    },
+    {
+      "command": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/testing/golden_distribution.py --dist-root dist --output docs/compatibility/golden/v6.1-p0-distribution.json --check && bash tests/test-behavioral.sh && bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py --bundle dist/codex --output docs/compatibility/codex-plugin-0.152.0.json --check && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh",
+      "exit_code": 0,
+      "name": "test",
+      "status": "passed",
+      "summary": "78 repository tests, 266 memory tests, deterministic compiler and golden checks, 8 structural behavioral cases, fresh Codex C2 and upstream evidence, migration cleanup, 25 SEO/GEO Python tests and 3 Node tests passed in two consecutive clean rounds"
+    }
+  ],
+  "manifest_fingerprint": "86eb90a3094271389cc7479f9ec0cd2ce56c80100c74009b7d874f80085c5762",
+  "opinion": {
+    "findings": {
+      "confirmed": 3,
+      "fixed": 3,
+      "refuted": 0,
+      "remaining": 0,
+      "total": 3
+    },
+    "lenses": {
+      "correctness_security": "PASS",
+      "performance": "PASS",
+      "readability": "PASS",
+      "structural_maintainability": "PASS"
+    },
+    "rounds": [
+      {
+        "finding": "P1: fixture symlinks, assertion traversal and failure-workspace reuse could escape or overwrite the intended isolated case boundary",
+        "resolution": "reject symlinked fixtures, unsafe case identifiers and traversal paths, and refuse to overwrite a preserved failure workspace",
+        "round": 1
+      },
+      {
+        "finding": "P1: behavioral cases, Python tests and reviewed goldens were initially absent from the project-probe fingerprint",
+        "resolution": "fingerprint behavioral inputs, test modules and compatibility goldens so stale verification manifests are detectable",
+        "round": 1
+      },
+      {
+        "finding": "P2: execution records lacked bounded capture metadata and the selected runtime version",
+        "resolution": "record runtime version, duration, exit status, changed hashes and explicit stdout/stderr truncation flags in run-result.json",
+        "round": 1
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 2
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 3
+      }
+    ]
+  },
+  "schema_version": 1
+}

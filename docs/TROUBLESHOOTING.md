@@ -13,11 +13,10 @@ Avant de creuser un problème manuellement, lance le diagnostic automatique :
 /skillz-doctor --fix     # corrections sûres automatiques
 ```
 
-Il couvre les 5 sources de panne les plus fréquentes :
+Il couvre les 4 sources de panne les plus fréquentes :
 - **Symlinks providers cassés** (ex: `~/.gemini/skills/skills` nested broken — le bug historique)
 - **Manifest drift** (skill disparu sur disque mais encore au manifest)
-- **RALPH locks orphelins** (sessions > 24h sans completion)
-- **Spec frontmatter invalide** (`/auto-dev` refuse de démarrer)
+- **Spec frontmatter invalide** (`/dev` niveau 4 refuse de démarrer)
 - **Provider files manquants** (`GEMINI.md`, `AGENTS.md` absents)
 
 Si `/skillz-doctor` ne trouve rien, continue avec les sections ci-dessous.
@@ -28,9 +27,8 @@ Si `/skillz-doctor` ne trouve rien, continue avec les sections ci-dessous.
 
 1. [Phase Planning](#phase-planning)
 2. [Phase Développement](#phase-développement)
-3. [Mode RALPH](#mode-ralph)
-4. [Problèmes généraux](#problèmes-généraux)
-5. [Install / Symlinks / Providers](#install--symlinks--providers)
+3. [Problèmes généraux](#problèmes-généraux)
+4. [Install / Symlinks / Providers](#install--symlinks--providers)
 
 ---
 
@@ -281,83 +279,6 @@ Si `/skillz-doctor` ne trouve rien, continue avec les sections ci-dessous.
 
 ---
 
-## Mode RALPH
-
-### RALPH ne s'arrête pas
-
-**Symptôme:** La boucle continue sans atteindre la completion promise.
-
-**Solutions:**
-1. **Vérifier la promise** :
-   ```
-   "Est-ce que 'DONE' ou 'FEATURE COMPLETE' est bien affiché ?"
-   ```
-
-2. **Arrêter manuellement** :
-   ```
-   /cancel-ralph
-   ```
-
-3. **Vérifier les logs** :
-   ```
-   cat docs/ralph-logs/[date]-*.md
-   ```
-
-4. **Réduire le scope** :
-   ```
-   "Simplifie l'objectif pour atteindre une completion"
-   ```
-
----
-
-### RALPH bloqué sur une erreur
-
-**Symptôme:** RALPH itère sans progresser.
-
-**Solutions:**
-1. **Lire le log** :
-   ```
-   tail -50 docs/ralph-logs/[date]-*.md
-   ```
-
-2. **Intervenir** :
-   ```
-   /cancel-ralph
-   # Fixer le problème manuellement
-   /auto-loop "Continue depuis [étape]"
-   ```
-
-3. **Changer d'approche** :
-   ```
-   "L'approche actuelle ne fonctionne pas. Essaie [alternative]"
-   ```
-
----
-
-### RALPH timeout
-
-**Symptôme:** Le timeout est atteint avant completion.
-
-**Solutions:**
-1. **Augmenter le timeout** :
-   ```
-   /auto-dev #123 --timeout 3h
-   ```
-
-2. **Découper la tâche** :
-   ```
-   /auto-dev #123-part1 --max 20
-   /auto-dev #123-part2 --max 20
-   ```
-
-3. **Passer en mode manuel** :
-   ```
-   /dev #123
-   # Valider manuellement chaque étape
-   ```
-
----
-
 ## Problèmes généraux
 
 ### Claude ne trouve pas les fichiers
@@ -391,7 +312,6 @@ Si `/skillz-doctor` ne trouve rien, continue avec les sections ci-dessous.
    ```
    /discovery
    /dev #123
-   /auto-loop "prompt"
    ```
 
 2. **Vérifier l'installation** :
@@ -470,17 +390,6 @@ Redémarre ensuite la session Codex : les skills sont chargés au démarrage.
 
 OpenCode n'est pas concerné par ce fallback ; il garde ses commandes natives dans `~/.config/opencode/commands/`.
 
-### `/auto-dev` refuse de démarrer
-
-**Symptôme:** `Pre-flight gate échoué : pas de mandat clair pour /auto-dev`.
-
-**Cause:** Ce n'est pas un bug, c'est une safety gate v5.7.0+. RALPH refuse de coder en autonome sans mandat humain.
-
-**Solutions:**
-1. **Passer une issue GitHub:** `/auto-dev #123`
-2. **Approuver une spec:** dans `docs/planning/specs/<date>-<slug>-design.md`, mettre `status: approved` + `approved_by: <ton nom>` (pas "ralph")
-3. **Override pour prototypage:** `/auto-dev --allow-no-spec "description"` (loggé comme non-recommandé)
-
 ### CHANGELOG pas modifié → `/ship` s'arrête
 
 **Symptôme:** `/ship` abort en Step 1.
@@ -520,6 +429,6 @@ OpenCode n'est pas concerné par ce fallback ; il garde ses commandes natives da
 Si le problème persiste :
 
 1. **Lancer `/skillz-doctor`** : diagnostic automatique (première étape)
-2. **Vérifier les logs RALPH** : `docs/ralph-logs/`
+2. **Vérifier le dernier gate file** : `docs/quality/GATE-*.yaml`
 3. **Lire la doc** : `docs/GUIDE-COMPLET.md`
 4. **Ouvrir une issue** : https://github.com/elsolal/Skillz-Claude-Codex-And-More/issues

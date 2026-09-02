@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 3
+base_sha: "698859973bf5fbd020f59b21ed317abf257cc956"
+head_sha: "8a6a89fdc97c567d716e9f239fe01cc0c12cb597"
+code_diff_hash: "fd2e91a7344395f537bd2f83f749bdafaf77fb56fa6f20a4b3807f65e4d939fa"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-09-02-behavioral-harness.json"
+proof_payload_hash: "80edde10570f60c734fe8918f91f8df0798860e8ec8799c7b76b20cfc83a2b01"
+integrity_sha256: "4e4880333aad56523f20f8fe8c0185d434783bcf5c51277669acab309afb2f3e"

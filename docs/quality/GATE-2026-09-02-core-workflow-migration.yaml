@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 3
+base_sha: "3b9723d265395879694f37d8a48c0c9336ce74b4"
+head_sha: "5f565576439c87964c5db1dac608430f56c66577"
+code_diff_hash: "4d81e0262efee28c3481f0d1c73da41aaca3cf9f6623878922777d54f4abad36"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-09-02-core-workflow-migration.json"
+proof_payload_hash: "2606e7a13b8885542cd975d947673672c31bec9aa4eef92d48cad41f31240de0"
+integrity_sha256: "7e99d017fa6d04b1735bed3b73e41cbfd1134f0099aeee774b239a5ca326ef6f"

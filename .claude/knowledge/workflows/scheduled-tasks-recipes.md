@@ -2,13 +2,13 @@
 
 Convert D-EPCT+R workflows to cloud-hosted `/schedule` tasks when the work context is fully on GitHub (no local uncommitted state needed).
 
-**When to use `/schedule` instead of RALPH:**
+**When to use `/schedule`:**
 - The task operates on committed code only (GitHub repo, not local checkout)
 - You want it to run unattended (overnight, daily, weekly)
 - You don't need to interact during execution
 - Examples: PR review, audit, doc sync, CI triage, dependency check
 
-**When NOT to use `/schedule` (use RALPH instead):**
+**When NOT to use `/schedule` (use the interactive local workflow instead):**
 - You're working on uncommitted local files
 - The workflow needs interactive checkpoints (STOP CHECKPOINTs)
 - You need a highly customized workflow within your current checkout
@@ -48,54 +48,7 @@ Run the security-auditor skill on a schedule.
 5. If no issues, do nothing (don't create noise)."
 ```
 
-## Recipe 3: Auto-Dev for GitHub Issues (overnight batch)
-
-Convert `/auto-dev` to a scheduled task that picks up the next P0 story and implements it overnight. Only works for issues where all context is in the GitHub issue body (no local state needed).
-
-```bash
-/schedule create \
-  --repo owner/my-app \
-  --cron "0 22 * * 1-5" \
-  --prompt "Find the highest priority open issue labeled 'ready-for-dev' and 'P0':
-1. Read the issue (gh issue view)
-2. Create a feature branch: feature/<issue-number>-<slug>
-3. Explore the codebase to understand the architecture
-4. Plan the implementation (write the plan as a comment on the issue)
-5. Implement the code + tests
-6. Run lint, types, tests — fix if broken
-7. Do the 3-pass review (Correctness, Readability, Performance) — fix CRITICAL issues
-8. Commit with proper message format: feat|fix(scope): description. Refs: #<issue>
-9. Push and create a PR linked to the issue (Closes #<issue>)
-10. Remove the 'ready-for-dev' label, add 'in-review'
-
-If no P0 issue found, do nothing."
-```
-
-**Limitations vs local RALPH:**
-- Can't access uncommitted files
-- Can't use local MCP servers that aren't configured in the cloud environment
-- Can't interact with the user mid-execution
-- Fresh repo clone each time (no local state persistence between runs)
-
-## Recipe 4: Discovery → Issues (weekly planning batch)
-
-Convert `/auto-discovery` to a weekly scheduled task that takes a roadmap file and creates stories.
-
-```bash
-/schedule create \
-  --repo owner/my-app \
-  --cron "0 9 * * 1" \
-  --prompt "Read docs/roadmap.md and identify any items marked 'TODO' or 'Next':
-1. For each item, check if a GitHub issue already exists (search by title)
-2. If no issue exists, run a lightweight discovery:
-   - Write a PRD section (Problem, Solution, Features, Success Criteria)
-   - Break into stories (INVEST format, max size L)
-   - Create GitHub issues with labels: 'story', 'auto-generated'
-3. Comment on the roadmap item with links to created issues
-4. Create a summary issue: 'Weekly Planning Batch - <date>' with all created issues listed."
-```
-
-## Recipe 5: Doc Sync (weekly)
+## Recipe 3: Doc Sync (weekly)
 
 Keep documentation in sync with code changes.
 

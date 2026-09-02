@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillz.local/schemas/gate-v2.schema.json",
+  "title": "D-EPCT Quality Gate Envelope v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "verdict",
+    "level",
+    "base_sha",
+    "head_sha",
+    "code_diff_hash",
+    "code_diff_exclusions",
+    "proof_payload",
+    "proof_payload_hash",
+    "integrity_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 2},
+    "verdict": {"enum": ["PASS", "CONCERNS", "FAIL", "WAIVED"]},
+    "level": {"type": "integer", "minimum": 1, "maximum": 4},
+    "base_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "head_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "code_diff_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "code_diff_exclusions": {
+      "type": "array",
+      "items": {"const": "CHANGELOG.md"},
+      "uniqueItems": true
+    },
+    "proof_payload": {"type": "string", "pattern": "^docs/quality/proofs/.+\\.json$"},
+    "proof_payload_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "integrity_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

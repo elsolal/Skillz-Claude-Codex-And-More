@@ -294,7 +294,7 @@ claude
 1. Décompose en étapes atomiques : quoi / où / comment / contraintes / critères d'acceptance testables / stratégie de tests (P0-P3)
 2. Identifie les composants/tokens à réutiliser (frontend) ou les fichiers publics concernés (SEO/GEO)
 3. Présente un seul écran de validation : synthèse Explore + niveau détecté + plan complet + critères d'acceptance + stratégie de tests
-4. En mode `/auto-dev`, ce stop est remplacé par le mandate gate (issue valide ou spec approuvée) — aucun arrêt humain
+4. Attend la validation humaine du plan avant toute modification ; une validation explicite couvre ensuite l'exécution séquentielle jusqu'au handoff
 
 #### 🔴 RED (conditionnel)
 

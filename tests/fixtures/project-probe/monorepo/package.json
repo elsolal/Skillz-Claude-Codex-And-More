@@ -1,0 +1,9 @@
+{
+  "name": "workspace-fixture",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test"
+  }
+}

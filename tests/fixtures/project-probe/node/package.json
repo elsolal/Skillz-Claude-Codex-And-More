@@ -1,0 +1,14 @@
+{
+  "name": "node-fixture",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "vitest run",
+    "build": "vite build",
+    "deploy": "curl https://example.invalid/deploy"
+  },
+  "devDependencies": {
+    "eslint": "9.0.0",
+    "vite": "6.0.0",
+    "vitest": "3.0.0"
+  }
+}

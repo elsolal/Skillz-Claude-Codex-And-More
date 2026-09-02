@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "command": "test.gate",
+  "status": "pass",
+  "project_id": "skillz-claude",
+  "run_id": "run_20260726T120000000000Z_0123456789abcdef",
+  "data": {
+    "schema_version": 1,
+    "scope": "story-015-measurement",
+    "status": "pass",
+    "authorizes_global_rollout": false,
+    "dimensions": {
+      "holdout": {
+        "status": "pass",
+        "value": 2,
+        "threshold": {"minimum_ratio": 0.2, "required_cases": 2}
+      },
+      "retrieval": {
+        "status": "pass",
+        "value": 0.95,
+        "threshold": {"minimum": 0.9}
+      },
+      "context": {
+        "status": "pass",
+        "value": 0.55,
+        "threshold": {"minimum_reduction": 0.5}
+      },
+      "quality": {
+        "status": "pass",
+        "value": 0.05,
+        "threshold": {"maximum_degradation": 0.05}
+      }
+    }
+  },
+  "warnings": [],
+  "errors": []
+}

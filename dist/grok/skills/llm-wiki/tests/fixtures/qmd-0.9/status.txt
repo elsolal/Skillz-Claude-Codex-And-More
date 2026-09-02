@@ -1,0 +1,17 @@
+QMD Status
+
+Index: /private/cache/qmd/index.sqlite
+Size:  22.8 MB
+
+Documents
+  Total:    339 files indexed
+  Vectors:  4324 embedded
+  Updated:  2d ago
+
+Collections
+  elsolal-wiki (qmd://elsolal-wiki/)
+    Pattern:  **/*.md
+    Files:    179 (updated 3h ago)
+  pleepole-wiki (qmd://pleepole-wiki/)
+    Pattern:  **/*.md
+    Files:    95 (updated 18d ago)
