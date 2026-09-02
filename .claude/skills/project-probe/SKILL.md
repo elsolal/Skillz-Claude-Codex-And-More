@@ -62,6 +62,7 @@ monorepo: {}                    # optional: per-package command overrides
 ## Rules for consumers (dev-workflow, ship-workflow, quality-gate)
 
 - Run verification **only** via `commands` from the manifest — never hardcode.
+- Everything listed in `commands` must be **auto-executable** by an agent. A human ceremony (live preproduction rehearsal, manual UAT, anything needing human Access/OTP/TOTP or a bounded waiver) is **never** a `commands` entry: record it in `absents` with its trigger condition, so ship reports it instead of executing it. If an existing manifest lists such a ceremony in `commands`, rewrite the manifest immediately (that authoring bug blocks every ship at evidence time).
 - An entry missing from `commands` means the project does not have that verification: **report it** (in the checkpoint summary or the gate file `absents`), never fake a green.
 - If a manifest command fails with "command not found" or similar breakage, re-run this skill (config drifted) before concluding anything.
 
@@ -72,6 +73,7 @@ The probe procedure is identical on every runtime. Runtimes with parallel subage
 ## Anti-patterns
 
 - Inventing a command because the stack "usually" has it — record what exists, not what should exist.
+- Listing a human-gated ceremony in `commands` — the ship runner executes every command literally and will hard-fail on it. Human ceremonies live in `absents` (with trigger + runbook reference), never in `commands`.
 - Re-probing on every run when the fingerprint is unchanged (wasted time).
 - Writing a `.claude/verification.yaml` mirror — one file only.
 - Running destructive scripts during the sanity check.
