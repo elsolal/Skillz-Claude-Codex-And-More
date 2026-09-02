@@ -1,0 +1,63 @@
+{
+  "absents": [
+    "no configured typecheck command",
+    "no configured build command",
+    "specialized skills referenced by discovery and quality-gate remain legacy catalog work for later migration lots",
+    "no new P0 C3 behavioral runtime evidence; legacy .claude workflow surfaces therefore remain present",
+    "structural behavioral fixtures do not prove authenticated provider invocation of the canonical workflow slice",
+    "PDF delivery engine absent in the unrelated SEO/GEO suite; Markdown previews remain internal-only evidence"
+  ],
+  "decisions_prises_en_ton_nom": [
+    "the catalog now treats six workflow skills and five commands under core as canonical while leaving legacy files byte-preserved for rollback",
+    "canonical skills differ from legacy only by an allowlisted provider-path normalization enforced in tests",
+    "dev and discovery knowledge files are copied into skill-local references and declared as catalog resources",
+    "generated dist remains committed and the historical golden filename remains the review anchor while its provider coverage expands"
+  ],
+  "executions": [
+    {
+      "command": "bash scripts/lint-shell.sh",
+      "exit_code": 0,
+      "name": "lint",
+      "status": "passed",
+      "summary": "20 shell files parsed individually in two consecutive clean rounds"
+    },
+    {
+      "command": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/testing/golden_distribution.py --dist-root dist --output docs/compatibility/golden/v6.1-p0-distribution.json --check && bash tests/test-behavioral.sh && bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py --bundle dist/codex --output docs/compatibility/codex-plugin-0.152.0.json --check && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh",
+      "exit_code": 0,
+      "name": "test",
+      "status": "passed",
+      "summary": "95 repository tests, 266 memory tests, deterministic compiler and reviewed seven-provider golden, 8 structural behavioral cases, fresh Codex C2 and upstream evidence, migration cleanup, 25 SEO/GEO Python tests and 3 Node tests passed in two consecutive clean rounds"
+    }
+  ],
+  "manifest_fingerprint": "bacbf3f436f9f4b927a3f4b229fae42fb27a02d8a4c421c09fd60f389228c607",
+  "opinion": {
+    "findings": {
+      "confirmed": 0,
+      "fixed": 0,
+      "refuted": 0,
+      "remaining": 0,
+      "total": 0
+    },
+    "lenses": {
+      "correctness_security": "PASS",
+      "performance": "PASS",
+      "readability": "PASS",
+      "structural_maintainability": "PASS"
+    },
+    "rounds": [
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 1
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 2
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 3
+      }
+    ]
+  },
+  "schema_version": 1
+}
