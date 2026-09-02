@@ -348,12 +348,18 @@ def _check(root: Path, catalog: dict[str, Any]) -> list[str]:
     }
     legacy_skills = {path.parent.name for path in (root / ".claude" / "skills").glob("*/SKILL.md")}
     legacy_commands = {path.stem for path in (root / ".claude" / "commands").glob("*.md")}
+    canonical_skills = {path.parent.name for path in (root / "core" / "skills").glob("*/SKILL.md")}
+    canonical_commands = {path.stem for path in (root / "core" / "commands").glob("*.md")}
     catalog_skills = set(skill_artifacts)
     catalog_commands = set(command_artifacts)
-    if legacy_skills != catalog_skills:
-        errors.append(f"skill inventory mismatch: missing={sorted(legacy_skills - catalog_skills)} extra={sorted(catalog_skills - legacy_skills)}")
-    if legacy_commands != catalog_commands:
-        errors.append(f"command inventory mismatch: missing={sorted(legacy_commands - catalog_commands)} extra={sorted(catalog_commands - legacy_commands)}")
+    if canonical_skills != catalog_skills:
+        errors.append(f"skill inventory mismatch: missing={sorted(canonical_skills - catalog_skills)} extra={sorted(catalog_skills - canonical_skills)}")
+    if canonical_commands != catalog_commands:
+        errors.append(f"command inventory mismatch: missing={sorted(canonical_commands - catalog_commands)} extra={sorted(catalog_commands - canonical_commands)}")
+    if legacy_skills - canonical_skills:
+        errors.append(f"legacy skill coverage mismatch: missing={sorted(legacy_skills - canonical_skills)}")
+    if legacy_commands - canonical_commands:
+        errors.append(f"legacy command coverage mismatch: missing={sorted(legacy_commands - canonical_commands)}")
 
     for artifact_type, identifiers, by_alias in (
         ("skill", legacy_skills, skill_artifacts),
@@ -390,6 +396,20 @@ def _check(root: Path, catalog: dict[str, Any]) -> list[str]:
                     canonical_resource = root / resource["source"]
                     if not legacy_resource.is_file() or legacy_resource.read_bytes() != canonical_resource.read_bytes():
                         errors.append(f"canonical resource drift: {identifier}/{resource['output']}")
+
+    for artifact_type, identifiers, by_alias in (
+        ("skill", canonical_skills - legacy_skills, skill_artifacts),
+        ("command", canonical_commands - legacy_commands, command_artifacts),
+    ):
+        for identifier in sorted(identifiers):
+            artifact = by_alias.get(identifier)
+            if not artifact:
+                continue
+            canonical = root / artifact["source"]
+            declared = {item["output"]: item["source"] for item in artifact.get("resources", [])}
+            actual_items = _resource_items(root, artifact_type, identifier, canonical)
+            if declared != {item["output"]: item["source"] for item in actual_items}:
+                errors.append(f"resource manifest drift: {identifier}")
 
     for artifact in artifacts.values():
         if artifact["type"] in {"skill", "command"} and (

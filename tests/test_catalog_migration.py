@@ -21,6 +21,18 @@ class CatalogMigrationTests(unittest.TestCase):
         catalog = json.loads((REPO_ROOT / "core" / "catalog.yaml").read_text(encoding="utf-8"))
         self.assertEqual(MIGRATION._check(REPO_ROOT, catalog), [])
 
+    def test_catalog_inventory_is_derived_from_canonical_core(self):
+        catalog = json.loads((REPO_ROOT / "core" / "catalog.yaml").read_text(encoding="utf-8"))
+        catalog_skills = {
+            item.get("aliases", {}).get("default", item["id"])
+            for item in catalog["artifacts"]
+            if item["type"] == "skill"
+        }
+        canonical_skills = {
+            path.parent.name for path in (REPO_ROOT / "core" / "skills").glob("*/SKILL.md")
+        }
+        self.assertEqual(catalog_skills, canonical_skills)
+
     def test_catalog_migration_report_is_fresh(self):
         result = subprocess.run(
             [
