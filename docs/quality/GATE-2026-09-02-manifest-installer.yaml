@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 3
+base_sha: "23877585487325b5b41a82c385df58e62ff2ccaf"
+head_sha: "7c476ae60d876e783ea4f960d1ac2c9130039831"
+code_diff_hash: "2ccb5a75b3946c432a06d6aeda3d80f3df574fec3b40bb2ac88175def2210e6e"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-09-02-manifest-installer.json"
+proof_payload_hash: "e0b87ad0f15f1138c0a0e36461513d5b38599fe557622658bdf0fec2914a7383"
+integrity_sha256: "5a0eed7a21566b1436f72a9439e1272aa88e6200218a1a84048eb685695228ba"
