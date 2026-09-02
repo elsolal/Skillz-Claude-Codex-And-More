@@ -11,7 +11,12 @@
     "homepage": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
     "repository": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
     "license": "MIT",
-    "keywords": ["workflow", "d-epct", "provider-neutral", "coding-agents"],
+    "keywords": [
+      "workflow",
+      "d-epct",
+      "provider-neutral",
+      "coding-agents"
+    ],
     "marketplace": {
       "name": "skillz-claude-dev",
       "display_name": "Skillz Claude Dev",
@@ -22,14 +27,361 @@
   },
   "artifacts": [
     {
+      "id": "a11y-enforcer",
+      "public_name": "a11y-enforcer",
+      "type": "skill",
+      "source": "core/skills/a11y-enforcer/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "a11y-enforcer"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "ai-native-ui",
+      "public_name": "ai-native-ui",
+      "type": "skill",
+      "source": "core/skills/ai-native-ui/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "ai-native-ui"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "api-designer",
+      "public_name": "api-designer",
+      "type": "skill",
+      "source": "core/skills/api-designer/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "api-designer"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "architect",
+      "public_name": "architect",
+      "type": "skill",
+      "source": "core/skills/architect/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "architect"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "brutalist-skill",
+      "public_name": "industrial-brutalist-ui",
+      "type": "skill",
+      "source": "core/skills/brutalist-skill/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "brutalist-skill"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "code-implementer",
+      "public_name": "code-implementer",
+      "type": "skill",
+      "source": "core/skills/code-implementer/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "code-implementer"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "code-reviewer",
+      "public_name": "code-reviewer",
+      "type": "skill",
+      "source": "core/skills/code-reviewer/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "code-reviewer"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "database-designer",
+      "public_name": "database-designer",
+      "type": "skill",
+      "source": "core/skills/database-designer/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "database-designer"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "design-audit",
+      "public_name": "design-audit",
+      "type": "skill",
+      "source": "core/skills/design-audit/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "design-audit"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/skills/design-audit/agents/openai.yaml",
+          "output": "agents/openai.yaml"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse-squad/00_REGLES_COMMUNES.md",
+          "output": "references/lyse-squad/00_REGLES_COMMUNES.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse-squad/01_MASTER_ORCHESTRATOR.md",
+          "output": "references/lyse-squad/01_MASTER_ORCHESTRATOR.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse-squad/agents/01_scope_evidence_collector.md",
+          "output": "references/lyse-squad/agents/01_scope_evidence_collector.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse-squad/agents/02_lyse_static_runner_parser.md",
+          "output": "references/lyse-squad/agents/02_lyse_static_runner_parser.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse-squad/agents/03_tokens_auditor.md",
+          "output": "references/lyse-squad/agents/03_tokens_auditor.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse-squad/agents/04_components_contracts_auditor.md",
+          "output": "references/lyse-squad/agents/04_components_contracts_auditor.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse-squad/agents/05_stories_docs_auditor.md",
+          "output": "references/lyse-squad/agents/05_stories_docs_auditor.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse-squad/agents/06_accessibility_auditor.md",
+          "output": "references/lyse-squad/agents/06_accessibility_auditor.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse-squad/agents/07_ai_surface_auditor.md",
+          "output": "references/lyse-squad/agents/07_ai_surface_auditor.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse-squad/agents/08_ai_governance_auditor.md",
+          "output": "references/lyse-squad/agents/08_ai_governance_auditor.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse-squad/agents/09_figma_code_drift_auditor.md",
+          "output": "references/lyse-squad/agents/09_figma_code_drift_auditor.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse-squad/agents/10_taste_runtime_auditor.md",
+          "output": "references/lyse-squad/agents/10_taste_runtime_auditor.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse-squad/agents/11_remediation_planner.md",
+          "output": "references/lyse-squad/agents/11_remediation_planner.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse-squad/agents/12_final_report_ship_gate.md",
+          "output": "references/lyse-squad/agents/12_final_report_ship_gate.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse/README.md",
+          "output": "references/lyse/README.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse/cli-runtime.md",
+          "output": "references/lyse/cli-runtime.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse/result-mapping.md",
+          "output": "references/lyse/result-mapping.md"
+        },
+        {
+          "source": "core/skills/design-audit/references/lyse/rule-catalog.md",
+          "output": "references/lyse/rule-catalog.md"
+        },
+        {
+          "source": "core/skills/design-audit/scripts/run-lyse-audit.sh",
+          "output": "scripts/run-lyse-audit.sh"
+        }
+      ]
+    },
+    {
       "id": "dev-workflow",
       "public_name": "Development workflow",
       "type": "skill",
       "source": "core/skills/dev-workflow/SKILL.md",
-      "dependencies": ["project-probe", "quality-gate"],
-      "inputs": ["task", "approved-plan"],
-      "outputs": ["implementation", "quality-gate"],
-      "aliases": {"default": "dev-workflow"},
+      "dependencies": [
+        "project-probe",
+        "quality-gate"
+      ],
+      "inputs": [
+        "task",
+        "approved-plan"
+      ],
+      "outputs": [
+        "implementation",
+        "quality-gate"
+      ],
+      "aliases": {
+        "default": "dev-workflow"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 4,
+      "migration_state": "canonical",
       "resources": [
         {
           "source": "core/skills/dev-workflow/references/testing/test-levels-framework.md",
@@ -39,46 +391,43 @@
           "source": "core/skills/dev-workflow/references/testing/test-priorities-matrix.md",
           "output": "references/testing/test-priorities-matrix.md"
         }
-      ],
-      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
-      "risk": 4,
-      "migration_state": "canonical"
-    },
-    {
-      "id": "project-probe",
-      "public_name": "Project probe",
-      "type": "skill",
-      "source": "core/skills/project-probe/SKILL.md",
-      "dependencies": [],
-      "inputs": ["repository"],
-      "outputs": ["verification-manifest"],
-      "aliases": {"default": "project-probe"},
-      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
-      "risk": 3,
-      "migration_state": "canonical"
-    },
-    {
-      "id": "quality-gate",
-      "public_name": "Quality gate",
-      "type": "skill",
-      "source": "core/skills/quality-gate/SKILL.md",
-      "dependencies": ["project-probe"],
-      "inputs": ["committed-diff", "verification-manifest"],
-      "outputs": ["gate-envelope", "proof-payload"],
-      "aliases": {"default": "quality-gate"},
-      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
-      "risk": 4,
-      "migration_state": "canonical"
+      ]
     },
     {
       "id": "discovery-workflow",
       "public_name": "Discovery workflow",
       "type": "skill",
       "source": "core/skills/discovery-workflow/SKILL.md",
-      "dependencies": [],
-      "inputs": ["idea-or-need"],
-      "outputs": ["approved-spec"],
-      "aliases": {"default": "discovery-workflow"},
+      "dependencies": [
+        "architect",
+        "design-audit",
+        "idea-brainstorm",
+        "pm-prd",
+        "pm-stories",
+        "seo-geo-audit",
+        "ui-designer",
+        "ux-designer"
+      ],
+      "inputs": [
+        "idea-or-need"
+      ],
+      "outputs": [
+        "approved-spec"
+      ],
+      "aliases": {
+        "default": "discovery-workflow"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical",
       "resources": [
         {
           "source": "core/skills/discovery-workflow/references/brainstorming/brain-techniques.csv",
@@ -88,22 +437,3056 @@
           "source": "core/skills/discovery-workflow/references/workflows/prd-template.md",
           "output": "references/workflows/prd-template.md"
         }
+      ]
+    },
+    {
+      "id": "ds-doc",
+      "public_name": "ds-doc",
+      "type": "skill",
+      "source": "core/skills/ds-doc/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
       ],
-      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "ds-doc"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "elevenlabs",
+      "public_name": "elevenlabs",
+      "type": "skill",
+      "source": "core/skills/elevenlabs/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "elevenlabs"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/skills/elevenlabs/references/installation.md",
+          "output": "references/installation.md"
+        },
+        {
+          "source": "core/skills/elevenlabs/references/streaming.md",
+          "output": "references/streaming.md"
+        },
+        {
+          "source": "core/skills/elevenlabs/references/voice-settings.md",
+          "output": "references/voice-settings.md"
+        }
+      ]
+    },
+    {
+      "id": "elicitation",
+      "public_name": "elicitation",
+      "type": "skill",
+      "source": "core/skills/elicitation/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "elicitation"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/knowledge/brainstorming/elicitation-methods.csv",
+          "output": "references/knowledge/brainstorming/elicitation-methods.csv"
+        }
+      ]
+    },
+    {
+      "id": "figma-code-connect",
+      "public_name": "figma-code-connect",
+      "type": "skill",
+      "source": "core/skills/figma-code-connect/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "figma-code-connect"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/skills/figma-code-connect/references/advanced-patterns.md",
+          "output": "references/advanced-patterns.md"
+        },
+        {
+          "source": "core/skills/figma-code-connect/references/api.md",
+          "output": "references/api.md"
+        }
+      ]
+    },
+    {
+      "id": "figma-create-design-system-rules",
+      "public_name": "figma-create-design-system-rules",
+      "type": "skill",
+      "source": "core/skills/figma-create-design-system-rules/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "figma-create-design-system-rules"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "figma-create-new-file",
+      "public_name": "figma-create-new-file",
+      "type": "skill",
+      "source": "core/skills/figma-create-new-file/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "figma-create-new-file"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "figma-design-code-sync",
+      "public_name": "figma-design-code-sync",
+      "type": "skill",
+      "source": "core/skills/figma-design-code-sync/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "figma-design-code-sync"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "figma-generate-design",
+      "public_name": "figma-generate-design",
+      "type": "skill",
+      "source": "core/skills/figma-generate-design/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "figma-generate-design"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "figma-generate-library",
+      "public_name": "Figma design-system builder",
+      "type": "skill",
+      "source": "core/skills/figma-generate-library/SKILL.md",
+      "dependencies": [
+        "figma-use"
+      ],
+      "inputs": [
+        "codebase",
+        "figma-file",
+        "approved-phase"
+      ],
+      "outputs": [
+        "validated-design-system-phase"
+      ],
+      "aliases": {
+        "default": "figma-generate-library"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 4,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/skills/figma-generate-library/references/code-connect-setup.md",
+          "output": "references/code-connect-setup.md"
+        },
+        {
+          "source": "core/skills/figma-generate-library/references/component-creation.md",
+          "output": "references/component-creation.md"
+        },
+        {
+          "source": "core/skills/figma-generate-library/references/discovery-phase.md",
+          "output": "references/discovery-phase.md"
+        },
+        {
+          "source": "core/skills/figma-generate-library/references/documentation-creation.md",
+          "output": "references/documentation-creation.md"
+        },
+        {
+          "source": "core/skills/figma-generate-library/references/error-recovery.md",
+          "output": "references/error-recovery.md"
+        },
+        {
+          "source": "core/skills/figma-generate-library/references/naming-conventions.md",
+          "output": "references/naming-conventions.md"
+        },
+        {
+          "source": "core/skills/figma-generate-library/references/token-creation.md",
+          "output": "references/token-creation.md"
+        },
+        {
+          "source": "core/skills/figma-generate-library/scripts/bindVariablesToComponent.js",
+          "output": "scripts/bindVariablesToComponent.js"
+        },
+        {
+          "source": "core/skills/figma-generate-library/scripts/cleanupOrphans.js",
+          "output": "scripts/cleanupOrphans.js"
+        },
+        {
+          "source": "core/skills/figma-generate-library/scripts/createComponentWithVariants.js",
+          "output": "scripts/createComponentWithVariants.js"
+        },
+        {
+          "source": "core/skills/figma-generate-library/scripts/createDocumentationPage.js",
+          "output": "scripts/createDocumentationPage.js"
+        },
+        {
+          "source": "core/skills/figma-generate-library/scripts/createSemanticTokens.js",
+          "output": "scripts/createSemanticTokens.js"
+        },
+        {
+          "source": "core/skills/figma-generate-library/scripts/createVariableCollection.js",
+          "output": "scripts/createVariableCollection.js"
+        },
+        {
+          "source": "core/skills/figma-generate-library/scripts/inspectFileStructure.js",
+          "output": "scripts/inspectFileStructure.js"
+        },
+        {
+          "source": "core/skills/figma-generate-library/scripts/rehydrateState.js",
+          "output": "scripts/rehydrateState.js"
+        },
+        {
+          "source": "core/skills/figma-generate-library/scripts/validateCreation.js",
+          "output": "scripts/validateCreation.js"
+        }
+      ]
+    },
+    {
+      "id": "figma-implement-design",
+      "public_name": "figma-implement-design",
+      "type": "skill",
+      "source": "core/skills/figma-implement-design/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "figma-implement-design"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "figma-use",
+      "public_name": "Figma Plugin API",
+      "type": "skill",
+      "source": "core/skills/figma-use/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "figma-task"
+      ],
+      "outputs": [
+        "validated-figma-operation"
+      ],
+      "aliases": {
+        "default": "figma-use"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 4,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/skills/figma-use/references/api-reference.md",
+          "output": "references/api-reference.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/common-patterns.md",
+          "output": "references/common-patterns.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/component-patterns.md",
+          "output": "references/component-patterns.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/effect-style-patterns.md",
+          "output": "references/effect-style-patterns.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/gotchas.md",
+          "output": "references/gotchas.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/plugin-api-patterns.md",
+          "output": "references/plugin-api-patterns.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/plugin-api-standalone.d.ts",
+          "output": "references/plugin-api-standalone.d.ts"
+        },
+        {
+          "source": "core/skills/figma-use/references/plugin-api-standalone.index.md",
+          "output": "references/plugin-api-standalone.index.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/text-style-patterns.md",
+          "output": "references/text-style-patterns.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/validation-and-recovery.md",
+          "output": "references/validation-and-recovery.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/variable-patterns.md",
+          "output": "references/variable-patterns.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/working-with-design-systems/wwds-components--creating.md",
+          "output": "references/working-with-design-systems/wwds-components--creating.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/working-with-design-systems/wwds-components--using.md",
+          "output": "references/working-with-design-systems/wwds-components--using.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/working-with-design-systems/wwds-components.md",
+          "output": "references/working-with-design-systems/wwds-components.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/working-with-design-systems/wwds-effect-styles.md",
+          "output": "references/working-with-design-systems/wwds-effect-styles.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/working-with-design-systems/wwds-text-styles.md",
+          "output": "references/working-with-design-systems/wwds-text-styles.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/working-with-design-systems/wwds-variables--creating.md",
+          "output": "references/working-with-design-systems/wwds-variables--creating.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/working-with-design-systems/wwds-variables--using.md",
+          "output": "references/working-with-design-systems/wwds-variables--using.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/working-with-design-systems/wwds-variables.md",
+          "output": "references/working-with-design-systems/wwds-variables.md"
+        },
+        {
+          "source": "core/skills/figma-use/references/working-with-design-systems/wwds.md",
+          "output": "references/working-with-design-systems/wwds.md"
+        }
+      ]
+    },
+    {
+      "id": "github-issue-reader",
+      "public_name": "github-issue-reader",
+      "type": "skill",
+      "source": "core/skills/github-issue-reader/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "github-issue-reader"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "gpt-tasteskill",
+      "public_name": "gpt-taste",
+      "type": "skill",
+      "source": "core/skills/gpt-tasteskill/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "gpt-tasteskill"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "idea-brainstorm",
+      "public_name": "idea-brainstorm",
+      "type": "skill",
+      "source": "core/skills/idea-brainstorm/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "idea-brainstorm"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/knowledge/brainstorming/brain-techniques.csv",
+          "output": "references/knowledge/brainstorming/brain-techniques.csv"
+        }
+      ]
+    },
+    {
+      "id": "images-taste-skill",
+      "public_name": "image-taste-frontend",
+      "type": "skill",
+      "source": "core/skills/images-taste-skill/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "images-taste-skill"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "landing-copy",
+      "public_name": "landing-copy",
+      "type": "skill",
+      "source": "core/skills/landing-copy/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "landing-copy"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "llm-wiki",
+      "public_name": "llm-wiki",
+      "type": "skill",
+      "source": "core/skills/llm-wiki/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "llm-wiki"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/skills/llm-wiki/.claude-plugin/plugin.json",
+          "output": ".claude-plugin/plugin.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/README.md",
+          "output": "README.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/agents/wiki-ingestor.md",
+          "output": "agents/wiki-ingestor.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/agents/wiki-librarian.md",
+          "output": "agents/wiki-librarian.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/agents/wiki-linter.md",
+          "output": "agents/wiki-linter.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/AGENTS.md.template",
+          "output": "assets/AGENTS.md.template"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/CLAUDE.md.template",
+          "output": "assets/CLAUDE.md.template"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/cursorrules.template",
+          "output": "assets/cursorrules.template"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/example-vault/README.md",
+          "output": "assets/example-vault/README.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/example-vault/wiki/concepts/sparse-autoencoder.md",
+          "output": "assets/example-vault/wiki/concepts/sparse-autoencoder.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/example-vault/wiki/entities/anthropic.md",
+          "output": "assets/example-vault/wiki/entities/anthropic.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/example-vault/wiki/index.md",
+          "output": "assets/example-vault/wiki/index.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/example-vault/wiki/log.md",
+          "output": "assets/example-vault/wiki/log.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/example-vault/wiki/sources/monosemanticity.md",
+          "output": "assets/example-vault/wiki/sources/monosemanticity.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/example-vault/wiki/synthesis/interpretability-overview.md",
+          "output": "assets/example-vault/wiki/synthesis/interpretability-overview.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/index.md.template",
+          "output": "assets/index.md.template"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/log.md.template",
+          "output": "assets/log.md.template"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/page-templates/comparison.md",
+          "output": "assets/page-templates/comparison.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/page-templates/concept.md",
+          "output": "assets/page-templates/concept.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/page-templates/entity.md",
+          "output": "assets/page-templates/entity.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/page-templates/source-summary.md",
+          "output": "assets/page-templates/source-summary.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/assets/page-templates/synthesis.md",
+          "output": "assets/page-templates/synthesis.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/bin/memory",
+          "output": "bin/memory"
+        },
+        {
+          "source": "core/skills/llm-wiki/commands/wiki-capture-session.md",
+          "output": "commands/wiki-capture-session.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/commands/wiki-ingest.md",
+          "output": "commands/wiki-ingest.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/commands/wiki-init.md",
+          "output": "commands/wiki-init.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/commands/wiki-lint.md",
+          "output": "commands/wiki-lint.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/commands/wiki-log.md",
+          "output": "commands/wiki-log.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/commands/wiki-query.md",
+          "output": "commands/wiki-query.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/README.md",
+          "output": "expected_outputs/README.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/append_log.json",
+          "output": "expected_outputs/append_log.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/export_marp.json",
+          "output": "expected_outputs/export_marp.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/graph_analyzer.json",
+          "output": "expected_outputs/graph_analyzer.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/ingest_source.json",
+          "output": "expected_outputs/ingest_source.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/init_vault.json",
+          "output": "expected_outputs/init_vault.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/lint_wiki.json",
+          "output": "expected_outputs/lint_wiki.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/configure-degraded.json",
+          "output": "expected_outputs/memory/configure-degraded.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/configure-ready.json",
+          "output": "expected_outputs/memory/configure-ready.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/context-degraded.json",
+          "output": "expected_outputs/memory/context-degraded.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/context-ready.json",
+          "output": "expected_outputs/memory/context-ready.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/context-receipts-human.txt",
+          "output": "expected_outputs/memory/context-receipts-human.txt"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/doctor-ready.json",
+          "output": "expected_outputs/memory/doctor-ready.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/finish-conflict-human.txt",
+          "output": "expected_outputs/memory/finish-conflict-human.txt"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/finish-conflict.json",
+          "output": "expected_outputs/memory/finish-conflict.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/finish-ready.json",
+          "output": "expected_outputs/memory/finish-ready.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/finish-receipt-human.txt",
+          "output": "expected_outputs/memory/finish-receipt-human.txt"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/manifest-invalid-version.json",
+          "output": "expected_outputs/memory/manifest-invalid-version.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/manifest-valid.json",
+          "output": "expected_outputs/memory/manifest-valid.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/purge-ready.json",
+          "output": "expected_outputs/memory/purge-ready.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/report-weekly-human.txt",
+          "output": "expected_outputs/memory/report-weekly-human.txt"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/report-weekly.json",
+          "output": "expected_outputs/memory/report-weekly.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/report-weekly.md",
+          "output": "expected_outputs/memory/report-weekly.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/test-gate-pass.json",
+          "output": "expected_outputs/memory/test-gate-pass.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/test-quality-recorded.json",
+          "output": "expected_outputs/memory/test-quality-recorded.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/memory/test-ready.json",
+          "output": "expected_outputs/memory/test-ready.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/update_index.json",
+          "output": "expected_outputs/update_index.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/expected_outputs/wiki_search.json",
+          "output": "expected_outputs/wiki_search.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__init__.py",
+          "output": "memory_cli/__init__.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__main__.py",
+          "output": "memory_cli/__main__.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/__init__.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/__init__.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/__init__.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/__init__.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/__main__.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/__main__.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/__main__.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/__main__.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/assembly.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/assembly.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/assembly.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/assembly.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/cli.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/cli.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/cli.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/cli.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/conflicts.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/conflicts.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/conflicts.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/conflicts.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/context.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/context.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/context.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/context.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/contracts.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/contracts.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/contracts.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/contracts.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/doctor.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/doctor.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/doctor.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/doctor.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/events.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/events.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/events.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/events.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/freshness.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/freshness.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/freshness.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/freshness.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/golden.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/golden.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/golden.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/golden.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/manifest.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/manifest.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/manifest.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/manifest.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/measurement.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/measurement.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/measurement.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/measurement.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/projection.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/projection.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/projection.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/projection.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/qmd_adapter.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/qmd_adapter.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/qmd_adapter.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/qmd_adapter.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/quality.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/quality.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/quality.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/quality.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/receipts.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/receipts.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/receipts.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/receipts.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/render_human.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/render_human.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/render_human.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/render_human.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/render_json.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/render_json.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/render_json.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/render_json.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/render_markdown.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/render_markdown.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/render_markdown.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/render_markdown.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/report.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/report.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/report.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/report.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/report_commands.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/report_commands.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/report_commands.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/report_commands.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/repository_contracts.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/repository_contracts.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/repository_contracts.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/repository_contracts.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/routing.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/routing.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/routing.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/routing.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/session_events.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/session_events.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/session_events.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/session_events.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/sufficiency.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/sufficiency.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/sufficiency.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/sufficiency.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/test_commands.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/test_commands.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/test_commands.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/test_commands.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/tokens.cpython-312.pyc",
+          "output": "memory_cli/__pycache__/tokens.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/__pycache__/tokens.cpython-314.pyc",
+          "output": "memory_cli/__pycache__/tokens.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/assembly.py",
+          "output": "memory_cli/assembly.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/cli.py",
+          "output": "memory_cli/cli.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/conflicts.py",
+          "output": "memory_cli/conflicts.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/context.py",
+          "output": "memory_cli/context.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/contracts.py",
+          "output": "memory_cli/contracts.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/doctor.py",
+          "output": "memory_cli/doctor.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/events.py",
+          "output": "memory_cli/events.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/freshness.py",
+          "output": "memory_cli/freshness.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/golden.py",
+          "output": "memory_cli/golden.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/manifest.py",
+          "output": "memory_cli/manifest.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/measurement.py",
+          "output": "memory_cli/measurement.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/projection.py",
+          "output": "memory_cli/projection.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/qmd_adapter.py",
+          "output": "memory_cli/qmd_adapter.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/quality.py",
+          "output": "memory_cli/quality.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/receipts.py",
+          "output": "memory_cli/receipts.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/render_human.py",
+          "output": "memory_cli/render_human.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/render_json.py",
+          "output": "memory_cli/render_json.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/render_markdown.py",
+          "output": "memory_cli/render_markdown.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/report.py",
+          "output": "memory_cli/report.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/report_commands.py",
+          "output": "memory_cli/report_commands.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/repository_contracts.py",
+          "output": "memory_cli/repository_contracts.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/routing.py",
+          "output": "memory_cli/routing.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/session_events.py",
+          "output": "memory_cli/session_events.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/sufficiency.py",
+          "output": "memory_cli/sufficiency.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/test_commands.py",
+          "output": "memory_cli/test_commands.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/memory_cli/tokens.py",
+          "output": "memory_cli/tokens.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/references/cross-tool-setup.md",
+          "output": "references/cross-tool-setup.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/references/ingest-workflow.md",
+          "output": "references/ingest-workflow.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/references/lint-workflow.md",
+          "output": "references/lint-workflow.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/references/memex-principles.md",
+          "output": "references/memex-principles.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/references/obsidian-setup.md",
+          "output": "references/obsidian-setup.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/references/page-formats.md",
+          "output": "references/page-formats.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/references/query-workflow.md",
+          "output": "references/query-workflow.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/references/wiki-schema.md",
+          "output": "references/wiki-schema.md"
+        },
+        {
+          "source": "core/skills/llm-wiki/scripts/__pycache__/managed_sections.cpython-312.pyc",
+          "output": "scripts/__pycache__/managed_sections.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/scripts/__pycache__/update_index.cpython-312.pyc",
+          "output": "scripts/__pycache__/update_index.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/scripts/append_log.py",
+          "output": "scripts/append_log.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/scripts/export_marp.py",
+          "output": "scripts/export_marp.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/scripts/graph_analyzer.py",
+          "output": "scripts/graph_analyzer.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/scripts/ingest_source.py",
+          "output": "scripts/ingest_source.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/scripts/init_vault.py",
+          "output": "scripts/init_vault.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/scripts/lint_wiki.py",
+          "output": "scripts/lint_wiki.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/scripts/managed_sections.py",
+          "output": "scripts/managed_sections.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/scripts/update_index.py",
+          "output": "scripts/update_index.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/scripts/wiki_search.py",
+          "output": "scripts/wiki_search.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/__init__.py",
+          "output": "tests/__init__.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/__pycache__/__init__.cpython-312.pyc",
+          "output": "tests/__pycache__/__init__.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__init__.py",
+          "output": "tests/contract/__init__.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/__init__.cpython-312.pyc",
+          "output": "tests/contract/__pycache__/__init__.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/__init__.cpython-314.pyc",
+          "output": "tests/contract/__pycache__/__init__.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_configure_cli.cpython-312.pyc",
+          "output": "tests/contract/__pycache__/test_configure_cli.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_configure_cli.cpython-314.pyc",
+          "output": "tests/contract/__pycache__/test_configure_cli.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_context_receipts.cpython-312.pyc",
+          "output": "tests/contract/__pycache__/test_context_receipts.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_context_receipts.cpython-314.pyc",
+          "output": "tests/contract/__pycache__/test_context_receipts.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_doctor_cli.cpython-312.pyc",
+          "output": "tests/contract/__pycache__/test_doctor_cli.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_doctor_cli.cpython-314.pyc",
+          "output": "tests/contract/__pycache__/test_doctor_cli.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_event_contract.cpython-312.pyc",
+          "output": "tests/contract/__pycache__/test_event_contract.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_event_contract.cpython-314.pyc",
+          "output": "tests/contract/__pycache__/test_event_contract.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_finish_receipts.cpython-312.pyc",
+          "output": "tests/contract/__pycache__/test_finish_receipts.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_finish_receipts.cpython-314.pyc",
+          "output": "tests/contract/__pycache__/test_finish_receipts.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_golden_contract.cpython-312.pyc",
+          "output": "tests/contract/__pycache__/test_golden_contract.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_golden_contract.cpython-314.pyc",
+          "output": "tests/contract/__pycache__/test_golden_contract.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_manifest_cli.cpython-312.pyc",
+          "output": "tests/contract/__pycache__/test_manifest_cli.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_manifest_cli.cpython-314.pyc",
+          "output": "tests/contract/__pycache__/test_manifest_cli.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_story_015_contract.cpython-312.pyc",
+          "output": "tests/contract/__pycache__/test_story_015_contract.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_story_015_contract.cpython-314.pyc",
+          "output": "tests/contract/__pycache__/test_story_015_contract.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_story_016_contract.cpython-312.pyc",
+          "output": "tests/contract/__pycache__/test_story_016_contract.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_story_016_contract.cpython-314.pyc",
+          "output": "tests/contract/__pycache__/test_story_016_contract.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_story_018_pilot.cpython-312.pyc",
+          "output": "tests/contract/__pycache__/test_story_018_pilot.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_story_018_pilot.cpython-314.pyc",
+          "output": "tests/contract/__pycache__/test_story_018_pilot.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_task_first_instructions.cpython-312.pyc",
+          "output": "tests/contract/__pycache__/test_task_first_instructions.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/__pycache__/test_task_first_instructions.cpython-314.pyc",
+          "output": "tests/contract/__pycache__/test_task_first_instructions.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/test_configure_cli.py",
+          "output": "tests/contract/test_configure_cli.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/test_context_receipts.py",
+          "output": "tests/contract/test_context_receipts.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/test_doctor_cli.py",
+          "output": "tests/contract/test_doctor_cli.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/test_event_contract.py",
+          "output": "tests/contract/test_event_contract.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/test_finish_receipts.py",
+          "output": "tests/contract/test_finish_receipts.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/test_golden_contract.py",
+          "output": "tests/contract/test_golden_contract.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/test_manifest_cli.py",
+          "output": "tests/contract/test_manifest_cli.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/test_story_015_contract.py",
+          "output": "tests/contract/test_story_015_contract.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/test_story_016_contract.py",
+          "output": "tests/contract/test_story_016_contract.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/test_story_018_pilot.py",
+          "output": "tests/contract/test_story_018_pilot.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/contract/test_task_first_instructions.py",
+          "output": "tests/contract/test_task_first_instructions.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/fixtures/golden-v1/valid.json",
+          "output": "tests/fixtures/golden-v1/valid.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/fixtures/holdout-v1/valid.json",
+          "output": "tests/fixtures/holdout-v1/valid.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/fixtures/manifest-v1/free-yaml.yaml",
+          "output": "tests/fixtures/manifest-v1/free-yaml.yaml"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/fixtures/manifest-v1/valid.json",
+          "output": "tests/fixtures/manifest-v1/valid.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/fixtures/qmd-0.9/search-invalid.json",
+          "output": "tests/fixtures/qmd-0.9/search-invalid.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/fixtures/qmd-0.9/search-results.json",
+          "output": "tests/fixtures/qmd-0.9/search-results.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/fixtures/qmd-0.9/status-malformed.txt",
+          "output": "tests/fixtures/qmd-0.9/status-malformed.txt"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/fixtures/qmd-0.9/status.txt",
+          "output": "tests/fixtures/qmd-0.9/status.txt"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/fixtures/qmd-0.9/version.txt",
+          "output": "tests/fixtures/qmd-0.9/version.txt"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/fixtures/quality-v1/record.json",
+          "output": "tests/fixtures/quality-v1/record.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/fixtures/quality-v1/rubric.json",
+          "output": "tests/fixtures/quality-v1/rubric.json"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/__init__.py",
+          "output": "tests/integration/__init__.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/__pycache__/__init__.cpython-312.pyc",
+          "output": "tests/integration/__pycache__/__init__.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/__pycache__/__init__.cpython-314.pyc",
+          "output": "tests/integration/__pycache__/__init__.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/__pycache__/test_context_cli.cpython-312.pyc",
+          "output": "tests/integration/__pycache__/test_context_cli.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/__pycache__/test_context_cli.cpython-314.pyc",
+          "output": "tests/integration/__pycache__/test_context_cli.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/__pycache__/test_event_store_cli.cpython-312.pyc",
+          "output": "tests/integration/__pycache__/test_event_store_cli.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/__pycache__/test_event_store_cli.cpython-314.pyc",
+          "output": "tests/integration/__pycache__/test_event_store_cli.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/__pycache__/test_golden_cli.cpython-312.pyc",
+          "output": "tests/integration/__pycache__/test_golden_cli.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/__pycache__/test_golden_cli.cpython-314.pyc",
+          "output": "tests/integration/__pycache__/test_golden_cli.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/__pycache__/test_memory_conflicts_cli.cpython-312.pyc",
+          "output": "tests/integration/__pycache__/test_memory_conflicts_cli.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/__pycache__/test_memory_conflicts_cli.cpython-314.pyc",
+          "output": "tests/integration/__pycache__/test_memory_conflicts_cli.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/__pycache__/test_weekly_report_cli.cpython-312.pyc",
+          "output": "tests/integration/__pycache__/test_weekly_report_cli.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/__pycache__/test_weekly_report_cli.cpython-314.pyc",
+          "output": "tests/integration/__pycache__/test_weekly_report_cli.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/test_context_cli.py",
+          "output": "tests/integration/test_context_cli.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/test_event_store_cli.py",
+          "output": "tests/integration/test_event_store_cli.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/test_golden_cli.py",
+          "output": "tests/integration/test_golden_cli.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/test_memory_conflicts_cli.py",
+          "output": "tests/integration/test_memory_conflicts_cli.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/integration/test_weekly_report_cli.py",
+          "output": "tests/integration/test_weekly_report_cli.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__init__.py",
+          "output": "tests/unit/__init__.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/__init__.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/__init__.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/__init__.cpython-314.pyc",
+          "output": "tests/unit/__pycache__/__init__.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_conflicts.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/test_conflicts.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_conflicts.cpython-314.pyc",
+          "output": "tests/unit/__pycache__/test_conflicts.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_context_assembly.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/test_context_assembly.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_context_assembly.cpython-314.pyc",
+          "output": "tests/unit/__pycache__/test_context_assembly.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_events.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/test_events.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_events.cpython-314.pyc",
+          "output": "tests/unit/__pycache__/test_events.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_golden.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/test_golden.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_golden.cpython-314.pyc",
+          "output": "tests/unit/__pycache__/test_golden.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_managed_sections.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/test_managed_sections.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_manifest.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/test_manifest.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_manifest.cpython-314.pyc",
+          "output": "tests/unit/__pycache__/test_manifest.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_projection.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/test_projection.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_projection.cpython-314.pyc",
+          "output": "tests/unit/__pycache__/test_projection.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_qmd_adapter.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/test_qmd_adapter.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_qmd_adapter.cpython-314.pyc",
+          "output": "tests/unit/__pycache__/test_qmd_adapter.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_story_015_gate.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/test_story_015_gate.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_story_015_gate.cpython-314.pyc",
+          "output": "tests/unit/__pycache__/test_story_015_gate.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_story_015_holdout.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/test_story_015_holdout.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_story_015_holdout.cpython-314.pyc",
+          "output": "tests/unit/__pycache__/test_story_015_holdout.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_story_015_quality.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/test_story_015_quality.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_story_015_quality.cpython-314.pyc",
+          "output": "tests/unit/__pycache__/test_story_015_quality.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_story_016_report.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/test_story_016_report.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_story_016_report.cpython-314.pyc",
+          "output": "tests/unit/__pycache__/test_story_016_report.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_story_017_contracts.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/test_story_017_contracts.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_story_017_contracts.cpython-314.pyc",
+          "output": "tests/unit/__pycache__/test_story_017_contracts.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_sufficiency.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/test_sufficiency.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_sufficiency.cpython-314.pyc",
+          "output": "tests/unit/__pycache__/test_sufficiency.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_tokens.cpython-312.pyc",
+          "output": "tests/unit/__pycache__/test_tokens.cpython-312.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/__pycache__/test_tokens.cpython-314.pyc",
+          "output": "tests/unit/__pycache__/test_tokens.cpython-314.pyc"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/test_conflicts.py",
+          "output": "tests/unit/test_conflicts.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/test_context_assembly.py",
+          "output": "tests/unit/test_context_assembly.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/test_events.py",
+          "output": "tests/unit/test_events.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/test_golden.py",
+          "output": "tests/unit/test_golden.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/test_managed_sections.py",
+          "output": "tests/unit/test_managed_sections.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/test_manifest.py",
+          "output": "tests/unit/test_manifest.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/test_projection.py",
+          "output": "tests/unit/test_projection.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/test_qmd_adapter.py",
+          "output": "tests/unit/test_qmd_adapter.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/test_story_015_gate.py",
+          "output": "tests/unit/test_story_015_gate.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/test_story_015_holdout.py",
+          "output": "tests/unit/test_story_015_holdout.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/test_story_015_quality.py",
+          "output": "tests/unit/test_story_015_quality.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/test_story_016_report.py",
+          "output": "tests/unit/test_story_016_report.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/test_story_017_contracts.py",
+          "output": "tests/unit/test_story_017_contracts.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/test_sufficiency.py",
+          "output": "tests/unit/test_sufficiency.py"
+        },
+        {
+          "source": "core/skills/llm-wiki/tests/unit/test_tokens.py",
+          "output": "tests/unit/test_tokens.py"
+        }
+      ]
+    },
+    {
+      "id": "minimalist-skill",
+      "public_name": "minimalist-ui",
+      "type": "skill",
+      "source": "core/skills/minimalist-skill/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "minimalist-skill"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "multi-mind",
+      "public_name": "multi-mind",
+      "type": "skill",
+      "source": "core/skills/multi-mind/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "multi-mind"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/knowledge/multi-mind/agent-personalities.md",
+          "output": "references/knowledge/multi-mind/agent-personalities.md"
+        },
+        {
+          "source": "core/knowledge/multi-mind/debate-templates.md",
+          "output": "references/knowledge/multi-mind/debate-templates.md"
+        }
+      ]
+    },
+    {
+      "id": "orchestrate",
+      "public_name": "orchestrate",
+      "type": "skill",
+      "source": "core/skills/orchestrate/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "orchestrate"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
       "risk": 3,
       "migration_state": "canonical"
+    },
+    {
+      "id": "output-skill",
+      "public_name": "full-output-enforcement",
+      "type": "skill",
+      "source": "core/skills/output-skill/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "output-skill"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "performance-auditor",
+      "public_name": "performance-auditor",
+      "type": "skill",
+      "source": "core/skills/performance-auditor/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "performance-auditor"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "pm-prd",
+      "public_name": "pm-prd",
+      "type": "skill",
+      "source": "core/skills/pm-prd/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "pm-prd"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "pm-stories",
+      "public_name": "pm-stories",
+      "type": "skill",
+      "source": "core/skills/pm-stories/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "pm-stories"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "product-microcopy",
+      "public_name": "product-microcopy",
+      "type": "skill",
+      "source": "core/skills/product-microcopy/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "product-microcopy"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "project-probe",
+      "public_name": "Project probe",
+      "type": "skill",
+      "source": "core/skills/project-probe/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "repository"
+      ],
+      "outputs": [
+        "verification-manifest"
+      ],
+      "aliases": {
+        "default": "project-probe"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "qmd",
+      "public_name": "qmd",
+      "type": "skill",
+      "source": "core/skills/qmd/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "qmd"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/skills/qmd/references/mcp-setup.md",
+          "output": "references/mcp-setup.md"
+        }
+      ]
+    },
+    {
+      "id": "quality-gate",
+      "public_name": "Quality gate",
+      "type": "skill",
+      "source": "core/skills/quality-gate/SKILL.md",
+      "dependencies": [
+        "project-probe"
+      ],
+      "inputs": [
+        "committed-diff",
+        "verification-manifest"
+      ],
+      "outputs": [
+        "gate-envelope",
+        "proof-payload"
+      ],
+      "aliases": {
+        "default": "quality-gate"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 4,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "redesign-skill",
+      "public_name": "redesign-existing-projects",
+      "type": "skill",
+      "source": "core/skills/redesign-skill/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "redesign-skill"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "remotion",
+      "public_name": "remotion",
+      "type": "skill",
+      "source": "core/skills/remotion/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "remotion"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/skills/remotion/rules/3d.md",
+          "output": "rules/3d.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/animations.md",
+          "output": "rules/animations.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/assets.md",
+          "output": "rules/assets.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/assets/charts-bar-chart.tsx",
+          "output": "rules/assets/charts-bar-chart.tsx"
+        },
+        {
+          "source": "core/skills/remotion/rules/assets/text-animations-typewriter.tsx",
+          "output": "rules/assets/text-animations-typewriter.tsx"
+        },
+        {
+          "source": "core/skills/remotion/rules/assets/text-animations-word-highlight.tsx",
+          "output": "rules/assets/text-animations-word-highlight.tsx"
+        },
+        {
+          "source": "core/skills/remotion/rules/audio-visualization.md",
+          "output": "rules/audio-visualization.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/audio.md",
+          "output": "rules/audio.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/calculate-metadata.md",
+          "output": "rules/calculate-metadata.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/can-decode.md",
+          "output": "rules/can-decode.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/charts.md",
+          "output": "rules/charts.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/compositions.md",
+          "output": "rules/compositions.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/display-captions.md",
+          "output": "rules/display-captions.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/extract-frames.md",
+          "output": "rules/extract-frames.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/ffmpeg.md",
+          "output": "rules/ffmpeg.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/fonts.md",
+          "output": "rules/fonts.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/get-audio-duration.md",
+          "output": "rules/get-audio-duration.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/get-video-dimensions.md",
+          "output": "rules/get-video-dimensions.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/get-video-duration.md",
+          "output": "rules/get-video-duration.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/gifs.md",
+          "output": "rules/gifs.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/images.md",
+          "output": "rules/images.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/import-srt-captions.md",
+          "output": "rules/import-srt-captions.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/light-leaks.md",
+          "output": "rules/light-leaks.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/lottie.md",
+          "output": "rules/lottie.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/maps.md",
+          "output": "rules/maps.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/measuring-dom-nodes.md",
+          "output": "rules/measuring-dom-nodes.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/measuring-text.md",
+          "output": "rules/measuring-text.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/parameters.md",
+          "output": "rules/parameters.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/sequencing.md",
+          "output": "rules/sequencing.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/sfx.md",
+          "output": "rules/sfx.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/subtitles.md",
+          "output": "rules/subtitles.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/tailwind.md",
+          "output": "rules/tailwind.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/text-animations.md",
+          "output": "rules/text-animations.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/timing.md",
+          "output": "rules/timing.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/transcribe-captions.md",
+          "output": "rules/transcribe-captions.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/transitions.md",
+          "output": "rules/transitions.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/transparent-videos.md",
+          "output": "rules/transparent-videos.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/trimming.md",
+          "output": "rules/trimming.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/videos.md",
+          "output": "rules/videos.md"
+        },
+        {
+          "source": "core/skills/remotion/rules/voiceover.md",
+          "output": "rules/voiceover.md"
+        }
+      ]
+    },
+    {
+      "id": "rodin",
+      "public_name": "rodin",
+      "type": "skill",
+      "source": "core/skills/rodin/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "rodin"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/skills/rodin/agents/openai.yaml",
+          "output": "agents/openai.yaml"
+        }
+      ]
+    },
+    {
+      "id": "security-auditor",
+      "public_name": "security-auditor",
+      "type": "skill",
+      "source": "core/skills/security-auditor/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "security-auditor"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 4,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "seo-geo-audit",
+      "public_name": "seo-geo-audit",
+      "type": "skill",
+      "source": "core/skills/seo-geo-audit/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "seo-geo-audit"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/skills/seo-geo-audit/agents/openai.yaml",
+          "output": "agents/openai.yaml"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/migrations/legacy-v1-sha256.txt",
+          "output": "migrations/legacy-v1-sha256.txt"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/migrations/pre-neutral-v3-sha256.txt",
+          "output": "migrations/pre-neutral-v3-sha256.txt"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/CHANGELOG.md",
+          "output": "references/seo-geo-v3/CHANGELOG.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/KIT_MANIFEST.json",
+          "output": "references/seo-geo-v3/KIT_MANIFEST.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/SKILL.md",
+          "output": "references/seo-geo-v3/SKILL.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/SKILLZ_PATCHES.md",
+          "output": "references/seo-geo-v3/SKILLZ_PATCHES.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/START_HERE.md",
+          "output": "references/seo-geo-v3/START_HERE.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/VERSION.json",
+          "output": "references/seo-geo-v3/VERSION.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/agents/openai.yaml",
+          "output": "references/seo-geo-v3/agents/openai.yaml"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/core/00_REGLES_COMMUNES_V3.md",
+          "output": "references/seo-geo-v3/core/00_REGLES_COMMUNES_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/core/01_MASTER_ORCHESTRATOR_V3.md",
+          "output": "references/seo-geo-v3/core/01_MASTER_ORCHESTRATOR_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/core/AGENTS_MANIFEST.json",
+          "output": "references/seo-geo-v3/core/AGENTS_MANIFEST.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/core/README.md",
+          "output": "references/seo-geo-v3/core/README.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/core/agents/01_Data_Collector_V3.md",
+          "output": "references/seo-geo-v3/core/agents/01_Data_Collector_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/core/agents/02_Strategie_Positionnement_SEO_GEO_V3.md",
+          "output": "references/seo-geo-v3/core/agents/02_Strategie_Positionnement_SEO_GEO_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/core/agents/03_Audit_On_Page_V3.md",
+          "output": "references/seo-geo-v3/core/agents/03_Audit_On_Page_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/core/agents/04_Demande_Intention_V3.md",
+          "output": "references/seo-geo-v3/core/agents/04_Demande_Intention_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/core/agents/05_Analyse_Concurrentielle_V3.md",
+          "output": "references/seo-geo-v3/core/agents/05_Analyse_Concurrentielle_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/core/agents/06_Contenu_SEO_GEO_V3.md",
+          "output": "references/seo-geo-v3/core/agents/06_Contenu_SEO_GEO_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/core/agents/07_SEO_Technique_Donnees_Structurees_V3.md",
+          "output": "references/seo-geo-v3/core/agents/07_SEO_Technique_Donnees_Structurees_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/core/agents/08_Autorite_Marque_SEO_Local_V3.md",
+          "output": "references/seo-geo-v3/core/agents/08_Autorite_Marque_SEO_Local_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/core/agents/09_GEO_Observatory_Plan_Action_V3.md",
+          "output": "references/seo-geo-v3/core/agents/09_GEO_Observatory_Plan_Action_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/core/agents/10_QA_Adversarial_V3.md",
+          "output": "references/seo-geo-v3/core/agents/10_QA_Adversarial_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/core/agents/11_Master_Final_Report_V3.md",
+          "output": "references/seo-geo-v3/core/agents/11_Master_Final_Report_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/docs/INSTALLATION.md",
+          "output": "references/seo-geo-v3/docs/INSTALLATION.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/extensions/12_Redacteur_Contenu_V3.md",
+          "output": "references/seo-geo-v3/extensions/12_Redacteur_Contenu_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/extensions/13_Audit_Express_V3.md",
+          "output": "references/seo-geo-v3/extensions/13_Audit_Express_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/extensions/14_Audit_Page_Unique_V3.md",
+          "output": "references/seo-geo-v3/extensions/14_Audit_Page_Unique_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/extensions/15_Delta_Re_Audit_V3.md",
+          "output": "references/seo-geo-v3/extensions/15_Delta_Re_Audit_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/extensions/16_GEO_International_V3.md",
+          "output": "references/seo-geo-v3/extensions/16_GEO_International_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/extensions/17_Generateur_llms_txt_V3.md",
+          "output": "references/seo-geo-v3/extensions/17_Generateur_llms_txt_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/extensions/18_Compagnon_Implementation_V3.md",
+          "output": "references/seo-geo-v3/extensions/18_Compagnon_Implementation_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/extensions/19_Tracker_Mensuel_V3.md",
+          "output": "references/seo-geo-v3/extensions/19_Tracker_Mensuel_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/extensions/20_Acquisition_Sources_Externes_V3.md",
+          "output": "references/seo-geo-v3/extensions/20_Acquisition_Sources_Externes_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/extensions/21_Connecteurs_Mesure_V3.md",
+          "output": "references/seo-geo-v3/extensions/21_Connecteurs_Mesure_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/extensions/README.md",
+          "output": "references/seo-geo-v3/extensions/README.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/install.py",
+          "output": "references/seo-geo-v3/install.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/SKILL.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/SKILL.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/agents/openai.yaml",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/agents/openai.yaml"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/default_theme.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/default_theme.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/Inter-latin-ext.woff2",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/Inter-latin-ext.woff2"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/Inter-latin.woff2",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/Inter-latin.woff2"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/JetBrainsMono-latin-ext.woff2",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/JetBrainsMono-latin-ext.woff2"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/JetBrainsMono-latin.woff2",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/JetBrainsMono-latin.woff2"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/OFL-Inter.txt",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/OFL-Inter.txt"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/OFL-JetBrainsMono.txt",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/OFL-JetBrainsMono.txt"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/README.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/README.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/fonts.css",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/fonts/fonts.css"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/VERSION.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/VERSION.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/schemas/actions.schema.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/schemas/actions.schema.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/schemas/audit_manifest.schema.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/schemas/audit_manifest.schema.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/schemas/events.schema.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/schemas/events.schema.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/schemas/evidence.schema.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/schemas/evidence.schema.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/schemas/facts.schema.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/schemas/facts.schema.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/schemas/findings.schema.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/schemas/findings.schema.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/schemas/geo_run.schema.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/schemas/geo_run.schema.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/actions.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/actions.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/audit_manifest.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/audit_manifest.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/client.yaml",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/client.yaml"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/events.jsonl",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/events.jsonl"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/evidence.jsonl",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/evidence.jsonl"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/facts.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/facts.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/findings.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/findings.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/geo_runs/geo_example_chatgpt_001.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/geo_runs/geo_example_chatgpt_001.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/raw/homepage.html",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/assets/kit/templates/project/raw/homepage.html"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/package-lock.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/package-lock.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/package.json",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/package.json"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/advanced_features.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/advanced_features.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/architecture.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/architecture.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/data_model.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/data_model.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/product/connectors_measurement.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/product/connectors_measurement.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/product/rules_registry.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/product/rules_registry.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/product/security_governance.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/product/security_governance.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/product/vertical_packs.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/product/vertical_packs.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/product/white_label_accessibility.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/product/white_label_accessibility.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/qa_acceptance.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/qa_acceptance.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/scoring_v3.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/scoring_v3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/workflows/01_intake_digital_twin.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/workflows/01_intake_digital_twin.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/workflows/02_collecte_preuves.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/workflows/02_collecte_preuves.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/workflows/03_audit_technique.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/workflows/03_audit_technique.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/workflows/04_demande_strategie.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/workflows/04_demande_strategie.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/workflows/05_contenu.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/workflows/05_contenu.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/workflows/06_autorite_local.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/workflows/06_autorite_local.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/workflows/07_geo_observatory.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/workflows/07_geo_observatory.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/workflows/08_priorisation.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/workflows/08_priorisation.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/workflows/09_implementation_supervisee.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/workflows/09_implementation_supervisee.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/workflows/10_reporting.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/workflows/10_reporting.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/references/workflows/11_monitoring_delta.md",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/references/workflows/11_monitoring_delta.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/requirements-pdf.txt",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/requirements-pdf.txt"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/_common.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/_common.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/_advanced_common.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/_advanced_common.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/control_center.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/control_center.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/delta_compare.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/delta_compare.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/export_tickets.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/export_tickets.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/import_metrics.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/import_metrics.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/narrative_integrity.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/narrative_integrity.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/rule_source_check.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/rule_source_check.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/source_graph.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/source_graph.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/tests/test_advanced.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/advanced/tests/test_advanced.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/collect_site.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/collect_site.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/create_project.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/create_project.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/generate_markdown_reports.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/generate_markdown_reports.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/geo_metrics.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/geo_metrics.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/qa_audit.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/qa_audit.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/record_delivery.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/record_delivery.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/score_v3.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/score_v3.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/tests/test_security.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/tests/test_security.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/scripts/validate_project.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/scripts/validate_project.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/tools/local_file_policy.cjs",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/tools/local_file_policy.cjs"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/tools/render_html_pdf.cjs",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/tools/render_html_pdf.cjs"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/tools/render_markdown_pdf.py",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/tools/render_markdown_pdf.py"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/tools/render_tagged_pdf.cjs",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/tools/render_tagged_pdf.cjs"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/skill/seo-geo-v3/tools/tests/local_file_policy.test.cjs",
+          "output": "references/seo-geo-v3/skill/seo-geo-v3/tools/tests/local_file_policy.test.cjs"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/templates/Charte_PDF_SEO_GEO_V3.md",
+          "output": "references/seo-geo-v3/templates/Charte_PDF_SEO_GEO_V3.md"
+        },
+        {
+          "source": "core/skills/seo-geo-audit/references/seo-geo-v3/tools/build_manifest.py",
+          "output": "references/seo-geo-v3/tools/build_manifest.py"
+        }
+      ]
     },
     {
       "id": "ship-workflow",
       "public_name": "Ship workflow",
       "type": "skill",
       "source": "core/skills/ship-workflow/SKILL.md",
-      "dependencies": ["project-probe", "quality-gate"],
-      "inputs": ["verified-branch"],
-      "outputs": ["pull-request"],
-      "aliases": {"default": "ship-workflow"},
-      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
+      "dependencies": [
+        "project-probe",
+        "quality-gate"
+      ],
+      "inputs": [
+        "verified-branch"
+      ],
+      "outputs": [
+        "pull-request"
+      ],
+      "aliases": {
+        "default": "ship-workflow"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
       "risk": 4,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "skillz-writing-skills",
+      "public_name": "skillz-writing-skills",
+      "type": "skill",
+      "source": "core/skills/skillz-writing-skills/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "skillz-writing-skills"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "soft-skill",
+      "public_name": "high-end-visual-design",
+      "type": "skill",
+      "source": "core/skills/soft-skill/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "soft-skill"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "source-command-wiki-ingest",
+      "public_name": "source-command-wiki-ingest",
+      "type": "skill",
+      "source": "core/skills/source-command-wiki-ingest/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "source-command-wiki-ingest"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "source-command-wiki-init",
+      "public_name": "source-command-wiki-init",
+      "type": "skill",
+      "source": "core/skills/source-command-wiki-init/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "source-command-wiki-init"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "source-command-wiki-lint",
+      "public_name": "source-command-wiki-lint",
+      "type": "skill",
+      "source": "core/skills/source-command-wiki-lint/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "source-command-wiki-lint"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "source-command-wiki-log",
+      "public_name": "source-command-wiki-log",
+      "type": "skill",
+      "source": "core/skills/source-command-wiki-log/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "source-command-wiki-log"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "source-command-wiki-query",
+      "public_name": "source-command-wiki-query",
+      "type": "skill",
+      "source": "core/skills/source-command-wiki-query/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "source-command-wiki-query"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
       "migration_state": "canonical"
     },
     {
@@ -112,11 +3495,402 @@
       "type": "skill",
       "source": "core/skills/status-workflow/SKILL.md",
       "dependencies": [],
-      "inputs": ["repository"],
-      "outputs": ["status-report"],
-      "aliases": {"default": "status-workflow"},
-      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
+      "inputs": [
+        "repository"
+      ],
+      "outputs": [
+        "status-report"
+      ],
+      "aliases": {
+        "default": "status-workflow"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
       "risk": 1,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "stitch-skill",
+      "public_name": "stitch-design-taste",
+      "type": "skill",
+      "source": "core/skills/stitch-skill/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "stitch-skill"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/skills/stitch-skill/DESIGN.md",
+          "output": "DESIGN.md"
+        }
+      ]
+    },
+    {
+      "id": "supabase-security",
+      "public_name": "supabase-security",
+      "type": "skill",
+      "source": "core/skills/supabase-security/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "supabase-security"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 4,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "taste-critic",
+      "public_name": "taste-critic",
+      "type": "skill",
+      "source": "core/skills/taste-critic/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "taste-critic"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "taste-router",
+      "public_name": "taste-router",
+      "type": "skill",
+      "source": "core/skills/taste-router/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "taste-router"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "taste-skill",
+      "public_name": "design-taste-frontend",
+      "type": "skill",
+      "source": "core/skills/taste-skill/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "taste-skill"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "test-runner",
+      "public_name": "test-runner",
+      "type": "skill",
+      "source": "core/skills/test-runner/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "test-runner"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "thermo-nuclear-code-quality-review",
+      "public_name": "thermo-nuclear-code-quality-review",
+      "type": "skill",
+      "source": "core/skills/thermo-nuclear-code-quality-review/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "thermo-nuclear-code-quality-review"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 4,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "ui-designer",
+      "public_name": "ui-designer",
+      "type": "skill",
+      "source": "core/skills/ui-designer/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "ui-designer"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "ux-designer",
+      "public_name": "ux-designer",
+      "type": "skill",
+      "source": "core/skills/ux-designer/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "ux-designer"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "web-navigator",
+      "public_name": "web-navigator",
+      "type": "skill",
+      "source": "core/skills/web-navigator/SKILL.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "web-navigator"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/skills/web-navigator/agents/openai.yaml",
+          "output": "agents/openai.yaml"
+        },
+        {
+          "source": "core/skills/web-navigator/references/evidence-model.md",
+          "output": "references/evidence-model.md"
+        },
+        {
+          "source": "core/skills/web-navigator/references/navigation-protocol.md",
+          "output": "references/navigation-protocol.md"
+        },
+        {
+          "source": "core/skills/web-navigator/references/playwright-cli.md",
+          "output": "references/playwright-cli.md"
+        }
+      ]
+    },
+    {
+      "id": "changelog",
+      "public_name": "Changelog Generator 📝",
+      "type": "command",
+      "source": "core/commands/changelog.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "changelog"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 1,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "design-audit-squad",
+      "public_name": "/design-audit-squad",
+      "type": "command",
+      "source": "core/commands/design-audit-squad.md",
+      "dependencies": [
+        "design-audit"
+      ],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "design-audit-squad"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "design-audit-command",
+      "public_name": "/design-audit",
+      "type": "command",
+      "source": "core/commands/design-audit.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "design-audit"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
       "migration_state": "canonical"
     },
     {
@@ -124,11 +3898,27 @@
       "public_name": "Develop",
       "type": "command",
       "source": "core/commands/dev.md",
-      "dependencies": ["dev-workflow"],
-      "inputs": ["task-or-issue"],
-      "outputs": ["workflow-invocation"],
-      "aliases": {"default": "dev"},
-      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
+      "dependencies": [
+        "dev-workflow"
+      ],
+      "inputs": [
+        "task-or-issue"
+      ],
+      "outputs": [
+        "workflow-invocation"
+      ],
+      "aliases": {
+        "default": "dev"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
       "risk": 3,
       "migration_state": "canonical"
     },
@@ -137,38 +3927,312 @@
       "public_name": "Discovery",
       "type": "command",
       "source": "core/commands/discovery.md",
-      "dependencies": ["discovery-workflow"],
-      "inputs": ["idea-or-need"],
-      "outputs": ["workflow-invocation"],
-      "aliases": {"default": "discovery"},
-      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
+      "dependencies": [
+        "discovery-workflow"
+      ],
+      "inputs": [
+        "idea-or-need"
+      ],
+      "outputs": [
+        "workflow-invocation"
+      ],
+      "aliases": {
+        "default": "discovery"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
       "risk": 2,
       "migration_state": "canonical"
     },
     {
-      "id": "ship",
-      "public_name": "Ship",
+      "id": "docs",
+      "public_name": "Documentation Generator",
       "type": "command",
-      "source": "core/commands/ship.md",
-      "dependencies": ["ship-workflow"],
-      "inputs": ["branch"],
-      "outputs": ["workflow-invocation"],
-      "aliases": {"default": "ship"},
-      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
-      "risk": 4,
+      "source": "core/commands/docs.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "docs"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 1,
       "migration_state": "canonical"
     },
     {
-      "id": "status",
-      "public_name": "Status",
+      "id": "elicit",
+      "public_name": "Elicit — $ARGUMENTS",
       "type": "command",
-      "source": "core/commands/status.md",
-      "dependencies": ["status-workflow"],
-      "inputs": ["repository"],
-      "outputs": ["workflow-invocation"],
-      "aliases": {"default": "status"},
-      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
+      "source": "core/commands/elicit.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "elicit"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "gate",
+      "public_name": "Gate — $ARGUMENTS",
+      "type": "command",
+      "source": "core/commands/gate.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "gate"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "init",
+      "public_name": "Project Init 🚀",
+      "type": "command",
+      "source": "core/commands/init.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "init"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "metrics",
+      "public_name": "Project Metrics Dashboard 📊",
+      "type": "command",
+      "source": "core/commands/metrics.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "metrics"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
       "risk": 1,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "multi-mind-command",
+      "public_name": "multi-mind",
+      "type": "command",
+      "source": "core/commands/multi-mind.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "multi-mind"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "orchestrate-command",
+      "public_name": "orchestrate",
+      "type": "command",
+      "source": "core/commands/orchestrate.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "orchestrate"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "plan-review",
+      "public_name": "Plan Review — Founder Mode",
+      "type": "command",
+      "source": "core/commands/plan-review.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "plan-review"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "pr-review",
+      "public_name": "PR Review (Multi-Agent)",
+      "type": "command",
+      "source": "core/commands/pr-review.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "pr-review"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/knowledge/testing/error-handling.md",
+          "output": "resources/pr-review/knowledge/testing/error-handling.md"
+        },
+        {
+          "source": "core/knowledge/testing/nfr-criteria.md",
+          "output": "resources/pr-review/knowledge/testing/nfr-criteria.md"
+        },
+        {
+          "source": "core/knowledge/testing/test-quality.md",
+          "output": "resources/pr-review/knowledge/testing/test-quality.md"
+        }
+      ]
+    },
+    {
+      "id": "qa",
+      "public_name": "/qa — Systematic QA Testing",
+      "type": "command",
+      "source": "core/commands/qa.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "qa"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
       "migration_state": "canonical"
     },
     {
@@ -176,79 +4240,440 @@
       "public_name": "Quick fix",
       "type": "command",
       "source": "core/commands/quick-fix.md",
-      "dependencies": ["dev-workflow"],
-      "inputs": ["problem-description"],
-      "outputs": ["verified-fix"],
-      "aliases": {"default": "quick-fix"},
-      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
+      "dependencies": [
+        "dev-workflow"
+      ],
+      "inputs": [
+        "problem-description"
+      ],
+      "outputs": [
+        "verified-fix"
+      ],
+      "aliases": {
+        "default": "quick-fix"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
       "risk": 2,
       "migration_state": "canonical"
     },
     {
-      "id": "figma-use",
-      "public_name": "Figma Plugin API",
-      "type": "skill",
-      "source": ".claude/skills/figma-use/SKILL.md",
+      "id": "refactor",
+      "public_name": "Refactor",
+      "type": "command",
+      "source": "core/commands/refactor.md",
       "dependencies": [],
-      "inputs": ["figma-task"],
-      "outputs": ["validated-figma-operation"],
-      "aliases": {"default": "figma-use"},
-      "resources": [
-        {"source": ".claude/skills/figma-use/references/api-reference.md", "output": "references/api-reference.md"},
-        {"source": ".claude/skills/figma-use/references/common-patterns.md", "output": "references/common-patterns.md"},
-        {"source": ".claude/skills/figma-use/references/component-patterns.md", "output": "references/component-patterns.md"},
-        {"source": ".claude/skills/figma-use/references/effect-style-patterns.md", "output": "references/effect-style-patterns.md"},
-        {"source": ".claude/skills/figma-use/references/gotchas.md", "output": "references/gotchas.md"},
-        {"source": ".claude/skills/figma-use/references/plugin-api-patterns.md", "output": "references/plugin-api-patterns.md"},
-        {"source": ".claude/skills/figma-use/references/plugin-api-standalone.d.ts", "output": "references/plugin-api-standalone.d.ts"},
-        {"source": ".claude/skills/figma-use/references/plugin-api-standalone.index.md", "output": "references/plugin-api-standalone.index.md"},
-        {"source": ".claude/skills/figma-use/references/text-style-patterns.md", "output": "references/text-style-patterns.md"},
-        {"source": ".claude/skills/figma-use/references/validation-and-recovery.md", "output": "references/validation-and-recovery.md"},
-        {"source": ".claude/skills/figma-use/references/variable-patterns.md", "output": "references/variable-patterns.md"},
-        {"source": ".claude/skills/figma-use/references/working-with-design-systems/wwds-components--creating.md", "output": "references/working-with-design-systems/wwds-components--creating.md"},
-        {"source": ".claude/skills/figma-use/references/working-with-design-systems/wwds-components--using.md", "output": "references/working-with-design-systems/wwds-components--using.md"},
-        {"source": ".claude/skills/figma-use/references/working-with-design-systems/wwds-components.md", "output": "references/working-with-design-systems/wwds-components.md"},
-        {"source": ".claude/skills/figma-use/references/working-with-design-systems/wwds-effect-styles.md", "output": "references/working-with-design-systems/wwds-effect-styles.md"},
-        {"source": ".claude/skills/figma-use/references/working-with-design-systems/wwds-text-styles.md", "output": "references/working-with-design-systems/wwds-text-styles.md"},
-        {"source": ".claude/skills/figma-use/references/working-with-design-systems/wwds-variables--creating.md", "output": "references/working-with-design-systems/wwds-variables--creating.md"},
-        {"source": ".claude/skills/figma-use/references/working-with-design-systems/wwds-variables--using.md", "output": "references/working-with-design-systems/wwds-variables--using.md"},
-        {"source": ".claude/skills/figma-use/references/working-with-design-systems/wwds-variables.md", "output": "references/working-with-design-systems/wwds-variables.md"},
-        {"source": ".claude/skills/figma-use/references/working-with-design-systems/wwds.md", "output": "references/working-with-design-systems/wwds.md"}
+      "inputs": [
+        "task"
       ],
-      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
-      "risk": 4,
-      "migration_state": "legacy"
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "refactor"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
     },
     {
-      "id": "figma-generate-library",
-      "public_name": "Figma design-system builder",
-      "type": "skill",
-      "source": ".claude/skills/figma-generate-library/SKILL.md",
-      "dependencies": ["figma-use"],
-      "inputs": ["codebase", "figma-file", "approved-phase"],
-      "outputs": ["validated-design-system-phase"],
-      "aliases": {"default": "figma-generate-library"},
-      "resources": [
-        {"source": ".claude/skills/figma-generate-library/references/code-connect-setup.md", "output": "references/code-connect-setup.md"},
-        {"source": ".claude/skills/figma-generate-library/references/component-creation.md", "output": "references/component-creation.md"},
-        {"source": ".claude/skills/figma-generate-library/references/discovery-phase.md", "output": "references/discovery-phase.md"},
-        {"source": ".claude/skills/figma-generate-library/references/documentation-creation.md", "output": "references/documentation-creation.md"},
-        {"source": ".claude/skills/figma-generate-library/references/error-recovery.md", "output": "references/error-recovery.md"},
-        {"source": ".claude/skills/figma-generate-library/references/naming-conventions.md", "output": "references/naming-conventions.md"},
-        {"source": ".claude/skills/figma-generate-library/references/token-creation.md", "output": "references/token-creation.md"},
-        {"source": ".claude/skills/figma-generate-library/scripts/bindVariablesToComponent.js", "output": "scripts/bindVariablesToComponent.js"},
-        {"source": ".claude/skills/figma-generate-library/scripts/cleanupOrphans.js", "output": "scripts/cleanupOrphans.js"},
-        {"source": ".claude/skills/figma-generate-library/scripts/createComponentWithVariants.js", "output": "scripts/createComponentWithVariants.js"},
-        {"source": ".claude/skills/figma-generate-library/scripts/createDocumentationPage.js", "output": "scripts/createDocumentationPage.js"},
-        {"source": ".claude/skills/figma-generate-library/scripts/createSemanticTokens.js", "output": "scripts/createSemanticTokens.js"},
-        {"source": ".claude/skills/figma-generate-library/scripts/createVariableCollection.js", "output": "scripts/createVariableCollection.js"},
-        {"source": ".claude/skills/figma-generate-library/scripts/inspectFileStructure.js", "output": "scripts/inspectFileStructure.js"},
-        {"source": ".claude/skills/figma-generate-library/scripts/rehydrateState.js", "output": "scripts/rehydrateState.js"},
-        {"source": ".claude/skills/figma-generate-library/scripts/validateCreation.js", "output": "scripts/validateCreation.js"}
+      "id": "retro",
+      "public_name": "/retro — Engineering Retrospective",
+      "type": "command",
+      "source": "core/commands/retro.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
       ],
-      "providers": ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "retro"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "rodin-command",
+      "public_name": "Rodin Command",
+      "type": "command",
+      "source": "core/commands/rodin.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "rodin"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "seo-geo-audit-command",
+      "public_name": "/seo-geo-audit",
+      "type": "command",
+      "source": "core/commands/seo-geo-audit.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "seo-geo-audit"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "seo-geo-squad",
+      "public_name": "/seo-geo-squad",
+      "type": "command",
+      "source": "core/commands/seo-geo-squad.md",
+      "dependencies": [
+        "seo-geo-audit"
+      ],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "seo-geo-squad"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "ship",
+      "public_name": "Ship",
+      "type": "command",
+      "source": "core/commands/ship.md",
+      "dependencies": [
+        "ship-workflow"
+      ],
+      "inputs": [
+        "branch"
+      ],
+      "outputs": [
+        "workflow-invocation"
+      ],
+      "aliases": {
+        "default": "ship"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
       "risk": 4,
-      "migration_state": "legacy"
+      "migration_state": "canonical"
+    },
+    {
+      "id": "skillz-doctor",
+      "public_name": "Skillz-Doctor — Health Check Install",
+      "type": "command",
+      "source": "core/commands/skillz-doctor.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "skillz-doctor"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 3,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "status",
+      "public_name": "Status",
+      "type": "command",
+      "source": "core/commands/status.md",
+      "dependencies": [
+        "status-workflow"
+      ],
+      "inputs": [
+        "repository"
+      ],
+      "outputs": [
+        "workflow-invocation"
+      ],
+      "aliases": {
+        "default": "status"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 1,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "wiki-bootstrap",
+      "public_name": "wiki-bootstrap",
+      "type": "command",
+      "source": "core/commands/wiki-bootstrap.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "wiki-bootstrap"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "wiki-capture-session",
+      "public_name": "wiki-capture-session",
+      "type": "command",
+      "source": "core/commands/wiki-capture-session.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "wiki-capture-session"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "wiki-ingest",
+      "public_name": "wiki-ingest",
+      "type": "command",
+      "source": "core/commands/wiki-ingest.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "wiki-ingest"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "wiki-init",
+      "public_name": "wiki-init",
+      "type": "command",
+      "source": "core/commands/wiki-init.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "wiki-init"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "wiki-lint",
+      "public_name": "wiki-lint",
+      "type": "command",
+      "source": "core/commands/wiki-lint.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "wiki-lint"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "wiki-log",
+      "public_name": "wiki-log",
+      "type": "command",
+      "source": "core/commands/wiki-log.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "wiki-log"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
+    },
+    {
+      "id": "wiki-query",
+      "public_name": "wiki-query",
+      "type": "command",
+      "source": "core/commands/wiki-query.md",
+      "dependencies": [],
+      "inputs": [
+        "task"
+      ],
+      "outputs": [
+        "result"
+      ],
+      "aliases": {
+        "default": "wiki-query"
+      },
+      "providers": [
+        "claude",
+        "codex",
+        "opencode",
+        "agents-generic",
+        "kimi",
+        "grok",
+        "gemini"
+      ],
+      "risk": 2,
+      "migration_state": "canonical"
     },
     {
       "id": "gemini-instructions",
@@ -256,10 +4681,18 @@
       "type": "instruction",
       "source": "providers/gemini/GEMINI.md",
       "dependencies": [],
-      "inputs": ["gemini-session"],
-      "outputs": ["provider-context"],
-      "aliases": {"default": "gemini-instructions"},
-      "providers": ["gemini"],
+      "inputs": [
+        "gemini-session"
+      ],
+      "outputs": [
+        "provider-context"
+      ],
+      "aliases": {
+        "default": "gemini-instructions"
+      },
+      "providers": [
+        "gemini"
+      ],
       "risk": 1,
       "migration_state": "legacy"
     }

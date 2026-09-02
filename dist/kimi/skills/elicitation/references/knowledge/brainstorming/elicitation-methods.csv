@@ -1,0 +1,13 @@
+lens_id,name,description,core_question,best_for
+premortem,Pre-mortem,"Assume the plan shipped and failed catastrophically 6 months from now. Work backwards to the causes.","It failed — what killed it?","Plans, PRDs, architectures before commitment"
+inversion,Inversion,"Instead of asking how to succeed, enumerate everything that would guarantee failure, then check the target against that list.","How would we guarantee this fails?","Strategies, processes, quality criteria"
+first-principles,First Principles,"Strip every assumption inherited by analogy or habit; rebuild the reasoning from verifiable base facts only.","What do we actually know to be true here?","Inherited designs, 'we've always done it this way'"
+red-blue,Red Team vs Blue Team,"Split into an attacker seeking to break the proposal and a defender patching each attack; alternate until attacks repeat.","How would an adversary exploit this?","Security decisions, APIs, trust boundaries, incentives"
+steelman,Steelman-then-attack,"Build the strongest possible version of the opposing position before criticizing the target; only then compare.","What is the best case AGAINST our choice?","Contested decisions, technology choices"
+chesterton,Chesterton's Fence,"For every element the proposal removes or replaces, explain why it existed before touching it.","Why was the old thing there?","Refactors, process changes, deletions"
+ten-ten-ten,10-10-10,"Evaluate the decision's consequences at 10 minutes, 10 months and 10 years.","How does this look in 10 minutes / 10 months / 10 years?","Trade-offs between speed and durability"
+second-order,Second-Order Effects,"Ignore the direct effect; enumerate what the effect causes next — who adapts, what breaks, what incentives shift.","And then what happens?","Pricing, incentives, public APIs, policies"
+occam,Occam's Razor,"Find the simplest explanation or design that accounts for all the hard requirements; flag every element the simple version lacks.","What is the simplest thing that could work?","Over-engineered designs, complex architectures"
+constraint-removal,Constraint Removal,"Pick the binding constraint (budget, stack, deadline, team) and redesign as if it vanished; harvest what transfers back.","What would we do without constraint X?","Stuck designs, incremental thinking"
+persona-shift,Persona Shift,"Re-read the target as a novice, then as a domain expert, then as a hostile user; log what each one trips on.","What does a novice / expert / adversary see?","Docs, UX flows, onboarding, error messages"
+cost-of-delay,Cost of Delay,"Quantify what waiting costs per week versus what shipping imperfect costs; make the time dimension explicit.","What does one more week cost us?","Prioritization, scope debates, perfectionism"

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "command": "manifest",
+  "status": "blocked",
+  "project_id": null,
+  "event_id": null,
+  "data": {},
+  "warnings": [],
+  "errors": [
+    {
+      "code": "unsupported_schema_version",
+      "field": "schema_version",
+      "message": "Manifest schema version \"99\" is not supported.",
+      "correction": "Set \"schema_version\" to 1 and migrate incompatible fields before retrying."
+    }
+  ]
+}

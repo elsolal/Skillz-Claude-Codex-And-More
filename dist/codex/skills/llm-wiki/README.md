@@ -1,0 +1,593 @@
+# llm-wiki
+
+> **A second brain for Claude Code + Obsidian.**
+> Inspired by [Andrej Karpathy's LLM Wiki gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f).
+
+Turn any LLM CLI into a disciplined wiki maintainer. You curate sources and ask questions. The LLM reads, files, cross-references, flags contradictions, and keeps a living synthesis current. Knowledge **compounds** instead of being re-derived by RAG on every query.
+
+## The idea in one paragraph
+
+Most LLM+docs workflows are RAG: retrieve fragments at query time, synthesize from scratch, forget. The wiki is **compounding**. The LLM reads each source once and integrates it into a persistent, interlinked Obsidian vault — updating entity pages, revising concept pages, flagging contradictions, and strengthening the synthesis. The wiki is the compiled artifact; RAG is the just-in-time retrieval. This plugin gives the LLM the discipline (SKILL.md), the delegation (sub-agents), the triggers (slash commands), and the bookkeeping (Python tools) to do the job.
+
+## What's in the box
+
+| Piece | What it does |
+|---|---|
+| **SKILL.md** | Master skill doc — architecture, workflows, iron rules, cross-tool compat. Has `context: fork` so other skills can chain into it. |
+| **3 sub-agents** | `wiki-ingestor`, `wiki-librarian`, `wiki-linter` |
+| **6 slash commands** | `/wiki-init`, `/wiki-ingest`, `/wiki-query`, `/wiki-lint`, `/wiki-log`, `/wiki-capture-session` |
+| **8 Python tools** | Standard library only: `init_vault`, `ingest_source`, `update_index`, `append_log`, `wiki_search` (BM25), `lint_wiki`, `graph_analyzer`, `export_marp` |
+| **Portable memory CLI** | `skillz-memory` plus the collision-safe `memory` alias; Python 3.10+ stdlib runtime |
+| **8 reference docs** | Schema, page formats, ingest/query/lint workflows, Obsidian setup, cross-tool setup, Memex principles |
+| **Vault templates** | `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, `index.md`, `log.md`, plus 5 page templates (entity, concept, source, comparison, synthesis) |
+
+Index regeneration is check-before-write. New `wiki/index.md` files receive a
+hash-attested managed section; identical output is not rewritten, surrounding
+human content is preserved, and missing, changed, or content-drifted markers
+block regeneration. Legacy unmarked indexes require an explicit reviewed
+migration rather than silent adoption.
+| **Example vault** | A small worked example on "LLM interpretability" |
+
+## Quick start
+
+Install Skillz-Claude globally, then verify the provider-neutral entrypoint:
+
+```bash
+bash install.sh install all
+skillz-memory --version
+```
+
+The installer creates `~/.local/bin/skillz-memory`. It also creates
+`~/.local/bin/memory` when the name is free or already managed by Skillz-Claude.
+A third-party `memory` command is never overwritten; use `skillz-memory` when
+the installer reports a collision. Ensure `~/.local/bin` is present in `PATH`.
+
+### Portable memory manifest V1
+
+Each activated repository versions `.agents/memory.yaml`. Despite its `.yaml`
+extension, V1 deliberately accepts only the JSON-compatible subset of YAML 1.2:
+keys and strings are quoted, and comments, tags, includes, anchors, and other
+YAML-only syntax are rejected. This keeps parsing deterministic with the Python
+standard library and prevents partial interpretation of hostile input.
+
+```json
+{
+  "schema_version": 1,
+  "project": {
+    "id": "skillz-claude",
+    "name": "Skillz-Claude",
+    "owner": "Aymeric"
+  },
+  "stores": {
+    "project": {
+      "remote": "https://github.com/elsolal/elsolal-memory.git",
+      "collection": "elsolal-wiki",
+      "entry_pages": [
+        "wiki/entities/skillz-claude.md",
+        "wiki/concepts/project-memory-workflow.md"
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "repository-contracts",
+      "kind": "qmd",
+      "trust": "current_contract",
+      "collection": "skillz-contracts",
+      "include": ["docs/**/*.md", "openapi/**/*.yaml", "schemas/**/*.json"],
+      "exclude": ["docs/drafts/**"]
+    }
+  ],
+  "fallbacks": [],
+  "budgets": {
+    "minimal": {"target_tokens": 800, "hard_tokens": 1200},
+    "project": {"target_tokens": 2500, "hard_tokens": 4000},
+    "historical": {"target_tokens": 6000, "hard_tokens": 9000}
+  },
+  "policy": {
+    "semantic_retrieval": "explicit",
+    "full_index_fallback": true,
+    "retention_days": 30,
+    "sufficiency_thresholds_version": "qmd-0.9-v1"
+  },
+  "golden": {
+    "visible_path": ".agents/memory/golden.json",
+    "quality_rubric": ".agents/memory/quality-rubric.json",
+    "start_question": "What should I know before working on this project?"
+  }
+}
+```
+
+All IDs use lowercase kebab-case. Manifest paths are portable POSIX-relative
+paths: absolute paths, `..` traversal, backslashes, shell interpolation, and
+unknown keys are rejected. Budgets are positive integers and each target must
+remain below or equal to its hard cap. Machine-local roots belong in the ignored
+projection created by the later `memory configure` workflow, never here.
+
+`sources` is optional. When absent, `memory context` performs no repository
+scan and invokes no technical collection. An enabled `repository-contracts`
+source is rooted in the current Git repository, remains separate from the
+Obsidian vault, and is searched before durable project memory. Its hits carry
+trust `current_contract`; wiki hits carry `durable_memory`.
+
+V1 accepts only Markdown, YAML/OpenAPI, JSON schema, and SQL contract files.
+The immutable denylist always rejects environment files, secret/credential
+names, logs, generated/build directories, dependency trees, agent-local
+configuration, application-code extensions, traversal, and symlink escapes.
+Manifest `include`/`exclude` globs cannot relax those rules. `memory doctor`
+checks both the repository selection and the distinct QMD collection, but
+never runs `qmd update` or `qmd embed` implicitly.
+
+Validate the nearest manifest without accessing QMD or the network:
+
+```bash
+memory manifest
+memory manifest --json
+```
+
+Validation failures use exit code `30`, identify the exact field, and include a
+copyable correction. `--json` always retains the public result envelope schema,
+even when the manifest's own `schema_version` is unsupported.
+
+Map the portable project store to an accessible local vault and generate the
+ignored agent pointers:
+
+```bash
+memory configure --store "project=/absolute/path/to/vault"
+memory configure --store "project=/absolute/path/to/vault" --role owner
+memory configure --store "project=/path/to/project-vault" \
+  --store "transverse=/path/to/shared-vault"
+memory configure --store "project=/absolute/path/to/vault" --json
+```
+
+The default role is `collaborator`. A local role is routing context only: it
+never grants filesystem, Git, or remote access. The command creates
+`.agents/memory.local.json`, `.claude/project-memory.md`, and
+`.agents/project-memory.md` with mode `0600` where supported, then protects all
+three through Git's local `info/exclude`, including in linked worktrees.
+
+Generated pointers carry a managed marker. Divergent unmanaged content is
+preserved by default; use `--replace-managed` only after reviewing the local
+file. A marked pointer whose complete content has drifted is also preserved and
+reported as `managed_pointer_drift`; the same explicit reviewed replacement is
+required. The whole-file `.agents/memory.local.json` projection follows the
+same rule using its closed JSON schema as the ownership contract. Symlinks are
+never followed for replacement. Re-running the same configuration does not
+rewrite identical files.
+Missing declared entry pages create the projection but return `degraded` with
+exit code `10`. Absolute paths remain absent from output unless
+`--explain-local-paths` is explicitly requested.
+
+The `project` root is always required. A fallback root is optional and uses the
+fallback ID declared in the manifest (for example `transverse`). Projecting a
+root does not authorize it: the shared role/category policy must still allow the
+route before QMD or the filesystem is accessed.
+
+Diagnose the resulting activation before starting work:
+
+```bash
+memory doctor
+memory doctor --explain
+memory doctor --json
+```
+
+`doctor` is local, read-only, and network-free by default. A complete activation
+returns `ready`/`0` and prints the manifest's `golden.start_question`. Existing
+V1 manifests without that backward-compatible field remain valid, but doctor
+returns `degraded`/`10` with the exact addition required. Missing QMD and unknown
+or empty collections are degraded; an index older than 24 hours or its entry
+pages is degraded too. The `minimal` and `project` modes can still use the
+declared entry pages. A missing required
+entry page, invalid projection, tracked local pointer, or inaccessible store is
+`blocked` with its documented non-zero exit code.
+
+Network and repair behavior always require explicit options:
+
+```bash
+memory doctor --network  # git ls-remote only; never fetches or updates refs
+memory doctor --fix      # managed projection files and Git exclusions only
+```
+
+`--fix` never edits wiki pages, untracks files, or invokes `qmd update`/`embed`.
+The main exit codes are `0` ready, `10` degraded but usable, `30` invalid local
+activation, `31` missing required dependency, and `32` denied local/remote
+access. Human, non-TTY, `NO_COLOR=1`, and JSON modes expose the same functional
+status without relying on color or prompts.
+
+Retrieve bounded project memory directly from the task:
+
+```bash
+memory context --mode project --task-category architecture "How is the CLI structured?"
+memory context --mode project --task-category architecture --explain "How is the CLI structured?"
+memory context --mode project --task-category security \
+  --risk-reason security "Which security decision applies?"
+printf '%s' "private task query" | \
+  memory context --mode project --task-category security --query-stdin --json
+```
+
+When QMD is available, `context` calls `qmd search --json` against the
+manifest's project collection first, with an argument array and no shell interpolation. The
+versioned `qmd-0.9-v1` sufficiency gate evaluates score, coverage, collection
+freshness, path provenance, mode, and task category. It stops immediately on a
+sufficient project result. Otherwise it may query one manifest fallback only
+when the local principal role and the shared role/category allowlists both
+authorize it. A denied fallback is neither called nor named in output.
+
+The initial thresholds are one hit at `0.75` for `minimal`, one hit at `0.75`
+or two at `0.55` for `project`, and two at `0.45` including a `sources/` or
+`synthesis/` hit for `historical`. A stale collection is visible and blocks
+security, data, and historical evidence. Unknown evidence returns
+`ambiguous`/`21`; no model decides silently. The caller may rerun with
+`--fallback-on-ambiguous` to explicitly allow an otherwise authorized fallback.
+`--explain` prints the same decision profile, evidence, and reason codes already
+present in JSON.
+
+Sufficient retrieval results are resolved beneath their projected local roots,
+deduplicated by collection and relative path, and reduced to the Markdown
+section around each hit. Human and JSON output separate every normalized
+`retrieved` candidate from the sections actually `read`, and expose the
+`utf8_bytes_div_4_v1` estimate against the mode envelope: `800/1200` for
+`minimal`, `2500/4000` for `project`, and `6000/9000` for `historical`.
+Selection stops as soon as the read subset is sufficient. A necessary paragraph
+past the hard cap returns an explicit partial result unless `--risk-reason`
+provides one of `security`, `data`, `architecture`, `product`, or `incident`.
+The accepted reason and real estimated cost are retained in the receipt and the
+metadata-only event projection.
+
+The query is never written to an event, receipt field, or temporary file by
+`memory`. JSON and human output expose normalized hit metadata—docid,
+collection, relative path, title, score, and snippet line—but omit the raw query
+and snippet text. `--query-stdin` keeps sensitive input out of shell history;
+QMD still receives it transiently as its required positional process argument.
+
+Once the route is known, `context` writes an initial receipt to stderr before
+starting QMD. It contains only project, mode, task category, the authorized
+planned route, and the selected budget; it never contains the query. The final
+human receipt on stdout separates `retrieved`, `read`, estimated tokens,
+duration, freshness, and fallback state. JSON stdout remains one parseable
+document and exposes the same values under `data.receipt.initial` and
+`data.receipt.final`. Every completed retrieval attempt is projected once onto
+the closed event V1 contract and appended locally. The returned `event_id`
+matches the persisted line; manifest or projection failures that occur before
+retrieval starts are not journaled.
+
+### Golden retrieval and index-first baseline
+
+`memory test` loads the manifest's `golden.visible_path`, validates the complete
+file before invoking QMD, and runs exactly eight visible cases:
+
+```bash
+memory test
+memory test --json
+```
+
+Golden V1 is strict JSON with root keys `schema_version` and `cases`. Every case
+has a stable lowercase `id`, one human-sanitized single-line `query`, a
+`task_category`, page/source expectations, and an explicit baseline of 3-10
+pages. All paths are relative POSIX Markdown paths beneath `wiki/`; source
+expectations stay beneath `wiki/sources/`. Every expected artifact must appear
+in the baseline replay.
+
+The baseline always reads the complete `wiki/index.md`, then the declared pages
+in their versioned order. The bounded adapter receives the byte-identical query
+in memory and measures expected evidence on its first project route, before any
+fallback. Both sides use `utf8_bytes_div_4_v1`. Aggregate output contains:
+
+- expected-artifact retrieval hit rate on the bounded first route;
+- bounded fallback rate across the eight cases;
+- median paired context reduction versus the index-first baseline.
+
+Each completed run is atomically persisted outside the worktree as
+`runs/<project-id>/<run-id>.json`, with private `0700` directories and `0600`
+files on POSIX. The run contains only visible case IDs, metrics and docids plus
+its schema/run/project/time/estimator metadata. Queries, prompts, snippets, page
+content, responses, absolute paths and secret-shaped values are rejected by the
+common metadata-only scanner. The command does not emit `context_completed`
+events.
+
+### Local holdout and external quality gate
+
+`memory configure` protects `.agents/memory/holdout.local.json` through Git's
+local `info/exclude`. Holdout V1 contains exactly two sanitized cases in the
+same closed schema as the visible set. IDs, queries, and exact functional copies
+of visible cases are refused before QMD. Running the holdout executes all ten
+cases but exports and persists only the two-case holdout aggregate:
+
+```bash
+memory test --holdout
+memory test --holdout --json
+```
+
+The manifest's versioned `golden.quality_rubric` defines a numeric score range
+and positive dimensions whose unique weights sum to `1`. The retrieval CLI does
+not generate or grade an answer. An external reviewer instead exports a strict
+metadata-only JSON object with `run_id`, matching `rubric_version`,
+`baseline_score`, bounded `score`, and `reviewer_type` (`human`, `llm`, or
+`hybrid`), then imports it explicitly:
+
+```bash
+memory test record-quality --input /path/to/quality.json
+memory test record-quality --input /path/to/quality.json --json
+memory test gate --run-id run_... --json
+```
+
+The quality record is immutable, private, and stored separately under
+`quality/<project-id>/<run-id>.json`; raw responses and unknown fields are
+refused. Relative degradation is `(baseline - bounded) / baseline`, clamped to
+zero for improvements. The STORY-015 gate requires two holdouts, at least 90%
+retrieval hit rate, at least 50% median context reduction, and no more than 5%
+quality degradation. Missing quality is `incomplete`; any failed measured
+dimension wins over incompleteness. A `pass` validates this measurement slice
+only and always reports `authorizes_global_rollout: false`.
+
+### Metadata-only event storage and purge
+
+Context events live outside the project under `SKILLZ_MEMORY_STATE_DIR` when it
+is explicitly set, otherwise `$XDG_STATE_HOME/skillz-memory`, then
+`~/.local/state/skillz-memory`. A state directory resolving inside the current
+project is refused with exit `50`. On POSIX, state/project directories are
+restricted to `0700` and JSONL/lock files to `0600`. Events are partitioned as
+`events/<project-id>/YYYY-MM.jsonl`. Unit events append under a project lock as
+one compact JSON line and are `fsync`ed before success is reported. The related
+`usage_attested` + `memory_conflict` pair is published through a same-directory
+temporary file, file `fsync`, atomic replace, and directory `fsync`, so a failed
+finish exposes either both new events or neither.
+
+The common V1 root allowlist is `schema_version`, `event_id`, `event_type`,
+`occurred_at`, `project_id`, and `payload`. The child events `usage_attested`,
+`memory_conflict`, and `memory_debt_action` add only `parent_event_id`. A
+`context_completed` payload is limited to:
+
+- `mode`, `task_category`, `status`, and the collection-only `route`;
+- normalized `retrieved` entries containing `docid`, `collection`, relative
+  `path`, and numeric `score`;
+- emitted `read` entries containing `docid`, `collection`, and relative `path`;
+- `estimated_context_tokens`, `estimator_version`, `budget_tokens`,
+  `duration_ms`, and `freshness`;
+- `fallback_reason_codes` and `risk_reason`.
+
+Unknown fields and content-bearing or sensitive keys are refused before any
+filesystem mutation. Queries, prompts, responses, transcripts, snippets, page
+bodies, absolute paths, credential keys, and recognized secret-shaped values
+produce exit `50`. Arbitrary secret detection is not claimed: the closed
+structural allowlist is the primary privacy boundary.
+
+### Usage attestation and final receipt
+
+`memory finish <parent-event-id>` appends one immutable `usage_attested` event
+for an event returned by `memory context`. The lookup is scoped to the nearest
+manifest's project. Parent lookup, relationship validation, duplicate detection,
+and append all run under the same project lock, so concurrent calls cannot
+double-attest a context event.
+
+Use repeated options to declare metadata-only evidence:
+
+```bash
+memory finish mem_... \
+  --used '#dfec5e' \
+  --cited '#dfec5e' \
+  --impact-code validation_command_reused
+```
+
+Every `--used` and `--cited` docid must appear in the parent's `retrieved`
+entries. A cited docid must also be `used`, unless the same docid is passed to
+`--citation-only`; this enum-like marker is the only structured V1 justification
+and stores no free text. Repeated values are deduplicated in first-seen order.
+A second attestation for the same parent is refused with exit `50` rather than
+inflating usage counts.
+
+The payload records `impact_taxonomy_version: impact-v1` and accepts only:
+
+- `project_convention_applied`;
+- `historical_decision_reused`;
+- `known_problem_avoided`;
+- `validation_command_reused`;
+- `next_step_reused`.
+
+All lists may be empty. This records that no influence was observed and renders
+`Attested: 0 used · 0 cited` plus `Impact: none observed`; it is never described
+as product success. Human and JSON receipts reconstruct measured fields from the
+immutable parent and attested fields from the child, with explicit `Measured`
+and `Attested` labels.
+
+### Repository-first conflicts and memory debt
+
+`memory finish` may declare that one retrieved memory page conflicts with
+current repository evidence. The page reference is derived from its parent
+`context_completed` event, while the repository reference must be a normalized
+relative POSIX path. Neither reference stores page content, a diff, a task, or a
+transcript:
+
+```bash
+memory finish mem_... \
+  --used '#dfec5e' \
+  --conflict-docid '#dfec5e' \
+  --repo-evidence '.claude/project-memory.md' \
+  --evidence-type contract \
+  --conflict-category architecture \
+  --conflict-risk high \
+  --prepare-debt
+```
+
+The immutable `memory_conflict` event always records
+`precedence: repository`, the two relative references, risk, category, and the
+derived `requires_human` decision. Only `high` conflicts in `product`,
+`architecture`, `security`, or `data` require human arbitration and return exit
+`21`. Other combinations remain visible but return `0`, so current repository
+evidence can continue to guide the task.
+
+`--prepare-debt` makes that same local conflict event an open metadata-only
+draft; it does not create or edit a Markdown page. Its `con_...` event ID is the
+debt ID. A later review appends exactly one immutable `memory_debt_action`:
+
+```bash
+memory finish con_... --debt-action fix
+memory finish con_... --debt-action ignore --reason not_actionable
+memory finish con_... --debt-action snooze --until 2026-08-01
+```
+
+`fix` records intent only. `ignore` requires a lowercase structured reason
+slug, and `snooze` requires a future ISO date. These actions never modify shared
+memory. A later weekly report can aggregate the conflict/action event chain
+without inventing a second debt model.
+
+### Actionable weekly report
+
+`memory report --weekly` reads only the nearest manifest's private project
+stores over a rolling seven-day UTC window. It aggregates context efficiency,
+the latest golden/holdout and linked quality record, fallback and insufficiency,
+freshness, and the measured-to-attested `retrieved -> read -> used -> cited`
+funnel:
+
+```bash
+memory report --weekly
+memory report --weekly --json
+memory report --weekly --export-markdown ./memory-weekly.md
+```
+
+Open conflict debts are ranked by risk and then observed impact, with a stable
+tie-breaker. The nominal path contains at most seven decisions; additional debt
+is summarized by risk and category. Completed, ignored, or snoozed debts are
+removed by folding the existing append-only
+`memory_conflict -> memory_debt_action` chain.
+
+Each decision prints copyable `memory finish <debt-id> --debt-action ...`
+commands. The report itself never edits shared memory. Markdown is rendered from
+a closed aggregate projection, rescanned after interpolation for content labels,
+secret-shaped values, and absolute POSIX/Windows/UNC paths, then written
+atomically. Events with another project identity are excluded before
+aggregation.
+
+`memory purge` removes only events older than the current manifest's
+`policy.retention_days` for the current project. `memory purge --force` removes
+all detailed events for that project immediately; neither form accepts an
+arbitrary project ID. A truncated final JSONL line is diagnosed and ignored by
+readers, and purge rewrites the valid prefix under the same lock. Another
+project's event directory is never read or changed.
+
+If event validation or persistence fails, the functional context remains in
+stdout, `event_id` stays `null`, the telemetry error is explicit, and the
+process returns `50` rather than presenting the run as fully measured.
+
+A sufficient retrieval returns `sufficient`/`0`. Incomplete evidence returns
+`insufficient`/`20`; ambiguity requiring an explicit decision returns `21`, and
+blocking freshness returns `33`. When QMD is missing, non-executable, timed out,
+or otherwise unusable, `minimal` reads at most the first declared project entry
+page and `project` reads at most the first three. At least one safe page returns
+`degraded`/`10` with `source: entry_pages`, `retrieved_count: 0`, the page cap,
+the actual read count, the token budget, every skipped relative path, and the
+QMD repair command. No valid bounded page returns `blocked`/`32`.
+
+`historical` never uses this local fallback and returns `blocked`/`31` when QMD
+is unavailable. A successful QMD search with zero hits remains
+`insufficient`/`20`; it is not rewritten as an engine failure. The fallback
+never scans the vault, opens an undeclared index, queries a transverse store,
+downloads a model, or invokes `qmd update`/`embed`. The default search timeout
+is eight seconds per route and can never exceed thirty seconds inside the
+adapter.
+
+### Query route selection
+
+`/wiki-query` starts from the task and checks the nearest project activation:
+
+- With `.agents/memory.yaml` and a configured projection, it uses `memory
+  context` against opt-in current repository contracts first, then the durable
+  project collection, then an authorized transverse fallback if needed. QMD
+  unavailability keeps the same command and activates only the bounded
+  `entry_pages` behavior above.
+- Without `.agents/memory.yaml`, it preserves the standalone vault catalog
+  workflow as an explicit **legacy/non-pilot** route. That route does not invoke
+  `memory context`, emit a memory receipt/event, or count as pilot usage.
+
+This split keeps older vaults usable without allowing their unbounded catalog
+reads to masquerade as evidence from the measured task-first pilot.
+
+```bash
+# 1. Initialize a vault
+python scripts/init_vault.py --path ~/vaults/research --topic "LLM interpretability" --tool all
+
+# 2. Open in Obsidian
+open -a Obsidian ~/vaults/research
+
+# 3. Drop a source into raw/ and ingest
+cp ~/Downloads/paper.pdf ~/vaults/research/raw/papers/
+cd ~/vaults/research
+# in Claude Code:
+> /wiki-ingest raw/papers/paper.pdf
+
+# 4. Ask questions
+> /wiki-query "what does the paper say about sparse features?"
+
+# 5. Health check
+> /wiki-lint
+```
+
+## Cross-tool compatibility
+
+The scripts are pure Python stdlib — they run anywhere. Only the **schema loader** changes per tool:
+
+| Tool | Loader file |
+|---|---|
+| Claude Code | `CLAUDE.md` |
+| Codex CLI (OpenAI) | `AGENTS.md` |
+| Cursor (modern) | `AGENTS.md` |
+| Cursor (legacy) | `.cursorrules` |
+| Antigravity (Google) | `AGENTS.md` |
+| OpenCode / Pi | `AGENTS.md` |
+| Gemini CLI | `AGENTS.md` |
+
+`init_vault.py --tool all` installs all three. You can run multiple CLIs against the same vault.
+
+See `references/cross-tool-setup.md` for per-tool instructions.
+
+## Architecture
+
+```
+<vault>/
+├── raw/                    # IMMUTABLE sources (you own)
+├── wiki/                   # LLM-owned knowledge base
+│   ├── index.md            # content catalog
+│   ├── log.md              # append-only timeline
+│   ├── entities/           # people, orgs, places, products
+│   ├── concepts/           # ideas, theories, frameworks
+│   ├── sources/            # one summary per ingested source
+│   ├── comparisons/        # cross-source analyses
+│   └── synthesis/          # high-level overviews and theses
+├── CLAUDE.md               # schema for Claude Code
+├── AGENTS.md               # schema for Codex/Cursor/Antigravity
+└── .cursorrules            # (optional) legacy Cursor
+```
+
+**Iron rule:** The LLM never edits `raw/`. All writes go to `wiki/`.
+
+## Three operations
+
+- **Ingest** — Read a source, discuss with user, write summary page, update 5-15 cross-referenced pages, update index, log it
+- **Query** — Read index first, drill into 3-10 pages, synthesize answer with inline citations, offer to file back as a new page
+- **Lint** — Mechanical + semantic health check; surface contradictions, orphans, stale claims, cross-reference gaps
+
+## Why not just RAG?
+
+| Plain RAG | LLM Wiki |
+|---|---|
+| Rediscover knowledge each query | Knowledge accumulates |
+| Cross-references re-computed every time | Cross-references pre-written and maintained |
+| Contradictions surface only if you ask | Contradictions flagged during ingest |
+| Exploration disappears into chat history | Good answers re-filed as new pages |
+| Scales by embeddings infrastructure | Scales by markdown + `index.md` + optional local search |
+
+The wiki and RAG aren't opposites — RAG can sit on top of the wiki once you outgrow index-first search.
+
+## Status
+
+**v1.0.0** — initial release. SKILL + 3 agents + 6 commands + 8 scripts + 8 references + full vault templates + example vault.
+
+## License
+
+MIT.
+
+## Related
+
+- [Karpathy's original gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) — the pattern this plugin implements
+- Vannevar Bush, "As We May Think" (1945) — the Memex
+- [qmd](https://github.com/tobi/qmd) — local hybrid search over markdown (pair with this when the wiki outgrows `index.md`)

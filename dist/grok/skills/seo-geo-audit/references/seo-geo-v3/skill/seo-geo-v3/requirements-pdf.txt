@@ -1,0 +1,2 @@
+# Renderer PDF de secours non balisé. Le cœur déterministe reste sans dépendance externe.
+reportlab==4.4.9

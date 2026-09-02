@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "command": "context",
+  "status": "sufficient",
+  "project_id": "skillz-claude",
+  "event_id": "<event-id>",
+  "data": {
+    "mode": "project",
+    "task_category": "architecture",
+    "route": ["elsolal-wiki"],
+    "retrieval": {
+      "status": "ready",
+      "duration_ms": 12,
+      "hits": [
+        {
+          "docid": "#dfec5e",
+          "collection": "elsolal-wiki",
+          "path": "entities/skillz-claude.md",
+          "title": "Skillz-Claude",
+          "score": 0.91,
+          "snippet_line": 13,
+          "trust": "durable_memory"
+        }
+      ]
+    },
+    "fallback": {
+      "used": false,
+      "explicit_decision": false,
+      "reason_codes": []
+    },
+    "decision": {
+      "status": "sufficient",
+      "thresholds_version": "qmd-0.9-v1",
+      "reason_codes": [],
+      "evidence": {
+        "freshness": "fresh",
+        "hits": [
+          {
+            "docid": "#dfec5e",
+            "score": 0.91,
+            "provenance": "page",
+            "trust": "durable_memory"
+          }
+        ]
+      }
+    },
+    "context": {
+      "status": "ready",
+      "source": "qmd",
+      "page_limit": null,
+      "estimator_version": "utf8_bytes_div_4_v1",
+      "budget": {
+        "target_tokens": 2500,
+        "hard_tokens": 4000
+      },
+      "estimated_tokens": 14,
+      "remaining_target_tokens": 2486,
+      "retrieved_count": 1,
+      "read_count": 1,
+      "hard_cap_exceeded": false,
+      "risk_reason": null,
+      "reason_codes": [],
+      "sections": [
+        {
+          "docid": "#dfec5e",
+          "collection": "elsolal-wiki",
+          "path": "entities/skillz-claude.md",
+          "title": "Skillz-Claude",
+          "provenance": "page",
+          "trust": "durable_memory",
+          "line_start": 7,
+          "line_end": 9,
+          "frontmatter": {
+            "title": "Skillz-Claude",
+            "category": "entity"
+          },
+          "estimated_tokens": 14,
+          "truncated": false,
+          "content": "# Skillz-Claude\n\nRepo d’outillage multi-runtime.\n"
+        }
+      ]
+    },
+    "receipt": {
+      "initial": {
+        "project_id": "skillz-claude",
+        "mode": "project",
+        "task_category": "architecture",
+        "planned_route": ["elsolal-wiki"],
+        "budget": {
+          "target_tokens": 2500,
+          "hard_tokens": 4000
+        },
+        "status": "retrieving"
+      },
+      "final": {
+        "status": "sufficient",
+        "retrieved": 1,
+        "read": 1,
+        "estimated_tokens": 14,
+        "budget_tokens": 2500,
+        "duration_ms": 12,
+        "freshness": "fresh",
+        "fallback": {
+          "used": false,
+          "reason_codes": []
+        }
+      }
+    }
+  },
+  "warnings": [],
+  "errors": []
+}

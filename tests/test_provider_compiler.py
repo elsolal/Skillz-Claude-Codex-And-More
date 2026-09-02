@@ -249,16 +249,26 @@ class ProviderCompilerTests(unittest.TestCase):
             "codex/skills/dev-workflow/references/testing/checklist.md",
         )
 
-    def test_non_skill_artifact_cannot_declare_resources(self):
+    def test_command_can_declare_namespaced_resources(self):
         catalog = self._catalog()
         quick_fix = next(item for item in catalog["artifacts"] if item["id"] == "quick-fix")
         quick_fix["resources"] = [
-            {"source": ".claude/commands/quick-fix.md", "output": "reference.md"}
+            {
+                "source": ".claude/commands/quick-fix.md",
+                "output": "resources/quick-fix/reference.md",
+            }
         ]
         self._write_catalog(catalog)
-
-        with self.assertRaisesRegex(self.compiler.BuildError, "only skills can declare resources"):
-            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+        report = self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+        item = next(
+            artifact
+            for artifact in report["artifacts"]
+            if artifact["provider"] == "claude" and artifact["artifact_id"] == "quick-fix"
+        )
+        self.assertEqual(
+            item["resources"][0]["output"],
+            "claude/commands/resources/quick-fix/reference.md",
+        )
 
     def test_resource_path_traversal_is_rejected(self):
         catalog = self._catalog()

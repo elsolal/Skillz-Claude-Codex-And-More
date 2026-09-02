@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "command": "test",
+  "status": "ready",
+  "project_id": "skillz-claude",
+  "run_id": "run_20260725T120000000000Z_0123456789abcdef",
+  "data": {
+    "estimator_version": "utf8_bytes_div_4_v1",
+    "cases": [
+      {
+        "case_id": "project-memory-route",
+        "expected_count": 1,
+        "baseline_hit_count": 1,
+        "bounded_hit_count": 1,
+        "fallback_used": false,
+        "context_reduction": 0.75,
+        "matches": [
+          {
+            "kind": "page",
+            "ordinal": 1,
+            "baseline_rank": 2,
+            "baseline_docid": "#111111",
+            "bounded_rank": 1,
+            "bounded_docid": "#dfec5e"
+          }
+        ],
+        "baseline": {
+          "status": "ready",
+          "docids": ["#000000", "#111111", "#222222"],
+          "estimated_context_tokens": 1000
+        },
+        "bounded": {
+          "status": "sufficient",
+          "docids": ["#dfec5e"],
+          "estimated_context_tokens": 250
+        }
+      }
+    ],
+    "aggregate": {
+      "retrieval_hit_rate": 1.0,
+      "fallback_rate": 0.0,
+      "median_context_reduction": 0.75
+    }
+  },
+  "warnings": [],
+  "errors": []
+}

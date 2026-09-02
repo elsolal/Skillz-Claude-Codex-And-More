@@ -156,8 +156,6 @@ def _validate_catalog(root: Path, catalog: dict[str, Any]) -> list[dict[str, Any
         resources = artifact.get("resources", [])
         if not isinstance(resources, list):
             raise BuildError(f"artifact resources invalid: {identifier}")
-        if resources and artifact["type"] != "skill":
-            raise BuildError(f"only skills can declare resources: {identifier}")
         resource_outputs: set[str] = set()
         for resource in resources:
             if not isinstance(resource, dict) or set(resource) != {"source", "output"}:

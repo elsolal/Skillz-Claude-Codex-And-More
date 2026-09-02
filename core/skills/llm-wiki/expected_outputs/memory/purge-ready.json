@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "command": "purge",
+  "status": "ready",
+  "project_id": "skillz-claude",
+  "event_id": null,
+  "data": {
+    "retention_days": 30,
+    "force": false,
+    "deleted_events": 0,
+    "retained_events": 1,
+    "removed_files": 0,
+    "corrupted_files": 0
+  },
+  "warnings": [],
+  "errors": []
+}

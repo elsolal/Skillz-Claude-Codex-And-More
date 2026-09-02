@@ -15,6 +15,7 @@
     "outputs": {"type": "array", "items": {"type": "string"}},
     "aliases": {"type": "object", "additionalProperties": {"type": "string"}},
     "resources": {
+      "description": "Files shipped beside an artifact entrypoint. Outputs are relative to the entrypoint directory.",
       "type": "array",
       "items": {
         "type": "object",

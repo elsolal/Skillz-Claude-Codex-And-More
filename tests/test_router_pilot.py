@@ -43,7 +43,7 @@ class RouterPilotTests(unittest.TestCase):
         artifact = next(
             item for item in catalog["artifacts"] if item["id"] == "figma-generate-library"
         )
-        source_root = REPO_ROOT / ".claude/skills/figma-generate-library"
+        source_root = REPO_ROOT / "core/skills/figma-generate-library"
         declared = {item["source"] for item in artifact["resources"]}
         expected = {
             path.relative_to(REPO_ROOT).as_posix()

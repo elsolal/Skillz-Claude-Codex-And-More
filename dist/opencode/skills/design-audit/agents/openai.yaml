@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Audit"
+  short_description: "Audit UI, DS, agent-surface et Lyse"
+  default_prompt: "Utilise design-audit pour auditer cette UI, ce repo ou ce lien Figma avec tokens, composants, stories/docs, a11y, taste, drift Figma/code et AI governance. Si je mentionne Lyse, ou si le mode est full/ship-gate, charge references/lyse/ et utilise Lyse comme preuve statique optionnelle. Si je demande squad/complet/plusieurs agents, charge references/lyse-squad/ et exécute les 12 agents."

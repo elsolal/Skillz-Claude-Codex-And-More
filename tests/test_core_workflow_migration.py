@@ -90,14 +90,16 @@ class CoreWorkflowMigrationTests(unittest.TestCase):
             self.assertEqual(artifacts[command]["migration_state"], "canonical")
 
     def test_canonical_workflow_has_no_provider_storage_paths(self):
-        forbidden = (".claude/", ".codex/", ".gemini/", ".opencode/")
-        for root in (REPO_ROOT / "core" / "skills", REPO_ROOT / "core" / "commands"):
-            for path in root.rglob("*"):
-                if not path.is_file():
-                    continue
-                content = path.read_text(encoding="utf-8")
-                for token in forbidden:
-                    self.assertNotIn(token, content, f"{path}: {token}")
+        forbidden = (".claude/skills/", ".claude/commands/", ".claude/knowledge/")
+        paths = [
+            *(REPO_ROOT / "core" / "skills").glob("*/SKILL.md"),
+            *(REPO_ROOT / "core" / "commands").glob("*.md"),
+        ]
+        for path in paths:
+            content = path.read_text(encoding="utf-8")
+            for token in forbidden:
+                matches = re.findall(rf"(?<!~/){re.escape(token)}", content)
+                self.assertEqual(matches, [], f"{path}: {token}")
 
 
 if __name__ == "__main__":

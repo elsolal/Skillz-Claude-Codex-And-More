@@ -1,0 +1,20 @@
+{
+  "schema_version": "3.0",
+  "audit_id": "audit_atelier_brindille_20260715",
+  "generated_at": "2026-07-15T09:10:00Z",
+  "facts": [
+    {
+      "fact_id": "fact_brand_name",
+      "key": "identity.brand_name",
+      "type": "identity",
+      "value": "Atelier Brindille",
+      "status": "client_approved",
+      "confidence": "confirmed",
+      "evidence_ids": ["ev_client_brand_name"],
+      "valid_from": "2026-07-15",
+      "valid_to": null,
+      "owner": "Direction",
+      "approval": {"approved_by": "Direction", "approved_at": "2026-07-15T09:02:00Z", "notes": "Nom commercial validé."}
+    }
+  ]
+}

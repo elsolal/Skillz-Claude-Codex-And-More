@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "command": "doctor",
+  "status": "ready",
+  "project_id": "skillz-claude",
+  "event_id": null,
+  "data": {
+    "summary": {"ready": 6, "total": 6},
+    "checks": [
+      {
+        "id": "manifest",
+        "status": "ready",
+        "message": "Manifest schema V1 and start question are valid."
+      },
+      {
+        "id": "projection",
+        "status": "ready",
+        "message": "The local projection is valid and accessible."
+      },
+      {
+        "id": "git_ignore",
+        "status": "ready",
+        "message": "Managed local files are untracked and ignored by Git."
+      },
+      {
+        "id": "entry_pages",
+        "status": "ready",
+        "message": "2 declared entry page(s) are available."
+      },
+      {
+        "id": "qmd",
+        "status": "ready",
+        "message": "QMD 0.9.x exposes the declared collection with 2 indexed file(s)."
+      },
+      {
+        "id": "freshness",
+        "status": "ready",
+        "message": "The local QMD collection is fresh."
+      }
+    ],
+    "capabilities": {
+      "available_modes": ["minimal", "project", "historical"],
+      "unavailable_modes": []
+    },
+    "start_question": "What should I know before working on this project?",
+    "next_actions": []
+  },
+  "warnings": [],
+  "errors": []
+}
