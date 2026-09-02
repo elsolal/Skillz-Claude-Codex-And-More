@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 3
+base_sha: "eddcef33a1f097c8988968d49989410b6cb4122b"
+head_sha: "515b3fb3c3cd2b9b1e8408358719c4aafaf8894e"
+code_diff_hash: "4ae9e1969e2c99912bc2eb34ced705c183346d2a428bec24d778dcd0649a226b"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-09-02-portable-gate-workflow.json"
+proof_payload_hash: "d0b09c321cd9a4f48517f58651394e8b9175970734c0a9cf2a36ef453be98f8f"
+integrity_sha256: "28c888518bf5407bbbfa885cc4374e0781d08e353fa63356bdb2129ff5fa13e1"

@@ -1,0 +1,78 @@
+{
+  "absents": [
+    "no configured typecheck command",
+    "no configured build command",
+    "no e2e harness",
+    "no authenticated C3 invocation on every provider runtime; bundle installation and Codex C2 discovery are structural/runtime evidence only",
+    "no smoke was executed inside the historical Pleepole repositories; temporary global and per-project installer targets cover the reported missing-tool failure mode"
+  ],
+  "decisions_prises_en_ton_nom": [
+    "verification executables are owned by project-probe and quality-gate and are materialized by compiled, global and per-project installation paths instead of being vendored by application repositories",
+    "missing or incompatible framework tooling is classified tooling-unavailable and cannot be converted into a product-quality waiver",
+    "v1 PASS evidence can be LEGACY_VALID only during v6.1, after an explicit compatibility opt-in, a matching historical diff and fresh manifest execution; new gates remain v2",
+    "WAIVED remains a distinct verdict and requires reason, scope, approver and a timezone-aware approval timestamp",
+    "ship, gate and status resolve the comparison base from caller or repository metadata instead of assuming origin/main"
+  ],
+  "executions": [
+    {
+      "command": "bash scripts/lint-shell.sh",
+      "exit_code": 0,
+      "name": "lint",
+      "status": "passed",
+      "summary": "20 shell files parsed successfully in two consecutive clean rounds"
+    },
+    {
+      "command": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh scripts/validate_planning_lifecycle.py --root . && bash tests/run-python310.sh tooling/migration/migrate_catalog.py --root . --report docs/compatibility/catalog-migration-v6.1.json && bash tests/run-python310.sh tooling/evals/router_pilot.py --root . --output docs/compatibility/router-pilot-figma-generate-library.json --check && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/testing/golden_distribution.py --dist-root dist --output docs/compatibility/golden/v6.1-p0-distribution.json --check && bash tests/run-python310.sh tooling/runtime/certify_install_lifecycle.py --root . --output docs/compatibility/install-lifecycle-v6.1.json --check && bash tests/test-behavioral.sh && bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py --bundle dist/codex --output docs/compatibility/codex-plugin-0.152.0.json --check && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh",
+      "exit_code": 0,
+      "name": "test",
+      "status": "passed",
+      "summary": "133 repository tests, 273 llm-wiki tests, global and project-local installer execution, deterministic seven-provider build, 8 structural behavioral cases, fresh Codex C2, lifecycle and migration evidence, cleanup checks, 25 SEO/GEO Python tests and 3 Node tests passed in two consecutive clean rounds"
+    }
+  ],
+  "manifest_fingerprint": "169dcfad68d8d0f380603df836cb3f81657f22c1e95b1bf563cf53c09a7fe268",
+  "opinion": {
+    "findings": {
+      "confirmed": 2,
+      "fixed": 2,
+      "refuted": 0,
+      "remaining": 0,
+      "total": 2
+    },
+    "lenses": {
+      "correctness_security": "PASS: legacy identity fields are unique, hashes reproduce the v1 contract, paths are quoted and waiver metadata fails closed",
+      "performance": "PASS: verification adds bounded Git and file operations; provider resources are compiled once and compared deterministically",
+      "readability": "PASS: one installer helper materializes resources for global and per-project paths; evidence states have explicit names and transitions",
+      "structural_maintainability": "PASS: executable ownership stays at the skill boundary, catalog resources remain canonical and generated provider trees contain no divergent implementation"
+    },
+    "registry": [
+      {
+        "id": "install.sh:portability:c90054e7",
+        "severity": "P1",
+        "status": "fixed",
+        "summary": "per-project installs omitted skill-owned verifier resources"
+      },
+      {
+        "id": "core/skills/quality-gate/SKILL.md:portability:c1f628de",
+        "severity": "P1",
+        "status": "fixed",
+        "summary": "workflow text still assumed main or master instead of a resolved default branch"
+      }
+    ],
+    "rounds": [
+      {
+        "fixed_confirmed_p0_p1": 2,
+        "new_confirmed_p0_p1": 2,
+        "round": 1
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 2
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 3
+      }
+    ]
+  },
+  "schema_version": 1
+}
