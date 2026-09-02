@@ -89,8 +89,12 @@ the destructive-command filter.
 ## Consumer rules
 
 - Run verification only from `commands`; provenance metadata is evidence, not an executable field.
+- Every `commands` entry must be auto-executable by an agent. Human ceremonies such as a live
+  preproduction rehearsal, manual UAT, Access/OTP/TOTP or a bounded waiver belong in `absents` with
+  their trigger condition. Rewrite any manifest that incorrectly lists one as a command.
 - Report every relevant absence in checkpoints and gate files.
 - If `--check` reports drift or a command fails because its tool disappeared, re-probe before
   drawing a conclusion.
+- Never list a human-gated ceremony in `commands`; the ship runner executes every command literally.
 - Do not create provider-specific mirrors of the manifest.
 - Do not write outside the requested manifest path.
