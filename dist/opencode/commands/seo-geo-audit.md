@@ -1,12 +1,5 @@
 ---
 description: Route SEO/GEO V3.1: audit express/complet/page, technique, contenu, visibilité IA, autorité/local, Delta, suivi ou implémentation supervisée. Usage: /seo-geo-audit <cible> [--quick|--full|--geo-only|--technical|--content|--ship-gate]
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-  - WebFetch
-  - WebSearch
 ---
 
 # /seo-geo-audit

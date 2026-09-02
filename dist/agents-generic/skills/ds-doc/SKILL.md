@@ -1,20 +1,6 @@
 ---
 name: ds-doc
 description: Scanne le projet et génère/met à jour la section Design System dans CLAUDE.md. Documente tokens, composants UI, composants métier, patterns et règles. Lie chaque élément à son fichier code ET son URL Figma. Utiliser quand l'utilisateur dit "documenter le design system", "ds-doc", "mettre à jour le CLAUDE.md design", ou après avoir ajouté/modifié des composants UI.
-model: opus
-allowed-tools:
-  - Read
-  - Write
-  - Edit
-  - Glob
-  - Grep
-  - Bash
-  - mcp__plugin_figma_figma__get_metadata
-  - mcp__plugin_figma_figma__get_design_context
-  - mcp__plugin_figma_figma__get_variable_defs
-  - mcp__plugin_figma_figma__search_design_system
-argument-hint: "[--figma <url>] [--update]"
-user-invocable: true
 ---
 
 # DS-Doc — Design System Documenter

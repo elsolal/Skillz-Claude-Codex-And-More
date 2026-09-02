@@ -13,9 +13,9 @@ argument-hint: <issue-number-or-url>
 user-invocable: true
 knowledge:
   core:
-    - ../../knowledge/workflows/project-types.csv
+    - references/knowledge/workflows/project-types.csv
   advanced:
-    - ../../knowledge/workflows/domain-complexity.csv
+    - references/knowledge/workflows/domain-complexity.csv
 ---
 
 # GitHub Issue Reader

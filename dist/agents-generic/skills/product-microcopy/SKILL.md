@@ -1,13 +1,6 @@
 ---
 name: product-microcopy
 description: Écrit la microcopy in-product — empty states, error messages, tooltips, button labels, confirmation dialogs, validation messages, success toasts, onboarding hints. Concis, action-oriented, anti-jargon. Voice and tone consistency. Utiliser pour SaaS, dashboards, apps, et toute UI où le copy court fait la différence UX.
-model: opus
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Write
-user-invocable: true
 ---
 
 # Product Microcopy

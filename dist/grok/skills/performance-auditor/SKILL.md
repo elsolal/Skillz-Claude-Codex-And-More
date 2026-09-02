@@ -1,28 +1,6 @@
 ---
 name: performance-auditor
 description: Audit de performance du code et de l'application. Analyse Lighthouse, bundle size, Core Web Vitals, et optimisations. Utiliser après l'implémentation, avant une release, ou quand l'utilisateur dit "performance", "slow", "optimize", "bundle size".
-model: opus
-context: fork
-allowed-tools:
-  - Read
-  - Glob
-  - Grep
-  - Write
-  - Edit
-  - Bash
-  - Task
-  - TaskCreate
-  - TaskUpdate
-  - TaskList
-  - TaskGet
-  - WebFetch
-argument-hint: <url-or-directory>
-user-invocable: true
-hooks:
-  post_tool_call:
-    - tool: Bash
-      match: "lighthouse"
-      run: "echo '📊 Lighthouse report generated'"
 ---
 
 # Performance Auditor 🚀

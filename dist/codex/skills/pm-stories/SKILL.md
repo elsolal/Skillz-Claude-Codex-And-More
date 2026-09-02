@@ -1,22 +1,6 @@
 ---
 name: pm-stories
 description: Crée des Epics et User Stories à partir du PRD et de l'Architecture, puis les publie sur GitHub Issues. Utiliser après l'architecture (niveau 2+) ou après le PRD (niveau 0-1), quand l'utilisateur dit "stories", "user stories", "epics", "issues", "découper en tâches", ou veut passer à l'implémentation.
-model: opus
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Write
-  - mcp__github__create_issue
-  - mcp__github__get_issue
-  - mcp__github__list_issues
-  - mcp__github__update_issue
-argument-hint: <prd-or-architecture-file>
-user-invocable: true
-hooks:
-  pre_tool_call:
-    - matcher: "mcp__github__create_issue"
-      command: "gh auth status 2>/dev/null || echo '⚠️ GitHub CLI non authentifié - les issues seront créées via MCP'"
 ---
 
 # PM-Stories

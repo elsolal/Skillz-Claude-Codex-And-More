@@ -1,25 +1,6 @@
 ---
 name: code-implementer
 description: Implémente du code en respectant les conventions du projet. Utilisé comme agent worker depuis /dev ou en standalone.
-model: opus
-context: fork
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Write
-  - Edit
-  - Bash
-argument-hint: <file-or-description>
-user-invocable: true
-hooks:
-  post_tool_call:
-    - matcher: "Edit|Write"
-      command: "npm run lint --fix 2>/dev/null || npm run lint 2>/dev/null || echo 'Lint check skipped'"
-knowledge:
-  patterns:
-    - ../../knowledge/testing/error-handling.md
-    - ../../knowledge/testing/feature-flags.md
 ---
 
 # Code Implementer

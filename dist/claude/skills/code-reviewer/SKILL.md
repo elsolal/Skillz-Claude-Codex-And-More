@@ -11,16 +11,16 @@ argument-hint: <file-or-pr-number>
 user-invocable: true
 knowledge:
   quality:
-    - ../../knowledge/testing/test-quality.md
-    - ../../knowledge/testing/nfr-criteria.md
+    - references/knowledge/testing/test-quality.md
+    - references/knowledge/testing/nfr-criteria.md
   risk:
-    - ../../knowledge/testing/risk-governance.md
-    - ../../knowledge/testing/probability-impact.md
+    - references/knowledge/testing/risk-governance.md
+    - references/knowledge/testing/probability-impact.md
   patterns:
-    - ../../knowledge/testing/error-handling.md
-    - ../../knowledge/testing/feature-flags.md
+    - references/knowledge/testing/error-handling.md
+    - references/knowledge/testing/feature-flags.md
   checklist:
-    - ../../knowledge/review-checklist.md
+    - references/knowledge/review-checklist.md
 ---
 
 # Code Reviewer

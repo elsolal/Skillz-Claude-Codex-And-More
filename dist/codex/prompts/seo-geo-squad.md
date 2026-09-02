@@ -1,12 +1,5 @@
 ---
 description: Orchestration complète SEO/GEO V3.1: 21 spécialistes routés, Evidence Vault, scoring F/V/O/E/M, QA adversariale et livrables. Usage: /seo-geo-squad <cible> [--step-by-step|--all-at-once]
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-  - WebFetch
-  - WebSearch
 ---
 
 # /seo-geo-squad

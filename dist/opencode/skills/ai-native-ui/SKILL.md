@@ -1,13 +1,6 @@
 ---
 name: ai-native-ui
 description: Patterns et principes pour interfaces AI-natives (chat, copilots, agents). Couvre les invariants stables — message states (streaming/done/errored/interrupted), tool call lifecycle, citations inline, multi-modal composer, reasoning disclosure, permission gates. Framework-agnostic. Utiliser quand on construit du chat, copilot, assistant inline, ou interface agentique.
-model: opus
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Write
-user-invocable: true
 ---
 
 # AI-Native UI

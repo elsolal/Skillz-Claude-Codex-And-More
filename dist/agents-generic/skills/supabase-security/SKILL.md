@@ -1,33 +1,6 @@
 ---
 name: supabase-security
 description: Audit de sécurité complet pour les projets Supabase. Lance un pentest automatisé qui vérifie RLS, buckets, auth, keys exposées, et génère un rapport avec remediation. Utiliser quand l'utilisateur dit "audit supabase", "sécurité supabase", "vérifier mon supabase", ou veut s'assurer que son backend Supabase est sécurisé.
-model: opus
-context: fork
-agent: Explore
-allowed-tools:
-  - Read
-  - Write
-  - Edit
-  - Bash
-  - Glob
-  - Grep
-  - WebFetch
-  - Task
-  - TaskCreate
-  - TaskUpdate
-  - TaskList
-argument-hint: <url-application> [--skip-auth-test] [--quick]
-user-invocable: true
-knowledge:
-  core:
-    - supabase-security/audit-checklist.md
-    - supabase-security/severity-matrix.md
-  advanced:
-    - supabase-security/rls-patterns.md
-    - supabase-security/remediation-templates.md
-    - supabase-security/edge-functions-security.md
-    - supabase-security/realtime-security.md
-    - supabase-security/auth-configuration.md
 ---
 
 # Supabase Security Audit

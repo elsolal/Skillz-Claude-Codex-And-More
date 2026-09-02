@@ -1,26 +1,6 @@
 ---
 name: code-reviewer
 description: Revue de code en 3 passes (Correctness, Readability, Performance). Peut tourner en standalone (séquentiel) ou comme agent parallèle depuis /dev.
-model: opus
-context: fork
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-argument-hint: <file-or-pr-number>
-user-invocable: true
-knowledge:
-  quality:
-    - ../../knowledge/testing/test-quality.md
-    - ../../knowledge/testing/nfr-criteria.md
-  risk:
-    - ../../knowledge/testing/risk-governance.md
-    - ../../knowledge/testing/probability-impact.md
-  patterns:
-    - ../../knowledge/testing/error-handling.md
-    - ../../knowledge/testing/feature-flags.md
-  checklist:
-    - ../../knowledge/review-checklist.md
 ---
 
 # Code Reviewer

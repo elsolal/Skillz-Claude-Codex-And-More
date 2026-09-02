@@ -175,6 +175,16 @@ def _validate_catalog(root: Path, catalog: dict[str, Any]) -> list[dict[str, Any
             if normalized_output in resource_outputs:
                 raise BuildError(f"duplicate artifact resource output: {identifier}/{normalized_output}")
             resource_outputs.add(normalized_output)
+        provider_metadata = artifact.get("provider_metadata", {})
+        if not isinstance(provider_metadata, dict):
+            raise BuildError(f"artifact provider metadata invalid: {identifier}")
+        for provider, metadata in provider_metadata.items():
+            if not isinstance(provider, str) or not isinstance(metadata, dict):
+                raise BuildError(f"artifact provider metadata invalid: {identifier}")
+            if set(metadata) != {"frontmatter"} or not isinstance(metadata["frontmatter"], str):
+                raise BuildError(f"artifact provider frontmatter invalid: {identifier}/{provider}")
+            if any(line.strip() == "---" for line in metadata["frontmatter"].splitlines()):
+                raise BuildError(f"artifact provider frontmatter contains delimiter: {identifier}/{provider}")
     for artifact in artifacts:
         for dependency in artifact["dependencies"]:
             if dependency not in identifiers:
@@ -355,9 +365,27 @@ def _markdown_frontmatter(content: str) -> tuple[dict[str, str], str]:
     return fields, content[closing + 5 :]
 
 
-def _render_artifact(source: Path, transform: str) -> tuple[bytes, int]:
+def _inject_frontmatter(content: str, fragment: str) -> str:
+    if not fragment:
+        return content
+    if not content.startswith("---\n"):
+        raise BuildError("provider frontmatter requires a Markdown frontmatter entrypoint")
+    closing = content.find("\n---\n", 4)
+    if closing < 0:
+        raise BuildError("unterminated Markdown frontmatter")
+    return content[:closing] + "\n" + fragment.rstrip("\n") + content[closing:]
+
+
+def _render_artifact(source: Path, transform: str, provider_frontmatter: str = "") -> tuple[bytes, int]:
     if transform == "copy":
-        return source.read_bytes(), source.stat().st_mode & 0o777
+        content = source.read_bytes()
+        if provider_frontmatter:
+            try:
+                rendered = _inject_frontmatter(content.decode("utf-8"), provider_frontmatter)
+            except UnicodeDecodeError as error:
+                raise BuildError(f"provider frontmatter source is not UTF-8: {source}") from error
+            content = rendered.encode("utf-8")
+        return content, source.stat().st_mode & 0o777
     if transform == "gemini-command":
         try:
             content = source.read_text(encoding="utf-8")
@@ -474,6 +502,12 @@ def _build_into(root: Path, output: Path) -> dict[str, Any]:
         unknown = set(artifact["providers"]) - provider_ids
         if unknown:
             raise BuildError(f"unknown providers for {artifact['id']}: {sorted(unknown)}")
+        unknown_metadata = set(artifact.get("provider_metadata", {})) - set(artifact["providers"])
+        if unknown_metadata:
+            raise BuildError(
+                f"provider metadata targets undeclared providers for {artifact['id']}: "
+                f"{sorted(unknown_metadata)}"
+            )
     output.mkdir(parents=True, exist_ok=False)
     report_artifacts: list[dict[str, Any]] = []
     report_capabilities: list[dict[str, Any]] = []
@@ -534,7 +568,10 @@ def _build_into(root: Path, output: Path) -> dict[str, Any]:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 source = root / artifact["source"]
                 transform = build_rule["transform"]
-                content, mode = _render_artifact(source, transform)
+                provider_frontmatter = artifact.get("provider_metadata", {}).get(
+                    provider_id, {}
+                ).get("frontmatter", "")
+                content, mode = _render_artifact(source, transform, provider_frontmatter)
                 target.write_bytes(content)
                 target.chmod(mode)
                 resource_items: list[dict[str, Any]] = []
@@ -566,6 +603,7 @@ def _build_into(root: Path, output: Path) -> dict[str, Any]:
                         "mode": f"{target.stat().st_mode & 0o777:04o}",
                         "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
                         "transform": transform,
+                        "provider_metadata_applied": bool(provider_frontmatter),
                         "resources": resource_items,
                     }
                 )

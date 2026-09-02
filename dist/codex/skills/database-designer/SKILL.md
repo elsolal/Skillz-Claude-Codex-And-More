@@ -1,29 +1,6 @@
 ---
 name: database-designer
 description: Conçoit des schémas de base de données avec ERD, migrations, indexes et optimisations. Utiliser pour les projets avec persistence, quand on définit des modèles, ou quand l'utilisateur dit "database", "schema", "tables", "migrations". Peut être déclenché après PRD ou Architecture.
-model: opus
-context: fork
-allowed-tools:
-  - Read
-  - Glob
-  - Grep
-  - Write
-  - Edit
-  - Bash
-  - Task
-  - TaskCreate
-  - TaskUpdate
-  - TaskList
-  - TaskGet
-  - mcp__github__get_issue
-  - mcp__github__list_issues
-argument-hint: <project-name-or-prd-reference>
-user-invocable: true
-hooks:
-  post_tool_call:
-    - tool: Write
-      match: "*.sql"
-      run: "npx sql-formatter --check $file 2>/dev/null || true"
 ---
 
 # Database Designer 🗄️

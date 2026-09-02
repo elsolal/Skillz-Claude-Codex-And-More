@@ -1,14 +1,6 @@
 ---
 name: multi-mind
 description: Débat multi-agents avec 6 IA pour valider PRD et code
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-  - Write
-  - Task
-  - WebFetch
 ---
 
 # Multi-Mind Command

@@ -1,11 +1,5 @@
 ---
 description: Challenge socratique anti-complaisance d'une idee, decision, strategie, PRD, architecture ou reponse d'agent. Usage: /rodin <texte|path|url>
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-  - WebFetch
 ---
 
 # Rodin Command

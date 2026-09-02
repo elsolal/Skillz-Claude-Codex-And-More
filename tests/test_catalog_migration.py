@@ -42,14 +42,22 @@ class CatalogMigrationTests(unittest.TestCase):
 
     def test_normalization_preserves_user_home_paths(self):
         source = (
+            "---\nname: demo\ndescription: Demo\nmodel: opus\nallowed-tools:\n  - Read\n---\n"
             "Read .claude/skills/demo/SKILL.md and .claude/skills/demo/references/x.md.\n"
-            "Then use .claude/knowledge/testing/x.md and ~/.claude/skills/demo/SKILL.md.\n"
+            "Then use .claude/knowledge/testing/x.md, ../../knowledge/testing/y.md, "
+            "and ~/.claude/skills/demo/SKILL.md.\n"
         )
         normalized = MIGRATION._normalize_entry(source, "skill", "demo")
         self.assertIn("skill:demo", normalized)
         self.assertIn("skill:demo/references/x.md", normalized)
         self.assertIn("references/knowledge/testing/x.md", normalized)
+        self.assertIn("references/knowledge/testing/y.md", normalized)
         self.assertIn("~/.claude/skills/demo/SKILL.md", normalized)
+        self.assertNotIn("model: opus", normalized)
+        self.assertEqual(
+            MIGRATION._provider_frontmatter(source, "skill", "demo"),
+            "model: opus\nallowed-tools:\n  - Read\n",
+        )
 
     def test_command_knowledge_resources_are_namespaced(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -88,6 +96,22 @@ class CatalogMigrationTests(unittest.TestCase):
             canonical.write_text("# Canonical edit\n", encoding="utf-8")
             with self.assertRaisesRegex(MIGRATION.MigrationError, "canonical entry drift"):
                 MIGRATION._copy_artifacts(root)
+
+    def test_explicit_frontmatter_extraction_only_accepts_pre_extraction_bytes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            legacy = root / ".claude" / "skills" / "demo" / "SKILL.md"
+            legacy.parent.mkdir(parents=True)
+            legacy.write_text(
+                "---\nname: demo\ndescription: Demo\nmodel: opus\n---\n# Demo\n",
+                encoding="utf-8",
+            )
+            (root / ".claude" / "commands").mkdir(parents=True)
+            canonical = root / "core" / "skills" / "demo" / "SKILL.md"
+            canonical.parent.mkdir(parents=True)
+            canonical.write_text(legacy.read_text(encoding="utf-8"), encoding="utf-8")
+            MIGRATION._copy_artifacts(root, extract_provider_metadata=True)
+            self.assertNotIn("model: opus", canonical.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

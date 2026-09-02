@@ -101,6 +101,23 @@ class CoreWorkflowMigrationTests(unittest.TestCase):
                 matches = re.findall(rf"(?<!~/){re.escape(token)}", content)
                 self.assertEqual(matches, [], f"{path}: {token}")
 
+    def test_canonical_frontmatter_contains_only_portable_fields(self):
+        portable = {"name", "description", "license"}
+        paths = [
+            *(REPO_ROOT / "core" / "skills").glob("*/SKILL.md"),
+            *(REPO_ROOT / "core" / "commands").glob("*.md"),
+        ]
+        for path in paths:
+            content = path.read_text(encoding="utf-8")
+            closing = content.find("\n---\n", 4)
+            self.assertTrue(content.startswith("---\n") and closing > 0, path)
+            keys = {
+                line.split(":", 1)[0]
+                for line in content[4:closing].splitlines()
+                if line and not line[0].isspace() and ":" in line
+            }
+            self.assertLessEqual(keys, portable, f"{path}: {sorted(keys - portable)}")
+
 
 if __name__ == "__main__":
     unittest.main()

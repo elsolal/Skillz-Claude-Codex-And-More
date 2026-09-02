@@ -44,7 +44,7 @@
       "alias": "code-implementer",
       "id": "code-implementer",
       "migration_state": "canonical",
-      "resource_count": 0,
+      "resource_count": 2,
       "source": "core/skills/code-implementer/SKILL.md",
       "type": "skill"
     },
@@ -52,7 +52,7 @@
       "alias": "code-reviewer",
       "id": "code-reviewer",
       "migration_state": "canonical",
-      "resource_count": 0,
+      "resource_count": 7,
       "source": "core/skills/code-reviewer/SKILL.md",
       "type": "skill"
     },
@@ -180,7 +180,7 @@
       "alias": "github-issue-reader",
       "id": "github-issue-reader",
       "migration_state": "canonical",
-      "resource_count": 0,
+      "resource_count": 2,
       "source": "core/skills/github-issue-reader/SKILL.md",
       "type": "skill"
     },
@@ -268,7 +268,7 @@
       "alias": "pm-prd",
       "id": "pm-prd",
       "migration_state": "canonical",
-      "resource_count": 0,
+      "resource_count": 3,
       "source": "core/skills/pm-prd/SKILL.md",
       "type": "skill"
     },
@@ -468,7 +468,7 @@
       "alias": "test-runner",
       "id": "test-runner",
       "migration_state": "canonical",
-      "resource_count": 0,
+      "resource_count": 10,
       "source": "core/skills/test-runner/SKILL.md",
       "type": "skill"
     },
@@ -762,7 +762,7 @@
     }
   ],
   "catalog_artifacts": 95,
-  "catalog_resources": 509,
+  "catalog_resources": 533,
   "counts": {
     "command": 31,
     "instruction": 1,
@@ -775,6 +775,7 @@
     "pending": 0,
     "retired": 0
   },
+  "provider_metadata_artifacts": 37,
   "schema_version": 1,
   "shared_aliases": {
     "design-audit": [

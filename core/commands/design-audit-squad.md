@@ -1,11 +1,5 @@
 ---
 description: Orchestration complète Lyse Design Squad: 12 agents UI/DS/agent-surface, Lyse statique optionnel, taste, a11y, Figma/code, AI governance et ship-gate. Usage: /design-audit-squad <url|path|figma|screenshot> [--step-by-step|--all-at-once|--ship-gate]
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-  - WebFetch
 ---
 
 # /design-audit-squad

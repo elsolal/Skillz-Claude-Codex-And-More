@@ -1,11 +1,5 @@
 ---
 description: Audit design system/UI/agent-surface avec tokens, composants, a11y, taste, drift Figma/code et signal Lyse optionnel. Usage: /design-audit <url|path|figma|screenshot> [--quick|--full|--squad|--ship-gate]
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-  - WebFetch
 ---
 
 # /design-audit

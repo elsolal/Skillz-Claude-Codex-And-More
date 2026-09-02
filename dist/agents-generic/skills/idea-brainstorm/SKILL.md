@@ -1,28 +1,6 @@
 ---
 name: idea-brainstorm
 description: Facilite des sessions de brainstorming créatif pour explorer et développer des idées. Utiliser quand l'utilisateur a une idée vague, veut explorer des possibilités, dit "j'ai une idée", "brainstorm", "réfléchissons", ou veut générer des concepts avant de structurer un projet.
-model: opus
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Write
-  - WebSearch
-argument-hint: <idea-description>
-user-invocable: true
-knowledge:
-  core:
-    - references/knowledge/brainstorming/brain-techniques.csv
-triggers_ux_ui:
-  auto: true
-  criteria:
-    ux_designer:
-      - has_user_interface: true
-      - screens_count: ">= 3"
-      - keywords: ["parcours", "navigation", "onboarding", "tunnel", "UX", "utilisateur"]
-    ui_designer:
-      - needs_design_system: true
-      - keywords: ["design", "composants", "couleurs", "style", "UI", "visuel"]
 ---
 
 # Idea Brainstorm

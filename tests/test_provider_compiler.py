@@ -270,6 +270,34 @@ class ProviderCompilerTests(unittest.TestCase):
             "claude/commands/resources/quick-fix/reference.md",
         )
 
+    def test_provider_frontmatter_is_applied_only_to_target_provider(self):
+        catalog = self._catalog()
+        dev = next(item for item in catalog["artifacts"] if item["id"] == "dev-workflow")
+        dev["provider_metadata"] = {"claude": {"frontmatter": "model: opus\n"}}
+        self._write_catalog(catalog)
+
+        report = self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
+        claude = (self.temp_dir / "dist/claude/skills/dev-workflow/SKILL.md").read_text()
+        codex = (self.temp_dir / "dist/codex/skills/dev-workflow/SKILL.md").read_text()
+        self.assertIn("model: opus", claude)
+        self.assertNotIn("model: opus", codex)
+        items = {
+            item["provider"]: item
+            for item in report["artifacts"]
+            if item["artifact_id"] == "dev-workflow"
+        }
+        self.assertTrue(items["claude"]["provider_metadata_applied"])
+        self.assertFalse(items["codex"]["provider_metadata_applied"])
+
+    def test_provider_frontmatter_delimiter_is_rejected(self):
+        catalog = self._catalog()
+        dev = next(item for item in catalog["artifacts"] if item["id"] == "dev-workflow")
+        dev["provider_metadata"] = {"claude": {"frontmatter": "---\nmodel: opus\n"}}
+        self._write_catalog(catalog)
+        with self.assertRaisesRegex(self.compiler.BuildError, "contains delimiter"):
+            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
     def test_resource_path_traversal_is_rejected(self):
         catalog = self._catalog()
         dev = next(item for item in catalog["artifacts"] if item["id"] == "dev-workflow")

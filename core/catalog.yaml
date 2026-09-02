@@ -51,7 +51,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\nallowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Bash\n  - WebFetch\nuser-invocable: true\nargument-hint: <url-or-path>\n"
+        }
+      }
     },
     {
       "id": "ai-native-ui",
@@ -78,7 +83,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\nallowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Write\nuser-invocable: true\n"
+        }
+      }
     },
     {
       "id": "api-designer",
@@ -105,7 +115,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\ncontext: fork\nallowed-tools:\n  - Read\n  - Glob\n  - Grep\n  - Write\n  - Edit\n  - Bash\n  - Task\n  - TaskCreate\n  - TaskUpdate\n  - TaskList\n  - TaskGet\n  - mcp__github__get_issue\n  - mcp__github__list_issues\nargument-hint: <api-name-or-prd-reference>\nuser-invocable: true\nhooks:\n  post_tool_call:\n    - tool: Write\n      match: \"openapi*.yaml\"\n      run: \"npx @redocly/cli lint $file 2>/dev/null || true\"\n"
+        }
+      }
     },
     {
       "id": "architect",
@@ -132,7 +147,12 @@
         "gemini"
       ],
       "risk": 3,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\nallowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Write\nargument-hint: <prd-filename>\nuser-invocable: true\nhooks:\n  pre_tool_call:\n    - matcher: \"Write.*architecture\"\n      command: \"ls docs/planning/prd/*.md 2>/dev/null | head -1 || echo '⚠️ Aucun PRD trouvé - architecture sans PRD peut manquer de contexte'\"\n"
+        }
+      }
     },
     {
       "id": "brutalist-skill",
@@ -186,7 +206,22 @@
         "gemini"
       ],
       "risk": 3,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/knowledge/testing/error-handling.md",
+          "output": "references/knowledge/testing/error-handling.md"
+        },
+        {
+          "source": "core/knowledge/testing/feature-flags.md",
+          "output": "references/knowledge/testing/feature-flags.md"
+        }
+      ],
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\ncontext: fork\nallowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Write\n  - Edit\n  - Bash\nargument-hint: <file-or-description>\nuser-invocable: true\nhooks:\n  post_tool_call:\n    - matcher: \"Edit|Write\"\n      command: \"npm run lint --fix 2>/dev/null || npm run lint 2>/dev/null || echo 'Lint check skipped'\"\nknowledge:\n  patterns:\n    - references/knowledge/testing/error-handling.md\n    - references/knowledge/testing/feature-flags.md\n"
+        }
+      }
     },
     {
       "id": "code-reviewer",
@@ -213,7 +248,42 @@
         "gemini"
       ],
       "risk": 3,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/knowledge/review-checklist.md",
+          "output": "references/knowledge/review-checklist.md"
+        },
+        {
+          "source": "core/knowledge/testing/error-handling.md",
+          "output": "references/knowledge/testing/error-handling.md"
+        },
+        {
+          "source": "core/knowledge/testing/feature-flags.md",
+          "output": "references/knowledge/testing/feature-flags.md"
+        },
+        {
+          "source": "core/knowledge/testing/nfr-criteria.md",
+          "output": "references/knowledge/testing/nfr-criteria.md"
+        },
+        {
+          "source": "core/knowledge/testing/probability-impact.md",
+          "output": "references/knowledge/testing/probability-impact.md"
+        },
+        {
+          "source": "core/knowledge/testing/risk-governance.md",
+          "output": "references/knowledge/testing/risk-governance.md"
+        },
+        {
+          "source": "core/knowledge/testing/test-quality.md",
+          "output": "references/knowledge/testing/test-quality.md"
+        }
+      ],
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\ncontext: fork\nallowed-tools:\n  - Read\n  - Grep\n  - Glob\nargument-hint: <file-or-pr-number>\nuser-invocable: true\nknowledge:\n  quality:\n    - references/knowledge/testing/test-quality.md\n    - references/knowledge/testing/nfr-criteria.md\n  risk:\n    - references/knowledge/testing/risk-governance.md\n    - references/knowledge/testing/probability-impact.md\n  patterns:\n    - references/knowledge/testing/error-handling.md\n    - references/knowledge/testing/feature-flags.md\n  checklist:\n    - references/knowledge/review-checklist.md\n"
+        }
+      }
     },
     {
       "id": "database-designer",
@@ -240,7 +310,12 @@
         "gemini"
       ],
       "risk": 3,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\ncontext: fork\nallowed-tools:\n  - Read\n  - Glob\n  - Grep\n  - Write\n  - Edit\n  - Bash\n  - Task\n  - TaskCreate\n  - TaskUpdate\n  - TaskList\n  - TaskGet\n  - mcp__github__get_issue\n  - mcp__github__list_issues\nargument-hint: <project-name-or-prd-reference>\nuser-invocable: true\nhooks:\n  post_tool_call:\n    - tool: Write\n      match: \"*.sql\"\n      run: \"npx sql-formatter --check $file 2>/dev/null || true\"\n"
+        }
+      }
     },
     {
       "id": "design-audit",
@@ -464,7 +539,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\nallowed-tools:\n  - Read\n  - Write\n  - Edit\n  - Glob\n  - Grep\n  - Bash\n  - mcp__plugin_figma_figma__get_metadata\n  - mcp__plugin_figma_figma__get_design_context\n  - mcp__plugin_figma_figma__get_variable_defs\n  - mcp__plugin_figma_figma__search_design_system\nargument-hint: \"[--figma <url>] [--update]\"\nuser-invocable: true\n"
+        }
+      }
     },
     {
       "id": "elevenlabs",
@@ -575,7 +655,12 @@
           "source": "core/skills/figma-code-connect/references/api.md",
           "output": "references/api.md"
         }
-      ]
+      ],
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "disable-model-invocation: false\n"
+        }
+      }
     },
     {
       "id": "figma-create-design-system-rules",
@@ -602,7 +687,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "disable-model-invocation: false\n"
+        }
+      }
     },
     {
       "id": "figma-create-new-file",
@@ -629,7 +719,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "disable-model-invocation: true\n"
+        }
+      }
     },
     {
       "id": "figma-design-code-sync",
@@ -683,7 +778,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "disable-model-invocation: false\n"
+        }
+      }
     },
     {
       "id": "figma-generate-library",
@@ -780,7 +880,12 @@
           "source": "core/skills/figma-generate-library/scripts/validateCreation.js",
           "output": "scripts/validateCreation.js"
         }
-      ]
+      ],
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "disable-model-invocation: false\n"
+        }
+      }
     },
     {
       "id": "figma-implement-design",
@@ -807,7 +912,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "disable-model-invocation: false\n"
+        }
+      }
     },
     {
       "id": "figma-use",
@@ -916,7 +1026,12 @@
           "source": "core/skills/figma-use/references/working-with-design-systems/wwds.md",
           "output": "references/working-with-design-systems/wwds.md"
         }
-      ]
+      ],
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "disable-model-invocation: false\n"
+        }
+      }
     },
     {
       "id": "github-issue-reader",
@@ -943,7 +1058,22 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/knowledge/workflows/domain-complexity.csv",
+          "output": "references/knowledge/workflows/domain-complexity.csv"
+        },
+        {
+          "source": "core/knowledge/workflows/project-types.csv",
+          "output": "references/knowledge/workflows/project-types.csv"
+        }
+      ],
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\ncontext: fork\nallowed-tools:\n  - Read\n  - Grep\n  - mcp__github__get_issue\n  - mcp__github__list_issues\n  - mcp__github__get_pull_request\nargument-hint: <issue-number-or-url>\nuser-invocable: true\nknowledge:\n  core:\n    - references/knowledge/workflows/project-types.csv\n  advanced:\n    - references/knowledge/workflows/domain-complexity.csv\n"
+        }
+      }
     },
     {
       "id": "gpt-tasteskill",
@@ -1003,7 +1133,12 @@
           "source": "core/knowledge/brainstorming/brain-techniques.csv",
           "output": "references/knowledge/brainstorming/brain-techniques.csv"
         }
-      ]
+      ],
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\nallowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Write\n  - WebSearch\nargument-hint: <idea-description>\nuser-invocable: true\nknowledge:\n  core:\n    - references/knowledge/brainstorming/brain-techniques.csv\ntriggers_ux_ui:\n  auto: true\n  criteria:\n    ux_designer:\n      - has_user_interface: true\n      - screens_count: \">= 3\"\n      - keywords: [\"parcours\", \"navigation\", \"onboarding\", \"tunnel\", \"UX\", \"utilisateur\"]\n    ui_designer:\n      - needs_design_system: true\n      - keywords: [\"design\", \"composants\", \"couleurs\", \"style\", \"UI\", \"visuel\"]\n"
+        }
+      }
     },
     {
       "id": "images-taste-skill",
@@ -1057,7 +1192,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\nallowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Write\nuser-invocable: true\n"
+        }
+      }
     },
     {
       "id": "llm-wiki",
@@ -2246,7 +2386,12 @@
           "source": "core/knowledge/multi-mind/debate-templates.md",
           "output": "references/knowledge/multi-mind/debate-templates.md"
         }
-      ]
+      ],
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\ncontext: fork\nallowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Bash\n  - Write\n  - Task\n  - WebFetch\nargument-hint: <prd|review> <file>\nuser-invocable: true\nknowledge:\n  core:\n    - references/knowledge/multi-mind/agent-personalities.md\n    - references/knowledge/multi-mind/debate-templates.md\n"
+        }
+      }
     },
     {
       "id": "orchestrate",
@@ -2327,7 +2472,12 @@
         "gemini"
       ],
       "risk": 3,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\ncontext: fork\nallowed-tools:\n  - Read\n  - Glob\n  - Grep\n  - Write\n  - Edit\n  - Bash\n  - Task\n  - TaskCreate\n  - TaskUpdate\n  - TaskList\n  - TaskGet\n  - WebFetch\nargument-hint: <url-or-directory>\nuser-invocable: true\nhooks:\n  post_tool_call:\n    - tool: Bash\n      match: \"lighthouse\"\n      run: \"echo '📊 Lighthouse report generated'\"\n"
+        }
+      }
     },
     {
       "id": "pm-prd",
@@ -2354,7 +2504,26 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/knowledge/workflows/domain-complexity.csv",
+          "output": "references/knowledge/workflows/domain-complexity.csv"
+        },
+        {
+          "source": "core/knowledge/workflows/prd-template.md",
+          "output": "references/knowledge/workflows/prd-template.md"
+        },
+        {
+          "source": "core/knowledge/workflows/project-types.csv",
+          "output": "references/knowledge/workflows/project-types.csv"
+        }
+      ],
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\nallowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Write\nargument-hint: <brainstorm-file-or-idea>\nuser-invocable: true\nknowledge:\n  templates:\n    - references/knowledge/workflows/prd-template.md\n  data:\n    - references/knowledge/workflows/domain-complexity.csv\n    - references/knowledge/workflows/project-types.csv\ntriggers_ux_ui:\n  auto: true\n  criteria:\n    ux_designer:\n      - has_user_interface: true\n      - user_journey_defined: false\n      - keywords: [\"parcours\", \"navigation\", \"écrans\", \"pages\", \"interface\"]\n    ui_designer:\n      - has_ui_components: true\n      - design_system_exists: false\n      - keywords: [\"design\", \"composants\", \"visuel\", \"style\"]\n"
+        }
+      }
     },
     {
       "id": "pm-stories",
@@ -2381,7 +2550,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\nallowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Write\n  - mcp__github__create_issue\n  - mcp__github__get_issue\n  - mcp__github__list_issues\n  - mcp__github__update_issue\nargument-hint: <prd-or-architecture-file>\nuser-invocable: true\nhooks:\n  pre_tool_call:\n    - matcher: \"mcp__github__create_issue\"\n      command: \"gh auth status 2>/dev/null || echo '⚠️ GitHub CLI non authentifié - les issues seront créées via MCP'\"\n"
+        }
+      }
     },
     {
       "id": "product-microcopy",
@@ -2408,7 +2582,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\nallowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Write\nuser-invocable: true\n"
+        }
+      }
     },
     {
       "id": "project-probe",
@@ -2775,7 +2954,12 @@
         "gemini"
       ],
       "risk": 4,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\ncontext: fork\nagent: Explore\nallowed-tools:\n  - Read\n  - Glob\n  - Grep\n  - Bash\n  - Task\n  - TaskCreate\n  - TaskUpdate\n  - TaskList\n  - TaskGet\n  - WebFetch\nargument-hint: <file-or-directory-to-audit>\nuser-invocable: true\nhooks:\n  pre_tool_call:\n    - tool: Bash\n      command: \"echo '🔒 Security Audit in progress...'\"\nknowledge:\n  core:\n    - owasp-top-10\n    - common-vulnerabilities\n  advanced:\n    - cve-database\n    - security-headers\n  debugging:\n    - false-positives\n"
+        }
+      }
     },
     {
       "id": "seo-geo-audit",
@@ -3574,7 +3758,12 @@
         "gemini"
       ],
       "risk": 4,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\ncontext: fork\nagent: Explore\nallowed-tools:\n  - Read\n  - Write\n  - Edit\n  - Bash\n  - Glob\n  - Grep\n  - WebFetch\n  - Task\n  - TaskCreate\n  - TaskUpdate\n  - TaskList\nargument-hint: <url-application> [--skip-auth-test] [--quick]\nuser-invocable: true\nknowledge:\n  core:\n    - supabase-security/audit-checklist.md\n    - supabase-security/severity-matrix.md\n  advanced:\n    - supabase-security/rls-patterns.md\n    - supabase-security/remediation-templates.md\n    - supabase-security/edge-functions-security.md\n    - supabase-security/realtime-security.md\n    - supabase-security/auth-configuration.md\n"
+        }
+      }
     },
     {
       "id": "taste-critic",
@@ -3601,7 +3790,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\nallowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Bash\n  - WebFetch\nuser-invocable: true\nargument-hint: <url-or-path-or-screenshot>\n"
+        }
+      }
     },
     {
       "id": "taste-router",
@@ -3628,7 +3822,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: sonnet\nallowed-tools:\n  - Read\n  - Glob\nuser-invocable: true\n"
+        }
+      }
     },
     {
       "id": "taste-skill",
@@ -3682,7 +3881,54 @@
         "gemini"
       ],
       "risk": 3,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "core/knowledge/testing/component-tdd.md",
+          "output": "references/knowledge/testing/component-tdd.md"
+        },
+        {
+          "source": "core/knowledge/testing/data-factories.md",
+          "output": "references/knowledge/testing/data-factories.md"
+        },
+        {
+          "source": "core/knowledge/testing/fixture-architecture.md",
+          "output": "references/knowledge/testing/fixture-architecture.md"
+        },
+        {
+          "source": "core/knowledge/testing/network-first.md",
+          "output": "references/knowledge/testing/network-first.md"
+        },
+        {
+          "source": "core/knowledge/testing/selector-resilience.md",
+          "output": "references/knowledge/testing/selector-resilience.md"
+        },
+        {
+          "source": "core/knowledge/testing/test-healing-patterns.md",
+          "output": "references/knowledge/testing/test-healing-patterns.md"
+        },
+        {
+          "source": "core/knowledge/testing/test-levels-framework.md",
+          "output": "references/knowledge/testing/test-levels-framework.md"
+        },
+        {
+          "source": "core/knowledge/testing/test-priorities-matrix.md",
+          "output": "references/knowledge/testing/test-priorities-matrix.md"
+        },
+        {
+          "source": "core/knowledge/testing/test-quality.md",
+          "output": "references/knowledge/testing/test-quality.md"
+        },
+        {
+          "source": "core/knowledge/testing/timing-debugging.md",
+          "output": "references/knowledge/testing/timing-debugging.md"
+        }
+      ],
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\ncontext: fork\nallowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Write\n  - Edit\n  - Bash\nargument-hint: <file-or-directory-to-test>\nuser-invocable: true\nhooks:\n  post_tool_call:\n    - matcher: \"Bash.*npm test|Bash.*npm run test|Bash.*jest|Bash.*vitest|Bash.*pytest\"\n      command: \"npm run coverage 2>/dev/null | tail -10 || echo 'Coverage non disponible'\"\nknowledge:\n  core:\n    - references/knowledge/testing/test-levels-framework.md\n    - references/knowledge/testing/test-priorities-matrix.md\n    - references/knowledge/testing/test-quality.md\n  advanced:\n    - references/knowledge/testing/data-factories.md\n    - references/knowledge/testing/fixture-architecture.md\n    - references/knowledge/testing/network-first.md\n    - references/knowledge/testing/component-tdd.md\n  debugging:\n    - references/knowledge/testing/test-healing-patterns.md\n    - references/knowledge/testing/selector-resilience.md\n    - references/knowledge/testing/timing-debugging.md\n"
+        }
+      }
     },
     {
       "id": "thermo-nuclear-code-quality-review",
@@ -3736,7 +3982,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\nallowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Write\n  - Bash\nargument-hint: <ux-design-file> [--from-figma]\nuser-invocable: true\ntrigger:\n  auto_criteria:\n    - has_design_system: false\n    - components_count: \">= 5\"\n    - brand_consistency_needed: true\n    - keywords: [\"design\", \"composants\", \"couleurs\", \"style\", \"branding\"]\n  mode: auto | manual | skip\nknowledge:\n  advanced:\n    - figma/tokens-mapping.md\n    - figma/mcp-tools-reference.md\n"
+        }
+      }
     },
     {
       "id": "ux-designer",
@@ -3763,7 +4014,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "model: opus\nallowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Write\nargument-hint: <prd-or-brainstorm-file>\nuser-invocable: true\ntrigger:\n  auto_criteria:\n    - has_ui: true\n    - screens_count: \">= 3\"\n    - user_journey_complexity: \"multi-step\"\n    - keywords: [\"parcours\", \"navigation\", \"onboarding\", \"tunnel\", \"conversion\"]\n  mode: auto | manual | skip\n"
+        }
+      }
     },
     {
       "id": "web-navigator",
@@ -3864,7 +4120,12 @@
         "gemini"
       ],
       "risk": 3,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "allowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Bash\n  - WebFetch\n"
+        }
+      }
     },
     {
       "id": "design-audit-command",
@@ -3891,7 +4152,12 @@
         "gemini"
       ],
       "risk": 3,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "allowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Bash\n  - WebFetch\n"
+        }
+      }
     },
     {
       "id": "dev",
@@ -4111,7 +4377,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "allowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Bash\n  - Write\n  - Task\n  - WebFetch\n"
+        }
+      }
     },
     {
       "id": "orchestrate-command",
@@ -4138,7 +4409,12 @@
         "gemini"
       ],
       "risk": 3,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "user-invocable: true\narguments:\n  - name: objective\n    description: L'objectif a decomposer et executer\n    required: true\n"
+        }
+      }
     },
     {
       "id": "plan-review",
@@ -4343,7 +4619,12 @@
         "gemini"
       ],
       "risk": 2,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "allowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Bash\n  - WebFetch\n"
+        }
+      }
     },
     {
       "id": "seo-geo-audit-command",
@@ -4370,7 +4651,12 @@
         "gemini"
       ],
       "risk": 3,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "allowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Bash\n  - WebFetch\n  - WebSearch\n"
+        }
+      }
     },
     {
       "id": "seo-geo-squad",
@@ -4399,7 +4685,12 @@
         "gemini"
       ],
       "risk": 3,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "provider_metadata": {
+        "claude": {
+          "frontmatter": "allowed-tools:\n  - Read\n  - Grep\n  - Glob\n  - Bash\n  - WebFetch\n  - WebSearch\n"
+        }
+      }
     },
     {
       "id": "ship",

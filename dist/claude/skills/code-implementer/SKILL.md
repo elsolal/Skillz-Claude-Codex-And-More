@@ -18,8 +18,8 @@ hooks:
       command: "npm run lint --fix 2>/dev/null || npm run lint 2>/dev/null || echo 'Lint check skipped'"
 knowledge:
   patterns:
-    - ../../knowledge/testing/error-handling.md
-    - ../../knowledge/testing/feature-flags.md
+    - references/knowledge/testing/error-handling.md
+    - references/knowledge/testing/feature-flags.md
 ---
 
 # Code Implementer

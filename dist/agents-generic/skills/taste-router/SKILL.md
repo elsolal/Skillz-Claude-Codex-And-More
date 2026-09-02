@@ -1,11 +1,6 @@
 ---
 name: taste-router
 description: Recommande quel taste-skill utiliser (et les valeurs des 3 dials DESIGN_VARIANCE / MOTION_INTENSITY / VISUAL_DENSITY) à partir d'un brief produit ou design. Utiliser quand l'utilisateur dit "quel style", "quel taste-skill", "comment je règle les dials", "design direction", ou avant d'attaquer une implémentation frontend premium.
-model: sonnet
-allowed-tools:
-  - Read
-  - Glob
-user-invocable: true
 ---
 
 # Taste Router

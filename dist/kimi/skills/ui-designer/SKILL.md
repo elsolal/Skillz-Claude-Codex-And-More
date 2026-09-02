@@ -1,26 +1,6 @@
 ---
 name: ui-designer
 description: Définit le design system, les composants UI et les guidelines visuelles. Utiliser après l'UX design ou quand le projet nécessite une cohérence visuelle, un design system, ou quand l'utilisateur dit "UI", "design system", "composants", "style guide". Peut être déclenché automatiquement par UX designer ou PRD. Supporte l'import depuis Figma avec --from-figma.
-model: opus
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Write
-  - Bash
-argument-hint: <ux-design-file> [--from-figma]
-user-invocable: true
-trigger:
-  auto_criteria:
-    - has_design_system: false
-    - components_count: ">= 5"
-    - brand_consistency_needed: true
-    - keywords: ["design", "composants", "couleurs", "style", "branding"]
-  mode: auto | manual | skip
-knowledge:
-  advanced:
-    - figma/tokens-mapping.md
-    - figma/mcp-tools-reference.md
 ---
 
 # UI Designer

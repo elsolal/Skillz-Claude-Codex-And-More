@@ -1,35 +1,6 @@
 ---
 name: security-auditor
 description: Audit de sécurité du code. Analyse OWASP Top 10, dépendances vulnérables, secrets exposés, et configurations. Utiliser après l'implémentation ou avant une release.
-model: opus
-context: fork
-agent: Explore
-allowed-tools:
-  - Read
-  - Glob
-  - Grep
-  - Bash
-  - Task
-  - TaskCreate
-  - TaskUpdate
-  - TaskList
-  - TaskGet
-  - WebFetch
-argument-hint: <file-or-directory-to-audit>
-user-invocable: true
-hooks:
-  pre_tool_call:
-    - tool: Bash
-      command: "echo '🔒 Security Audit in progress...'"
-knowledge:
-  core:
-    - owasp-top-10
-    - common-vulnerabilities
-  advanced:
-    - cve-database
-    - security-headers
-  debugging:
-    - false-positives
 ---
 
 # Security Auditor 🔒

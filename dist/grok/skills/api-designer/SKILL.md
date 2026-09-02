@@ -1,29 +1,6 @@
 ---
 name: api-designer
 description: Conçoit des APIs REST/GraphQL avec OpenAPI spec, versioning, et documentation. Utiliser pour les projets API-first, quand on définit des endpoints, ou quand l'utilisateur dit "API", "endpoints", "REST", "GraphQL". Peut être déclenché après PRD ou Architecture.
-model: opus
-context: fork
-allowed-tools:
-  - Read
-  - Glob
-  - Grep
-  - Write
-  - Edit
-  - Bash
-  - Task
-  - TaskCreate
-  - TaskUpdate
-  - TaskList
-  - TaskGet
-  - mcp__github__get_issue
-  - mcp__github__list_issues
-argument-hint: <api-name-or-prd-reference>
-user-invocable: true
-hooks:
-  post_tool_call:
-    - tool: Write
-      match: "openapi*.yaml"
-      run: "npx @redocly/cli lint $file 2>/dev/null || true"
 ---
 
 # API Designer 🔌

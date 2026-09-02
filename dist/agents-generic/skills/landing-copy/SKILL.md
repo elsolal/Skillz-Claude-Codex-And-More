@@ -1,13 +1,6 @@
 ---
 name: landing-copy
 description: Écrit du copy de landing page premium — H1 avec sujet + bénéfice mesurable, value props concrets, social proof, CTA hierarchy, FAQ. Bannit les filler corporate ("Discover", "leverage", "amazing", "experience"). Patterns Julian Shapiro / Stripe / Linear / Cal.com. Utiliser pour landing marketing, pricing pages, product pages.
-model: opus
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Write
-user-invocable: true
 ---
 
 # Landing Copy

@@ -16,7 +16,10 @@ from typing import Any
 ALL_PROVIDERS = ["claude", "codex", "opencode", "agents-generic", "kimi", "grok", "gemini"]
 PATH_TOKEN = re.compile(r"(?<!~/)\.claude/skills/([a-z0-9-]+)(?:/SKILL\.md|/)?")
 COMMAND_TOKEN = re.compile(r"(?<!~/)\.claude/commands/([a-z0-9-]+)\.md")
-KNOWLEDGE_TOKEN = re.compile(r"(?<!~/)\.claude/knowledge/([A-Za-z0-9_./-]+)")
+KNOWLEDGE_TOKEN = re.compile(
+    r"(?:(?<!~/)\.claude/knowledge/|(?:\.\./)+knowledge/)([A-Za-z0-9_./-]+)"
+)
+PORTABLE_FRONTMATTER = {"name", "description", "license"}
 
 RISK_FOUR = {
     "dev-workflow", "quality-gate", "ship-workflow", "security-auditor",
@@ -54,7 +57,8 @@ def _entry_name(path: Path, identifier: str) -> str:
 
 
 def _knowledge_paths(text: str) -> list[str]:
-    return sorted({match.rstrip("`'\"),.:;") for match in KNOWLEDGE_TOKEN.findall(text)})
+    matches = {match.rstrip("`'\"),.:;") for match in KNOWLEDGE_TOKEN.findall(text)}
+    return sorted(match for match in matches if PurePosixPath(match).suffix)
 
 
 def _safe_knowledge_path(value: str) -> PurePosixPath:
@@ -74,7 +78,30 @@ def _regular_files(directory: Path, entrypoint: Path | None = None) -> list[Path
     return files
 
 
-def _normalize_entry(text: str, artifact_type: str, identifier: str) -> str:
+def _partition_frontmatter(text: str) -> tuple[str, str]:
+    if not text.startswith("---\n"):
+        return text, ""
+    closing = text.find("\n---\n", 4)
+    if closing < 0:
+        raise MigrationError("unterminated artifact frontmatter")
+    lines = text[4:closing].splitlines()
+    groups: list[tuple[str, list[str]]] = []
+    for line in lines:
+        if line and not line[0].isspace() and ":" in line:
+            groups.append((line.split(":", 1)[0], [line]))
+        elif not groups:
+            raise MigrationError("frontmatter content appears before its first key")
+        else:
+            groups[-1][1].append(line)
+    portable = [line for key, group in groups if key in PORTABLE_FRONTMATTER for line in group]
+    provider = [line for key, group in groups if key not in PORTABLE_FRONTMATTER for line in group]
+    body = text[closing + 5 :]
+    canonical = "---\n" + "\n".join(portable) + "\n---\n" + body
+    fragment = "\n".join(provider) + ("\n" if provider else "")
+    return canonical, fragment
+
+
+def _normalize_paths(text: str, artifact_type: str, identifier: str) -> str:
     text = COMMAND_TOKEN.sub(lambda match: f"command:{match.group(1)}", text)
 
     def skill_reference(match: re.Match[str]) -> str:
@@ -92,6 +119,16 @@ def _normalize_entry(text: str, artifact_type: str, identifier: str) -> str:
         lambda match: f"resources/{identifier}/knowledge/{match.group(1)}", text
         )
     return re.sub(r"(?<!~/)\.claude/knowledge/", "core/knowledge/", text)
+
+
+def _normalize_entry(text: str, artifact_type: str, identifier: str) -> str:
+    canonical, _ = _partition_frontmatter(_normalize_paths(text, artifact_type, identifier))
+    return canonical
+
+
+def _provider_frontmatter(text: str, artifact_type: str, identifier: str) -> str:
+    _, fragment = _partition_frontmatter(_normalize_paths(text, artifact_type, identifier))
+    return fragment
 
 
 def _risk(identifier: str) -> int:
@@ -147,7 +184,7 @@ def _resource_items(root: Path, artifact_type: str, identifier: str, source: Pat
     return sorted(resources, key=lambda item: item["output"])
 
 
-def _copy_artifacts(root: Path) -> None:
+def _copy_artifacts(root: Path, *, extract_provider_metadata: bool = False) -> None:
     pairs: list[tuple[Path, Path, str, str]] = []
     for legacy in sorted((root / ".claude" / "skills").glob("*/SKILL.md")):
         identifier = legacy.parent.name
@@ -163,8 +200,17 @@ def _copy_artifacts(root: Path) -> None:
         if canonical.is_symlink():
             raise MigrationError(f"symlink canonical entrypoint is not allowed: {canonical.relative_to(root)}")
         if canonical.exists() and identifier not in CURATED_CANONICAL:
-            if canonical.read_text(encoding="utf-8") != expected:
-                raise MigrationError(f"canonical entry drift blocks migration: {canonical.relative_to(root)}")
+            current_canonical = canonical.read_text(encoding="utf-8")
+            if current_canonical != expected:
+                pre_extraction = _normalize_paths(
+                    legacy.read_text(encoding="utf-8"), artifact_type, identifier
+                )
+                normalized_current = _normalize_paths(current_canonical, artifact_type, identifier)
+                safe_extraction_state = current_canonical == pre_extraction or normalized_current == expected
+                if extract_provider_metadata and safe_extraction_state:
+                    canonical.write_text(expected, encoding="utf-8")
+                else:
+                    raise MigrationError(f"canonical entry drift blocks migration: {canonical.relative_to(root)}")
         elif not canonical.exists():
             canonical.parent.mkdir(parents=True, exist_ok=True)
             canonical.write_text(expected, encoding="utf-8")
@@ -229,6 +275,17 @@ def _artifact(
     resources = _resource_items(root, artifact_type, identifier, source)
     if resources:
         result["resources"] = resources
+    legacy_entry = (
+        root / ".claude" / "skills" / identifier / "SKILL.md"
+        if artifact_type == "skill"
+        else root / ".claude" / "commands" / f"{identifier}.md"
+    )
+    if legacy_entry.is_file():
+        fragment = _provider_frontmatter(
+            legacy_entry.read_text(encoding="utf-8"), artifact_type, identifier
+        )
+        if fragment:
+            result["provider_metadata"] = {"claude": {"frontmatter": fragment}}
     return result
 
 
@@ -307,6 +364,12 @@ def _check(root: Path, catalog: dict[str, Any]) -> list[str]:
             expected = _normalize_entry(legacy.read_text(encoding="utf-8"), artifact_type, identifier)
             if identifier not in CURATED_CANONICAL and canonical.read_text(encoding="utf-8") != expected:
                 errors.append(f"canonical {artifact_type} entry drift: {identifier}")
+            _, expected_fragment = _partition_frontmatter(
+                _normalize_paths(legacy.read_text(encoding="utf-8"), artifact_type, identifier)
+            )
+            actual_fragment = artifact.get("provider_metadata", {}).get("claude", {}).get("frontmatter", "")
+            if actual_fragment != expected_fragment:
+                errors.append(f"provider frontmatter drift: {identifier}")
             declared = {item["output"]: item["source"] for item in artifact.get("resources", [])}
             actual_items = _resource_items(root, artifact_type, identifier, canonical)
             if declared != {item["output"]: item["source"] for item in actual_items}:
@@ -344,6 +407,7 @@ def _report(catalog: dict[str, Any]) -> dict[str, Any]:
         "status": "PASS",
         "catalog_artifacts": len(catalog["artifacts"]),
         "catalog_resources": sum(len(item.get("resources", [])) for item in catalog["artifacts"]),
+        "provider_metadata_artifacts": sum(bool(item.get("provider_metadata")) for item in catalog["artifacts"]),
         "counts": {
             kind: sum(1 for item in catalog["artifacts"] if item["type"] == kind)
             for kind in ("skill", "command", "instruction")
@@ -374,13 +438,16 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--apply", action="store_true")
+    parser.add_argument("--extract-provider-metadata", action="store_true")
     parser.add_argument("--report", type=Path)
     args = parser.parse_args()
     root = args.root.resolve()
     catalog_path = root / "core" / "catalog.yaml"
     current = json.loads(catalog_path.read_text(encoding="utf-8"))
+    if args.extract_provider_metadata and not args.apply:
+        parser.error("--extract-provider-metadata requires --apply")
     if args.apply:
-        _copy_artifacts(root)
+        _copy_artifacts(root, extract_provider_metadata=args.extract_provider_metadata)
         current = _build_catalog(root, current)
         catalog_path.write_text(json.dumps(current, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     errors = _check(root, current)

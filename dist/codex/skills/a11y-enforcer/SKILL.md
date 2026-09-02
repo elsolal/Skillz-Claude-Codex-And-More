@@ -1,15 +1,6 @@
 ---
 name: a11y-enforcer
 description: Audit accessibilité (WCAG 2.2 AA) sur URL ou code. Vérifie contrastes, ARIA roles, keyboard navigation, focus order, prefers-reduced-motion, alt text, semantic HTML, form labels. Output structuré avec sévérité, code de fix, et impact utilisateur. Utiliser dans /pr-review, /qa, ou avant /ship — risque légal réel (EAA EU 2025, ADA US, AODA Canada).
-model: opus
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-  - WebFetch
-user-invocable: true
-argument-hint: <url-or-path>
 ---
 
 # A11y Enforcer

@@ -18,18 +18,18 @@ hooks:
       command: "npm run coverage 2>/dev/null | tail -10 || echo 'Coverage non disponible'"
 knowledge:
   core:
-    - ../../knowledge/testing/test-levels-framework.md
-    - ../../knowledge/testing/test-priorities-matrix.md
-    - ../../knowledge/testing/test-quality.md
+    - references/knowledge/testing/test-levels-framework.md
+    - references/knowledge/testing/test-priorities-matrix.md
+    - references/knowledge/testing/test-quality.md
   advanced:
-    - ../../knowledge/testing/data-factories.md
-    - ../../knowledge/testing/fixture-architecture.md
-    - ../../knowledge/testing/network-first.md
-    - ../../knowledge/testing/component-tdd.md
+    - references/knowledge/testing/data-factories.md
+    - references/knowledge/testing/fixture-architecture.md
+    - references/knowledge/testing/network-first.md
+    - references/knowledge/testing/component-tdd.md
   debugging:
-    - ../../knowledge/testing/test-healing-patterns.md
-    - ../../knowledge/testing/selector-resilience.md
-    - ../../knowledge/testing/timing-debugging.md
+    - references/knowledge/testing/test-healing-patterns.md
+    - references/knowledge/testing/selector-resilience.md
+    - references/knowledge/testing/timing-debugging.md
 ---
 
 # Test Runner

@@ -11,10 +11,10 @@ argument-hint: <brainstorm-file-or-idea>
 user-invocable: true
 knowledge:
   templates:
-    - ../../knowledge/workflows/prd-template.md
+    - references/knowledge/workflows/prd-template.md
   data:
-    - ../../knowledge/workflows/domain-complexity.csv
-    - ../../knowledge/workflows/project-types.csv
+    - references/knowledge/workflows/domain-complexity.csv
+    - references/knowledge/workflows/project-types.csv
 triggers_ux_ui:
   auto: true
   criteria:
@@ -49,7 +49,7 @@ triggers_ux_ui:
 
 ## Knowledge Base
 
-**Templates et données disponibles dans `../../knowledge/workflows/`**
+**Templates et données disponibles dans `references/knowledge/workflows/`**
 
 | Fichier | Description |
 |---------|-------------|

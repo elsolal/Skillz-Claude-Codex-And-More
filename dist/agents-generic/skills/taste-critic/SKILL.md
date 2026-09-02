@@ -1,15 +1,6 @@
 ---
 name: taste-critic
 description: Audit anti-slop d'une UI frontend (URL, screenshot, ou code) contre les règles des 9 taste-skills. Détecte les défauts génériques de l'AI (6-line wraps, gapless bento absent, motion plate, hierarchy molle, copy générique, density déséquilibrée). Output structuré avec sévérité P0-P3 et fix suggéré. Utiliser dans /pr-review (3e passe design), /qa, ou avant /ship pour gate la qualité visuelle.
-model: opus
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-  - WebFetch
-user-invocable: true
-argument-hint: <url-or-path-or-screenshot>
 ---
 
 # Taste Critic

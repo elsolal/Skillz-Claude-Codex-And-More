@@ -1,35 +1,6 @@
 ---
 name: test-runner
 description: Écrit et exécute les tests pour valider l'implémentation. Priorités P0-P3, risk-based, avec web-navigator/Playwright CLI pour explorer les apps web runtime avant E2E. Utilisé depuis /dev ou standalone.
-model: opus
-context: fork
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Write
-  - Edit
-  - Bash
-argument-hint: <file-or-directory-to-test>
-user-invocable: true
-hooks:
-  post_tool_call:
-    - matcher: "Bash.*npm test|Bash.*npm run test|Bash.*jest|Bash.*vitest|Bash.*pytest"
-      command: "npm run coverage 2>/dev/null | tail -10 || echo 'Coverage non disponible'"
-knowledge:
-  core:
-    - ../../knowledge/testing/test-levels-framework.md
-    - ../../knowledge/testing/test-priorities-matrix.md
-    - ../../knowledge/testing/test-quality.md
-  advanced:
-    - ../../knowledge/testing/data-factories.md
-    - ../../knowledge/testing/fixture-architecture.md
-    - ../../knowledge/testing/network-first.md
-    - ../../knowledge/testing/component-tdd.md
-  debugging:
-    - ../../knowledge/testing/test-healing-patterns.md
-    - ../../knowledge/testing/selector-resilience.md
-    - ../../knowledge/testing/timing-debugging.md
 ---
 
 # Test Runner

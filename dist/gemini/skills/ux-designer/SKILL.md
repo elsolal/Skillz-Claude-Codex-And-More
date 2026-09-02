@@ -1,21 +1,6 @@
 ---
 name: ux-designer
 description: Conçoit l'expérience utilisateur avec personas, user journeys et wireframes textuels. Utiliser quand le projet a une interface utilisateur complexe, des parcours multi-écrans, ou quand l'utilisateur dit "UX", "parcours utilisateur", "expérience", "ergonomie". Peut être déclenché automatiquement par brainstorm ou PRD.
-model: opus
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Write
-argument-hint: <prd-or-brainstorm-file>
-user-invocable: true
-trigger:
-  auto_criteria:
-    - has_ui: true
-    - screens_count: ">= 3"
-    - user_journey_complexity: "multi-step"
-    - keywords: ["parcours", "navigation", "onboarding", "tunnel", "conversion"]
-  mode: auto | manual | skip
 ---
 
 # UX Designer

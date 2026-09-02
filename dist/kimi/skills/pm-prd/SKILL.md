@@ -1,31 +1,6 @@
 ---
 name: pm-prd
 description: Crée un Product Requirements Document (PRD) structuré à partir d'une idée ou d'un brainstorm. Utiliser quand l'utilisateur veut structurer une idée en spécifications, dit "PRD", "spécifications", "requirements", "définir le produit", ou après une session de brainstorm validée.
-model: opus
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Write
-argument-hint: <brainstorm-file-or-idea>
-user-invocable: true
-knowledge:
-  templates:
-    - ../../knowledge/workflows/prd-template.md
-  data:
-    - ../../knowledge/workflows/domain-complexity.csv
-    - ../../knowledge/workflows/project-types.csv
-triggers_ux_ui:
-  auto: true
-  criteria:
-    ux_designer:
-      - has_user_interface: true
-      - user_journey_defined: false
-      - keywords: ["parcours", "navigation", "écrans", "pages", "interface"]
-    ui_designer:
-      - has_ui_components: true
-      - design_system_exists: false
-      - keywords: ["design", "composants", "visuel", "style"]
 ---
 
 # PM-PRD (Product Requirements Document)
@@ -49,7 +24,7 @@ triggers_ux_ui:
 
 ## Knowledge Base
 
-**Templates et données disponibles dans `../../knowledge/workflows/`**
+**Templates et données disponibles dans `references/knowledge/workflows/`**
 
 | Fichier | Description |
 |---------|-------------|

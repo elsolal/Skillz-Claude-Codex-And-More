@@ -1,22 +1,6 @@
 ---
 name: multi-mind
 description: Débat multi-agents avec 6 IA pour valider PRD et code. Utiliser pour obtenir des perspectives diverses sur des décisions critiques, après un PRD de niveau 2+, ou après une code review de code critique. Inclut l'anti-consensus room (Contrarian).
-model: opus
-context: fork
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-  - Write
-  - Task
-  - WebFetch
-argument-hint: <prd|review> <file>
-user-invocable: true
-knowledge:
-  core:
-    - references/knowledge/multi-mind/agent-personalities.md
-    - references/knowledge/multi-mind/debate-templates.md
 ---
 
 # Multi-Mind Debate System v3.5
