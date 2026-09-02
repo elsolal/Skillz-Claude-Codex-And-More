@@ -2110,7 +2110,17 @@
         "gemini"
       ],
       "risk": 3,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "scripts/project_probe.py",
+          "output": "scripts/project_probe.py"
+        },
+        {
+          "source": "scripts/run-python310.sh",
+          "output": "scripts/run-python310.sh"
+        }
+      ]
     },
     {
       "id": "qmd",
@@ -2174,7 +2184,17 @@
         "gemini"
       ],
       "risk": 4,
-      "migration_state": "canonical"
+      "migration_state": "canonical",
+      "resources": [
+        {
+          "source": "scripts/gate_verify.py",
+          "output": "scripts/gate_verify.py"
+        },
+        {
+          "source": "scripts/run-python310.sh",
+          "output": "scripts/run-python310.sh"
+        }
+      ]
     },
     {
       "id": "redesign-skill",
@@ -3174,7 +3194,10 @@
       "public_name": "Project status",
       "type": "skill",
       "source": "core/skills/status-workflow/SKILL.md",
-      "dependencies": [],
+      "dependencies": [
+        "project-probe",
+        "quality-gate"
+      ],
       "inputs": [
         "repository"
       ],

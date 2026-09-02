@@ -46,11 +46,13 @@ Never search an entire home directory. Never run install, update, restore, or un
 ### 2. Project probe
 
 - Missing `.agents/verification.yaml` → `project-unprobed`.
+- Resolve the project-probe resources through the active skill registry. Missing or incompatible
+  resources → `tooling-unavailable`; never reinterpret this as a project-quality concern.
 - Otherwise run the read-only freshness check:
 
-  ```bash
-  bash tests/run-python310.sh scripts/project_probe.py \
-    --root . --output .agents/verification.yaml --check
+```bash
+bash "skill:project-probe/scripts/run-python310.sh" "skill:project-probe/scripts/project_probe.py" \
+  --root . --output .agents/verification.yaml --check
   ```
 
 - Non-zero freshness result → `project-unprobed` with reason `stale manifest`.
@@ -75,17 +77,31 @@ For the work item associated with the current branch or user request:
 
 Read `git status --short`, `git branch --show-current`, `git log --oneline -5`, and local gate files under `docs/quality/`.
 
-- A non-main branch with commits or tracked work attributable to the current task → `implementation-in-progress`.
+Resolve the comparison base read-only from an explicit caller value, then remote HEAD metadata, then
+a unique local `main`/`master`/`trunk`. If more than one candidate remains, report
+`planning-unknown` or `gate-migration-required` as applicable and ask for the base; never guess.
+
+- A branch other than the resolved default branch, with commits or tracked work attributable to the
+  current task → `implementation-in-progress`.
 - Unrelated or untracked files are reported separately and never treated as implementation proof.
-- Identify a candidate gate only when its scope/branch metadata matches the current work. Verify it mechanically:
+- Identify a candidate gate only when its scope/branch metadata matches the current work. Resolve
+  the quality-gate resources through the active skill registry and verify it mechanically:
 
   ```bash
-  bash tests/run-python310.sh scripts/gate_verify.py --root . verify <gate-file>
+  bash "skill:quality-gate/scripts/run-python310.sh" "skill:quality-gate/scripts/gate_verify.py" \
+    --root . verify <gate-file> --allow-legacy --legacy-base-ref <resolved-base-ref>
   ```
 
-- Missing matching gate, failed envelope verification, mismatched diff hash, mismatched manifest fingerprint, or commits after the gate → `gate-stale`.
+- Missing verifier resources → `tooling-unavailable`, with installation repair as the next action.
+- A v1 gate that cannot be matched to the current diff → `gate-migration-required`; call it
+  `legacy-evidence`, never `stale-v2`.
+- A v2 gate with failed envelope verification, mismatched diff hash, mismatched manifest fingerprint, or commits after the gate → `gate-stale`.
 - A fresh `PASS` gate plus a clean scoped diff and a shippable feature branch → `ready-to-ship`.
-- `CONCERNS`, `FAIL`, or `WAIVED` never silently become `ready-to-ship`; report the exact verdict and required human decision.
+- A fresh, mechanically valid `WAIVED` gate with complete decision metadata →
+  `ready-to-ship-with-waiver`; quote its reason and scope and never relabel it PASS.
+- A `legacy-valid` PASS gate during the compatibility window → `ready-to-ship-legacy`; report the
+  reduced assurance and recommend v2 for the next gate.
+- `CONCERNS` or `FAIL` never silently become ready; report the exact verdict and required action.
 
 GitHub issue and PR reads are optional corroboration. A missing `gh` binary, authentication, or network is a limitation, not a reason to fail the local status report.
 
@@ -97,11 +113,15 @@ Choose the first supported state in this order. Do not skip a higher-priority bl
 |---|---|---|
 | `not-installed` | resolved target checked; no manifest and expected bundle absent | show the explicit dry-run install command |
 | `partially-installed` | doctor reports broken/partial/drift | review doctor conflicts, then explicit update/restore action |
+| `tooling-unavailable` | required skill-owned probe/verifier resource cannot resolve or execute | repair or update the Skillz installation; never request a quality waiver |
 | `project-unprobed` | manifest missing or freshness check fails | run `project-probe` |
 | `plan-awaiting-approval` | applicable plan/spec lacks required human approval | review and approve the named spec |
 | `implementation-in-progress` | scoped branch commits or tracked changes; no fresh PASS gate | continue `/dev` at the evidenced phase |
 | `gate-stale` | matching gate absent or mechanical verification fails | rerun `quality-gate` after checks |
+| `gate-migration-required` | v1 is readable but its historical diff cannot be verified | generate a v2 gate with the repaired skill-owned tooling |
 | `ready-to-ship` | fresh PASS gate, valid envelope, clean scoped state | `/ship <branch>` |
+| `ready-to-ship-with-waiver` | fresh WAIVED gate with complete human decision metadata | `/ship <branch>` while preserving the waiver in the PR |
+| `ready-to-ship-legacy` | matching v1 PASS plus fresh execution evidence during compatibility window | `/ship <branch>` with `LEGACY_VALID` disclosed |
 | `idle-or-unknown` | no stronger state has adequate proof | ask for task scope or pick the next priority |
 
 The recommendation must name the evidence that caused it and must not execute the action.

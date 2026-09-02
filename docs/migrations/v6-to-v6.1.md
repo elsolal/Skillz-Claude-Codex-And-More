@@ -35,6 +35,26 @@ the complete preflight before mutation.
 After review, remove `--dry-run`, then run `doctor`. Update, restore and uninstall use the same
 manifest; uninstall removes only current exact Skillz-owned hashes.
 
+## Quality-gate transition
+
+`project-probe` and `quality-gate` now own the Python selector and verifier resources they invoke.
+Global installs, compiled provider bundles and per-project installs materialize the same resources.
+Application repositories must not copy Skillz scripts into their own `scripts/` directory. If one
+of these resources is missing, report `tooling-unavailable` and update or repair the Skillz
+installation with the compiled installer or `./install.sh update all`; a product-quality waiver is
+never the remedy for missing framework tooling.
+
+Existing v1 gates remain `legacy-evidence`. Through the v6.1 release line, `/ship` may classify a
+v1 `PASS` as `LEGACY_VALID` only when its recorded diff hash still matches the current branch
+against the explicitly resolved default base and the manifest commands have just passed. A v1 gate
+whose diff cannot be reconstructed requires a new v2 gate, but is not called stale merely because
+its schema is old. New gates are always v2; the legacy acceptance path is scheduled for removal in
+v6.2.
+
+A v2 `WAIVED` gate must carry `reason`, `scope`, `approved_by` and timezone-aware `approved_at` in
+its proof payload. It remains `WAIVED` in status and PR evidence and can be consumed without asking
+the same human decision again.
+
 ## Breaking changes
 
 - Removed commands: `/auto-loop`, `/auto-discovery`, `/auto-dev`, `/cancel-ralph`,
@@ -45,6 +65,7 @@ manifest; uninstall removes only current exact Skillz-owned hashes.
 - Literal command syntax is not guaranteed across runtimes; use the documented semantic skill
   fallback where a native command surface is unavailable.
 - Certification wording is evidence-bound: C1 generable, C2 discovered, C3 behaviorally certified.
+- `/ship` resolves the remote default branch instead of assuming `origin/main`.
 
 The complete removal and preservation policy remains in `docs/migrations/v6.1-ralph-removal.md`.
 

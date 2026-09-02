@@ -16,6 +16,28 @@ def load_lifecycle_module():
 
 
 class TransverseWorkflowTests(unittest.TestCase):
+    def test_verification_workflows_use_skill_owned_tools(self):
+        skills = {
+            name: (REPO_ROOT / "core" / "skills" / name / "SKILL.md").read_text(
+                encoding="utf-8"
+            )
+            for name in ("project-probe", "quality-gate", "ship-workflow", "status-workflow")
+        }
+
+        self.assertIn("skill:project-probe/scripts/project_probe.py", skills["project-probe"])
+        self.assertIn("skill:quality-gate/scripts/gate_verify.py", skills["quality-gate"])
+        for text in skills.values():
+            self.assertNotIn("bash scripts/run-python310.sh scripts/", text)
+
+        ship = skills["ship-workflow"]
+        self.assertNotIn("git diff main...HEAD", ship)
+        self.assertNotIn("git fetch origin main", ship)
+        self.assertNotIn("If on `main` or `master`", ship)
+        self.assertNotIn("non-main branch", skills["status-workflow"])
+        self.assertNotIn("`main`, or `master`", skills["quality-gate"])
+        self.assertIn("ready-to-ship-with-waiver", skills["status-workflow"])
+        self.assertIn("tooling-unavailable", skills["status-workflow"])
+
     def test_status_defines_every_evidence_backed_state(self):
         canonical = (REPO_ROOT / "core/skills/status-workflow/SKILL.md").read_text(
             encoding="utf-8"

@@ -54,6 +54,35 @@ assert_installed_task_first_contract() {
     assert_task_first_loader "$home/.config/opencode/AGENTS.md"
 }
 
+assert_verification_tools_at() {
+    local skills_root="$1"
+    local relative
+    for relative in \
+        project-probe/scripts/project_probe.py \
+        project-probe/scripts/run-python310.sh \
+        quality-gate/scripts/gate_verify.py \
+        quality-gate/scripts/run-python310.sh; do
+        [ -x "$skills_root/$relative" ] || \
+            fail "Missing executable verification resource: $relative"
+    done
+    cmp -s "$REPO_ROOT/scripts/project_probe.py" \
+        "$skills_root/project-probe/scripts/project_probe.py" || \
+        fail "Installed project_probe.py differs from source"
+    cmp -s "$REPO_ROOT/scripts/gate_verify.py" \
+        "$skills_root/quality-gate/scripts/gate_verify.py" || \
+        fail "Installed gate_verify.py differs from source"
+    bash "$skills_root/project-probe/scripts/run-python310.sh" \
+        "$skills_root/project-probe/scripts/project_probe.py" --help >/dev/null || \
+        fail "Installed project probe cannot execute through its skill-owned selector"
+    bash "$skills_root/quality-gate/scripts/run-python310.sh" \
+        "$skills_root/quality-gate/scripts/gate_verify.py" --help >/dev/null || \
+        fail "Installed gate verifier cannot execute through its skill-owned selector"
+}
+
+assert_installed_verification_tools() {
+    assert_verification_tools_at "$1/.claude/skills"
+}
+
 assert_managed_link() {
     local link="$1"
     local expected_target="$2"
@@ -99,7 +128,7 @@ write_third_party_binary() {
 }
 
 test_install_update_and_uninstall() {
-    local home log expected_target skillz_output alias_output deny_bin command test_path
+    local home log expected_target skillz_output alias_output deny_bin command test_path project
     local claude_manifest codex_manifest
     home="$(new_home happy-path)"
     log="$home/install.log"
@@ -122,6 +151,7 @@ test_install_update_and_uninstall() {
     [ -L "$home/.config/opencode/skills/llm-wiki" ] || fail "OpenCode provider mirror was not installed"
     [ -L "$home/.agents/skills/llm-wiki" ] || fail "Generic agents provider mirror was not installed"
     assert_installed_task_first_contract "$home"
+    assert_installed_verification_tools "$home"
     assert_absent "$home/unexpected-download-command"
     skillz_output="$(HOME="$home" PATH="$test_path" skillz-memory --version)"
     alias_output="$(HOME="$home" PATH="$test_path" memory --version)"
@@ -158,10 +188,16 @@ assert payload["data"]["stores"]["project"]["collection"] == "elsolal-wiki"
     assert_managed_link "$home/.local/bin/skillz-memory" "$expected_target"
     assert_managed_link "$home/.local/bin/memory" "$expected_target"
     assert_installed_task_first_contract "$home"
+    assert_installed_verification_tools "$home"
     [ "$(grep -c '^binary:skillz-memory$' "$home/.claude/.skillz-manifest")" -eq 1 ] || \
         fail "skillz-memory manifest entry is not idempotent"
     [ "$(grep -c '^binary:memory$' "$home/.claude/.skillz-manifest")" -eq 1 ] || \
         fail "memory manifest entry is not idempotent"
+
+    project="$home/project-install"
+    mkdir -p "$project"
+    run_installer "$home" "$test_path" "$log" install "$project" --providers codex
+    assert_verification_tools_at "$project/.claude/skills"
 
     run_installer "$home" "$test_path" "$log" uninstall all
     assert_absent "$home/.local/bin/skillz-memory"

@@ -55,7 +55,14 @@ class GateVerifyTests(unittest.TestCase):
     def _sha(self) -> str:
         return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=self.root, text=True).strip()
 
-    def _write_gate(self, *, invented: bool = False, missing_head: bool = False) -> Path:
+    def _write_gate(
+        self,
+        *,
+        invented: bool = False,
+        missing_head: bool = False,
+        verdict: str = "PASS",
+        waiver: dict | None = None,
+    ) -> Path:
         proof_path = self.root / "docs" / "quality" / "proofs" / "fixture.json"
         gate_path = self.root / "docs" / "quality" / "GATE-fixture.yaml"
         proof_path.parent.mkdir(parents=True)
@@ -73,10 +80,12 @@ class GateVerifyTests(unittest.TestCase):
             "executions": executions,
             "absents": [],
         }
+        if waiver is not None:
+            proof["waiver"] = waiver
         proof_path.write_text(json.dumps(proof, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         fields = [
             "schema_version: 2",
-            'verdict: "PASS"',
+            f'verdict: "{verdict}"',
             'level: 3',
             f'base_sha: "{self.base_sha}"',
         ]
@@ -95,6 +104,27 @@ class GateVerifyTests(unittest.TestCase):
         gate_path.write_text("\n".join(fields) + "\n", encoding="utf-8")
         self.gate.seal_gate(gate_path)
         self._commit("quality evidence")
+        return gate_path
+
+    def _write_legacy_gate(self, *, matching_hash: bool = True) -> Path:
+        gate_path = self.root / "docs" / "quality" / "GATE-legacy.yaml"
+        gate_path.parent.mkdir(parents=True)
+        diff_hash = self.gate.compute_legacy_diff_hash(self.root, self.base_sha, "HEAD")
+        if not matching_hash:
+            diff_hash = "0" * 64
+        gate_path.write_text(
+            "verdict: PASS\n"
+            "niveau: 2\n"
+            "tours: 2\n"
+            f'diff_hash: "{diff_hash}"\n'
+            "preuve:\n"
+            "  executable:\n"
+            "    test: { cmd: \"python -m unittest\", statut: vert }\n"
+            "decisions_prises_en_ton_nom: []\n"
+            "absents: []\n",
+            encoding="utf-8",
+        )
+        self._commit("legacy quality evidence")
         return gate_path
 
     def test_fresh_gate_verifies(self):
@@ -163,6 +193,105 @@ class GateVerifyTests(unittest.TestCase):
 
         with self.assertRaisesRegex(self.gate.GateVerificationError, "duplicate gate fields"):
             self.gate.verify_gate(self.root, gate_path)
+
+    def test_legacy_gate_is_classified_without_being_called_stale(self):
+        gate_path = self._write_legacy_gate()
+
+        with self.assertRaisesRegex(self.gate.GateVerificationError, "legacy evidence"):
+            self.gate.verify_gate(self.root, gate_path)
+
+        result = self.gate.verify_gate(
+            self.root,
+            gate_path,
+            allow_legacy=True,
+            legacy_base_ref=self.base_sha,
+        )
+
+        self.assertEqual(result["status"], "legacy-valid")
+        self.assertEqual(result["schema_version"], 1)
+        self.assertEqual(result["verdict"], "PASS")
+
+    def test_legacy_gate_with_mismatched_diff_is_rejected(self):
+        gate_path = self._write_legacy_gate(matching_hash=False)
+
+        with self.assertRaisesRegex(self.gate.GateVerificationError, "legacy gate diff hash mismatch"):
+            self.gate.verify_gate(
+                self.root,
+                gate_path,
+                allow_legacy=True,
+                legacy_base_ref=self.base_sha,
+            )
+
+    def test_legacy_hash_matches_the_v1_shell_contract(self):
+        expected = hashlib.sha256(
+            subprocess.check_output(
+                [
+                    "git",
+                    "diff",
+                    f"{self.base_sha}...HEAD",
+                    "--",
+                    ":(exclude)docs/quality",
+                    ":(exclude)CHANGELOG.md",
+                ],
+                cwd=self.root,
+            )
+        ).hexdigest()
+
+        self.assertEqual(
+            self.gate.compute_legacy_diff_hash(self.root, self.base_sha),
+            expected,
+        )
+
+    def test_legacy_gate_rejects_duplicate_identity_fields(self):
+        gate_path = self._write_legacy_gate()
+        gate_path.write_text(
+            gate_path.read_text(encoding="utf-8") + "verdict: PASS\n",
+            encoding="utf-8",
+        )
+
+        with self.assertRaisesRegex(self.gate.GateVerificationError, "exactly one verdict"):
+            self.gate.verify_gate(
+                self.root,
+                gate_path,
+                allow_legacy=True,
+                legacy_base_ref=self.base_sha,
+            )
+
+    def test_waived_gate_requires_explicit_metadata(self):
+        gate_path = self._write_gate(verdict="WAIVED")
+
+        with self.assertRaisesRegex(self.gate.GateVerificationError, "waiver metadata"):
+            self.gate.verify_gate(self.root, gate_path)
+
+    def test_waived_gate_requires_timezone_aware_approval(self):
+        gate_path = self._write_gate(
+            verdict="WAIVED",
+            waiver={
+                "reason": "Bounded release risk accepted",
+                "scope": "fixture gate only",
+                "approved_by": "human",
+                "approved_at": "2026-09-02T10:00:00",
+            },
+        )
+
+        with self.assertRaisesRegex(self.gate.GateVerificationError, "timezone"):
+            self.gate.verify_gate(self.root, gate_path)
+
+    def test_waived_gate_with_explicit_metadata_verifies(self):
+        gate_path = self._write_gate(
+            verdict="WAIVED",
+            waiver={
+                "reason": "Bounded release risk accepted",
+                "scope": "fixture gate only",
+                "approved_by": "human",
+                "approved_at": "2026-09-02T10:00:00+01:00",
+            },
+        )
+
+        result = self.gate.verify_gate(self.root, gate_path)
+
+        self.assertEqual(result["status"], "valid")
+        self.assertEqual(result["verdict"], "WAIVED")
 
 
 if __name__ == "__main__":

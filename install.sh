@@ -172,6 +172,28 @@ cleanup_removed_owned_artifacts() {
     fi
 }
 
+install_verification_skill_resources() {
+    local source_repo_root="$1"
+    local target_skills_root="$2"
+    local project_probe_target="$target_skills_root/project-probe/scripts"
+    local quality_gate_target="$target_skills_root/quality-gate/scripts"
+
+    mkdir -p "$project_probe_target" "$quality_gate_target"
+    cp "$source_repo_root/scripts/project_probe.py" \
+        "$project_probe_target/project_probe.py"
+    cp "$source_repo_root/scripts/run-python310.sh" \
+        "$project_probe_target/run-python310.sh"
+    cp "$source_repo_root/scripts/gate_verify.py" \
+        "$quality_gate_target/gate_verify.py"
+    cp "$source_repo_root/scripts/run-python310.sh" \
+        "$quality_gate_target/run-python310.sh"
+    chmod 0755 \
+        "$project_probe_target/project_probe.py" \
+        "$project_probe_target/run-python310.sh" \
+        "$quality_gate_target/gate_verify.py" \
+        "$quality_gate_target/run-python310.sh"
+}
+
 has_checksum_removal_rule() {
     local source_claude="$1"
     local relative_path="$2"
@@ -1204,6 +1226,12 @@ if [ "$GLOBAL_MODE" = true ]; then
         --exclude='.skillz-manifest' \
         "$SOURCE_DIR/" ~/.claude/
 
+    # Verification tools belong to their consuming skills. Keep the legacy
+    # ~/.claude installer behaviorally equivalent to compiled provider bundles
+    # without requiring application repositories to vendor Skillz scripts.
+    SOURCE_REPO_ROOT="$(cd "$SOURCE_DIR/.." && pwd)"
+    install_verification_skill_resources "$SOURCE_REPO_ROOT" "$HOME/.claude/skills"
+
     cleanup_removed_owned_artifacts "$SOURCE_DIR" "$HOME/.claude"
 
     # SEO/GEO V3 replaces a vendored V1 prompt pack. Remove only files whose
@@ -1938,6 +1966,11 @@ for skill_dir in "$SOURCE_CLAUDE/skills"/*; do
         fi
     fi
 done
+
+# Skill-owned verification resources live outside the legacy .claude source
+# tree. Materialize them for per-project installs just as for global installs.
+SOURCE_REPO_ROOT="$(cd "$SOURCE_CLAUDE/.." && pwd)"
+install_verification_skill_resources "$SOURCE_REPO_ROOT" "$TARGET_CLAUDE/skills"
 
 # Copy commands
 commands_total=$(find "$SOURCE_CLAUDE/commands" -mindepth 1 -maxdepth 1 -name '*.md' 2>/dev/null | wc -l | tr -d ' ')

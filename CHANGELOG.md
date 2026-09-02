@@ -19,6 +19,10 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
   compatibility matrix, provider/eval contribution guide and RC blocker report.
 - Evidence-backed `/status`, rework-oriented `/retro`, planning lifecycle validation, controlled
   llm-wiki writes and the measured `figma-generate-library` router pilot.
+- Skill-owned `project-probe` and `gate_verify` executables in every provider bundle, with legacy
+  installer coverage so application repositories no longer need to vendor framework scripts.
+- Explicit gate states for unavailable tooling, v1 legacy evidence and fresh waivers with recorded
+  reason, scope, approver and approval timestamp.
 
 ### Changed
 - Runtime-only frontmatter is removed from canonical Markdown and rehydrated only for its declared
@@ -28,6 +32,8 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
   compatibility mirror until the relevant route has C3 evidence.
 - Model, provider and runtime are documented separately: Kimi through Codex uses the Codex adapter,
   while native Kimi CLI uses the Kimi skill-only adapter.
+- `/ship` detects its remote default branch, accepts a mechanically valid v2 `WAIVED` gate without
+  repeating the decision, and offers a bounded v1 `LEGACY_VALID` transition through v6.1.
 
 ### Breaking
 - Removed RALPH commands `/auto-loop`, `/auto-discovery`, `/auto-dev`, `/cancel-ralph` and
