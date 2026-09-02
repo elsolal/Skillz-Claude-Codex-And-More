@@ -2,5 +2,5 @@
   "contextFileName": "GEMINI.md",
   "description": "Provider-neutral D-EPCT development workflows for coding agents.",
   "name": "skillz-claude",
-  "version": "6.1.0-dev.1"
+  "version": "6.1.0-rc.1"
 }

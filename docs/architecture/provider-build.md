@@ -29,6 +29,12 @@ status remains `unsupported`; these are independent claims. Codex generates both
 generates its plugin manifest. OpenCode and generic agents keep explicit flat routes without
 inventing a native package format.
 
+Canonical skill and command frontmatter is limited to portable fields (`name`, `description` and
+optional `license`). Runtime-only keys live in catalog `provider_metadata`. The compiler injects
+the declared fragment only for that provider; for example Claude `allowed-tools`, `hooks` and
+model hints never leak into Codex, Gemini, Kimi or generic bundles. Referenced knowledge files are
+copied beside the entrypoint and appear explicitly in its resource closure.
+
 To add a provider, add a directory containing both contracts and list that provider on the relevant
 catalog artifacts. The compiler discovers it without code changes. Structural output is C1 only;
 native discovery and behavioral certification remain separate C2/C3 gates.

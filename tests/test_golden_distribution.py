@@ -34,7 +34,7 @@ class GoldenDistributionTests(unittest.TestCase):
         snapshot = self.golden.snapshot_distribution(self.dist)
 
         self.assertEqual(snapshot["schema_version"], 1)
-        self.assertEqual(snapshot["distribution"]["version"], "6.1.0-dev.1")
+        self.assertEqual(snapshot["distribution"]["version"], "6.1.0-rc.1")
         self.assertIn("codex", snapshot["providers"])
         codex = snapshot["providers"]["codex"]
         self.assertTrue(any(item["path"] == ".codex-plugin/plugin.json" for item in codex["files"]))

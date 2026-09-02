@@ -1,8 +1,9 @@
 # P0 vertical slice routes
 
-The v6.1 pilot compiles `project-probe`, `quality-gate`, `status-workflow`, `dev-workflow` and
-`quick-fix` from the legacy canonical sources without changing their bytes. Native packaging and
-command aliases differ by runtime.
+The original v6.1 pilot compiled `project-probe`, `quality-gate`, `status-workflow`, `dev-workflow`
+and `quick-fix`. The complete catalog now compiles from `core/`; legacy `.claude` files remain
+transitional compatibility mirrors. Portable Markdown stays canonical, while Claude-only
+frontmatter is rehydrated from catalog `provider_metadata` only in the Claude bundle.
 
 | Runtime | Native package | Exact route | Current evidence |
 |---|---|---|---|

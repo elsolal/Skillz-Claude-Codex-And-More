@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "release": "6.1.0-rc.1",
+  "status": "candidate-awaiting-runtime-certification",
+  "created_at": "2026-09-02",
+  "stable": false,
+  "structural_evidence": {
+    "catalog": "PASS: 63 skills, 31 commands, 1 provider instruction",
+    "compiler": "PASS: deterministic generated tree and reviewed golden",
+    "installer_lifecycle": "PASS: Claude, Codex, OpenCode and agents-generic clean temporary targets",
+    "behavioral_structural": "PASS: 8 deterministic cases",
+    "quality_gates": "PASS: all implementation lots have sealed v2 gates"
+  },
+  "runtime_routes": {
+    "claude": {"version": "2.1.257", "certification": "C1"},
+    "codex": {"version": "0.152.0", "certification": "C2"},
+    "opencode": {"version": "1.18.25", "certification": "C1"},
+    "agents-generic": {"version": null, "certification": "C1"},
+    "gemini": {"version": null, "certification": "C1", "state": "not-installed"},
+    "grok": {"version": null, "certification": "C1", "state": "not-installed"},
+    "kimi": {"version": null, "certification": "C1", "state": "broken-launcher"}
+  },
+  "real_usage_bake": {
+    "status": "not-started",
+    "required_before_stable": true,
+    "note": "Real authenticated usage cannot be inferred from structural CI or this implementation session."
+  },
+  "stable_blockers": [
+    "Claude Code C3 behavioral smoke on the pinned runtime",
+    "Codex CLI C3 headless behavioral smoke with the plugin actually loaded",
+    "OpenCode C3 behavioral smoke on the pinned runtime",
+    "agents-generic C2 discovery on a named reference runner",
+    "Kimi-via-Codex alternate-model behavioral execution",
+    "real-usage bake followed by remediation of observed runtime gaps",
+    "fresh final release gate after the runtime evidence above"
+  ]
+}

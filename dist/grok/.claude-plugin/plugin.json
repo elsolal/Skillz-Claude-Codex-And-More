@@ -16,5 +16,5 @@
   "name": "skillz-claude",
   "repository": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
   "skills": "./skills/",
-  "version": "6.1.0-dev.1"
+  "version": "6.1.0-rc.1"
 }

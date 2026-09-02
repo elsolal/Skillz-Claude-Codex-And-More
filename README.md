@@ -1,8 +1,15 @@
-# D-EPCT+R v6 — Agentic Dev Workflow
+# D-EPCT+R v6.1 RC — Provider-neutral agentic development
 
-> Skills et workflows pour un développement piloté par agents — de l'idée à la PR, avec une qualité **prouvée** plutôt que relue.
+> Un noyau canonique, des bundles déterministes par runtime, et une qualité prouvée de l'idée à la PR.
 
-One engine, four runtimes (Claude Code, Codex CLI, Gemini CLI, OpenCode), a single human checkpoint, and a **quality gate file** as proof — so you stop re-reading diffs.
+`core/catalog.yaml` décrit 63 skills et 31 commandes. Le compilateur produit des bundles séparés
+pour Claude Code, Codex, OpenCode, agents génériques, Gemini, Grok et Kimi sans faire d'un runtime
+la source de vérité des autres.
+
+```text
+core/ + catalog  →  deterministic compiler  →  dist/<runtime>
+       workflow.dev → probe → explore → plan → implement → gate → handoff
+```
 
 ```
 /discovery  →  /dev  →  /gate  →  /ship
@@ -11,22 +18,38 @@ One engine, four runtimes (Claude Code, Codex CLI, Gemini CLI, OpenCode), a sing
 
 ---
 
-## Why v6
+## Why v6.1
 
 | You get | How |
 |---|---|
 | **One human stop per feature** | `/dev` scales its rigor to the task level (0-4) and stops exactly once: at the plan. Levels 3-4 (auth, migrations, data) add one careful read before ship. |
 | **Proven quality, not re-read code** | The `quality-gate` loop (execution evidence → multi-lens reviews → adversarial counter-verification) converges to a versioned **gate file** (`PASS/CONCERNS/FAIL/WAIVED`). `/ship` consumes it — no PASS without real executable proof. |
 | **Any stack** | `project-probe` detects the project's real lint/typecheck/test/build commands into `.agents/verification.yaml`. Nothing hardcoded. |
+| **Provider-neutral source** | Canonical Markdown and resources live under `core/`; runtime-only metadata is injected from the catalog during compilation. |
+| **Evidence-bound compatibility** | C1 means generable, C2 means discovered natively, C3 means behaviorally certified on a pinned runtime. |
+| **Safe installation** | `bin/skillz` installs only generated bundles, tracks each owned hash, blocks drift and supports dry-run, doctor, restore and uninstall. |
 | **Adaptive planning** | `/discovery` uses the same 0-4 grid: direct tech-spec for small scopes, full Brainstorm → PRD → Architecture → Stories above — always ending with an approved spec required by `/dev` at level 4. |
 | **Thinking tools** | `/elicit` (12 named reasoning lenses), `/rodin` (socratic anti-echo), `multi-mind` with its **anti-consensus Contrarian**, and a `[P]` pressure-test before any brainstorm. |
 | **Quality squads** | `/design-audit(-squad)` — 12-agent Lyse Design Squad ; `/seo-geo-audit(-squad)` — SEO/GEO V3.1 with 21 routed specialists. |
 | **Second-brain memory** | Optional Obsidian LLM Wiki: durable decisions, sources and syntheses that compound across sessions. |
-| **55+ skills, 55+ knowledge files** | Planning, design, Figma (8 skills), audio/video, security, web navigation — all auto-triggered from descriptions. |
+| **63 skills, 31 commands** | Planning, design, Figma, audio/video, security, web navigation, SEO/GEO and durable memory with explicit resource closure. |
 
 ---
 
 ## Installation
+
+v6.1 is currently `6.1.0-rc.1`, ready for runtime bake but **not stable**. Build the generated
+bundles locally and inspect a dry-run before writing an existing provider directory:
+
+```bash
+bash tests/run-python310.sh tooling/build/compiler.py build --root . --output dist
+bin/skillz --json install --dist-root dist --runtime codex --target /explicit/target --dry-run
+```
+
+See the [compatibility matrix](./docs/compatibility/matrix-v6.1.md),
+[v6 migration guide](./docs/migrations/v6-to-v6.1.md), and
+[managed installer contract](./docs/architecture/managed-installation.md). The curl installer below
+remains the published v6 compatibility route until the RC completes its runtime certification.
 
 ### Global (everywhere)
 
@@ -34,7 +57,9 @@ One engine, four runtimes (Claude Code, Codex CLI, Gemini CLI, OpenCode), a sing
 curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- install all
 ```
 
-Installs into `~/.claude/`, `~/.codex/`, `~/.gemini/`, `~/.config/opencode/`, and `~/.agents/`. Claude is the source of truth; the others mirror it.
+Installs the published compatibility distribution into `~/.claude/`, `~/.codex/`, `~/.gemini/`,
+`~/.config/opencode/`, and `~/.agents/`. In v6.1 development, generated `dist/<runtime>` bundles
+come from `core/`; the legacy directories are transitional mirrors only.
 
 #### Portable memory CLI
 
@@ -127,9 +152,10 @@ curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-Mor
 Your provider config is preserved. Skillz-managed prompts self-update (loader signature); user and third-party prompts (BMad, etc.) are never touched. Drift protection via `~/.claude/.skillz-manifest`: skills removed from the source are purged, user-added skills are kept.
 
 <details>
-<summary><strong>Install one provider at a time</strong></summary>
+<summary><strong>Legacy v6: install one provider at a time</strong></summary>
 
-Claude must be installed first since the other providers mirror it.
+These commands operate the published compatibility installer. New v6.1 installations should use
+the generated bundle route above.
 
 ```bash
 # Global
@@ -156,7 +182,7 @@ Claude must be installed first since the other providers mirror it.
 </details>
 
 <details>
-<summary><strong>V6.1 compiled installer preview</strong></summary>
+<summary><strong>V6.1 compiled installer (release candidate)</strong></summary>
 
 The v6.1 path consumes only generated files under `dist/<runtime>`. It records a local manifest with
 source and installed hashes, refuses modified or unowned collisions, keeps bounded rollback
@@ -176,7 +202,7 @@ bin/skillz restore --target /explicit/target --dry-run
 bin/skillz uninstall --target /explicit/target --dry-run
 ```
 
-This preview is separate from the universal `install.sh` fallback. It never silently adopts an
+This RC path is separate from the universal `install.sh` fallback. It never silently adopts an
 existing file and never scans or deletes content outside paths recorded as `ownership: skillz`.
 
 </details>
@@ -218,16 +244,16 @@ Use these only when you explicitly want a provider package instead of the univer
 
 | Provider | Command | Scope |
 |---|---|---|
-| Claude Code | `claude --plugin-dir /path/to/Skillz-Claude-Codex-And-More` | Loads the plugin from `.claude-plugin/plugin.json`. |
+| Claude Code | `claude --plugin-dir /path/to/repo/dist/claude` | Loads the generated plugin from `dist/claude/.claude-plugin/plugin.json`. |
 | Codex CLI | `codex plugin marketplace add /path/to/repo/dist/codex && codex plugin add skillz-claude@skillz-claude-dev` | Loads the generated v6.1 development plugin; flat `install codex` remains the legacy fallback. |
-| Gemini CLI | `gemini --extension-dir /path/to/Skillz-Claude-Codex-And-More/.gemini` | Loads Gemini-native TOML commands plus `.gemini/GEMINI.md`. |
-| OpenCode | `./install.sh install opencode` | No bundled JS/TS plugin yet — use the universal installer. |
+| Gemini CLI | `gemini extensions link /path/to/repo/dist/gemini` | Links the generated extension; current evidence is C1 because Gemini is not installed locally. |
+| OpenCode | `bin/skillz install --dist-root dist --runtime opencode --target /explicit/target` | Flat generated route; no native package is claimed. |
 
 ```bash
 gh repo clone elsolal/Skillz-Claude-Codex-And-More
 
 # Claude Code plugin
-claude --plugin-dir ./Skillz-Claude-Codex-And-More
+claude --plugin-dir ./Skillz-Claude-Codex-And-More/dist/claude
 
 # Codex native development plugin (build first)
 cd Skillz-Claude-Codex-And-More
@@ -236,7 +262,7 @@ codex plugin marketplace add "$PWD/dist/codex"
 codex plugin add skillz-claude@skillz-claude-dev
 
 # Gemini CLI extension
-gemini --extension-dir ./Skillz-Claude-Codex-And-More/.gemini
+gemini extensions link "$PWD/dist/gemini"
 ```
 
 Reload skills with `/reload-plugins` (Claude Code) or restart your agent after manifest changes.
@@ -718,51 +744,26 @@ Secrets, tokens, credentials, full logs, raw transcripts, stack traces. The wiki
 
 ## Multi-Agent Compatibility
 
-Works with Claude Code, OpenAI Codex CLI, Google Gemini CLI, OpenCode, and generic agents. `.agents/`, `.codex/`, `.gemini/`, and `.opencode/` mirror `.claude/` as the single source of truth, while provider-native command files live in each provider folder. Since v6, every workflow lives in ONE canonical skill (English) — commands and prompts are thin launchers, so there is nothing to keep in sync by hand.
+The compiler targets Claude Code, Codex CLI, OpenCode, generic AGENTS.md consumers, Gemini CLI,
+Grok Build and Kimi Code CLI. Compatibility is route-specific; generated output alone is C1, and
+unavailable runtimes are never promoted to C2/C3. See the
+[versioned matrix](./docs/compatibility/matrix-v6.1.md) for exact aliases, fallbacks and evidence.
 
 <details>
 <summary><strong>Project structure</strong></summary>
 
-```
-.claude/
-├── CLAUDE.md                        # Project instructions (D-EPCT+R section = installer template)
-├── commands/                        # Claude slash commands (thin launchers)
-│   ├── dev.md, quick-fix.md         # → dev-workflow (interactive / level-0)
-│   ├── discovery.md                 # → discovery-workflow
-│   ├── ship.md                      # → ship-workflow
-│   ├── gate.md                      # → quality-gate (standalone)
-│   ├── elicit.md                    # → elicitation
-│   └── ...
-├── skills/                          # Canonical skills (single source of truth)
-│   ├── dev-workflow/                # The adaptive engine (levels 0-4, interactive + quick-fix)
-│   ├── discovery-workflow/          # Planning in levels + spec output
-│   ├── ship-workflow/               # Gate consumption → PR
-│   ├── project-probe/               # Verification manifest
-│   ├── quality-gate/                # Quality loop → gate file
-│   ├── thermo-nuclear-code-quality-review/ # Strict maintainability review lens
-│   ├── elicitation/                 # 12 reasoning lenses
-│   ├── multi-mind/                  # 6-AI debate + Contrarian
-│   ├── rodin/                       # Socratic anti-echo challenger
-│   ├── web-navigator/               # Browser navigation + evidence layer
-│   ├── design-audit/, seo-geo-audit/# Squad audits
-│   ├── figma-*/                     # Figma integration (8 skills)
-│   ├── elevenlabs/, remotion/       # Audio & video
-│   └── ...
-├── knowledge/                       # 55+ files
-│   ├── testing/                     # 32 files (levels, priorities, fixtures...)
-│   ├── workflows/                   # templates, verification matrix, estimation
-│   ├── brainstorming/               # 61 techniques + 12 elicitation lenses (CSV)
-│   ├── multi-mind/                  # Agent personalities (incl. Contrarian), debate templates
-│   └── supabase-security/           # 7 audit files
-└── templates/                       # CI/CD, PR/issue, git hooks, devcontainer
-
-docs/                                # Generated output
-├── planning/                        # brainstorms/, prd/, architecture/, specs/, forge/
-├── quality/                         # GATE-*.yaml (gate files)
-├── stories/                         # EPIC-{num}-{slug}/
-└── debates/                         # Multi-Mind reports
-
-.agents/, .codex/, .gemini/, .opencode/  # Multi-agent compatibility (symlinks + native launchers)
+```text
+core/
+├── catalog.yaml                     # semantic graph, aliases, resources, provider metadata
+├── skills/ and commands/            # canonical provider-neutral entrypoints
+├── knowledge/                       # shared canonical resources
+└── contracts/                       # artifact, build, installer, doctor and eval schemas
+providers/<runtime>/                 # capability + build contracts only
+tooling/                             # compiler, installer, eval and certification runners
+dist/<runtime>/                      # generated, committed RC bundles; never hand-edit
+.claude/                             # transitional v6 compatibility mirror
+docs/compatibility/                  # golden, C1-C3 and RC evidence
+docs/quality/                        # sealed quality gates and proof payloads
 ```
 
 </details>
@@ -789,6 +790,8 @@ Progressive loading based on complexity:
 This project is shared **read-only**. Pull Requests and Issues are not accepted.
 
 You are free to use, copy, and adapt this workflow for your own projects.
+The local extension contract is documented in
+[Contributing artifacts, providers and behavioral evals](./docs/CONTRIBUTING-PROVIDERS.md).
 
 ---
 

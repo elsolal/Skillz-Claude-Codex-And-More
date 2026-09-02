@@ -56,3 +56,15 @@ The JSON and human outputs are projections of the same report. File states are:
 Doctor also reports runtime detection/version, provider certification, release drift, summary
 counts and bounded repair guidance. Runtime or file failures are `broken`; version/release drift is
 `partial`; only a matching runtime, manifest and file set is `healthy`.
+
+The full P0 lifecycle is replayed in clean temporary targets, including paths with spaces:
+
+```bash
+bash tests/run-python310.sh tooling/runtime/certify_install_lifecycle.py \
+  --root . \
+  --output docs/compatibility/install-lifecycle-v6.1.json \
+  --check
+```
+
+This report validates installer semantics only. Its synthetic `true --version` doctor probe does
+not promote any agent runtime to C2 or C3.

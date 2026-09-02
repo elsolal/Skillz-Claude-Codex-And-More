@@ -1,7 +1,7 @@
 {
   "distribution": {
     "name": "skillz-claude",
-    "version": "6.1.0-dev.1"
+    "version": "6.1.0-rc.1"
   },
   "providers": {
     "agents-generic": {
@@ -4401,7 +4401,7 @@
         {
           "mode": "0644",
           "path": ".claude-plugin/plugin.json",
-          "sha256": "04665801637078e039a102850b38cb4d8ebd008984125ad6b9cb7eb3cc4ef79e"
+          "sha256": "f1a02a30955ed06a5f37d627fd8e4834d574615a7c0f2782f0517e010c0fdb1c"
         },
         {
           "mode": "0644",
@@ -7558,7 +7558,7 @@
             "license": "MIT",
             "name": "skillz-claude",
             "repository": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
-            "version": "6.1.0-dev.1"
+            "version": "6.1.0-rc.1"
           }
         },
         {
@@ -8743,7 +8743,7 @@
         {
           "mode": "0644",
           "path": ".codex-plugin/plugin.json",
-          "sha256": "8a959332781418ab4936fe9eb5eab2dd73a3cefcfe37aa8997d95e5bb3fff225"
+          "sha256": "0aca375fdc1f96cb7771bbe56568cb5770870b0643e1f638f8fb5d18be8b2876"
         },
         {
           "mode": "0644",
@@ -11924,7 +11924,7 @@
             "name": "skillz-claude",
             "repository": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
             "skills": "./skills/",
-            "version": "6.1.0-dev.1"
+            "version": "6.1.0-rc.1"
           }
         },
         {
@@ -13156,7 +13156,7 @@
         {
           "mode": "0644",
           "path": "gemini-extension.json",
-          "sha256": "1fa6af5a0a5aff5bd2088c3d38b3296154aa2b2cbc01f1b7af2c596e0893a9f0"
+          "sha256": "a013bcfb7c6fea1cd7af92b88e0514aae167f5d895b0938f0d70330bc160ec1d"
         },
         {
           "mode": "0644",
@@ -17173,7 +17173,7 @@
         {
           "mode": "0644",
           "path": ".claude-plugin/plugin.json",
-          "sha256": "586e04760f4c9e14589bd79d1c1c85ca10a380184f123976920091f48b042d0c"
+          "sha256": "e808371ac6af2dc12578be2fa9d1faa839f2e2263d6f9c766a5d1b48a0a0c1a7"
         },
         {
           "mode": "0644",
@@ -20332,7 +20332,7 @@
             "name": "skillz-claude",
             "repository": "https://github.com/elsolal/Skillz-Claude-Codex-And-More",
             "skills": "./skills/",
-            "version": "6.1.0-dev.1"
+            "version": "6.1.0-rc.1"
           }
         },
         {
@@ -28822,5 +28822,5 @@
     }
   },
   "schema_version": 1,
-  "tree_hash": "fcbc471918361c4f55107f324ea2043f8af1d36f4f164c86de497ef866694e59"
+  "tree_hash": "92f92ef4e077a95d43beb48749cc55477519c75242f7d2d6dde6ad82bdb698eb"
 }

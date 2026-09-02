@@ -2,7 +2,7 @@
   "schema_version": 1,
   "distribution": {
     "name": "skillz-claude",
-    "version": "6.1.0-dev.1",
+    "version": "6.1.0-rc.1",
     "description": "Provider-neutral D-EPCT development workflows for coding agents.",
     "author": {
       "name": "elsolal",

@@ -45,3 +45,9 @@ review, not a file to update automatically. Runtime certification is tracked sep
   replacing the review anchor during the adapter rollout.
 - `core-workflow-migration.md` records which workflow artifacts now compile from `core/`, which
   legacy files remain and the evidence required before deleting them.
+- `catalog-migration-v6.1.json` proves complete coverage of 63 skills, 31 commands, resources,
+  aliases and canonical sources.
+- `matrix-v6.1.md` is the user-facing C1-C3 matrix with exact invocations and fallbacks.
+- `install-lifecycle-v6.1.json` records clean install/update/doctor/uninstall runs against the full
+  Claude, Codex, OpenCode and generic-agent bundles. It is installer evidence, not runtime C3.
+- `release-candidate-v6.1.0-rc.1.json` records the RC boundary and all remaining stable blockers.

@@ -73,7 +73,7 @@ class ProviderCompilerTests(unittest.TestCase):
 
         self.assertEqual(
             report["distribution"],
-            {"name": "skillz-claude", "version": "6.1.0-dev.1"},
+            {"name": "skillz-claude", "version": "6.1.0-rc.1"},
         )
         self.assertEqual(statuses[("claude", "quick-fix")], "supported")
         self.assertEqual(statuses[("agents-generic", "quick-fix")], "unsupported")
@@ -93,7 +93,7 @@ class ProviderCompilerTests(unittest.TestCase):
         )
 
         self.assertEqual(manifest["name"], "skillz-claude")
-        self.assertEqual(manifest["version"], "6.1.0-dev.1")
+        self.assertEqual(manifest["version"], "6.1.0-rc.1")
         self.assertEqual(manifest["skills"], "./skills/")
         self.assertEqual(marketplace["plugins"][0]["name"], manifest["name"])
         self.assertEqual(marketplace["plugins"][0]["source"], {"source": "local", "path": "./"})
@@ -155,7 +155,7 @@ class ProviderCompilerTests(unittest.TestCase):
             (output / "gemini" / "commands" / "quick-fix.toml").read_text(encoding="utf-8")
         )
         self.assertEqual(manifest["contextFileName"], "GEMINI.md")
-        self.assertEqual(manifest["version"], "6.1.0-dev.1")
+        self.assertEqual(manifest["version"], "6.1.0-rc.1")
         self.assertEqual(
             (output / "gemini" / "GEMINI.md").read_bytes(),
             (self.fixture / "providers" / "gemini" / "GEMINI.md").read_bytes(),
