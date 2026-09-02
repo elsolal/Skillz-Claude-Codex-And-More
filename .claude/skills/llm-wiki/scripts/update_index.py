@@ -24,10 +24,14 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import os
 import re
 import sys
 from collections import defaultdict
 from pathlib import Path
+import tempfile
+
+from managed_sections import ManagedSectionError, prepare_managed_update
 
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 CATEGORY_ORDER = ["synthesis", "concept", "entity", "source", "comparison", "other"]
@@ -137,6 +141,27 @@ def render_index(pages: dict[str, list[dict]], vault_name: str) -> str:
     return "\n".join(lines)
 
 
+def write_index_safely(path: Path, content: str) -> bool:
+    """Validate ownership, preserve surrounding content, and replace atomically."""
+
+    existing = path.read_text(encoding="utf-8") if path.exists() else None
+    candidate, changed = prepare_managed_update(existing, "index", content)
+    if not changed:
+        return False
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            stream.write(candidate)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
+    return True
+
+
 def main():
     p = argparse.ArgumentParser(
         description="Regenerate wiki/index.md from every wiki page's YAML frontmatter.",
@@ -175,29 +200,42 @@ def main():
         "dry_run": args.dry_run,
     }
 
-    if args.dry_run:
-        if args.json:
-            summary["content_preview"] = content[:500]
-            print(json.dumps(summary, indent=2))
-        else:
-            print(content)
-        return
-
     index_path = vault / "wiki" / "index.md"
     try:
-        index_path.write_text(content, encoding="utf-8")
-    except OSError as e:
+        existing = index_path.read_text(encoding="utf-8") if index_path.exists() else None
+        candidate, changed = prepare_managed_update(existing, "index", content)
+    except (OSError, UnicodeError, ManagedSectionError) as e:
         if args.json:
-            print(json.dumps({"status": "error", "message": f"failed to write {index_path}: {e}"}))
+            print(json.dumps({"status": "blocked", "message": str(e)}))
         else:
-            print(f"[error] failed to write {index_path}: {e}", file=sys.stderr)
-        sys.exit(1)
+            print(f"[blocked] {e}", file=sys.stderr)
+        sys.exit(2)
+
+    summary["changed"] = changed
+    if args.dry_run:
+        if args.json:
+            summary["content_preview"] = candidate[:500]
+            print(json.dumps(summary, indent=2))
+        else:
+            print(candidate)
+        return
+
+    try:
+        changed = write_index_safely(index_path, content)
+    except (OSError, UnicodeError, ManagedSectionError) as e:
+        if args.json:
+            print(json.dumps({"status": "blocked", "message": str(e)}))
+        else:
+            print(f"[blocked] {e}", file=sys.stderr)
+        sys.exit(2)
 
     summary["index_path"] = str(index_path)
+    summary["changed"] = changed
     if args.json:
         print(json.dumps(summary, indent=2))
     else:
-        print(f"[ok] wrote {index_path} ({total} pages)")
+        action = "wrote" if changed else "unchanged"
+        print(f"[ok] {action} {index_path} ({total} pages)")
 
 
 if __name__ == "__main__":

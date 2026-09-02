@@ -1,0 +1,123 @@
+{
+  "assertions": [
+    "figma-use",
+    "search_design_system",
+    "return",
+    "figma.notify()",
+    "setcurrentpageasync",
+    "variables",
+    "components",
+    "all_scopes",
+    "instance_swap",
+    "node ids",
+    "get_metadata",
+    "get_screenshot",
+    "no destructive cleanup",
+    "state ledger",
+    "code connect",
+    "accessibility"
+  ],
+  "baseline": {
+    "commit": "ffa29cae73b0ec47d5cd84bfb5eb6c1b82c66a7c",
+    "entry_bytes": 12141,
+    "entry_sha256": "079d4427d8afe582c3202dd0fd6ff8cbb0260b2c2b37cdac2d7bc1ea4c624b0b"
+  },
+  "decision": {
+    "assertions_preserved": true,
+    "context_reduced": true,
+    "generalize_router_pattern": true
+  },
+  "measurement": {
+    "timing_is_observational": true,
+    "timing_operation": "case-insensitive contract assertion scan",
+    "timing_repeat": 500,
+    "timing_samples": 7,
+    "token_estimate": "ceil(utf8_bytes/4)"
+  },
+  "pilot": "figma-generate-library",
+  "router": {
+    "entry_bytes": 6857,
+    "entry_sha256": "d967f35b49de9800644cb19ffc8d6ad4901c3cb5adc7b5e42a265002c770bd52"
+  },
+  "routes": [
+    {
+      "assertion_success_rate": 1.0,
+      "assertions_after": 16,
+      "assertions_before": 16,
+      "context_after_bytes": 25959,
+      "context_before_bytes": 31243,
+      "context_reduction_bytes": 5284,
+      "context_reduction_percent": 16.91,
+      "evaluation_time_after_ns_median": 75935,
+      "evaluation_time_before_ns_median": 91986,
+      "resource": "references/discovery-phase.md",
+      "route": "discovery"
+    },
+    {
+      "assertion_success_rate": 1.0,
+      "assertions_after": 16,
+      "assertions_before": 16,
+      "context_after_bytes": 41957,
+      "context_before_bytes": 47241,
+      "context_reduction_bytes": 5284,
+      "context_reduction_percent": 11.19,
+      "evaluation_time_after_ns_median": 113062,
+      "evaluation_time_before_ns_median": 128026,
+      "resource": "references/token-creation.md",
+      "route": "foundations"
+    },
+    {
+      "assertion_success_rate": 1.0,
+      "assertions_after": 16,
+      "assertions_before": 16,
+      "context_after_bytes": 35803,
+      "context_before_bytes": 41087,
+      "context_reduction_bytes": 5284,
+      "context_reduction_percent": 12.86,
+      "evaluation_time_after_ns_median": 99923,
+      "evaluation_time_before_ns_median": 113677,
+      "resource": "references/documentation-creation.md",
+      "route": "structure"
+    },
+    {
+      "assertion_success_rate": 1.0,
+      "assertions_after": 16,
+      "assertions_before": 16,
+      "context_after_bytes": 46197,
+      "context_before_bytes": 51481,
+      "context_reduction_bytes": 5284,
+      "context_reduction_percent": 10.26,
+      "evaluation_time_after_ns_median": 124624,
+      "evaluation_time_before_ns_median": 136901,
+      "resource": "references/component-creation.md",
+      "route": "component"
+    },
+    {
+      "assertion_success_rate": 1.0,
+      "assertions_after": 16,
+      "assertions_before": 16,
+      "context_after_bytes": 18990,
+      "context_before_bytes": 24274,
+      "context_reduction_bytes": 5284,
+      "context_reduction_percent": 21.77,
+      "evaluation_time_after_ns_median": 60102,
+      "evaluation_time_before_ns_median": 74264,
+      "resource": "references/code-connect-setup.md",
+      "route": "integration"
+    },
+    {
+      "assertion_success_rate": 1.0,
+      "assertions_after": 16,
+      "assertions_before": 16,
+      "context_after_bytes": 28692,
+      "context_before_bytes": 33976,
+      "context_reduction_bytes": 5284,
+      "context_reduction_percent": 15.55,
+      "evaluation_time_after_ns_median": 82445,
+      "evaluation_time_before_ns_median": 98278,
+      "resource": "references/error-recovery.md",
+      "route": "recovery"
+    }
+  ],
+  "schema_version": 1
+}

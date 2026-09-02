@@ -30,15 +30,21 @@ class ProviderCompilerTests(unittest.TestCase):
         self.fixture = self.temp_dir / "repo"
         shutil.copytree(REPO_ROOT / "core", self.fixture / "core")
         shutil.copytree(REPO_ROOT / "providers", self.fixture / "providers")
-        for relative in (
-            ".claude/skills/dev-workflow/SKILL.md",
-            ".claude/skills/project-probe/SKILL.md",
-            ".claude/skills/quality-gate/SKILL.md",
-            ".claude/skills/status-workflow/SKILL.md",
-            ".claude/commands/quick-fix.md",
-        ):
+        catalog = json.loads((self.fixture / "core" / "catalog.yaml").read_text())
+        required = {
+            relative
+            for artifact in catalog["artifacts"]
+            for relative in (
+                artifact["source"],
+                *(resource["source"] for resource in artifact.get("resources", [])),
+            )
+        }
+        required.add(".claude/commands/quick-fix.md")
+        for relative in sorted(required):
             source = REPO_ROOT / relative
             target = self.fixture / relative
+            if target.exists():
+                continue
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, target)
 

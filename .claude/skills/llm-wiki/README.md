@@ -20,6 +20,12 @@ Most LLM+docs workflows are RAG: retrieve fragments at query time, synthesize fr
 | **Portable memory CLI** | `skillz-memory` plus the collision-safe `memory` alias; Python 3.10+ stdlib runtime |
 | **8 reference docs** | Schema, page formats, ingest/query/lint workflows, Obsidian setup, cross-tool setup, Memex principles |
 | **Vault templates** | `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, `index.md`, `log.md`, plus 5 page templates (entity, concept, source, comparison, synthesis) |
+
+Index regeneration is check-before-write. New `wiki/index.md` files receive a
+hash-attested managed section; identical output is not rewritten, surrounding
+human content is preserved, and missing, changed, or content-drifted markers
+block regeneration. Legacy unmarked indexes require an explicit reviewed
+migration rather than silent adoption.
 | **Example vault** | A small worked example on "LLM interpretability" |
 
 ## Quick start
@@ -142,7 +148,12 @@ three through Git's local `info/exclude`, including in linked worktrees.
 
 Generated pointers carry a managed marker. Divergent unmanaged content is
 preserved by default; use `--replace-managed` only after reviewing the local
-file. Re-running the same configuration does not rewrite identical files.
+file. A marked pointer whose complete content has drifted is also preserved and
+reported as `managed_pointer_drift`; the same explicit reviewed replacement is
+required. The whole-file `.agents/memory.local.json` projection follows the
+same rule using its closed JSON schema as the ownership contract. Symlinks are
+never followed for replacement. Re-running the same configuration does not
+rewrite identical files.
 Missing declared entry pages create the projection but return `degraded` with
 exit code `10`. Absolute paths remain absent from output unless
 `--explain-local-paths` is explicitly requested.

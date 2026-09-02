@@ -23,6 +23,8 @@ import json
 import sys
 from pathlib import Path
 
+from managed_sections import render_managed_section
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 PLUGIN_DIR = SCRIPT_DIR.parent
 ASSETS_DIR = PLUGIN_DIR / "assets"
@@ -54,7 +56,7 @@ TOOL_FILES = {
 }
 
 
-def render_template(src, dest, variables):
+def render_template(src, dest, variables, *, managed_section=None):
     """Render a template file with {{VAR}} substitutions to dest."""
     if not src.exists():
         print(f"[warn] template missing: {src}", file=sys.stderr)
@@ -66,6 +68,8 @@ def render_template(src, dest, variables):
         return False
     for key, value in variables.items():
         text = text.replace("{{" + key + "}}", value)
+    if managed_section is not None:
+        text = render_managed_section(managed_section, text)
     try:
         dest.write_text(text, encoding="utf-8")
     except OSError as e:
@@ -112,10 +116,15 @@ def init_vault(vault_path, topic, tool, force, as_json=False):
 
     # Index + log seeds
     for spec in [
-        ("index.md.template", vault_path / "wiki" / "index.md"),
-        ("log.md.template", vault_path / "wiki" / "log.md"),
+        ("index.md.template", vault_path / "wiki" / "index.md", "index"),
+        ("log.md.template", vault_path / "wiki" / "log.md", None),
     ]:
-        if render_template(ASSETS_DIR / spec[0], spec[1], variables):
+        if render_template(
+            ASSETS_DIR / spec[0],
+            spec[1],
+            variables,
+            managed_section=spec[2],
+        ):
             installed_files.append(str(spec[1].relative_to(vault_path)))
 
     # Page templates (reference copies inside the vault)

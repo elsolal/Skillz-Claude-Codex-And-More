@@ -106,6 +106,12 @@ All tools are **standard library only** (no pip installs). Run with `python scri
 | `graph_analyzer.py` | Compute link graph stats — hubs, orphans, clusters, disconnected components |
 | `export_marp.py` | Render a wiki page (or subtree) to a Marp slide deck |
 
+`wiki/index.md` is a hash-attested managed section. New vaults receive exact
+markers automatically. Regeneration is idempotent, preserves content outside
+the managed section, and blocks if the markers or managed content drift. A
+legacy unmarked index must be reviewed and migrated explicitly; never adopt or
+overwrite it silently.
+
 ## Cross-tool compatibility
 
 The vault's **schema** lives in CLAUDE.md (Claude Code) or AGENTS.md (Codex/Cursor/Antigravity/OpenCode). The same content works in both. This plugin ships both templates. For per-tool setup instructions see `references/cross-tool-setup.md`.

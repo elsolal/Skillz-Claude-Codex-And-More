@@ -395,6 +395,13 @@ def _missing_entry_pages(manifest: MemoryManifest, root: Path) -> tuple[PurePosi
 
 
 def _preflight_pointer(path: Path, desired: str, *, replace_managed: bool) -> None:
+    if path.is_symlink():
+        _error(
+            code="pointer_unverifiable",
+            field=path.relative_to(path.parents[1]).as_posix(),
+            message="A project-memory pointer cannot be managed through a symbolic link.",
+            correction="Move the symlink aside and retry with a regular local file.",
+        )
     if not path.exists():
         return
     try:
@@ -406,8 +413,18 @@ def _preflight_pointer(path: Path, desired: str, *, replace_managed: bool) -> No
             message="An existing project-memory pointer cannot be read safely.",
             correction="Fix its permissions or move it aside, then retry.",
         )
-    if current == desired or MANAGED_MARKER in current:
+    if current == desired:
         return
+    if MANAGED_MARKER in current and not replace_managed:
+        _error(
+            code="managed_pointer_drift",
+            field=path.relative_to(path.parents[1]).as_posix(),
+            message="An existing managed project-memory pointer has user or tool drift.",
+            correction=(
+                "Review the local differences, then retry with --replace-managed "
+                "only if replacing the entire managed pointer is intended."
+            ),
+        )
     if replace_managed:
         return
     _error(
@@ -417,6 +434,73 @@ def _preflight_pointer(path: Path, desired: str, *, replace_managed: bool) -> No
         correction=(
             "Preserve or move the custom file, or retry with --replace-managed "
             "to replace it explicitly."
+        ),
+    )
+
+
+def _preflight_projection(path: Path, desired: str, *, replace_managed: bool) -> None:
+    """Recognize the whole-file projection contract before allowing replacement."""
+
+    if path.is_symlink():
+        _error(
+            code="projection_unverifiable",
+            field=".agents/memory.local.json",
+            message="The local memory projection cannot be managed through a symbolic link.",
+            correction="Move the symlink aside and retry with a regular local file.",
+        )
+    if not path.exists():
+        return
+    try:
+        current = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        _error(
+            code="projection_unreadable",
+            field=".agents/memory.local.json",
+            message="The existing local memory projection cannot be read safely.",
+            correction="Fix its permissions or move it aside, then retry.",
+        )
+    if current == desired:
+        return
+
+    def strict_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("duplicate projection key")
+            result[key] = value
+        return result
+
+    try:
+        payload = json.loads(current, object_pairs_hook=strict_object)
+    except (json.JSONDecodeError, ValueError):
+        payload = None
+    recognized = (
+        isinstance(payload, dict)
+        and set(payload) == {"schema_version", "principal", "stores"}
+        and payload.get("schema_version") == 1
+        and isinstance(payload.get("principal"), dict)
+        and set(payload["principal"]) == {"role"}
+        and isinstance(payload.get("stores"), dict)
+    )
+    if replace_managed:
+        return
+    if recognized:
+        _error(
+            code="managed_projection_drift",
+            field=".agents/memory.local.json",
+            message="The existing managed local projection differs from the requested projection.",
+            correction=(
+                "Review the local store and role changes, then retry with --replace-managed "
+                "only if replacing the whole local projection is intended."
+            ),
+        )
+    _error(
+        code="unmanaged_projection",
+        field=".agents/memory.local.json",
+        message="The existing local projection is not recognizably managed by skillz-memory.",
+        correction=(
+            "Preserve or move the custom file, or retry with --replace-managed "
+            "only after reviewing the complete replacement."
         ),
     )
 
@@ -549,6 +633,11 @@ def configure_projection(
     ) + "\n"
     claude_content = _render_claude_pointer(manifest, projection, project_root)
     agents_content = _render_agents_pointer(manifest, projection)
+    _preflight_projection(
+        projection_path,
+        projection_content,
+        replace_managed=replace_managed,
+    )
     _preflight_pointer(claude_pointer, claude_content, replace_managed=replace_managed)
     _preflight_pointer(agents_pointer, agents_content, replace_managed=replace_managed)
     missing_pages = _missing_entry_pages(manifest, projection.stores["project"].root)

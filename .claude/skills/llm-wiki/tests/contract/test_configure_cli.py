@@ -232,6 +232,84 @@ class ConfigureCliContractTests(unittest.TestCase):
         self.assertEqual(replaced.returncode, 0, replaced.stderr)
         self.assertIn("Managed by skillz-memory", pointer.read_text(encoding="utf-8"))
 
+    def test_managed_pointer_drift_requires_explicit_reviewed_replacement(self) -> None:
+        temp_dir, repo = self.make_repo()
+        self.addCleanup(temp_dir.cleanup)
+        vault = self.make_vault(Path(temp_dir.name))
+        configured = self.configure(repo, vault, "--json")
+        self.assertEqual(configured.returncode, 0, configured.stderr)
+        pointer = repo / ".claude" / "project-memory.md"
+        original = pointer.read_text(encoding="utf-8")
+        drifted = original + "\nUser note that must not be overwritten.\n"
+        pointer.write_text(drifted, encoding="utf-8")
+
+        blocked = self.configure(repo, vault, "--json")
+        blocked_output = json.loads(blocked.stdout)
+
+        self.assertEqual(blocked.returncode, 30)
+        self.assertEqual(blocked_output["errors"][0]["code"], "managed_pointer_drift")
+        self.assertEqual(pointer.read_text(encoding="utf-8"), drifted)
+
+        replaced = self.configure(repo, vault, "--json", "--replace-managed")
+
+        self.assertEqual(replaced.returncode, 0, replaced.stderr)
+        self.assertEqual(pointer.read_text(encoding="utf-8"), original)
+
+    def test_projection_drift_and_unmanaged_json_are_preserved_by_default(self) -> None:
+        temp_dir, repo = self.make_repo()
+        self.addCleanup(temp_dir.cleanup)
+        vault = self.make_vault(Path(temp_dir.name))
+        configured = self.configure(repo, vault, "--json")
+        self.assertEqual(configured.returncode, 0, configured.stderr)
+        projection = repo / ".agents" / "memory.local.json"
+        payload = json.loads(projection.read_text(encoding="utf-8"))
+        payload["principal"]["role"] = "owner"
+        drifted = json.dumps(payload, indent=2) + "\n"
+        projection.write_text(drifted, encoding="utf-8")
+
+        blocked = self.configure(repo, vault, "--json")
+        blocked_output = json.loads(blocked.stdout)
+
+        self.assertEqual(blocked.returncode, 30)
+        self.assertEqual(blocked_output["errors"][0]["code"], "managed_projection_drift")
+        self.assertEqual(projection.read_text(encoding="utf-8"), drifted)
+
+        projection.write_text('{"custom": true}\n', encoding="utf-8")
+        unmanaged = self.configure(repo, vault, "--json")
+        unmanaged_output = json.loads(unmanaged.stdout)
+
+        self.assertEqual(unmanaged.returncode, 30)
+        self.assertEqual(unmanaged_output["errors"][0]["code"], "unmanaged_projection")
+        self.assertEqual(projection.read_text(encoding="utf-8"), '{"custom": true}\n')
+
+        replaced = self.configure(repo, vault, "--json", "--replace-managed")
+
+        self.assertEqual(replaced.returncode, 0, replaced.stderr)
+        self.assertEqual(json.loads(projection.read_text())["principal"]["role"], "collaborator")
+
+    def test_projection_and_pointer_symlinks_are_never_followed_for_replacement(self) -> None:
+        for relative, expected_code in (
+            ((".agents", "memory.local.json"), "projection_unverifiable"),
+            ((".claude", "project-memory.md"), "pointer_unverifiable"),
+        ):
+            with self.subTest(relative=relative):
+                temp_dir, repo = self.make_repo()
+                self.addCleanup(temp_dir.cleanup)
+                vault = self.make_vault(Path(temp_dir.name))
+                outside = Path(temp_dir.name) / f"outside-{relative[-1]}"
+                outside.write_text("outside\n", encoding="utf-8")
+                target = repo.joinpath(*relative)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.symlink_to(outside)
+
+                result = self.configure(repo, vault, "--json", "--replace-managed")
+                output = json.loads(result.stdout)
+
+                self.assertEqual(result.returncode, 30)
+                self.assertEqual(output["errors"][0]["code"], expected_code)
+                self.assertEqual(outside.read_text(encoding="utf-8"), "outside\n")
+                self.assertTrue(target.is_symlink())
+
     def test_entry_page_symlink_cannot_escape_the_store_root(self) -> None:
         temp_dir, repo = self.make_repo()
         self.addCleanup(temp_dir.cleanup)
