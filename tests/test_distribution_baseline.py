@@ -1,7 +1,9 @@
 import importlib.util
+import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import tempfile
 import unittest
@@ -10,6 +12,7 @@ import unittest
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = REPO_ROOT / "scripts" / "capture_distribution_baseline.py"
 GOLDEN_PATH = REPO_ROOT / "docs" / "compatibility" / "golden" / "legacy-v6-distribution.json"
+BASELINE_PATH = REPO_ROOT / "docs" / "compatibility" / "baseline-2026-09-01.yaml"
 SPEC = importlib.util.spec_from_file_location("capture_distribution_baseline", MODULE_PATH)
 baseline = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
@@ -79,6 +82,13 @@ class DistributionBaselineTests(unittest.TestCase):
         self.assertEqual(symlink["type"], "symlink")
         self.assertEqual(symlink["target"], ".claude/skills")
 
+    def test_capture_rejects_absolute_symlink_targets(self):
+        os.symlink(str(self.root / "outside"), self.root / "skills")
+        self.track("skills")
+
+        with self.assertRaisesRegex(baseline.BaselineError, "absolute symlink target"):
+            baseline.capture_repository(self.root)
+
     def test_rendered_snapshot_contains_no_absolute_checkout_path(self):
         self.write("AGENTS.md", "# Agent instructions\n")
         self.track("AGENTS.md")
@@ -114,6 +124,16 @@ class DistributionBaselineTests(unittest.TestCase):
         )
 
         self.assertEqual(differences, [])
+
+    def test_baseline_metadata_hash_matches_committed_golden(self):
+        metadata = BASELINE_PATH.read_text(encoding="utf-8")
+        match = re.search(r'^  sha256: "([0-9a-f]{64})"$', metadata, re.MULTILINE)
+
+        self.assertIsNotNone(match)
+        self.assertEqual(
+            match.group(1),
+            hashlib.sha256(GOLDEN_PATH.read_bytes()).hexdigest(),
+        )
 
 
 if __name__ == "__main__":

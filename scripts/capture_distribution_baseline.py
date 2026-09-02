@@ -115,6 +115,8 @@ def _artifact(root: Path, relative_path: str) -> dict[str, Any]:
     }
     if path.is_symlink():
         target = os.readlink(path)
+        if Path(target).is_absolute():
+            raise BaselineError(f"absolute symlink target is not portable: {relative_path}")
         content = target.encode("utf-8", errors="surrogateescape")
         artifact.update({"type": "symlink", "target": target})
     elif path.is_file():
