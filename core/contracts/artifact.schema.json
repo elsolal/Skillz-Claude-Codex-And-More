@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillz.local/schemas/artifact.schema.json",
+  "title": "Skillz Artifact Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "public_name", "type", "source", "dependencies", "inputs", "outputs", "aliases", "providers", "risk", "migration_state"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "public_name": {"type": "string", "minLength": 1},
+    "type": {"enum": ["instruction", "skill", "command", "agent", "mcp", "hook"]},
+    "source": {"type": "string", "minLength": 1},
+    "dependencies": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "inputs": {"type": "array", "items": {"type": "string"}},
+    "outputs": {"type": "array", "items": {"type": "string"}},
+    "aliases": {"type": "object", "additionalProperties": {"type": "string"}},
+    "providers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "risk": {"type": "integer", "minimum": 0, "maximum": 4},
+    "migration_state": {"enum": ["legacy", "canonical", "pending", "retired"]}
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "provider": "opencode",
+  "runtime": {"name": "OpenCode", "version_observed": "1.18.25"},
+  "certification": "C1",
+  "capabilities": {
+    "instruction": "supported",
+    "skill": "supported",
+    "command": "supported",
+    "agent": "pending",
+    "mcp": "pending",
+    "hook": "pending"
+  }
+}

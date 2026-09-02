@@ -1,0 +1,161 @@
+import importlib.util
+import json
+from pathlib import Path
+import shutil
+import tempfile
+import unittest
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+MODULE_PATH = REPO_ROOT / "tooling" / "build" / "compiler.py"
+
+
+def load_compiler():
+    spec = importlib.util.spec_from_file_location("provider_compiler", MODULE_PATH)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+class ProviderCompilerTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.compiler = load_compiler()
+
+    def setUp(self):
+        self.temp_dir = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.temp_dir)
+        self.fixture = self.temp_dir / "repo"
+        shutil.copytree(REPO_ROOT / "core", self.fixture / "core")
+        shutil.copytree(REPO_ROOT / "providers", self.fixture / "providers")
+        for relative in (
+            ".claude/skills/dev-workflow/SKILL.md",
+            ".claude/skills/project-probe/SKILL.md",
+            ".claude/skills/quality-gate/SKILL.md",
+            ".claude/skills/status-workflow/SKILL.md",
+            ".claude/commands/quick-fix.md",
+        ):
+            source = REPO_ROOT / relative
+            target = self.fixture / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
+
+    def _catalog(self) -> dict:
+        return json.loads((self.fixture / "core" / "catalog.yaml").read_text(encoding="utf-8"))
+
+    def _write_catalog(self, payload: dict) -> None:
+        (self.fixture / "core" / "catalog.yaml").write_text(
+            json.dumps(payload, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+
+    def test_two_builds_are_byte_identical(self):
+        first = self.temp_dir / "first"
+        second = self.temp_dir / "second"
+
+        first_report = self.compiler.build_repository(self.fixture, first)
+        second_report = self.compiler.build_repository(self.fixture, second)
+
+        self.assertEqual(first_report["tree_hash"], second_report["tree_hash"])
+        self.assertEqual(self.compiler.compare_trees(first, second), [])
+
+    def test_report_records_supported_pending_and_unsupported(self):
+        report = self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+        statuses = {(item["provider"], item["artifact_id"]): item["status"] for item in report["artifacts"]}
+
+        self.assertEqual(statuses[("claude", "quick-fix")], "supported")
+        self.assertEqual(statuses[("agents-generic", "quick-fix")], "unsupported")
+        self.assertTrue(any(item["status"] == "pending" for item in report["capabilities"]))
+
+    def test_alias_collision_blocks_build(self):
+        catalog = self._catalog()
+        quality = next(item for item in catalog["artifacts"] if item["id"] == "quality-gate")
+        quality["aliases"]["claude"] = "project-probe"
+        self._write_catalog(catalog)
+
+        with self.assertRaisesRegex(self.compiler.BuildError, "alias collision"):
+            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
+    def test_missing_dependency_blocks_build(self):
+        catalog = self._catalog()
+        catalog["artifacts"][0]["dependencies"].append("missing-artifact")
+        self._write_catalog(catalog)
+
+        with self.assertRaisesRegex(self.compiler.BuildError, "missing dependency"):
+            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
+    def test_capability_claim_without_implementation_blocks_build(self):
+        capabilities_path = self.fixture / "providers" / "agents-generic" / "capabilities.yaml"
+        capabilities = json.loads(capabilities_path.read_text(encoding="utf-8"))
+        capabilities["capabilities"]["command"] = "supported"
+        capabilities_path.write_text(json.dumps(capabilities), encoding="utf-8")
+
+        with self.assertRaisesRegex(self.compiler.BuildError, "capability/build mismatch"):
+            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
+    def test_unknown_catalog_provider_blocks_build(self):
+        catalog = self._catalog()
+        catalog["artifacts"][0]["providers"].append("typo-provider")
+        self._write_catalog(catalog)
+
+        with self.assertRaisesRegex(self.compiler.BuildError, "unknown providers"):
+            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
+    def test_new_provider_is_discovered_without_compiler_change(self):
+        fixture_provider = self.fixture / "providers" / "fixture"
+        shutil.copytree(self.fixture / "providers" / "claude", fixture_provider)
+        for name in ("capabilities.yaml", "build-contract.json"):
+            path = fixture_provider / name
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload["provider"] = "fixture"
+            if name == "build-contract.json":
+                payload["output_root"] = "fixture"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+        catalog = self._catalog()
+        for artifact in catalog["artifacts"]:
+            artifact["providers"].append("fixture")
+        self._write_catalog(catalog)
+
+        report = self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
+        self.assertIn("fixture", report["providers"])
+
+    def test_check_reports_modified_and_orphan_outputs(self):
+        output = self.temp_dir / "dist"
+        self.compiler.build_repository(self.fixture, output)
+        generated = next(path for path in output.rglob("SKILL.md"))
+        generated.write_text("manual edit\n", encoding="utf-8")
+        (output / "orphan.txt").write_text("orphan\n", encoding="utf-8")
+
+        differences = self.compiler.check_repository(self.fixture, output)
+
+        self.assertTrue(any("orphan.txt" in difference for difference in differences))
+        self.assertTrue(any("SKILL.md" in difference for difference in differences))
+
+    def test_invalid_output_template_is_actionable(self):
+        contract_path = self.fixture / "providers" / "claude" / "build-contract.json"
+        contract = json.loads(contract_path.read_text(encoding="utf-8"))
+        contract["artifacts"]["skill"]["output_template"] = "skills/{unknown}/SKILL.md"
+        contract_path.write_text(json.dumps(contract), encoding="utf-8")
+
+        with self.assertRaisesRegex(
+            self.compiler.BuildError,
+            "invalid output template for claude/skill",
+        ):
+            self.compiler.build_repository(self.fixture, self.temp_dir / "dist")
+
+    def test_check_reports_mode_drift(self):
+        output = self.temp_dir / "dist"
+        self.compiler.build_repository(self.fixture, output)
+        generated = next(path for path in output.rglob("SKILL.md"))
+        generated.chmod(0o755)
+
+        differences = self.compiler.check_repository(self.fixture, output)
+
+        self.assertTrue(any("modified output" in difference for difference in differences))
+        self.assertTrue(any("SKILL.md" in difference for difference in differences))
+
+
+if __name__ == "__main__":
+    unittest.main()

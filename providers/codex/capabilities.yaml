@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "provider": "codex",
+  "runtime": {"name": "Codex CLI", "version_observed": "0.152.0"},
+  "certification": "C1",
+  "capabilities": {
+    "instruction": "supported",
+    "skill": "supported",
+    "command": "supported",
+    "agent": "pending",
+    "mcp": "pending",
+    "hook": "pending"
+  }
+}

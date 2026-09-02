@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "provider": "agents-generic",
+  "runtime": {"name": "AGENTS.md convention", "version_observed": null},
+  "certification": "C1",
+  "capabilities": {
+    "instruction": "supported",
+    "skill": "supported",
+    "command": "unsupported",
+    "agent": "unsupported",
+    "mcp": "unsupported",
+    "hook": "unsupported"
+  }
+}

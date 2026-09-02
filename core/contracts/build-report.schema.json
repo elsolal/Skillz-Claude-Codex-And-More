@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillz.local/schemas/build-report.schema.json",
+  "title": "Provider Build Report",
+  "type": "object",
+  "required": ["schema_version", "catalog_hash", "providers", "artifacts", "tree_hash"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "catalog_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "providers": {"type": "array", "items": {"type": "string"}},
+    "artifacts": {"type": "array"},
+    "tree_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "provider": "opencode",
+  "output_root": "opencode",
+  "artifacts": {
+    "instruction": {"status": "supported", "output_template": "instructions/{alias}.md", "transform": "copy"},
+    "skill": {"status": "supported", "output_template": "skills/{alias}/SKILL.md", "transform": "copy"},
+    "command": {"status": "supported", "output_template": "commands/{alias}.md", "transform": "copy"},
+    "agent": {"status": "pending", "output_template": null, "transform": "none"},
+    "mcp": {"status": "pending", "output_template": null, "transform": "none"},
+    "hook": {"status": "pending", "output_template": null, "transform": "none"}
+  }
+}

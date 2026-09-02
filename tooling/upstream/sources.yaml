@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "aidd-v5.9.0",
+      "upstream_url": "https://github.com/ai-driven-dev/framework",
+      "ref": "3082c8ff7f862df814f15f6e669a2005b50d3459",
+      "local_snapshot": "docs/planning/upstream/aidd-v5.9.0",
+      "policy": "metadata-only-no-network-no-execution"
+    }
+  ]
+}

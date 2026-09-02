@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "artifacts": [
+    {
+      "id": "dev-workflow",
+      "public_name": "Development workflow",
+      "type": "skill",
+      "source": ".claude/skills/dev-workflow/SKILL.md",
+      "dependencies": ["project-probe", "quality-gate"],
+      "inputs": ["task", "approved-plan"],
+      "outputs": ["implementation", "quality-gate"],
+      "aliases": {"default": "dev-workflow"},
+      "providers": ["claude", "codex", "opencode", "agents-generic"],
+      "risk": 4,
+      "migration_state": "legacy"
+    },
+    {
+      "id": "project-probe",
+      "public_name": "Project probe",
+      "type": "skill",
+      "source": ".claude/skills/project-probe/SKILL.md",
+      "dependencies": [],
+      "inputs": ["repository"],
+      "outputs": ["verification-manifest"],
+      "aliases": {"default": "project-probe"},
+      "providers": ["claude", "codex", "opencode", "agents-generic"],
+      "risk": 3,
+      "migration_state": "legacy"
+    },
+    {
+      "id": "quality-gate",
+      "public_name": "Quality gate",
+      "type": "skill",
+      "source": ".claude/skills/quality-gate/SKILL.md",
+      "dependencies": ["project-probe"],
+      "inputs": ["committed-diff", "verification-manifest"],
+      "outputs": ["gate-envelope", "proof-payload"],
+      "aliases": {"default": "quality-gate"},
+      "providers": ["claude", "codex", "opencode", "agents-generic"],
+      "risk": 4,
+      "migration_state": "legacy"
+    },
+    {
+      "id": "status-workflow",
+      "public_name": "Project status",
+      "type": "skill",
+      "source": ".claude/skills/status-workflow/SKILL.md",
+      "dependencies": [],
+      "inputs": ["repository"],
+      "outputs": ["status-report"],
+      "aliases": {"default": "status-workflow"},
+      "providers": ["claude", "codex", "opencode", "agents-generic"],
+      "risk": 1,
+      "migration_state": "legacy"
+    },
+    {
+      "id": "quick-fix",
+      "public_name": "Quick fix",
+      "type": "command",
+      "source": ".claude/commands/quick-fix.md",
+      "dependencies": ["dev-workflow"],
+      "inputs": ["problem-description"],
+      "outputs": ["verified-fix"],
+      "aliases": {"default": "quick-fix"},
+      "providers": ["claude", "codex", "opencode", "agents-generic"],
+      "risk": 2,
+      "migration_state": "legacy"
+    }
+  ]
+}

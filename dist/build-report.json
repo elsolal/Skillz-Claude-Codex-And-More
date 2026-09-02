@@ -1,0 +1,376 @@
+{
+  "artifacts": [
+    {
+      "alias": "dev-workflow",
+      "artifact_id": "dev-workflow",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "agents-generic/skills/dev-workflow/SKILL.md",
+      "provider": "agents-generic",
+      "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "project-probe",
+      "artifact_id": "project-probe",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "agents-generic/skills/project-probe/SKILL.md",
+      "provider": "agents-generic",
+      "sha256": "c4839c14402889447fbc24e410b8d61b07f78c404e801822ad66759ac13125c2",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "quality-gate",
+      "artifact_id": "quality-gate",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "agents-generic/skills/quality-gate/SKILL.md",
+      "provider": "agents-generic",
+      "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "artifact_id": "quick-fix",
+      "migration_state": "legacy",
+      "provider": "agents-generic",
+      "status": "unsupported",
+      "type": "command"
+    },
+    {
+      "alias": "status-workflow",
+      "artifact_id": "status-workflow",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "agents-generic/skills/status-workflow/SKILL.md",
+      "provider": "agents-generic",
+      "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "dev-workflow",
+      "artifact_id": "dev-workflow",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "claude/skills/dev-workflow/SKILL.md",
+      "provider": "claude",
+      "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "project-probe",
+      "artifact_id": "project-probe",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "claude/skills/project-probe/SKILL.md",
+      "provider": "claude",
+      "sha256": "c4839c14402889447fbc24e410b8d61b07f78c404e801822ad66759ac13125c2",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "quality-gate",
+      "artifact_id": "quality-gate",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "claude/skills/quality-gate/SKILL.md",
+      "provider": "claude",
+      "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "quick-fix",
+      "artifact_id": "quick-fix",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "claude/commands/quick-fix.md",
+      "provider": "claude",
+      "sha256": "f48490301efdc6a4042bd2f9e989510af5f35cb9e227bdfa20471fbb77e16db3",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
+      "alias": "status-workflow",
+      "artifact_id": "status-workflow",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "claude/skills/status-workflow/SKILL.md",
+      "provider": "claude",
+      "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "dev-workflow",
+      "artifact_id": "dev-workflow",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "codex/skills/dev-workflow/SKILL.md",
+      "provider": "codex",
+      "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "project-probe",
+      "artifact_id": "project-probe",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "codex/skills/project-probe/SKILL.md",
+      "provider": "codex",
+      "sha256": "c4839c14402889447fbc24e410b8d61b07f78c404e801822ad66759ac13125c2",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "quality-gate",
+      "artifact_id": "quality-gate",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "codex/skills/quality-gate/SKILL.md",
+      "provider": "codex",
+      "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "quick-fix",
+      "artifact_id": "quick-fix",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "codex/prompts/quick-fix.md",
+      "provider": "codex",
+      "sha256": "f48490301efdc6a4042bd2f9e989510af5f35cb9e227bdfa20471fbb77e16db3",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
+      "alias": "status-workflow",
+      "artifact_id": "status-workflow",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "codex/skills/status-workflow/SKILL.md",
+      "provider": "codex",
+      "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "dev-workflow",
+      "artifact_id": "dev-workflow",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "opencode/skills/dev-workflow/SKILL.md",
+      "provider": "opencode",
+      "sha256": "10aacb472dd3a8909f0658bfe378463e64f2110cc817e5e70033bc1b1ae16367",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "project-probe",
+      "artifact_id": "project-probe",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "opencode/skills/project-probe/SKILL.md",
+      "provider": "opencode",
+      "sha256": "c4839c14402889447fbc24e410b8d61b07f78c404e801822ad66759ac13125c2",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "quality-gate",
+      "artifact_id": "quality-gate",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "opencode/skills/quality-gate/SKILL.md",
+      "provider": "opencode",
+      "sha256": "f7bda88c2ed2cdf201bb176a38442314fb3afbb80f9b6cd1eeb08191befea180",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    },
+    {
+      "alias": "quick-fix",
+      "artifact_id": "quick-fix",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "opencode/commands/quick-fix.md",
+      "provider": "opencode",
+      "sha256": "f48490301efdc6a4042bd2f9e989510af5f35cb9e227bdfa20471fbb77e16db3",
+      "status": "supported",
+      "transform": "copy",
+      "type": "command"
+    },
+    {
+      "alias": "status-workflow",
+      "artifact_id": "status-workflow",
+      "migration_state": "legacy",
+      "mode": "0644",
+      "output": "opencode/skills/status-workflow/SKILL.md",
+      "provider": "opencode",
+      "sha256": "e7506dcb1f7b27dab19f8377d81dacbde261e239361dc57c036b5486bdf26268",
+      "status": "supported",
+      "transform": "copy",
+      "type": "skill"
+    }
+  ],
+  "capabilities": [
+    {
+      "provider": "agents-generic",
+      "status": "supported",
+      "type": "instruction"
+    },
+    {
+      "provider": "agents-generic",
+      "status": "supported",
+      "type": "skill"
+    },
+    {
+      "provider": "agents-generic",
+      "status": "unsupported",
+      "type": "command"
+    },
+    {
+      "provider": "agents-generic",
+      "status": "unsupported",
+      "type": "agent"
+    },
+    {
+      "provider": "agents-generic",
+      "status": "unsupported",
+      "type": "mcp"
+    },
+    {
+      "provider": "agents-generic",
+      "status": "unsupported",
+      "type": "hook"
+    },
+    {
+      "provider": "claude",
+      "status": "supported",
+      "type": "instruction"
+    },
+    {
+      "provider": "claude",
+      "status": "supported",
+      "type": "skill"
+    },
+    {
+      "provider": "claude",
+      "status": "supported",
+      "type": "command"
+    },
+    {
+      "provider": "claude",
+      "status": "pending",
+      "type": "agent"
+    },
+    {
+      "provider": "claude",
+      "status": "pending",
+      "type": "mcp"
+    },
+    {
+      "provider": "claude",
+      "status": "supported",
+      "type": "hook"
+    },
+    {
+      "provider": "codex",
+      "status": "supported",
+      "type": "instruction"
+    },
+    {
+      "provider": "codex",
+      "status": "supported",
+      "type": "skill"
+    },
+    {
+      "provider": "codex",
+      "status": "supported",
+      "type": "command"
+    },
+    {
+      "provider": "codex",
+      "status": "pending",
+      "type": "agent"
+    },
+    {
+      "provider": "codex",
+      "status": "pending",
+      "type": "mcp"
+    },
+    {
+      "provider": "codex",
+      "status": "pending",
+      "type": "hook"
+    },
+    {
+      "provider": "opencode",
+      "status": "supported",
+      "type": "instruction"
+    },
+    {
+      "provider": "opencode",
+      "status": "supported",
+      "type": "skill"
+    },
+    {
+      "provider": "opencode",
+      "status": "supported",
+      "type": "command"
+    },
+    {
+      "provider": "opencode",
+      "status": "pending",
+      "type": "agent"
+    },
+    {
+      "provider": "opencode",
+      "status": "pending",
+      "type": "mcp"
+    },
+    {
+      "provider": "opencode",
+      "status": "pending",
+      "type": "hook"
+    }
+  ],
+  "catalog_hash": "0476131b2faab8c5118fc2d3a2330cc404633d2783e5ecee09fba31d73c4e1cc",
+  "provider_contract_hashes": {
+    "agents-generic": "24114a2bb963e9c9241b020ae90757b1080bb4f7358133e5c9f97c920dd9301f",
+    "claude": "49cff116b757efc43a2265336d39e2735b257a68f7b604561f60ddd50d4fc48e",
+    "codex": "32f0e8128e725f8b28939217efd11ab1e73ad130e1ddb0b982e0504c0d6a1ec1",
+    "opencode": "3afb26bae4b4c86292b3435f058063928dca0c59104d785861cfcb2acf091b99"
+  },
+  "providers": [
+    "agents-generic",
+    "claude",
+    "codex",
+    "opencode"
+  ],
+  "schema_version": 1,
+  "tree_hash": "debaab43eab813f3e23fffe2f425db3d692ae9da6e91fd0aa180feae2842a69a"
+}
