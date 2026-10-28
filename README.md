@@ -2,7 +2,7 @@
 
 > Un noyau canonique, des bundles déterministes par runtime, et une qualité prouvée de l'idée à la PR.
 
-`core/catalog.yaml` décrit 63 skills et 31 commandes. Le compilateur produit des bundles séparés
+`core/catalog.yaml` décrit 41 skills et 24 commandes. Le compilateur produit des bundles séparés
 pour Claude Code, Codex, OpenCode, agents génériques, Gemini, Grok et Kimi sans faire d'un runtime
 la source de vérité des autres.
 
@@ -29,10 +29,10 @@ core/ + catalog  →  deterministic compiler  →  dist/<runtime>
 | **Evidence-bound compatibility** | C1 means generable, C2 means discovered natively, C3 means behaviorally certified on a pinned runtime. |
 | **Safe installation** | `bin/skillz` installs only generated bundles, tracks each owned hash, blocks drift and supports dry-run, doctor, restore and uninstall. |
 | **Adaptive planning** | `/discovery` uses the same 0-4 grid: direct tech-spec for small scopes, full Brainstorm → PRD → Architecture → Stories above — always ending with an approved spec required by `/dev` at level 4. |
-| **Thinking tools** | `/elicit` (12 named reasoning lenses), `/rodin` (socratic anti-echo), `multi-mind` with its **anti-consensus Contrarian**, and a `[P]` pressure-test before any brainstorm. |
+| **Thinking tools** | `/elicit` (12 named reasoning lenses), `/rodin` (socratic anti-echo), and a `[P]` pressure-test before any brainstorm. |
 | **Quality squads** | `/design-audit(-squad)` — 12-agent Lyse Design Squad ; `/seo-geo-audit(-squad)` — SEO/GEO V3.1 with 21 routed specialists. |
 | **Second-brain memory** | Optional Obsidian LLM Wiki: durable decisions, sources and syntheses that compound across sessions. |
-| **63 skills, 31 commands** | Planning, design, Figma, audio/video, security, web navigation, SEO/GEO and durable memory with explicit resource closure. |
+| **41 skills, 24 commands** | Planning, design, Figma, security, web navigation, SEO/GEO and durable memory with explicit resource closure. |
 
 ---
 
@@ -280,7 +280,7 @@ playwright-cli install --skills
 playwright-cli --help
 ```
 
-Use it with `web-navigator`, `/qa`, `seo-geo-audit`, `test-runner` and `design-audit` when you want runtime evidence from a local, preview, staging or production URL. `playwright-cli install --skills` installs the companion skills for Claude by default; use `playwright-cli install --skills=agents` for generic agent skills.
+Use it with `web-navigator`, `/qa`, `seo-geo-audit` and `design-audit` when you want runtime evidence from a local, preview, staging or production URL. `playwright-cli install --skills` installs the companion skills for Claude by default; use `playwright-cli install --skills=agents` for generic agent skills.
 
 </details>
 
@@ -393,15 +393,12 @@ YAML envelope binds those bytes to the exact code diff.
 | **Planning** | `/discovery "idea"` | Planning in levels 0-4 — tech-spec direct (0-1) or full chain (2-4), approved spec output |
 | **Dev** | `/dev [issue]` | Adaptive implementation, levels 0-4, single plan stop, quality-gate loop |
 | | `/quick-fix "desc"` | Level-0 short circuit of the same engine, auto-escalates by the grid |
-| | `/refactor <file>` | Targeted refactor with review passes |
 | **Quality** | `/gate [level] [target]` | **Standalone quality-gate loop** (default level 3 = complete review) → gate file |
 | | `/pr-review #123` | Review a GitHub PR (3 core passes + UI/SEO gates when relevant) |
 | | `/qa [url]` | Systematic runtime QA + health score |
 | **Ship** | `/ship` | Merge → manifest evidence → gate consumption (PASS or waiver) → changelog → PR |
 | **Thinking** | `/elicit [lens] [target]` | Re-examine any output through ONE named reasoning lens (12 available) |
 | | `/rodin <text\|path\|url>` | Socratic anti-echo challenge of a plan or decision |
-| | `/multi-mind prd\|review <file>` | 6-AI debate, 5 rounds, with the anti-consensus Contrarian |
-| | `/multi-mind --room anti-consensus <target>` | Short mid-workflow contrarian session on a live decision |
 | | `/plan-review <doc>` | CEO/Founder review (Expansion/Hold/Reduction) |
 | **Audits** | `/design-audit <target>` | UI/DS audit + ship-gate design evidence |
 | | `/design-audit-squad <target>` | Full 12-agent Lyse Design Squad audit |
@@ -409,14 +406,10 @@ YAML envelope binds those bytes to the exact code diff.
 | | `/seo-geo-squad <target>` | SEO/GEO V3.1 orchestration with 21 routed specialists |
 | **Utilities** | `/status` | Project state (Git, planning documents, quality gates, issues) |
 | | `/retro [--since 7d]` | Engineering retrospective |
-| | `/docs [type]` | Generate docs (readme\|api\|guide\|all) |
-| | `/changelog [version]` | Generate CHANGELOG.md |
-| | `/metrics` | Metrics dashboard |
-| | `/init [template]` | Scaffold (next\|express\|api\|cli\|lib) |
 | | `/skillz-doctor` | Installation diagnostic |
 | **Memory** | `/wiki-*` | Obsidian LLM Wiki commands — see [the wiki section](#obsidian-llm-wiki--second-brain-memory) |
 
-> Figma skills, `ds-doc` (design-system documenter) and `supabase-security` (full Supabase audit) are auto-triggered via descriptions — no slash commands needed.
+> Figma skills (`figma-generate-library`, `figma-design-code-sync`, the rest from the official `figma@claude-plugins-official` plugin), `ds-doc` (design-system documenter) and `supabase-security` (full Supabase audit) are auto-triggered via descriptions — no slash commands needed.
 
 <details>
 <summary><strong>Command availability per provider</strong></summary>
@@ -429,7 +422,7 @@ Claude Code receives the full command set. Codex, Gemini, and OpenCode receive t
 | `/rodin` | Yes | Yes | Yes | Yes |
 | `/design-audit(-squad)`, `/seo-geo-audit(-squad)` | Yes | Yes | Yes | Yes |
 | `/elicit`, `/gate` | Yes | Yes | No | No |
-| `/refactor`, `/pr-review`, `/retro`, and other Claude-only utilities | Yes | No | No | No |
+| `/pr-review`, `/retro`, and other Claude-only utilities | Yes | No | No | No |
 
 Model choice does not change command discovery — each CLI discovers commands from its own folder.
 
@@ -502,11 +495,10 @@ The orchestrator (main thread) keeps ALL context. Rigor scales with the task lev
 
 ## Thinking Tools
 
-Three complementary gestures against complacency:
+Two complementary gestures against complacency:
 
 - **`/elicit`** — re-examine an existing output under **one named lens**: Pre-mortem, Inversion, First Principles, Red/Blue Team, Steelman-then-attack, Chesterton's Fence, 10-10-10, Second-Order Effects, Occam's Razor, Constraint Removal, Persona Shift, Cost-of-Delay. The lens reveals; it never rewrites — findings + proposed revisions, you arbitrate. Available at every `/discovery` checkpoint (`[E]`).
 - **`/rodin`** — socratic anti-echo challenge (steelman → classified claims → strong objections → reality tests → verdict). Inspired by [Benjamin Debon's rodin.md](https://gist.github.com/bdebon/e22d0b728abc5f393227440907b334cf) — see [ATTRIBUTION](./skills/ATTRIBUTION.md).
-- **`multi-mind`** — 6 AI agents (Claude, GPT, Gemini, DeepSeek, GLM, Kimi) debate through 5 rounds, **plus the Contrarian**: an anti-consensus persona whose only mandate is to produce the strongest objection to the emerging consensus — no consensus can be declared until it has been explicitly refuted or integrated. `--room anti-consensus` runs a short contrarian session mid-workflow without breaking your flow. Setup: `.env.local` with API keys (see `.env.example`), minimum 3 agents.
 
 And before any brainstorm: **`[P]` pressure-test** in `/discovery` — challenge the idea socratically first, produce a forge-report (thesis / objections / surviving kernel / verdict) and only invest in planning if the kernel survives.
 
@@ -517,14 +509,13 @@ And before any brainstorm: **`[P]` pressure-test** in `/discovery` — challenge
 Capability groups, all auto-triggered from skill descriptions.
 
 - **Quality engine** — `project-probe`, `quality-gate`, `thermo-nuclear-code-quality-review`
-- **Planning** — `idea-brainstorm`, `pm-prd`, `architect`, `pm-stories`, `api-designer`, `database-designer`
-- **Thinking** — `elicitation`, `rodin`, `multi-mind`
+- **Planning** — `idea-brainstorm`, `pm-prd`, `architect`, `pm-stories`
+- **Thinking** — `elicitation`, `rodin`
 - **Design** — `ux-designer`, `ui-designer`, `ds-doc`, `design-audit`
 - **Web navigation** — `web-navigator`
 - **SEO/GEO** — `seo-geo-audit`
-- **Figma integration (8)** — `figma-use`, `figma-implement-design`, `figma-generate-design`, `figma-generate-library`, `figma-code-connect`, `figma-create-design-system-rules`, `figma-create-new-file`, `figma-design-code-sync`
-- **Audio & Video** — `elevenlabs`, `remotion`
-- **Development** — `github-issue-reader`, `code-implementer`, `test-runner`, `code-reviewer`, `security-auditor`, `performance-auditor`, `supabase-security`
+- **Figma integration** — `figma-generate-library`, `figma-design-code-sync` (+ official `figma@claude-plugins-official` plugin for `figma-use`, design-to-code, Code Connect…)
+- **Development** — `performance-auditor`, `supabase-security`
 
 <details>
 <summary><strong>Full skills breakdown with key features</strong></summary>
@@ -545,8 +536,6 @@ Capability groups, all auto-triggered from skill descriptions.
 | `pm-prd` | Product Requirements | Complete (levels 2-4) or synthetic (levels 0-1) PRD, templates |
 | `architect` | Technical architecture | Stack, structure, data model, APIs |
 | `pm-stories` | Epics + Stories | INVEST, Given/When/Then, Readiness Check /15 |
-| `api-designer` | API design | OpenAPI 3.1, REST/GraphQL, versioning |
-| `database-designer` | Database design | ERD, migrations, indexes, Prisma/Drizzle |
 
 **Thinking**
 
@@ -554,7 +543,6 @@ Capability groups, all auto-triggered from skill descriptions.
 |---|---|---|
 | `elicitation` | Named reasoning lenses | 12 lenses (CSV), one lens at a time, reveals-not-rewrites protocol |
 | `rodin` | Socratic challenger | Anti-echo review, steelman, claim classification, blind spots, reality tests |
-| `multi-mind` | Multi-agent debate | 6 AIs, 5 iterative rounds, Contrarian anti-consensus room |
 
 **Design (optional, auto-triggered)**
 
@@ -577,35 +565,17 @@ Capability groups, all auto-triggered from skill descriptions.
 |---|---|---|
 | `seo-geo-audit` | SEO/GEO audit | SEO/GEO V3.1, 21 routed specialists, structured evidence, separate F/V/O/E/M scores, adversarial QA, Delta and supervised implementation |
 
-**Figma (from figma/mcp-server-guide)**
+**Figma (local; the official `figma@claude-plugins-official` plugin provides `figma-use`, design-to-code, Code Connect and the others)**
 
 | Skill | Role | Key Features |
 |---|---|---|
-| `figma-use` | **Mandatory prereq** | Plugin API rules, gotchas, pre-flight checklist |
-| `figma-implement-design` | Figma → Code | 7-step workflow: design context → screenshot → assets → translate → validate |
-| `figma-generate-design` | Code → Figma | Build screens from design system components, variables, styles |
 | `figma-generate-library` | Build DS in Figma | Multi-phase: tokens → file structure → components → QA |
-| `figma-code-connect` | Code Connect | Parserless .figma.js templates mapping Figma components to code |
-| `figma-create-design-system-rules` | DS rules | Generate CLAUDE.md/AGENTS.md rules for Figma-to-code workflows |
-| `figma-create-new-file` | Create files | Create new Figma design or FigJam files via MCP |
 | `figma-design-code-sync` | Bidirectional sync | Detect drift between Figma components and code counterparts |
-
-**Audio & Video**
-
-| Skill | Role | Key Features |
-|---|---|---|
-| `elevenlabs` | Voice AI | TTS (70+ languages, 22+ voices), music generation, SFX, batch pipeline |
-| `remotion` | React video | 40 rule files, animations, captions, transitions, ElevenLabs→Remotion voiceover pipeline |
 
 **Development**
 
 | Skill | Role | Key Features |
 |---|---|---|
-| `github-issue-reader` | Issue reading | Categorization, ambiguity classification |
-| `code-implementer` | Implementation | Lint/types mandatory, agent worker |
-| `test-runner` | Tests | P0-P3 risk-based, 9 knowledge refs |
-| `code-reviewer` | Review (3 passes) | Correctness → Readability → Performance — used by `/refactor` and `/pr-review` |
-| `security-auditor` | Security audit | OWASP Top 10, CVE, secrets |
 | `performance-auditor` | Performance audit | Core Web Vitals, Lighthouse, bundle |
 | `supabase-security` | Supabase audit | RLS, buckets, auth, CVSS scoring |
 
@@ -779,7 +749,7 @@ Progressive loading based on complexity:
 | **advanced** | If complex | `fixture-architecture.md` |
 | **debugging** | If problem | `test-healing-patterns.md` |
 
-55+ files across testing, workflows, brainstorming (techniques + elicitation lenses), multi-mind, and supabase-security. Figma references are bundled inside skills.
+55+ files across testing, workflows, brainstorming (techniques + elicitation lenses), and supabase-security. Figma references are bundled inside skills.
 
 </details>
 

@@ -10,7 +10,7 @@ user-invocable: true
 
 # Taste Router
 
-Méta-skill qui aide à choisir parmi les 9 `taste-skills` (intégrés depuis github.com/Leonxlnx/taste-skill) et à régler les 3 dials.
+Méta-skill qui aide à choisir parmi les `taste-skills` (intégrés depuis github.com/Leonxlnx/taste-skill) et à régler les 3 dials.
 
 ## Quand utiliser
 
@@ -50,9 +50,7 @@ Présenter une recommandation structurée :
 - VISUAL_DENSITY : [1-10] — [justification courte]
 
 **Skills complémentaires** :
-- [ ] `output-skill` — si scope > 10 composants
 - [ ] `redesign-skill` — si projet existant à upgrader
-- [ ] `images-taste-skill` — si on veut des refs visuelles d'abord
 
 **Alternative** : [autre skill envisageable + pourquoi]
 ```
@@ -62,16 +60,13 @@ Présenter une recommandation structurée :
 | Cas | Skill | DESIGN_VARIANCE | MOTION_INTENSITY | VISUAL_DENSITY |
 |-----|-------|-----------------|------------------|----------------|
 | Landing marketing premium | `taste-skill` | 8 | 7 | 4 |
-| Landing GPT/Codex | `gpt-tasteskill` | 8 | 7 | 4 |
 | App SaaS calme (Notion-like) | `minimalist-skill` | 4 | 3 | 5 |
 | App SaaS premium (Linear-like) | `soft-skill` | 5 | 5 | 5 |
 | Dashboard data dense | `taste-skill` | 4 | 4 | 9 |
 | Portfolio créatif | `taste-skill` | 9 | 8 | 3 |
 | Site éditorial / agence | `soft-skill` | 6 | 6 | 4 |
-| Tech tool raw / dev tool | `brutalist-skill` | 7 | 4 | 7 |
+| Tech tool raw / dev tool | `minimalist-skill` | 5 | 3 | 7 |
 | Refonte projet existant | `redesign-skill` | — | — | — |
-| Projet visuel-first | `images-taste-skill` | — | — | — |
-| Workflow Google Stitch | `stitch-skill` | — | — | — |
 
 ### 5. Output
 

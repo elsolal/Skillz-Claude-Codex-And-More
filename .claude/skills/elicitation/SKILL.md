@@ -34,7 +34,6 @@ A lens is a disciplined second pass over something that already exists. It revea
 - `discovery-workflow` checkpoints: offer `[E] apply a lens before validating`.
 - `rodin` (socratic challenge): distinct gesture — rodin argues against the position; elicitation re-reads it under one question. Use rodin for "challenge this", a lens for "re-examine this under X".
 - `idea-brainstorm` synthesis: offer a lens pass on the top ideas before closing.
-- `multi-mind`: the Contrarian persona may pick any lens as its weapon.
 
 ## Anti-patterns
 

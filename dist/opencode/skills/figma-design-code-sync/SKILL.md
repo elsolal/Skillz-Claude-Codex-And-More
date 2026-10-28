@@ -20,18 +20,18 @@ Maintains alignment between Figma design system components and their code counte
 - Periodic design system audit (quarterly sync check)
 
 **When NOT to use:**
-- Initial Code Connect installation → use `figma-setup`
-- Converting a full Figma screen to code → use `figma-to-code`
+- Initial Code Connect installation → use `figma:figma-code-connect`
+- Converting a full Figma screen to code → use `figma:figma-design-to-code`
 - Creating new components from scratch (no Figma reference)
 
 ## Related Skills
 
 | Skill | Direction | When to use instead |
 |-------|-----------|---------------------|
-| `figma-setup` | — | Initial Code Connect installation |
-| `figma-to-code` | Figma → Code | Converting a full screen to code |
-| `figma-designer` | Claude → Figma | Creating new screens/prototypes in Figma |
-| `figma-design-system` | Code → Figma | Managing tokens, auditing DS, pushing code changes to Figma |
+| `figma:figma-code-connect` | — | Initial Code Connect installation |
+| `figma:figma-design-to-code` | Figma → Code | Converting a full screen to code |
+| `figma:figma-generate-design` | Claude → Figma | Creating new screens/prototypes in Figma |
+| `figma-generate-library` | Code → Figma | Managing tokens, auditing DS, pushing code changes to Figma |
 | `design-audit` | Code/Figma → verdict | Auditing tokens/components/drift across a broader UI surface |
 
 This skill handles the **mapping layer** between the two worlds. The others handle creation in one direction.
@@ -572,7 +572,6 @@ echo "Run '/figma-design-code-sync' in Claude to fix any issues."
 ## Auto-Chain
 
 After sync is complete:
-- → `figma-design-system` — If tokens need updating in Figma (code→Figma direction)
-- → `figma-designer` — If new component needs to be created in Figma
-- → `/code-reviewer` — Review any code changes made during sync
-- → `/test-runner` — Test modified components
+- → `figma-generate-library` — If tokens need updating in Figma (code→Figma direction)
+- → `figma:figma-generate-design` — If new component needs to be created in Figma
+- → `quality-gate` — Review any code changes made during sync

@@ -36,7 +36,7 @@ Si un skill existant couvre déjà 70%+ du besoin → **modifier** plutôt que c
 
 - Emplacement : `.claude/skills/<nom-du-skill>/SKILL.md`
 - Nom : kebab-case, descriptif, sans préfixe "skill-"
-- Exemples bons : `code-implementer`, `pm-prd`, `figma-implement-design`
+- Exemples bons : `dev-workflow`, `pm-prd`, `quality-gate`
 - Exemples mauvais : `helper`, `utility`, `skill-coder` (préfixe redondant)
 
 ### 3. Écrire le frontmatter (le plus important)
@@ -124,7 +124,7 @@ Un fichier `.claude/skills/<nom>/SKILL.md` :
 
 ## Exemples de bons skills (modèles)
 
-- `code-implementer/SKILL.md` — workflow worker depuis /dev, scope clair
+- `project-probe/SKILL.md` — workflow worker depuis /dev, scope clair
 - `pm-prd/SKILL.md` — output bien défini, triggers explicites
 - `dev-workflow/SKILL.md` — exécution séquentielle runtime-agnostic, exemple de doc soigné
 

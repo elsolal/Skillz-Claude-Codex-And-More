@@ -178,11 +178,7 @@ Quel style pour ce projet ?
 | Premium all-rounder | `taste-skill` | Default safe — UI premium sans direction narrow |
 | Soft / haut de gamme | `soft-skill` | Calm, expensive-looking, smooth motion, beaucoup de whitespace |
 | Minimaliste éditorial | `minimalist-skill` | Type Notion / Linear, palette restreinte, structure crisp |
-| Brutaliste industriel | `brutalist-skill` | Swiss type, contraste fort, raw structure (BETA) |
-| GPT/Codex strict | `gpt-tasteskill` | Si l'implémentation est faite par GPT/Codex (anti-slop renforcé) |
-| Image-first | `images-taste-skill` | Générer des refs visuelles d'abord, puis coder pour matcher |
 | Redesign existant | `redesign-skill` | Le projet existe déjà — audit + amélioration |
-| Google Stitch | `stitch-skill` | Workflow Stitch (génère un `DESIGN.md` semantic) |
 
 **3 dials à régler** (1-10) — utilisés par `taste-skill` :
 - **DESIGN_VARIANCE** — 1=symétrique parfait | 10=chaos artsy
@@ -637,5 +633,5 @@ Après validation de l'UI, proposer automatiquement :
 - **Vers architect** : "On intègre le design system dans l'architecture ?"
 - **Vers pm-stories** : "On crée les stories avec les specs UI ?"
 - **Vers ux-designer** : "On revoit l'UX avant de finaliser l'UI ?"
-- **Vers figma-setup** : "On configure Code Connect pour mapper les composants Figma ?"
-- **Vers figma-to-code** : "On génère du code depuis un design Figma ?"
+- **Vers figma:figma-code-connect** : "On configure Code Connect pour mapper les composants Figma ?"
+- **Vers figma:figma-design-to-code** : "On génère du code depuis un design Figma ?"

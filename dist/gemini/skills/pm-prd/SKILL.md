@@ -294,7 +294,7 @@ Si Score UI ≥ 3, capturer dès le PRD les 3 dials qui orienteront l'implément
 | **MOTION_INTENSITY** | Hover simples seulement | Transitions soignées | Magnetic, scroll-triggered, GSAP |
 | **VISUAL_DENSITY** | Luxe spacieux, beaucoup de whitespace | Standard | Dense (dashboards, data) |
 
-Ajouter au PRD une section **`Style direction`** avec les 3 valeurs + le `taste-skill` recommandé (`taste-skill` par défaut, `soft-skill` / `minimalist-skill` / `brutalist-skill` si direction tranchée). Cf. `taste-router` pour aide à la décision.
+Ajouter au PRD une section **`Style direction`** avec les 3 valeurs + le `taste-skill` recommandé (`taste-skill` par défaut, `soft-skill` / `minimalist-skill` si direction tranchée). Cf. `taste-router` pour aide à la décision.
 
 ---
 
@@ -375,7 +375,6 @@ Après validation du PRD, proposer automatiquement :
 → 🏗️ **Lancer `/architect` ?** (architecture technique requise)
 
 [Si PRD complet (niveaux 2-4) - optionnel]
-→ 🧠 **Lancer `/multi-mind prd` ?** (débat multi-perspectives avec 6 IA)
 
 [Si PRD synthétique (niveaux 0-1)]
 → 📝 **Lancer `/pm-stories` ?** (direct aux stories)

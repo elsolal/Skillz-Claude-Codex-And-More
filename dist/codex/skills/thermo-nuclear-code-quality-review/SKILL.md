@@ -25,8 +25,8 @@ clearer, more direct, and easier to reason about.
 
 ## When Not To Use
 
-- For normal correctness review only: use `code-reviewer`.
-- For security-specific findings: use `security-auditor` or the security lens in
+- For normal correctness review only: use `/code-review` or the `quality-gate` correctness lens.
+- For security-specific findings: use `/security-review` or the security lens in
   `quality-gate`.
 - For visual/product UI quality: use `taste-critic`, `design-audit`, or
   `a11y-enforcer`.

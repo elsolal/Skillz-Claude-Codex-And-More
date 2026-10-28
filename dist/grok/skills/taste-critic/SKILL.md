@@ -1,6 +1,6 @@
 ---
 name: taste-critic
-description: Audit anti-slop d'une UI frontend (URL, screenshot, ou code) contre les règles des 9 taste-skills. Détecte les défauts génériques de l'AI (6-line wraps, gapless bento absent, motion plate, hierarchy molle, copy générique, density déséquilibrée). Output structuré avec sévérité P0-P3 et fix suggéré. Utiliser dans /pr-review (3e passe design), /qa, ou avant /ship pour gate la qualité visuelle.
+description: Audit anti-slop d'une UI frontend (URL, screenshot, ou code) contre les règles des taste-skills. Détecte les défauts génériques de l'AI (6-line wraps, gapless bento absent, motion plate, hierarchy molle, copy générique, density déséquilibrée). Output structuré avec sévérité P0-P3 et fix suggéré. Utiliser dans /pr-review (3e passe design), /qa, ou avant /ship pour gate la qualité visuelle.
 ---
 
 # Taste Critic
@@ -19,7 +19,7 @@ Miroir des 9 `taste-skills` : ils disent **comment générer du bon goût**, ce 
 - Audit uniquement, **ne fix pas**. Pour fix → invoquer `redesign-skill` ou le `taste-skill` correspondant.
 - Pas d'audit a11y (→ `a11y-enforcer`).
 - Pas d'audit perf (→ `performance-auditor`).
-- Pas d'audit code quality (→ `code-reviewer`).
+- Pas d'audit code quality (→ `quality-gate`).
 
 ## Inputs acceptés
 
@@ -170,7 +170,7 @@ Pour chaque catégorie, scorer 0-10 et lister les violations concrètes :
 ### Jamais
 - ❌ Critiquer sans référence à une règle écrite
 - ❌ "It's ugly" sans dire pourquoi mécaniquement
-- ❌ Dupliquer ce que `code-reviewer` ou `a11y-enforcer` font déjà
+- ❌ Dupliquer ce que `quality-gate` ou `a11y-enforcer` font déjà
 - ❌ Inventer des violations (false positives) — silence > spéculation
 
 ## Auto-Chain

@@ -38,7 +38,7 @@ Utilisateur dit...                    → Workflow
 "j'ai une idée / on pourrait..."      → /discovery
 "implémente l'issue #XX"              → /dev #XX
 "fix ce bug / ce truc est cassé"      → /quick-fix "desc"
-"refactorise ce fichier"              → /refactor <file>
+"simplifie / nettoie ce code"         → /simplify (natif Claude Code)
 "review cette PR"                     → /pr-review #123
 "review mon plan/PRD"                 → /plan-review <doc>
 "challenge ce raisonnement / plan"    → /rodin <texte|doc|url> (ou skill rodin)
@@ -50,12 +50,10 @@ Utilisateur dit...                    → Workflow
 "audite le SEO / GEO d'un site"       → /seo-geo-audit <url|domaine> [--quick|--full|--geo-only]
 "audit SEO/GEO complet squad"         → /seo-geo-squad <url|domaine> [--step-by-step|--all-at-once]
 "retro de la session"                 → /retro [--since 7d]
-"génère la doc"                       → /docs [type]
-"crée un nouveau projet"              → /init [template]
-"importe ce design Figma"             → /figma-to-code <url>
-"design ça dans Figma"                → skill figma-designer
+"importe ce design Figma"             → skill figma:figma-design-to-code (plugin Figma officiel)
+"design ça dans Figma"                → skill figma:figma-generate-design (plugin Figma officiel)
 "documente le design system"          → /ds-doc
-"crée/audite le design system"        → skill figma-design-system
+"crée/audite le design system"        → skill figma-generate-library
 "le composant est différent en prod"  → skill figma-design-code-sync
 "quel style frontend / anti-slop"     → skill taste-router (puis taste-skill / soft-skill / etc.)
 "audite cette UI / trouve le slop"    → skill taste-critic
@@ -91,7 +89,6 @@ L'orchestrateur principal garde tout le contexte. La rigueur s'adapte au niveau 
 # Développement
 /dev [issue]                # Workflow adaptatif niveaux 0-4, stop unique au plan
 /quick-fix "desc"           # Circuit court niveau 0 du moteur dev-workflow, escalade auto
-/refactor <file>            # Refactoring ciblé
 
 # Ship & QA
 /ship [branch]              # Ship: merge → preuves manifeste → gate file (PASS/waiver) → changelog → PR
@@ -107,31 +104,20 @@ L'orchestrateur principal garde tout le contexte. La rigueur s'adapte au niveau 
 # Utilitaires
 /status                     # État du projet
 /pr-review #123             # Review PR (3 agents core + gates UI/SEO si besoin)
-/docs [type]                # Documentation (readme|api|guide|all)
-/changelog [version]        # CHANGELOG.md
-/metrics                    # Dashboard métriques
-/init [template]            # Scaffolding (next|express|api|cli|lib)
 
 # Design System & Figma
 /ds-doc [--figma url]       # Documente le DS dans CLAUDE.md (scan + Figma links)
-/figma-setup [url]          # Configure Code Connect
-/figma-to-code <url>        # Figma → Code
 # Skills auto-triggered :
-# figma-designer            # Claude crée des designs dans Figma
-# figma-design-system       # Gestion DS (tokens, audit, code→Figma)
+# figma-generate-library    # DS dans Figma depuis le code (tokens, composants)
 # figma-design-code-sync    # Sync bidirectionnelle composants
+# Le reste (figma-use, design-to-code, code-connect…) vient du plugin figma@claude-plugins-official
 
 # Frontend taste (anti-slop, premium UI) :
 # taste-router              # Choisit le bon taste-skill + dials selon le brief
 # taste-skill               # Default all-rounder premium frontend
 # soft-skill                # Calm, expensive, smooth motion
 # minimalist-skill          # Notion/Linear éditorial
-# brutalist-skill           # Swiss type, raw, mechanical (BETA)
-# gpt-tasteskill            # Variante stricte pour GPT/Codex
-# images-taste-skill        # Image-first workflow (génère→analyse→code)
 # redesign-skill            # Audit + upgrade UI existante
-# output-skill              # Anti-flemme, force complétion
-# stitch-skill              # Workflow Google Stitch (DESIGN.md)
 
 # Design audit & enforcement (gates de qualité) :
 # design-audit              # Gate transversal UI/DS/agent-surface, références Lyse optionnelles, P0/P1-P3

@@ -288,8 +288,7 @@ Produire un fichier `docs/planning/copy/microcopy-{slug}.md` :
 |----------|-----------|
 | `ui-designer` | Auto-trigger après définition des composants — pour générer la microcopy library |
 | `pm-prd` | Mention dans la phase UX/UI — capturer voice/tone dès le PRD |
-| `figma-implement-design` | Loader ce skill si Figma a `Lorem ipsum` ou copy générique |
-| `code-implementer` | Reference les patterns lors d'écriture de UI |
+| `figma:figma-design-to-code` | Loader ce skill si Figma a `Lorem ipsum` ou copy générique |
 | `taste-critic` | Cross-check : si taste-critic flag du copy générique, déléguer fix ici |
 
 ## Sources / inspiration
