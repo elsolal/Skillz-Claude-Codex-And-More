@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "CONCERNS"
+level: 2
+base_sha: "0de1a6718e71b32e4c4e007c491129b276747a30"
+head_sha: "26a43348af6a27b0893779453abaca196eab72dc"
+code_diff_hash: "d756d95437041e355f893b04e19103d73d2af0badd00917b5d55051cd83fb140"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-10-28-cleanup-unused-skills.json"
+proof_payload_hash: "8d3461cc6a17998c6ae32f4c249cd8f99280ef8028bc774487e2f2bbd283ee2c"
+integrity_sha256: "658a74381561efea504a1503eaf9e9246f2e9339d1c276114458ce8fc91ac30e"
