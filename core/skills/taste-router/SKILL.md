@@ -26,8 +26,8 @@ Méta-skill qui aide à choisir parmi les `taste-skills` (intégrés depuis gith
 ### 2. 3 questions clés (si pas de doc)
 
 1. **C'est quoi ?** Landing marketing / app SaaS / dashboard data / portfolio / e-commerce ?
-2. **Vibe ?** Premium calme / éditorial pro / tech raw / minimal / dense info ?
-3. **Implémenté par qui ?** Claude / GPT-Codex / Stitch / autre ?
+2. **Vibe ?** Premium calme / éditorial pro / minimal / dense info ?
+3. **Existant ?** Nouveau projet ou refonte d'une UI existante ?
 
 ### 3. Recommandation
 
@@ -60,7 +60,6 @@ Présenter une recommandation structurée :
 | Dashboard data dense | `taste-skill` | 4 | 4 | 9 |
 | Portfolio créatif | `taste-skill` | 9 | 8 | 3 |
 | Site éditorial / agence | `soft-skill` | 6 | 6 | 4 |
-| Tech tool raw / dev tool | `minimalist-skill` | 5 | 3 | 7 |
 | Refonte projet existant | `redesign-skill` | — | — | — |
 
 ### 5. Output
@@ -72,7 +71,7 @@ Persister la décision quelque part de discoverable :
 
 ## Règles
 
-- Ne JAMAIS recommander 2 skills antagonistes (ex: brutalist + soft)
+- Ne JAMAIS recommander 2 skills antagonistes (ex: minimalist + taste-skill à dials élevés)
 - Ne JAMAIS proposer un dial à 10 sans warner ("⚠️ chaos assumé")
 - Toujours proposer 1 alternative pour permettre le choix
 - Si le brief est ambigu, demander avant de recommander

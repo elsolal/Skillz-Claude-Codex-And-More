@@ -4,7 +4,7 @@ This directory bundles skills authored by third parties. We mirror them into Ski
 
 ## Taste Skills (Leonxlnx/taste-skill)
 
-The following 5 skills are integrated from [github.com/Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) by Leonxlnx, with the goal of giving the AI good frontend "taste" and blocking generic anti-patterns ("slop").
+The following 4 skills are integrated from [github.com/Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) by Leonxlnx, with the goal of giving the AI good frontend "taste" and blocking generic anti-patterns ("slop").
 
 | Folder | Frontmatter `name` | Source path |
 |--------|-------------------|-------------|

@@ -44,7 +44,6 @@ Mode FULL détecté automatiquement (score 4/5) :
 | **UX Designer** | Personas lecteur/auteur, journey de lecture |
 | **Dynamic Context** | PRD et Architecture chargés automatiquement |
 | **Hook coverage** | Coverage affichée après chaque test |
-| **Argument hints** | `/test-runner src/` guidé par le hint |
 
 ## Commandes utiles v2.6
 

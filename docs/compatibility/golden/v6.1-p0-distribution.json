@@ -427,7 +427,7 @@
         {
           "mode": "0644",
           "path": "skills/figma-generate-library/SKILL.md",
-          "sha256": "64f55cb22b454524319090c5771b42a3cde010067b9248b4e62c04189f21001e"
+          "sha256": "8ae748b94e449bb2da508387c3e04d6e61994eb56397b8a721090702f8e3c928"
         },
         {
           "mode": "0644",
@@ -1282,7 +1282,7 @@
         {
           "mode": "0644",
           "path": "skills/pm-prd/SKILL.md",
-          "sha256": "a02551a8769bd36049aef6068fc5829395cb211310ce2fe2752623f9058beaef"
+          "sha256": "caeefc863c367301480bc4dfdeadcaae95e6071536aff3adc4cebe80cdb44f13"
         },
         {
           "mode": "0644",
@@ -1957,7 +1957,7 @@
         {
           "mode": "0644",
           "path": "skills/skillz-writing-skills/SKILL.md",
-          "sha256": "ce4f7f913806d05f83b49c7018e81b5d85fed5abfba75bba61cb9860890303fd"
+          "sha256": "bafd98a79bbb2df0e184b6246b54336fc6d62d33576b35723e8e68b863a0384b"
         },
         {
           "mode": "0644",
@@ -2002,12 +2002,12 @@
         {
           "mode": "0644",
           "path": "skills/taste-critic/SKILL.md",
-          "sha256": "e7a49638205b8fa5735ea4f0339904f3c4e3c46162efd34b18bd9078ff3b9f1f"
+          "sha256": "1c726d8427e811456569c9e5b8314683315fed16f65c442f329494c1b3a94a04"
         },
         {
           "mode": "0644",
           "path": "skills/taste-router/SKILL.md",
-          "sha256": "1b5d20ee3d2503fa56de30b47fcc6d49c086daf49e4d9ecc559c1b738aac41ea"
+          "sha256": "4ee958b31fb10671025b5070185083d9f671d88e7527b752cc950f09f6bc68ff"
         },
         {
           "mode": "0644",
@@ -2022,7 +2022,7 @@
         {
           "mode": "0644",
           "path": "skills/ui-designer/SKILL.md",
-          "sha256": "0618a517856844792a7a170a9c3efefd27e6e100c13c13bfb0cc8ccc493e28eb"
+          "sha256": "95ab785a096a3e8523cca5ed023adae8bde7ecf0f8383f3be6c225ad6777b0c7"
         },
         {
           "mode": "0644",
@@ -3086,7 +3086,7 @@
         {
           "mode": "0644",
           "path": "skills/figma-generate-library/SKILL.md",
-          "sha256": "d967f35b49de9800644cb19ffc8d6ad4901c3cb5adc7b5e42a265002c770bd52"
+          "sha256": "d1f48de91385197b523c18730d3c51fd5f09b57af88785c7f2025dd176e43e70"
         },
         {
           "mode": "0644",
@@ -3941,7 +3941,7 @@
         {
           "mode": "0644",
           "path": "skills/pm-prd/SKILL.md",
-          "sha256": "3c4bbf2eb512b54a474033e5c9d8e480d0e160d152e52998a1292306162dae33"
+          "sha256": "2de309973f4905652f713c504c7683a9306ebd71b71469b45a9a341a5137ca70"
         },
         {
           "mode": "0644",
@@ -4616,7 +4616,7 @@
         {
           "mode": "0644",
           "path": "skills/skillz-writing-skills/SKILL.md",
-          "sha256": "ce4f7f913806d05f83b49c7018e81b5d85fed5abfba75bba61cb9860890303fd"
+          "sha256": "bafd98a79bbb2df0e184b6246b54336fc6d62d33576b35723e8e68b863a0384b"
         },
         {
           "mode": "0644",
@@ -4661,12 +4661,12 @@
         {
           "mode": "0644",
           "path": "skills/taste-critic/SKILL.md",
-          "sha256": "06dd8047725dd3e6541dc655534183b2694320445d2aad17a92c4ee038b59fc6"
+          "sha256": "c318d9439016cc3d36a6417e6979e4f1cb7108e14cacc4619049b30337c2d0f1"
         },
         {
           "mode": "0644",
           "path": "skills/taste-router/SKILL.md",
-          "sha256": "4beed273956bdfc8598676cc76eba7c1286c26c65b8f004ff88f101583b9bfac"
+          "sha256": "1eb44128e42da9e06a66ac61b3b6a6b958d052ae4be6de06f3cac7304c0136b8"
         },
         {
           "mode": "0644",
@@ -4681,7 +4681,7 @@
         {
           "mode": "0644",
           "path": "skills/ui-designer/SKILL.md",
-          "sha256": "703a7cba16940f974c0ee9c2e88ea2d3ead29229f7fd458b3ec8f7bb59f69dfe"
+          "sha256": "cc0ae5ac949f040950bd989bb0d5f45e16d5c47111efd242f8a1d005f2ec2293"
         },
         {
           "mode": "0644",
@@ -5842,7 +5842,7 @@
         {
           "mode": "0644",
           "path": "skills/figma-generate-library/SKILL.md",
-          "sha256": "64f55cb22b454524319090c5771b42a3cde010067b9248b4e62c04189f21001e"
+          "sha256": "8ae748b94e449bb2da508387c3e04d6e61994eb56397b8a721090702f8e3c928"
         },
         {
           "mode": "0644",
@@ -6697,7 +6697,7 @@
         {
           "mode": "0644",
           "path": "skills/pm-prd/SKILL.md",
-          "sha256": "a02551a8769bd36049aef6068fc5829395cb211310ce2fe2752623f9058beaef"
+          "sha256": "caeefc863c367301480bc4dfdeadcaae95e6071536aff3adc4cebe80cdb44f13"
         },
         {
           "mode": "0644",
@@ -7372,7 +7372,7 @@
         {
           "mode": "0644",
           "path": "skills/skillz-writing-skills/SKILL.md",
-          "sha256": "ce4f7f913806d05f83b49c7018e81b5d85fed5abfba75bba61cb9860890303fd"
+          "sha256": "bafd98a79bbb2df0e184b6246b54336fc6d62d33576b35723e8e68b863a0384b"
         },
         {
           "mode": "0644",
@@ -7417,12 +7417,12 @@
         {
           "mode": "0644",
           "path": "skills/taste-critic/SKILL.md",
-          "sha256": "e7a49638205b8fa5735ea4f0339904f3c4e3c46162efd34b18bd9078ff3b9f1f"
+          "sha256": "1c726d8427e811456569c9e5b8314683315fed16f65c442f329494c1b3a94a04"
         },
         {
           "mode": "0644",
           "path": "skills/taste-router/SKILL.md",
-          "sha256": "1b5d20ee3d2503fa56de30b47fcc6d49c086daf49e4d9ecc559c1b738aac41ea"
+          "sha256": "4ee958b31fb10671025b5070185083d9f671d88e7527b752cc950f09f6bc68ff"
         },
         {
           "mode": "0644",
@@ -7437,7 +7437,7 @@
         {
           "mode": "0644",
           "path": "skills/ui-designer/SKILL.md",
-          "sha256": "0618a517856844792a7a170a9c3efefd27e6e100c13c13bfb0cc8ccc493e28eb"
+          "sha256": "95ab785a096a3e8523cca5ed023adae8bde7ecf0f8383f3be6c225ad6777b0c7"
         },
         {
           "mode": "0644",
@@ -8557,7 +8557,7 @@
         {
           "mode": "0644",
           "path": "skills/figma-generate-library/SKILL.md",
-          "sha256": "64f55cb22b454524319090c5771b42a3cde010067b9248b4e62c04189f21001e"
+          "sha256": "8ae748b94e449bb2da508387c3e04d6e61994eb56397b8a721090702f8e3c928"
         },
         {
           "mode": "0644",
@@ -9412,7 +9412,7 @@
         {
           "mode": "0644",
           "path": "skills/pm-prd/SKILL.md",
-          "sha256": "a02551a8769bd36049aef6068fc5829395cb211310ce2fe2752623f9058beaef"
+          "sha256": "caeefc863c367301480bc4dfdeadcaae95e6071536aff3adc4cebe80cdb44f13"
         },
         {
           "mode": "0644",
@@ -10087,7 +10087,7 @@
         {
           "mode": "0644",
           "path": "skills/skillz-writing-skills/SKILL.md",
-          "sha256": "ce4f7f913806d05f83b49c7018e81b5d85fed5abfba75bba61cb9860890303fd"
+          "sha256": "bafd98a79bbb2df0e184b6246b54336fc6d62d33576b35723e8e68b863a0384b"
         },
         {
           "mode": "0644",
@@ -10132,12 +10132,12 @@
         {
           "mode": "0644",
           "path": "skills/taste-critic/SKILL.md",
-          "sha256": "e7a49638205b8fa5735ea4f0339904f3c4e3c46162efd34b18bd9078ff3b9f1f"
+          "sha256": "1c726d8427e811456569c9e5b8314683315fed16f65c442f329494c1b3a94a04"
         },
         {
           "mode": "0644",
           "path": "skills/taste-router/SKILL.md",
-          "sha256": "1b5d20ee3d2503fa56de30b47fcc6d49c086daf49e4d9ecc559c1b738aac41ea"
+          "sha256": "4ee958b31fb10671025b5070185083d9f671d88e7527b752cc950f09f6bc68ff"
         },
         {
           "mode": "0644",
@@ -10152,7 +10152,7 @@
         {
           "mode": "0644",
           "path": "skills/ui-designer/SKILL.md",
-          "sha256": "0618a517856844792a7a170a9c3efefd27e6e100c13c13bfb0cc8ccc493e28eb"
+          "sha256": "95ab785a096a3e8523cca5ed023adae8bde7ecf0f8383f3be6c225ad6777b0c7"
         },
         {
           "mode": "0644",
@@ -11216,7 +11216,7 @@
         {
           "mode": "0644",
           "path": "skills/figma-generate-library/SKILL.md",
-          "sha256": "64f55cb22b454524319090c5771b42a3cde010067b9248b4e62c04189f21001e"
+          "sha256": "8ae748b94e449bb2da508387c3e04d6e61994eb56397b8a721090702f8e3c928"
         },
         {
           "mode": "0644",
@@ -12071,7 +12071,7 @@
         {
           "mode": "0644",
           "path": "skills/pm-prd/SKILL.md",
-          "sha256": "a02551a8769bd36049aef6068fc5829395cb211310ce2fe2752623f9058beaef"
+          "sha256": "caeefc863c367301480bc4dfdeadcaae95e6071536aff3adc4cebe80cdb44f13"
         },
         {
           "mode": "0644",
@@ -12746,7 +12746,7 @@
         {
           "mode": "0644",
           "path": "skills/skillz-writing-skills/SKILL.md",
-          "sha256": "ce4f7f913806d05f83b49c7018e81b5d85fed5abfba75bba61cb9860890303fd"
+          "sha256": "bafd98a79bbb2df0e184b6246b54336fc6d62d33576b35723e8e68b863a0384b"
         },
         {
           "mode": "0644",
@@ -12791,12 +12791,12 @@
         {
           "mode": "0644",
           "path": "skills/taste-critic/SKILL.md",
-          "sha256": "e7a49638205b8fa5735ea4f0339904f3c4e3c46162efd34b18bd9078ff3b9f1f"
+          "sha256": "1c726d8427e811456569c9e5b8314683315fed16f65c442f329494c1b3a94a04"
         },
         {
           "mode": "0644",
           "path": "skills/taste-router/SKILL.md",
-          "sha256": "1b5d20ee3d2503fa56de30b47fcc6d49c086daf49e4d9ecc559c1b738aac41ea"
+          "sha256": "4ee958b31fb10671025b5070185083d9f671d88e7527b752cc950f09f6bc68ff"
         },
         {
           "mode": "0644",
@@ -12811,7 +12811,7 @@
         {
           "mode": "0644",
           "path": "skills/ui-designer/SKILL.md",
-          "sha256": "0618a517856844792a7a170a9c3efefd27e6e100c13c13bfb0cc8ccc493e28eb"
+          "sha256": "95ab785a096a3e8523cca5ed023adae8bde7ecf0f8383f3be6c225ad6777b0c7"
         },
         {
           "mode": "0644",
@@ -13614,7 +13614,7 @@
         {
           "mode": "0644",
           "path": "skills/figma-generate-library/SKILL.md",
-          "sha256": "64f55cb22b454524319090c5771b42a3cde010067b9248b4e62c04189f21001e"
+          "sha256": "8ae748b94e449bb2da508387c3e04d6e61994eb56397b8a721090702f8e3c928"
         },
         {
           "mode": "0644",
@@ -14469,7 +14469,7 @@
         {
           "mode": "0644",
           "path": "skills/pm-prd/SKILL.md",
-          "sha256": "a02551a8769bd36049aef6068fc5829395cb211310ce2fe2752623f9058beaef"
+          "sha256": "caeefc863c367301480bc4dfdeadcaae95e6071536aff3adc4cebe80cdb44f13"
         },
         {
           "mode": "0644",
@@ -15144,7 +15144,7 @@
         {
           "mode": "0644",
           "path": "skills/skillz-writing-skills/SKILL.md",
-          "sha256": "ce4f7f913806d05f83b49c7018e81b5d85fed5abfba75bba61cb9860890303fd"
+          "sha256": "bafd98a79bbb2df0e184b6246b54336fc6d62d33576b35723e8e68b863a0384b"
         },
         {
           "mode": "0644",
@@ -15189,12 +15189,12 @@
         {
           "mode": "0644",
           "path": "skills/taste-critic/SKILL.md",
-          "sha256": "e7a49638205b8fa5735ea4f0339904f3c4e3c46162efd34b18bd9078ff3b9f1f"
+          "sha256": "1c726d8427e811456569c9e5b8314683315fed16f65c442f329494c1b3a94a04"
         },
         {
           "mode": "0644",
           "path": "skills/taste-router/SKILL.md",
-          "sha256": "1b5d20ee3d2503fa56de30b47fcc6d49c086daf49e4d9ecc559c1b738aac41ea"
+          "sha256": "4ee958b31fb10671025b5070185083d9f671d88e7527b752cc950f09f6bc68ff"
         },
         {
           "mode": "0644",
@@ -15209,7 +15209,7 @@
         {
           "mode": "0644",
           "path": "skills/ui-designer/SKILL.md",
-          "sha256": "0618a517856844792a7a170a9c3efefd27e6e100c13c13bfb0cc8ccc493e28eb"
+          "sha256": "95ab785a096a3e8523cca5ed023adae8bde7ecf0f8383f3be6c225ad6777b0c7"
         },
         {
           "mode": "0644",
@@ -16268,7 +16268,7 @@
         {
           "mode": "0644",
           "path": "skills/figma-generate-library/SKILL.md",
-          "sha256": "64f55cb22b454524319090c5771b42a3cde010067b9248b4e62c04189f21001e"
+          "sha256": "8ae748b94e449bb2da508387c3e04d6e61994eb56397b8a721090702f8e3c928"
         },
         {
           "mode": "0644",
@@ -17123,7 +17123,7 @@
         {
           "mode": "0644",
           "path": "skills/pm-prd/SKILL.md",
-          "sha256": "a02551a8769bd36049aef6068fc5829395cb211310ce2fe2752623f9058beaef"
+          "sha256": "caeefc863c367301480bc4dfdeadcaae95e6071536aff3adc4cebe80cdb44f13"
         },
         {
           "mode": "0644",
@@ -17798,7 +17798,7 @@
         {
           "mode": "0644",
           "path": "skills/skillz-writing-skills/SKILL.md",
-          "sha256": "ce4f7f913806d05f83b49c7018e81b5d85fed5abfba75bba61cb9860890303fd"
+          "sha256": "bafd98a79bbb2df0e184b6246b54336fc6d62d33576b35723e8e68b863a0384b"
         },
         {
           "mode": "0644",
@@ -17843,12 +17843,12 @@
         {
           "mode": "0644",
           "path": "skills/taste-critic/SKILL.md",
-          "sha256": "e7a49638205b8fa5735ea4f0339904f3c4e3c46162efd34b18bd9078ff3b9f1f"
+          "sha256": "1c726d8427e811456569c9e5b8314683315fed16f65c442f329494c1b3a94a04"
         },
         {
           "mode": "0644",
           "path": "skills/taste-router/SKILL.md",
-          "sha256": "1b5d20ee3d2503fa56de30b47fcc6d49c086daf49e4d9ecc559c1b738aac41ea"
+          "sha256": "4ee958b31fb10671025b5070185083d9f671d88e7527b752cc950f09f6bc68ff"
         },
         {
           "mode": "0644",
@@ -17863,7 +17863,7 @@
         {
           "mode": "0644",
           "path": "skills/ui-designer/SKILL.md",
-          "sha256": "0618a517856844792a7a170a9c3efefd27e6e100c13c13bfb0cc8ccc493e28eb"
+          "sha256": "95ab785a096a3e8523cca5ed023adae8bde7ecf0f8383f3be6c225ad6777b0c7"
         },
         {
           "mode": "0644",
@@ -18222,5 +18222,5 @@
     }
   },
   "schema_version": 1,
-  "tree_hash": "5665ed019a1d89829e4af07d49a7bd5dd08a1f40946d6682fff6394d5436e62b"
+  "tree_hash": "3625998179fb42d5696fd3c4c478a5c1c60f50049b2a00bad338c451d72344a1"
 }

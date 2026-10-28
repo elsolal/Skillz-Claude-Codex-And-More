@@ -166,7 +166,7 @@ Si tokens validés, passer directement à l'étape 3 (Composants UI).
 
 ### 0.5. Direction visuelle (taste-skills)
 
-Avant d'attaquer les tokens, choisir une **direction visuelle**. Les 9 `taste-skills` intégrés couvrent les directions premium les plus courantes et bloquent les défauts génériques de l'AI ("slop").
+Avant d'attaquer les tokens, choisir une **direction visuelle**. Les `taste-skills` intégrés couvrent les directions premium les plus courantes et bloquent les défauts génériques de l'AI ("slop").
 
 ```markdown
 🎨 **Direction visuelle**

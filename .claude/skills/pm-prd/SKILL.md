@@ -399,8 +399,6 @@ Après validation du PRD, proposer automatiquement :
 [Si PRD complet (niveaux 2-4) + pas d'UX requis]
 → 🏗️ **Lancer `/architect` ?** (architecture technique requise)
 
-[Si PRD complet (niveaux 2-4) - optionnel]
-
 [Si PRD synthétique (niveaux 0-1)]
 → 📝 **Lancer `/pm-stories` ?** (direct aux stories)
 

@@ -2,7 +2,7 @@
 fingerprint_schema_version: 2
 generated_by: "project-probe/2.1.0"
 stack: "mixed"
-config_fingerprint: "6f866e33919e610544f18fba8da111bb5186f52892b86f2562e4b2dd2b7eff0f"
+config_fingerprint: "a13aa3486bb88e71ee270c643e311eb9aeca847fcc4d41ae69504580250f81a2"
 fingerprint_sources:
   - ".agents/AGENTS.md"
   - ".agents/README.md"
@@ -601,6 +601,7 @@ fingerprint_sources:
   - "tests/test_read_only_skill_contracts.py"
   - "tests/test_release_candidate_docs.py"
   - "tests/test_removed_autonomous_surfaces.py"
+  - "tests/test_removed_skills.py"
   - "tests/test_router_pilot.py"
   - "tests/test_transverse_workflows.py"
   - "tests/test_upstream_scanner.py"

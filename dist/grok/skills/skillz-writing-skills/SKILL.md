@@ -124,7 +124,7 @@ Un fichier `core/skills/<nom>/SKILL.md` :
 
 ## Exemples de bons skills (modèles)
 
-- `project-probe/SKILL.md` — workflow worker depuis /dev, scope clair
+- `project-probe/SKILL.md` — sonde appelée depuis /dev, scope clair
 - `pm-prd/SKILL.md` — output bien défini, triggers explicites
 - `dev-workflow/SKILL.md` — exécution séquentielle runtime-agnostic, exemple de doc soigné
 

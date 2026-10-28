@@ -9,7 +9,7 @@ Build or update a code-aligned Figma design system through one validated phase a
 
 ## Mandatory prerequisite
 
-Load the `figma-use` skill before every `use_figma` call. Always pass `skillNames: "figma-generate-library"` when this workflow invokes `use_figma`.
+Load the `figma-use` skill (official Figma plugin, `figma:figma-use`) before every `use_figma` call. Always pass `skillNames: "figma-generate-library"` when this workflow invokes `use_figma`.
 
 A design-system build is never one-shot. Calls are strictly sequential, creations are incremental, and every phase ends in validation plus an explicit human checkpoint.
 

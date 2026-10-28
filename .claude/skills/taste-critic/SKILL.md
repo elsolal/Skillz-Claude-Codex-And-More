@@ -14,7 +14,7 @@ argument-hint: <url-or-path-or-screenshot>
 
 # Taste Critic
 
-Miroir des 9 `taste-skills` : ils disent **comment générer du bon goût**, ce skill détecte **où le mauvais goût a survécu**.
+Miroir des `taste-skills` : ils disent **comment générer du bon goût**, ce skill détecte **où le mauvais goût a survécu**.
 
 ## Quand utiliser
 
@@ -47,7 +47,7 @@ Miroir des 9 `taste-skills` : ils disent **comment générer du bon goût**, ce 
 🔍 **Taste Critic**
 
 **Input** : [URL/path/screenshot]
-**Style attendu** : [détecté ou demandé — taste / soft / minimalist / brutalist / autre]
+**Style attendu** : [détecté ou demandé — taste / soft / minimalist / redesign / autre]
 **Dials de référence** : DESIGN_VARIANCE=[X] / MOTION_INTENSITY=[Y] / VISUAL_DENSITY=[Z]
 ```
 
