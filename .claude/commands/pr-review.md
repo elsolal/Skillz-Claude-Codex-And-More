@@ -124,7 +124,7 @@ SendMessage(run_in_background: true)
 Prompt: "Tu es taste-critic. Audit anti-slop de cette PR.
 
 Diff frontend fourni : [diff filtré aux fichiers UI]
-Style direction (si connu via PRD/UI doc) : [taste / soft / minimalist / brutalist / etc.]
+Style direction (si connu via PRD/UI doc) : [taste / soft / minimalist / redesign / etc.]
 
 **Invoquer le skill `taste-critic`** et appliquer ses 8 catégories :
 Typography, Spacing & Layout, Hierarchy, Motion, Color & Contrast, Copy, Density, Composition.

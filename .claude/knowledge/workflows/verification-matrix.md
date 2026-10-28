@@ -13,7 +13,7 @@ Avant de déclarer une feature/fix "DONE", "COMPLETE", "SHIPPED" ou de proposer 
 |---|---|
 | `/dev` | lint OK + types OK + tests P0/P1 verts |
 | `/quick-fix` | lint OK + types OK (tests optionnels selon contexte) |
-| `/refactor` | lint + types + **tous** les tests existants verts (refactor = no behavior change) |
+| `/simplify` (natif) | lint + types + **tous** les tests existants verts (refactor = no behavior change) |
 | `/ship` | tout `/dev` + CHANGELOG.md modifié + branche != main + working tree clean |
 
 ## Commandes par stack

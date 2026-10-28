@@ -51,11 +51,8 @@ Mode FULL détecté automatiquement (score 4/5) :
 # Review une PR
 /pr-review #42
 
-# Générer toute la documentation
-/docs all
-
-# Refactorer les composants
-/refactor src/components/
+# Simplifier les composants (natif Claude Code)
+/simplify
 
 # Voir l'état du projet
 /status

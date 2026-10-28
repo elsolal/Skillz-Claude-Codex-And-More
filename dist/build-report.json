@@ -1434,7 +1434,7 @@
           "source": "core/knowledge/workflows/project-types.csv"
         }
       ],
-      "sha256": "caeefc863c367301480bc4dfdeadcaae95e6071536aff3adc4cebe80cdb44f13",
+      "sha256": "9aa25ffc042650b1f4a428c746f308c0ced9a74df235a7d87eb318884c52b34c",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -4153,7 +4153,7 @@
           "source": "core/knowledge/workflows/project-types.csv"
         }
       ],
-      "sha256": "2de309973f4905652f713c504c7683a9306ebd71b71469b45a9a341a5137ca70",
+      "sha256": "4ed4208cb042a11147c963d3ecdfa1bcb75da9da338c1c7a1238f76144aeed8a",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -4200,7 +4200,7 @@
           "source": "core/knowledge/testing/test-quality.md"
         }
       ],
-      "sha256": "59dfba45f0005ff48506549ad87000e084902af900c60e1271027b112355de91",
+      "sha256": "819eab3b6152376bdb352c591251d3eeb31e70da4b07238de7f55f15c06a8630",
       "status": "supported",
       "transform": "copy",
       "type": "command"
@@ -7010,7 +7010,7 @@
           "source": "core/knowledge/workflows/project-types.csv"
         }
       ],
-      "sha256": "caeefc863c367301480bc4dfdeadcaae95e6071536aff3adc4cebe80cdb44f13",
+      "sha256": "9aa25ffc042650b1f4a428c746f308c0ced9a74df235a7d87eb318884c52b34c",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -7057,7 +7057,7 @@
           "source": "core/knowledge/testing/test-quality.md"
         }
       ],
-      "sha256": "59dfba45f0005ff48506549ad87000e084902af900c60e1271027b112355de91",
+      "sha256": "819eab3b6152376bdb352c591251d3eeb31e70da4b07238de7f55f15c06a8630",
       "status": "supported",
       "transform": "copy",
       "type": "command"
@@ -9881,7 +9881,7 @@
           "source": "core/knowledge/workflows/project-types.csv"
         }
       ],
-      "sha256": "caeefc863c367301480bc4dfdeadcaae95e6071536aff3adc4cebe80cdb44f13",
+      "sha256": "9aa25ffc042650b1f4a428c746f308c0ced9a74df235a7d87eb318884c52b34c",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -9928,7 +9928,7 @@
           "source": "core/knowledge/testing/test-quality.md"
         }
       ],
-      "sha256": "130b0d4f0a3d893a2b38de2ceb9180c3e5cf92dd513f33328ffdaaaf20bf95ef",
+      "sha256": "531c624931d0d62b903990ab46cfa55f1640134b8f7cdc2e78bcecb1e914e91a",
       "status": "supported",
       "transform": "gemini-command",
       "type": "command"
@@ -12738,7 +12738,7 @@
           "source": "core/knowledge/workflows/project-types.csv"
         }
       ],
-      "sha256": "caeefc863c367301480bc4dfdeadcaae95e6071536aff3adc4cebe80cdb44f13",
+      "sha256": "9aa25ffc042650b1f4a428c746f308c0ced9a74df235a7d87eb318884c52b34c",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -12785,7 +12785,7 @@
           "source": "core/knowledge/testing/test-quality.md"
         }
       ],
-      "sha256": "59dfba45f0005ff48506549ad87000e084902af900c60e1271027b112355de91",
+      "sha256": "819eab3b6152376bdb352c591251d3eeb31e70da4b07238de7f55f15c06a8630",
       "status": "supported",
       "transform": "copy",
       "type": "command"
@@ -15546,7 +15546,7 @@
           "source": "core/knowledge/workflows/project-types.csv"
         }
       ],
-      "sha256": "caeefc863c367301480bc4dfdeadcaae95e6071536aff3adc4cebe80cdb44f13",
+      "sha256": "9aa25ffc042650b1f4a428c746f308c0ced9a74df235a7d87eb318884c52b34c",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -18265,7 +18265,7 @@
           "source": "core/knowledge/workflows/project-types.csv"
         }
       ],
-      "sha256": "caeefc863c367301480bc4dfdeadcaae95e6071536aff3adc4cebe80cdb44f13",
+      "sha256": "9aa25ffc042650b1f4a428c746f308c0ced9a74df235a7d87eb318884c52b34c",
       "status": "supported",
       "transform": "copy",
       "type": "skill"
@@ -18312,7 +18312,7 @@
           "source": "core/knowledge/testing/test-quality.md"
         }
       ],
-      "sha256": "59dfba45f0005ff48506549ad87000e084902af900c60e1271027b112355de91",
+      "sha256": "819eab3b6152376bdb352c591251d3eeb31e70da4b07238de7f55f15c06a8630",
       "status": "supported",
       "transform": "copy",
       "type": "command"
@@ -19920,5 +19920,5 @@
     "opencode"
   ],
   "schema_version": 1,
-  "tree_hash": "3625998179fb42d5696fd3c4c478a5c1c60f50049b2a00bad338c451d72344a1"
+  "tree_hash": "17431e94a03b280a6ff3d5f1881066741569044442597cbb30548c180cf85fcd"
 }

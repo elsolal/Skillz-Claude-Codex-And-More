@@ -404,7 +404,7 @@ Après validation du PRD, proposer automatiquement :
 
 ---
 
-**[Y] Oui, continuer** | **[M] Multi-Mind** | **[N] Non, je choisis** | **[P] Pause**
+**[Y] Oui, continuer** | **[N] Non, je choisis** | **[P] Pause**
 ```
 
 **⏸️ STOP** - Attendre confirmation avant auto-lancement
