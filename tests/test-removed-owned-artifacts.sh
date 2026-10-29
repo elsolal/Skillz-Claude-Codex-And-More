@@ -73,6 +73,14 @@ if bash "$cleanup_script" "$shallow_manifest" "$target_root" "$source_root" >/de
 fi
 test -d "$target_root/skills/edited"
 
+dot_manifest="$fixture_root/dot.sha256"
+printf 'delete-tree %s skills/./SKILL.md\n' "$(sha256_file "$target_root/skills/SKILL.md")" > "$dot_manifest"
+if bash "$cleanup_script" "$dot_manifest" "$target_root" "$source_root" >/dev/null 2>&1; then
+  echo "Expected a dot-segment path to be rejected" >&2
+  exit 1
+fi
+test -d "$target_root/skills/edited"
+
 unsafe_manifest="$fixture_root/unsafe.sha256"
 printf 'delete %s ../outside.md\n' "$owned_hash" > "$unsafe_manifest"
 if bash "$cleanup_script" "$unsafe_manifest" "$target_root" "$source_root" >/dev/null 2>&1; then

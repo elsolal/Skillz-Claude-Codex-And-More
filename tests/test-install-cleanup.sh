@@ -64,6 +64,10 @@ test_global_update_cleans_every_mirror_and_retired_knowledge() {
     mkdir -p "$home/.claude/skills/multi-mind"
     printf 'my own version\n' >"$home/.claude/skills/multi-mind/SKILL.md"
     printf 'skill:multi-mind\n' >>"$home/.claude/.skillz-manifest"
+    # "figma" is a strict prefix of the retired "figma-use": its checksum rule must not apply.
+    mkdir -p "$home/.claude/skills/figma"
+    printf 'old shipped figma\n' >"$home/.claude/skills/figma/SKILL.md"
+    printf 'skill:figma\n' >>"$home/.claude/.skillz-manifest"
     mkdir -p "$home/.claude/knowledge/multi-mind"
     shipped knowledge/multi-mind/agent-personalities.md \
         >"$home/.claude/knowledge/multi-mind/agent-personalities.md"
@@ -78,6 +82,7 @@ test_global_update_cleans_every_mirror_and_retired_knowledge() {
         assert_present "$home/$mirror/sibling-prefix-link"
     done
     assert_present "$home/.claude/skills/multi-mind/SKILL.md"
+    assert_absent "$home/.claude/skills/figma"
     assert_absent "$home/.claude/knowledge/multi-mind/agent-personalities.md"
     assert_present "$home/.claude/knowledge/multi-mind/debate-templates.md"
 }
@@ -113,6 +118,34 @@ test_project_update_purges_from_its_manifest() {
     if grep -qx 'skill:ghost-skill' "$project/.claude/.skillz-manifest"; then
         fail "Purged skill is still listed in the project manifest"
     fi
+}
+
+assert_global_sentinel_survives() {
+    local home="$1"
+    assert_present "$home/.claude/skills/sentinel/SKILL.md"
+    grep -qx 'skill:sentinel' "$home/.claude/.skillz-manifest" || \
+        fail "A project-mode run rewrote the global manifest"
+}
+
+test_global_claude_is_never_treated_as_a_project() {
+    local home linked
+    home="$(new_home home-target)"
+    run_installer "$home" install all
+    mkdir -p "$home/.claude/skills/sentinel"
+    printf 'mine\n' >"$home/.claude/skills/sentinel/SKILL.md"
+    printf 'skill:sentinel\n' >>"$home/.claude/.skillz-manifest"
+    run_installer "$home" update "$home" --providers claude
+    assert_global_sentinel_survives "$home"
+
+    linked="$(new_home home-linked)"
+    mkdir -p "$linked/dotfiles/.claude"
+    ln -s "$linked/dotfiles/.claude" "$linked/.claude"
+    run_installer "$linked" install all
+    mkdir -p "$linked/.claude/skills/sentinel"
+    printf 'mine\n' >"$linked/.claude/skills/sentinel/SKILL.md"
+    printf 'skill:sentinel\n' >>"$linked/.claude/.skillz-manifest"
+    run_installer "$linked" update "$linked/dotfiles" --providers claude
+    assert_global_sentinel_survives "$linked"
 }
 
 test_project_purge_never_follows_a_linked_skills_folder() {
@@ -163,6 +196,7 @@ test_project_without_manifest_retires_only_unmodified_items() {
 
 test_global_update_cleans_every_mirror_and_retired_knowledge
 test_project_update_purges_from_its_manifest
+test_global_claude_is_never_treated_as_a_project
 test_project_purge_never_follows_a_linked_skills_folder
 test_project_without_manifest_retires_only_unmodified_items
 echo "PASS: installer cleanup suite"
