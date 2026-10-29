@@ -395,8 +395,8 @@ Je définis un budget :
 
 ✅ Performance Audit terminé et sauvegardé.
 
-→ 🔒 **Lancer `/security-auditor`** pour audit de sécurité ?
-→ 💻 **Lancer `/code-implementer`** pour appliquer les optimisations ?
+→ 🔒 **Lancer `/security-review`** pour audit de sécurité ?
+→ 💻 **Lancer `/dev`** pour appliquer les optimisations ?
 
 ---
 

@@ -2,6 +2,26 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
+## [Unreleased] - 2026-10-29
+
+### Removed
+- 22 skills that were unused, duplicated by installed plugins, or superseded by native runtime
+  features: the six copied `figma-*` skills (official `figma@claude-plugins-official` plugin),
+  `orchestrate`, `code-reviewer`, `code-implementer`, `github-issue-reader`, `test-runner`,
+  `security-auditor`, `output-skill`, `elevenlabs`, `remotion`, `multi-mind`, `gpt-tasteskill`,
+  `brutalist-skill`, `stitch-skill`, `images-taste-skill`, `api-designer` and `database-designer`.
+- 7 commands: `/orchestrate`, `/multi-mind`, `/init` (collided with the native `/init`), `/docs`,
+  `/refactor`, `/changelog` (`/ship` already writes the changelog) and `/metrics`, plus the
+  `multi-mind` knowledge and its `.env.example`.
+- See `docs/migrations/v6.1-skill-cleanup.md` for the replacement of each removed artifact.
+
+### Changed
+- Kept skills, `.claude/CLAUDE.md`, README, examples and `install.sh` now point to the official
+  Figma plugin (`figma:figma-*`), `quality-gate`, native `/code-review`, `/security-review` and
+  `/simplify` instead of the removed artifacts.
+- Codex native plugin recertified (C2) on `codex-cli 0.164.0`; evidence moved to
+  `docs/compatibility/codex-plugin-0.164.0.json`.
+
 ## [6.1.0-rc.1] - 2026-09-02
 
 **Provider-neutral kernel release candidate — not stable**

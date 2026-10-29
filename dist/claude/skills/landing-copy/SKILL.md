@@ -37,7 +37,7 @@ user-invocable: true
 - Brief "landing page", "marketing site", "product page", "pricing"
 - Audit copy d'une landing existante
 - Iteration A/B sur des hero variants
-- Avant `figma-implement-design` si la landing est visuelle uniquement
+- Avant `figma:figma-design-to-code` si la landing est visuelle uniquement
 
 ## Anti-patterns à BANNIR (les défauts AI)
 
@@ -236,7 +236,7 @@ Si demandé, produire 2-3 variants de H1/CTA pour A/B test, avec hypothèse expl
 |----------|-----------|
 | `ui-designer` | Phase 0.5 — si projet marketing, suggérer landing-copy avant les composants |
 | `pm-prd` | Si "landing", "marketing site" → trigger après le PRD |
-| `figma-implement-design` | Loader ce skill avant impl si copy générique détecté dans le Figma |
+| `figma:figma-design-to-code` | Loader ce skill avant impl si copy générique détecté dans le Figma |
 | `taste-critic` | Cross-check : si taste-critic flag des H1 wrappés sur 6 lignes, c'est souvent que le copy est trop long aussi |
 
 ## Sources / inspiration

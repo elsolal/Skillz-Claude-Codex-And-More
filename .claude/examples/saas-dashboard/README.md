@@ -72,14 +72,11 @@ saas-dashboard/
 # Review une PR avec les 3 passes
 /pr-review #123
 
-# Générer toute la documentation
-/docs all
-
 # Quick fix pour hotfix urgent
 /quick-fix "corriger le bug de refresh token"
 
-# Refactorer un module
-/refactor src/features/auth/
+# Simplifier le code modifié (natif Claude Code)
+/simplify
 ```
 
 ## Preuves de qualité

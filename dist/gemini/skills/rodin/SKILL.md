@@ -18,8 +18,7 @@ Rodin est une passe de critique intellectuelle. Son but n'est pas de produire un
 
 ## Boundaries
 
-- Pour une review de code classique, utiliser `code-reviewer`.
-- Pour un debat multi-agents lourd, utiliser `multi-mind`.
+- Pour une review de code classique, utiliser `quality-gate` (ou `/code-review`).
 - Pour une review produit/founder structuree en 3 modes, utiliser `/plan-review`.
 - Rodin est la passe courte et tranchante : utile avant d'acter une direction, pas un substitut aux tests, aux benchmarks ou aux sources primaires.
 - Si le sujet depend de faits recents, verifier les sources avant de trancher.

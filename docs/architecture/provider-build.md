@@ -45,7 +45,7 @@ configuration:
 ```bash
 bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py \
   --bundle dist/codex \
-  --output docs/compatibility/codex-plugin-0.152.0.json \
+  --output docs/compatibility/codex-plugin-0.164.0.json \
   --check
 ```
 

@@ -24,13 +24,12 @@ GENERATED_RESOURCE_DIRECTORIES = {"__pycache__", "node_modules"}
 GENERATED_RESOURCE_SUFFIXES = {".pyc", ".pyo"}
 
 RISK_FOUR = {
-    "dev-workflow", "quality-gate", "ship-workflow", "security-auditor",
+    "dev-workflow", "quality-gate", "ship-workflow",
     "supabase-security", "thermo-nuclear-code-quality-review", "ship",
 }
 RISK_THREE = {
-    "architect", "code-implementer", "code-reviewer", "database-designer",
-    "design-audit", "figma-generate-library", "orchestrate", "project-probe",
-    "seo-geo-audit", "test-runner", "dev", "pr-review", "seo-geo-squad",
+    "architect", "design-audit", "figma-generate-library", "project-probe",
+    "seo-geo-audit", "dev", "pr-review", "seo-geo-squad",
 }
 CURATED_CANONICAL = {
     "dev-workflow", "discovery-workflow", "project-probe", "quality-gate",

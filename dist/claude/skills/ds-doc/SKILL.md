@@ -388,11 +388,11 @@ Créer (ou mettre à jour) le fichier `src/components/CLAUDE.md` (ou `components
 - **Manquants** : [X] composants dans Figma mais pas dans le code
 
 Composants sans lien Figma :
-- [ ] ComponentA — ajouter le lien manuellement ou lancer `/figma-setup`
+- [ ] ComponentA — ajouter le lien manuellement ou lancer `figma:figma-code-connect`
 - [ ] ComponentB
 
 **Prochaine étape ?**
-- [F] `/figma-setup` — Configurer Code Connect pour le mapping automatique
+- [F] `figma:figma-code-connect` — Configurer Code Connect pour le mapping automatique
 - [U] `/ds-doc --update` — Relancer après ajout de composants
 - [D] Implémenter les composants manquants (listés dans components/CLAUDE.md)
 - [X] Terminé
@@ -418,6 +418,6 @@ Quand lancé avec `--update` :
 - ⛔ Ne JAMAIS modifier les sections du CLAUDE.md hors `## Design System`
 - ✅ Toujours demander l'URL Figma AVANT de scanner
 - ✅ Toujours afficher un résumé des changements avant d'écrire
-- ✅ Toujours proposer `/figma-setup` si des composants n'ont pas de lien Figma
+- ✅ Toujours proposer `figma:figma-code-connect` si des composants n'ont pas de lien Figma
 - ✅ Si des gaps agent-readable sont détectés, proposer `/design-audit --full` pour prioriser les corrections UI/DS/agent-surface
 - ✅ Rester concis — tables > prose. Claude doit scanner vite

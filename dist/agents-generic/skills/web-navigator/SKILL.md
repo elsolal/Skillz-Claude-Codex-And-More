@@ -10,7 +10,7 @@ Skill transverse pour explorer un site reel comme un utilisateur, collecter des 
 ## Quand utiliser
 
 - L'utilisateur demande d'analyser un site, une page, un tunnel, une app, un concurrent ou un contenu web.
-- Un skill metier doit observer une URL avant de conclure: `seo-geo-audit`, `design-audit`, `/qa`, `test-runner`, `taste-critic`, `performance-auditor`.
+- Un skill metier doit observer une URL avant de conclure: `seo-geo-audit`, `design-audit`, `/qa`, `taste-critic`, `performance-auditor`.
 - Il faut recuperer des informations visibles seulement apres navigation, interaction, login, tabs, scroll, filtres ou formulaires.
 - Il faut produire des preuves: URLs visitees, screenshots, snapshots DOM, console, reseau, storage, locators, notes d'incertitude.
 
@@ -100,7 +100,7 @@ Produire une synthese courte et exploitable:
 - `/qa`: utilise `web-navigator` pour naviguer, capturer, lire console/reseau, puis applique le health score QA.
 - `seo-geo-audit`: utilise `web-navigator` pour pages publiques, concurrents, maillage, SERP manuelle et preuves `Confirmé / Déduit / Non vérifié`.
 - `design-audit`: utilise `web-navigator` pour screenshots, responsive, taste runtime, drift visible et preuves d'interaction.
-- `test-runner`: utilise `web-navigator` avant E2E pour confirmer le flow et extraire les locators.
+- Tests E2E du workflow `/dev` : utiliser `web-navigator` avant pour confirmer le flow et extraire les locators.
 - `taste-critic`: utilise `web-navigator` pour obtenir une capture/snapshot fiable avant critique visuelle.
 
 ## Exemples
@@ -120,7 +120,7 @@ playwright-cli generate-locator e12 --raw
 
 ## Anti-patterns
 
-- Confondre navigation exploratoire et test E2E versionne: le skill collecte des preuves; `test-runner` codifie les regressions.
+- Confondre navigation exploratoire et test E2E versionne: le skill collecte des preuves; les tests E2E codifient les regressions.
 - S'appuyer seulement sur WebFetch quand l'information depend du JavaScript, d'un menu, d'un login ou d'un viewport.
 - Sauvegarder cookies, tokens, localStorage ou screenshots sensibles dans le repo.
 - Conclure "absent" sans double verification: navigation, recherche interne, source alternative ou mention `Non vérifié`.

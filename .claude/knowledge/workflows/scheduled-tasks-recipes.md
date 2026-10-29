@@ -34,7 +34,7 @@ Skip PRs labeled 'wip' or 'draft'. Focus on PRs updated in the last 24h."
 
 ## Recipe 2: Daily Security Audit
 
-Run the security-auditor skill on a schedule.
+Run a security audit (the native `/security-review` checks) on a schedule.
 
 ```bash
 /schedule create \

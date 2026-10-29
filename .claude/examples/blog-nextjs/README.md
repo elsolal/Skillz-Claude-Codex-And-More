@@ -44,7 +44,6 @@ Mode FULL détecté automatiquement (score 4/5) :
 | **UX Designer** | Personas lecteur/auteur, journey de lecture |
 | **Dynamic Context** | PRD et Architecture chargés automatiquement |
 | **Hook coverage** | Coverage affichée après chaque test |
-| **Argument hints** | `/test-runner src/` guidé par le hint |
 
 ## Commandes utiles v2.6
 
@@ -52,11 +51,8 @@ Mode FULL détecté automatiquement (score 4/5) :
 # Review une PR
 /pr-review #42
 
-# Générer toute la documentation
-/docs all
-
-# Refactorer les composants
-/refactor src/components/
+# Simplifier les composants (natif Claude Code)
+/simplify
 
 # Voir l'état du projet
 /status

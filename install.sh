@@ -1823,7 +1823,6 @@ mkdir -p "$TARGET_CLAUDE/hooks"
 mkdir -p "$TARGET_CLAUDE/knowledge/testing"
 mkdir -p "$TARGET_CLAUDE/knowledge/workflows"
 mkdir -p "$TARGET_CLAUDE/knowledge/brainstorming"
-mkdir -p "$TARGET_CLAUDE/knowledge/multi-mind"
 mkdir -p "$TARGET_CLAUDE/knowledge/supabase-security"
 mkdir -p "$TARGET_CLAUDE/knowledge/figma"
 mkdir -p "$TARGET_CLAUDE/templates/github-actions"
@@ -1881,16 +1880,6 @@ if [ -d "$SOURCE_CLAUDE/knowledge" ]; then
             echo -e "   ${CYAN}🔄 brainstorming/ ($brain_count files)${NC}"
         else
             echo -e "   ${GREEN}✅ brainstorming/ ($brain_count files)${NC}"
-        fi
-    fi
-    # Copy multi-mind knowledge (NEW v3.5)
-    if [ -d "$SOURCE_CLAUDE/knowledge/multi-mind" ]; then
-        cp -r "$SOURCE_CLAUDE/knowledge/multi-mind/"* "$TARGET_CLAUDE/knowledge/multi-mind/" 2>/dev/null || true
-        mm_count=$(ls -1 "$SOURCE_CLAUDE/knowledge/multi-mind/"* 2>/dev/null | wc -l | tr -d ' ')
-        if [ "$UPDATE_MODE" = true ]; then
-            echo -e "   ${CYAN}🔄 multi-mind/ ($mm_count files)${NC}"
-        else
-            echo -e "   ${GREEN}✅ multi-mind/ ($mm_count files)${NC}"
         fi
     fi
     # Copy supabase-security knowledge (NEW v3.7)
@@ -2408,11 +2397,10 @@ echo -e "╚══════════════════════�
 echo ""
 echo -e "${CYAN}Installed components:${NC}"
 echo ""
-echo -e "${BLUE}  📚 Knowledge Base (56 files):${NC}"
+echo -e "${BLUE}  📚 Knowledge Base (54 files):${NC}"
 echo "    testing/           32 files (test levels, priorities, factories, fixtures...)"
 echo "    workflows/         10 files (PRD, architecture, stories, UX, UI templates...)"
 echo "    brainstorming/      1 file  (61 techniques en 10 catégories)"
-echo "    multi-mind/         2 files (agent personalities, debate templates)"
 echo "    supabase-security/  7 files (RLS patterns, remediation, auth config...)"
 echo "    figma/              3 files (Code Connect, MCP tools, tokens mapping) [legacy]"
 echo ""
@@ -2436,22 +2424,15 @@ echo "    .opencode/       OpenCode"
 echo "    → Selected provider dirs symlink to .claude/skills and .claude/knowledge"
 echo ""
 echo -e "${BLUE}  Skills ($skills_total):${NC}"
-echo "    Planning:  idea-brainstorm, pm-prd, architect, pm-stories,"
-echo "               api-designer, database-designer"
+echo "    Planning:  idea-brainstorm, pm-prd, architect, pm-stories"
 echo "    Reasoning: rodin (challenge socratique anti-complaisance)"
 echo "    Web nav:   web-navigator (Playwright CLI, Browser/MCP, WebFetch)"
 echo "    Design:    ux-designer, ui-designer, design-audit (+ /design-audit-squad)"
 echo "    SEO/GEO:   seo-geo-audit (+ /seo-geo-squad command)"
-echo "    Figma:     figma-use, figma-code-connect, figma-generate-design,"
-echo "               figma-generate-library, figma-implement-design,"
-echo "               figma-create-design-system-rules, figma-create-new-file,"
-echo "               figma-design-code-sync"
-echo "    Dev:       github-issue-reader, code-implementer,"
-echo "               test-runner, code-reviewer"
+echo "    Figma:     figma-generate-library, figma-design-code-sync"
+echo "               (+ plugin figma@claude-plugins-official)"
 echo "    Quality+:  thermo-nuclear-code-quality-review"
-echo "    Audio/Video: elevenlabs (TTS, music, SFX), remotion (React video)"
-echo "    Audit:     security-auditor, performance-auditor, supabase-security"
-echo "    Multi-IA:  multi-mind (6 IA debate system)"
+echo "    Audit:     performance-auditor, supabase-security"
 echo ""
 echo -e "${BLUE}  Commands - Mode Manuel:${NC}"
 echo "    /discovery           Planning avec validation"
@@ -2473,11 +2454,6 @@ echo -e "${BLUE}  Commands - Utilitaires:${NC}"
 echo "    /status              État du projet"
 echo "    /pr-review #123      Review PR (3 core passes + UI/SEO gates)"
 echo "    /quick-fix           Fix rapide"
-echo "    /refactor            Refactoring ciblé"
-echo "    /docs                Génère documentation"
-echo "    /changelog           Génère CHANGELOG"
-echo "    /metrics             Dashboard métriques"
-echo "    /init                Scaffolding projet"
 echo "    /supabase-security   Audit sécurité Supabase"
 fi
 echo ""

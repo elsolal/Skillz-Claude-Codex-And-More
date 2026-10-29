@@ -295,8 +295,8 @@ Pour chaque pattern, fournir :
 |----------|-------|
 | `ui-designer` | Phase 0.5 — si projet AI, recommander ce skill au lieu/en plus de taste-skill |
 | `pm-prd` | Si "AI", "chat", "copilot" dans le brief → auto-trigger pour spec |
-| `figma-generate-design` | Loader ce skill pour mocker chat / composer |
-| `figma-implement-design` | Reference pour les states |
+| `figma:figma-generate-design` | Loader ce skill pour mocker chat / composer |
+| `figma:figma-design-to-code` | Reference pour les states |
 | `taste-critic` | Compléter avec audit visual |
 | `design-audit` | Gate UI IA: AI marker, disclaimer, explainability, feedback, human control |
 

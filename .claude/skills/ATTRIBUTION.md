@@ -4,18 +4,13 @@ This directory bundles skills authored by third parties. We mirror them into Ski
 
 ## Taste Skills (Leonxlnx/taste-skill)
 
-The following 9 skills are integrated from [github.com/Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) by Leonxlnx, with the goal of giving the AI good frontend "taste" and blocking generic anti-patterns ("slop").
+The following 4 skills are integrated from [github.com/Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) by Leonxlnx, with the goal of giving the AI good frontend "taste" and blocking generic anti-patterns ("slop").
 
 | Folder | Frontmatter `name` | Source path |
 |--------|-------------------|-------------|
-| `brutalist-skill/` | `industrial-brutalist-ui` | `skills/brutalist-skill/SKILL.md` |
-| `gpt-tasteskill/` | `gpt-taste` | `skills/gpt-tasteskill/SKILL.md` |
-| `images-taste-skill/` | `image-taste-frontend` | `skills/images-taste-skill/SKILL.md` |
 | `minimalist-skill/` | `minimalist-ui` | `skills/minimalist-skill/SKILL.md` |
-| `output-skill/` | `full-output-enforcement` | `skills/output-skill/SKILL.md` |
 | `redesign-skill/` | `redesign-existing-projects` | `skills/redesign-skill/SKILL.md` |
 | `soft-skill/` | `high-end-visual-design` | `skills/soft-skill/SKILL.md` |
-| `stitch-skill/` | `stitch-design-taste` | `skills/stitch-skill/{SKILL.md,DESIGN.md}` |
 | `taste-skill/` | `design-taste-frontend` | `skills/taste-skill/SKILL.md` |
 
 **Upstream** : https://github.com/Leonxlnx/taste-skill
@@ -152,7 +147,7 @@ The `web-navigator/` skill is a Skillz-Claude original orchestration layer that 
 
 ### Adaptation notes
 
-Skillz-Claude keeps Playwright CLI as an external runtime and does not copy its implementation. The local workflow adds product-analysis rules on top: safe navigation, no destructive actions by default, evidence status `Confirmé / Déduit / Non vérifié`, and integration with `/qa`, `seo-geo-audit`, `design-audit`, `test-runner` and `taste-critic`.
+Skillz-Claude keeps Playwright CLI as an external runtime and does not copy its implementation. The local workflow adds product-analysis rules on top: safe navigation, no destructive actions by default, evidence status `Confirmé / Déduit / Non vérifié`, and integration with `/qa`, `seo-geo-audit`, `design-audit` and `taste-critic`.
 
 ## QMD (tobi/qmd)
 

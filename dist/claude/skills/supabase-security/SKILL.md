@@ -652,7 +652,7 @@ Après génération du rapport :
 ✅ Audit Supabase terminé. Rapport sauvegardé.
 
 Voulez-vous :
-→ **[S]** Lancer `/security-auditor` pour un audit code complémentaire ?
+→ **[S]** Lancer `/security-review` pour un audit code complémentaire ?
 → **[F]** Créer des issues GitHub pour les findings ?
 → **[R]** Relancer l'audit après corrections ?
 → **[N]** Non, terminer
@@ -664,7 +664,7 @@ Voulez-vous :
 
 ## Transitions
 
-- **Vers `security-auditor`** : "Voulez-vous aussi auditer le code (OWASP Top 10, dépendances) ?"
+- **Vers `/security-review`** : "Voulez-vous aussi auditer le code (OWASP Top 10, dépendances) ?"
 - **Vers `pm-stories`** : "Créer des issues pour tracker les remediations ?"
 
 ---

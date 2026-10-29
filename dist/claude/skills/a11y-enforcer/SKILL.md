@@ -28,7 +28,7 @@ Audit accessibilité systématique. Pas un nice-to-have — gate de compliance +
 - Audit uniquement (pas de fix automatique). Pour fix → output contient le code à appliquer.
 - Pas d'audit visuel design (→ `taste-critic`)
 - Pas d'audit perf (→ `performance-auditor`)
-- Pas d'audit code quality (→ `code-reviewer`)
+- Pas d'audit code quality (→ `quality-gate`)
 - Couvre WCAG 2.2 niveau AA (pas AAA, pas AA21)
 
 ## Inputs acceptés
@@ -197,7 +197,7 @@ Violations triviales qu'on peut fix en batch :
 | `/ship` | Gate STRICT : Grade D/F → confirm explicit avec la justification |
 | `design-audit` | Sous-rapport approfondi pour l'axe A11y |
 | `ui-designer` | Auto-trigger sur tokens couleurs (vérifier contraste) |
-| `figma-implement-design` | Auto-trigger après implementation |
+| `figma:figma-design-to-code` | Auto-trigger après implementation |
 | Standalone | `a11y-enforcer <url-or-path>` |
 
 ## Tools fallback

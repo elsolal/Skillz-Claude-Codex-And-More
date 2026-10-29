@@ -42,11 +42,8 @@ Pas besoin de `/discovery` complet pour un projet aussi simple.
 ## Commandes utiles v2.6
 
 ```bash
-# Générer la documentation API
-/docs api
-
-# Refactorer un fichier
-/refactor src/routes/todos.js
+# Simplifier le code modifié (natif Claude Code)
+/simplify
 
 # Vérifier l'état du projet
 /status
