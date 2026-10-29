@@ -1,0 +1,115 @@
+{
+  "absents": [
+    "no configured typecheck command",
+    "no configured build command",
+    "documentation change: no runtime surface to drive; accuracy checked by a fresh-context review against the skills and the previous README, and README coverage of the catalog is enforced by tests/test_readme_catalog.py"
+  ],
+  "decisions_prises_en_ton_nom": [
+    "README and new docs written in French, as chosen by the human",
+    "tests/test_release_candidate_docs.py now asserts the French 'non stable' instead of 'not stable'",
+    "install.sh stays the recommended route in the README, explicitly framed as the v6 compatibility distribution while the v6.1 RC (bin/skillz) is not certified",
+    "docs/WORKFLOW.md replaced: the previous v2 kit content is obsolete; the new page summarizes the current v6 skills",
+    "docs/GUIDE-COMPLET.md deleted (obsolete March 2026 skills tutorial built on removed skills)",
+    "install.sh no longer creates docs/debates (leftover of the removed multi-mind skill)",
+    "README memory section names the three retrieval routes to satisfy the llm-wiki task-first contract test"
+  ],
+  "executions": [
+    {
+      "command": "bash scripts/lint-shell.sh",
+      "exit_code": 0,
+      "name": "lint",
+      "status": "passed",
+      "summary": "shell files parsed successfully"
+    },
+    {
+      "command": "bash tests/test-install-memory-cli.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh scripts/validate_planning_lifecycle.py --root . && bash tests/run-python310.sh tooling/migration/migrate_catalog.py --root . --report docs/compatibility/catalog-migration-v6.1.json && bash tests/run-python310.sh tooling/evals/router_pilot.py --root . --output docs/compatibility/router-pilot-figma-generate-library.json --check && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/testing/golden_distribution.py --dist-root dist --output docs/compatibility/golden/v6.1-p0-distribution.json --check && bash tests/run-python310.sh tooling/runtime/certify_install_lifecycle.py --root . --output docs/compatibility/install-lifecycle-v6.1.json --check && bash tests/test-behavioral.sh && bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py --bundle dist/codex --output docs/compatibility/codex-plugin-0.164.0.json --check && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh",
+      "exit_code": 0,
+      "name": "test",
+      "status": "passed",
+      "summary": "full manifest chain green in one run, including 137 repository tests (new README catalog coverage test) and 273 llm-wiki tests (task-first README contract)"
+    }
+  ],
+  "manifest_fingerprint": "6a5e65fd08fe019a78fbc72bbf9d298c5e8ac326afdddc07a36865dd8b87cd5d",
+  "opinion": {
+    "findings": {
+      "confirmed": 10,
+      "fixed": 10,
+      "refuted": 0,
+      "remaining": 0,
+      "total": 10
+    },
+    "lenses": {
+      "generalist": "PASS after fixes: no P0/P1; 2 P2 (install route framing, standalone mode wording) and 8 P3 (status wording, ship and gate rule precision, memory facts, C1 wording, docs/debates divergence, loose command match in the test, French wording and box alignment) all fixed in the same round"
+    },
+    "registry": [
+      {
+        "id": "docs/INSTALL.md:accuracy:routefrm",
+        "severity": "P2",
+        "status": "fixed",
+        "summary": "install route recommendation lost the v6 compatibility framing"
+      },
+      {
+        "id": "docs/WORKFLOW.md:accuracy:standaln",
+        "severity": "P2",
+        "status": "fixed",
+        "summary": "standalone gate mode translated as autonomous"
+      },
+      {
+        "id": "README.md:readability:notstabl",
+        "severity": "P3",
+        "status": "fixed",
+        "summary": "English 'not stable' left in the French status line"
+      },
+      {
+        "id": "docs/WORKFLOW.md:accuracy:shipfail",
+        "severity": "P3",
+        "status": "fixed",
+        "summary": "ship step 4 and commit step imprecise"
+      },
+      {
+        "id": "docs/WORKFLOW.md:accuracy:gaterule",
+        "severity": "P3",
+        "status": "fixed",
+        "summary": "missing FAIL-on-red-evidence and level-1 exception"
+      },
+      {
+        "id": "docs/MEMORY.md:accuracy:memfacts",
+        "severity": "P3",
+        "status": "fixed",
+        "summary": "dropped QMD 0.9.x, blocking entry pages and rollout clauses"
+      },
+      {
+        "id": "docs/INSTALL.md:accuracy:c1wordng",
+        "severity": "P3",
+        "status": "fixed",
+        "summary": "C1 described as certified"
+      },
+      {
+        "id": "install.sh:consistency:debates0",
+        "severity": "P3",
+        "status": "fixed",
+        "summary": "docs/debates still created by install.sh"
+      },
+      {
+        "id": "tests/test_readme_catalog.py:test-coverage:prefixmt",
+        "severity": "P3",
+        "status": "fixed",
+        "summary": "prefix match let base commands pass via their -squad variant"
+      },
+      {
+        "id": "docs/WORKFLOW.md:readability:frwordng",
+        "severity": "P3",
+        "status": "fixed",
+        "summary": "acceptance anglicism, non-pilot wording, box alignment"
+      }
+    ],
+    "rounds": [
+      {
+        "fixed_confirmed_p0_p1": 0,
+        "new_confirmed_p0_p1": 0,
+        "round": 1
+      }
+    ]
+  },
+  "schema_version": 1
+}
