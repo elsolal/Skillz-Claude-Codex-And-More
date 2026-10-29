@@ -300,6 +300,7 @@ has_checksum_removal_rule() {
     [ -f "$removal_manifest" ] || return 1
     awk -v expected_path="$relative_path" '
         $1 !~ /^#/ && $3 == expected_path { found = 1 }
+        $1 == "delete-tree" && index($3, expected_path "/") == 1 { found = 1 }
         END { exit(found ? 0 : 1) }
     ' "$removal_manifest"
 }
@@ -1962,7 +1963,10 @@ fi
 # ships. Never applies when the target is the Skillz source checkout itself.
 PROJECT_MANIFEST="$TARGET_CLAUDE/.skillz-manifest"
 PROJECT_IS_SOURCE=false
-if [ "$(cd "$SOURCE_CLAUDE" && pwd)" = "$(cd "$TARGET_CLAUDE" 2>/dev/null && pwd)" ]; then
+TARGET_CLAUDE_REAL="$(cd "$TARGET_CLAUDE" 2>/dev/null && pwd || true)"
+if [ "$(cd "$SOURCE_CLAUDE" && pwd)" = "$TARGET_CLAUDE_REAL" ] \
+    || [ "$(cd "$HOME/.claude" 2>/dev/null && pwd || true)" = "$TARGET_CLAUDE_REAL" ]; then
+    # The source checkout and the global ~/.claude keep their own ownership rules.
     PROJECT_IS_SOURCE=true
 fi
 PROJECT_MERGE_SKIPPED=""
@@ -2320,6 +2324,8 @@ if [ -f "$SOURCE_CLAUDE/settings.json" ]; then
 fi
 
 cleanup_removed_owned_artifacts "$SOURCE_CLAUDE" "$TARGET_CLAUDE"
+# Retired skills may have been linked by the provider loop above.
+sweep_dead_skill_links "$TARGET_DIR/.codex/skills" "../../.claude/skills/"
 
 # Handle CLAUDE.md (MERGE in update mode - preserve user's PROJECT-RULES section)
 echo -e "${GREEN}📄 Installing CLAUDE.md...${NC}"

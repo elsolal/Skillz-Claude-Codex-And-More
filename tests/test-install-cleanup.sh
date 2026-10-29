@@ -39,6 +39,9 @@ shipped() {
     git -C "$REPO_ROOT" show "$RETIRED_SOURCE_REF:.claude/$1"
 }
 
+git -C "$REPO_ROOT" cat-file -e "$RETIRED_SOURCE_REF^{commit}" 2>/dev/null || \
+    fail "Commit $RETIRED_SOURCE_REF is missing: run the suite from a full (non-shallow) clone"
+
 new_home() {
     local home="$TEST_ROOT/$1"
     mkdir -p "$home/.codex" "$home/.local/bin"
@@ -53,10 +56,14 @@ test_global_update_cleans_every_mirror_and_retired_knowledge() {
     printf 'skill:ghost-skill\n' >>"$home/.claude/.skillz-manifest"
     mkdir -p "$home/.claude/skills/ghost-skill"
     printf -- '---\nname: ghost-skill\n---\n' >"$home/.claude/skills/ghost-skill/SKILL.md"
-    for mirror in .gemini/skills .config/opencode/skills .agents/skills; do
+    for mirror in .codex/skills .gemini/skills .config/opencode/skills .agents/skills; do
         ln -sfn "$home/.claude/skills/ghost-skill/" "$home/$mirror/ghost-skill"
         ln -sfn "$home/elsewhere/missing" "$home/$mirror/foreign-dead-link"
+        ln -sfn "$home/.claude/skills-other/x" "$home/$mirror/sibling-prefix-link"
     done
+    mkdir -p "$home/.claude/skills/multi-mind"
+    printf 'my own version\n' >"$home/.claude/skills/multi-mind/SKILL.md"
+    printf 'skill:multi-mind\n' >>"$home/.claude/.skillz-manifest"
     mkdir -p "$home/.claude/knowledge/multi-mind"
     shipped knowledge/multi-mind/agent-personalities.md \
         >"$home/.claude/knowledge/multi-mind/agent-personalities.md"
@@ -65,10 +72,12 @@ test_global_update_cleans_every_mirror_and_retired_knowledge() {
     run_installer "$home" update all
 
     assert_absent "$home/.claude/skills/ghost-skill"
-    for mirror in .gemini/skills .config/opencode/skills .agents/skills; do
+    for mirror in .codex/skills .gemini/skills .config/opencode/skills .agents/skills; do
         assert_absent "$home/$mirror/ghost-skill"
         assert_present "$home/$mirror/foreign-dead-link"
+        assert_present "$home/$mirror/sibling-prefix-link"
     done
+    assert_present "$home/.claude/skills/multi-mind/SKILL.md"
     assert_absent "$home/.claude/knowledge/multi-mind/agent-personalities.md"
     assert_present "$home/.claude/knowledge/multi-mind/debate-templates.md"
 }
@@ -84,7 +93,7 @@ test_project_update_purges_from_its_manifest() {
     grep -qx 'skill:dev-workflow' "$project/.claude/.skillz-manifest" || \
         fail "Project manifest does not list installed skills"
 
-    printf 'skill:ghost-skill\ncommand:ghost.md\nskill:../../outside\nskill:..\ncommand:../escape.md\n' \
+    printf 'skill:ghost-skill\ncommand:ghost.md\nskill:../../outside\nskill:..\nskill:\ncommand:../escape.md\n' \
         >>"$project/.claude/.skillz-manifest"
     mkdir -p "$project/outside"
     printf 'keep\n' >"$project/escape.md"
@@ -127,7 +136,7 @@ test_project_without_manifest_retires_only_unmodified_items() {
     home="$(new_home legacy)"
     project="$TEST_ROOT/legacy-app"
     mkdir -p "$project"
-    run_installer "$home" install "$project" --providers claude
+    run_installer "$home" install "$project" --providers claude,codex
     rm -f "$project/.claude/.skillz-manifest"
 
     mkdir -p "$project/.claude/skills/multi-mind" "$project/.claude/skills/figma-use"
@@ -137,9 +146,10 @@ test_project_without_manifest_retires_only_unmodified_items() {
     shipped commands/init.md >"$project/.claude/commands/init.md"
     printf 'my docs command\n' >"$project/.claude/commands/docs.md"
 
-    run_installer "$home" update "$project" --providers claude
+    run_installer "$home" update "$project" --providers claude,codex
 
     assert_absent "$project/.claude/skills/multi-mind"
+    assert_absent "$project/.codex/skills/multi-mind"
     assert_absent "$project/.claude/commands/init.md"
     assert_present "$project/.claude/skills/figma-use/SKILL.md"
     assert_present "$project/.claude/commands/docs.md"
