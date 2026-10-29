@@ -15,7 +15,7 @@
 - **N'importe quelle stack** : les commandes de vérification du projet sont détectées, jamais codées
   en dur.
 
-**Statut** : release candidate `6.1.0-rc.1`, **not stable** (non stable). Les skills et commandes
+**Statut** : release candidate `6.1.0-rc.1`, **non stable**. Les skills et commandes
 sont décrits dans `core/catalog.yaml` et compilés pour chaque runtime.
 
 ---
@@ -26,7 +26,9 @@ sont décrits dans `core/catalog.yaml` et compilés pour chaque runtime.
 curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- install all
 ```
 
-Installe tout dans `~/.claude/`, `~/.codex/`, `~/.gemini/`, `~/.config/opencode/` et `~/.agents/`.
+Installe la distribution publiée (compatibilité v6) dans `~/.claude/`, `~/.codex/`, `~/.gemini/`,
+`~/.config/opencode/` et `~/.agents/`. C'est la route recommandée tant que la release candidate v6.1
+n'a pas fini sa certification ; la route cible v6.1 (`bin/skillz`) est décrite dans INSTALL.
 
 | Besoin | Commande |
 |---|---|
@@ -58,7 +60,7 @@ dans `docs/planning/specs/`, exigée par `/dev` pour un niveau 4.
 /dev #123
 ```
 
-Sonde du projet → exploration et niveau → **plan ⛔ (ton seul arrêt)** → tests d'acceptance rouges
+Sonde du projet → exploration et niveau → **plan ⛔ (ton seul arrêt)** → tests d'acceptation rouges
 (si un harnais existe) → implémentation pas à pas → **boucle quality-gate** → rapport de handoff. Tu
 lis le rapport, pas le diff. Pour un petit correctif : `/quick-fix "description"`, même moteur au
 niveau 0, qui monte de niveau si le périmètre grandit.
@@ -212,6 +214,15 @@ Le reste de l'outillage Figma (`figma-use`, design-to-code, Code Connect…) vie
 
 Une base de connaissances persistante (décisions, conventions, sources, synthèses) qui grandit d'une
 session à l'autre, inspirée du [pattern LLM Wiki de Karpathy](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f).
+
+La recherche part de la tâche, selon trois routes :
+
+- **projet activé** (`.agents/memory.yaml` présent) : `memory context` interroge la collection
+  QMD déclarée du projet ;
+- **mode dégradé** (QMD absent) : la lecture reste bornée aux `entry_pages` du manifeste ;
+- **vault sans manifeste** : `/wiki-query` garde le parcours historique par catalogue, comme route
+  legacy explicite (non-pilot).
+
 Installation, CLI `memory`, QMD et pointeurs par projet : **[docs/MEMORY.md](./docs/MEMORY.md)**.
 
 ---

@@ -6,8 +6,8 @@ Il existe deux routes d'installation :
 
 | Route | Pour qui | Statut |
 |---|---|---|
-| **`install.sh`** (universel) | Usage quotidien, tous les agents | Route publiée et recommandée |
-| **`bin/skillz`** (bundles compilés) | Tester la distribution v6.1 runtime par runtime | Release candidate |
+| **`install.sh`** (universel) | Usage quotidien, tous les agents | Route publiée (distribution de compatibilité v6), recommandée tant que la RC n'est pas certifiée |
+| **`bin/skillz`** (bundles compilés) | Installer les bundles générés v6.1, runtime par runtime | Route cible v6.1, en release candidate |
 
 La compatibilité exacte par runtime est dans la [matrice v6.1](./compatibility/matrix-v6.1.md).
 Pour passer de v6 à v6.1, voir le [guide de migration](./migrations/v6-to-v6.1.md).
@@ -22,7 +22,7 @@ Pour passer de v6 à v6.1, voir le [guide de migration](./migrations/v6-to-v6.1.
 curl -fsSL https://raw.githubusercontent.com/elsolal/Skillz-Claude-Codex-And-More/main/install.sh | bash -s -- install all
 ```
 
-Installe la distribution dans `~/.claude/`, `~/.codex/`, `~/.gemini/`, `~/.config/opencode/` et
+Installe la distribution de compatibilité v6 dans `~/.claude/`, `~/.codex/`, `~/.gemini/`, `~/.config/opencode/` et
 `~/.agents/`. Les dossiers des autres agents pointent vers les skills de `~/.claude/skills`.
 
 ### Par projet
@@ -142,7 +142,7 @@ enregistrés comme `ownership: skillz`. Le contrat est dans
 |---|---|---|
 | Claude Code | `claude --plugin-dir /path/to/repo/dist/claude` | Plugin généré depuis `dist/claude/.claude-plugin/plugin.json` |
 | Codex CLI | `codex plugin marketplace add /path/to/repo/dist/codex && codex plugin add skillz-claude@skillz-claude-dev` | Plugin de développement v6.1 ; `install codex` reste la route de repli |
-| Gemini CLI | `gemini extensions link /path/to/repo/dist/gemini` | Extension générée, certifiée C1 seulement |
+| Gemini CLI | `gemini extensions link /path/to/repo/dist/gemini` | Extension générée, niveau C1 seulement (Gemini non installé localement) |
 | OpenCode | `bin/skillz install --dist-root dist --runtime opencode --target /explicit/target` | Route générée à plat, pas de package natif |
 
 ```bash

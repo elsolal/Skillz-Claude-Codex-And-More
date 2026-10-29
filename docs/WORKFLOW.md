@@ -10,19 +10,19 @@ réutilisant tout le travail déjà fait : on monte de niveau, on ne repart jama
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  PLANIFIER (/discovery — niveaux 0-4)                                       │
-│  [P] mise à l'épreuve → niveau 0-1 : tech-spec directe ────┐               │
-│                       → niveau 2-4 : Brainstorm → [UX] →    ├→ SPEC        │
-│                         PRD → [UI] → Architecture → Stories ┘   APPROUVÉE  │
+│  [P] mise à l'épreuve → niveau 0-1 : tech-spec directe ────┐                │
+│                       → niveau 2-4 : Brainstorm → [UX] →    ├→ SPEC         │
+│                         PRD → [UI] → Architecture → Stories ┘   APPROUVÉE   │
 │                                                                             │
 │  DÉVELOPPER (/dev — niveaux 0-4)                                            │
-│  PROBE → EXPLORE → PLAN ⛔ → RED → IMPLEMENT → GATE (boucle) → HANDOFF      │
+│  PROBE → EXPLORE → PLAN ⛔ → RED → IMPLEMENT → GATE (boucle) → HANDOFF       │
 │  manifeste +niveau  l'unique (cond.) (séquentiel)  gate file    rapport     │
 │                     arrêt                                                   │
 │                                                                             │
 │  LIVRER (/ship)                                                             │
-│  merge de la branche par défaut → preuves → gate → changelog → PR          │
+│  merge de la branche par défaut → preuves → gate → changelog → PR           │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  UN SEUL ARRÊT HUMAIN : le PLAN ⛔ — les niveaux 3-4 ajoutent une lecture   │
+│  UN SEUL ARRÊT HUMAIN : le PLAN ⛔ — les niveaux 3-4 ajoutent une lecture    │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -35,7 +35,7 @@ réutilisant tout le travail déjà fait : on monte de niveau, on ne repart jama
 | Niveau | Signaux | Circuit de `/dev` |
 |---|---|---|
 | **0** | coquille, constante, style ; ≤ 3 fichiers, ≤ 50 lignes, aucun risque | Correctif → vérification du manifeste → présentation. Ni plan, ni gate file. |
-| **1** | petit bug localisé, un groupe de fichiers | Exploration légère → mini-plan ⛔ → correctif → gate en 1 round, 1 relecteur. |
+| **1** | petit bug localisé, un groupe de fichiers | Exploration légère → mini-plan ⛔ → correctif → gate en 1 round, 1 relecteur avec contrôle rapide des défauts structurels. |
 | **2** | feature standard, un composant | Circuit complet : plan ⛔, RED, implémentation séquentielle, gate ≤ 3 rounds + lentille finale thermo-nucléaire. |
 | **3** | plusieurs composants, surface publique, UI riche | + lentilles design / SEO / a11y dans le gate, et lecture humaine du handoff. |
 | **4** | epic, migration, auth, schéma de base, données | Refuse de démarrer sans spec approuvée : passer par `/discovery`, puis exécuter story par story en niveau 2-3. |
@@ -71,8 +71,8 @@ réutilisant tout le travail déjà fait : on monte de niveau, on ne repart jama
 |---|---|---|
 | **0. PROBE** | `project-probe` lit ou rafraîchit `.agents/verification.yaml` | Manifeste à jour |
 | **1. EXPLORE** | Lecture de l'issue (`gh issue view`), exploration du code, détection des surfaces frontend et SEO/GEO, évaluation du niveau | Niveau annoncé et justifié |
-| **2. PLAN ⛔** | Étapes atomiques (quoi, où, comment, contraintes), critères d'acceptance testables, stratégie de test P0-P3 | **L'humain valide** : c'est l'unique arrêt |
-| **3. RED** | Si niveau ≥ 2 et qu'un harnais de test existe : tests d'acceptance écrits et lancés pour prouver qu'ils échouent pour la bonne raison | Tests rouges |
+| **2. PLAN ⛔** | Étapes atomiques (quoi, où, comment, contraintes), critères d'acceptation testables, stratégie de test P0-P3 | **L'humain valide** : c'est l'unique arrêt |
+| **3. RED** | Si niveau ≥ 2 et qu'un harnais de test existe : tests d'acceptation écrits et lancés pour prouver qu'ils échouent pour la bonne raison | Tests rouges |
 | **4. IMPLEMENT** | Étapes exécutées dans l'ordre, chacune avec ses tests ; commandes du manifeste au vert avant l'étape suivante | Tout vert |
 | **5. GATE** | Commit, puis boucle `quality-gate` sur le diff commité | Gate file (PASS ou waiver explicite) |
 | **6. HANDOFF** | Rapport : verdict, findings, `decisions_prises_en_ton_nom`, absences, stats du diff | Niveaux 3-4 : l'humain lit les décisions |
@@ -115,8 +115,8 @@ n'entrent pas dans la vérité du projet. Vérification :
 Une boucle bornée, dont chaque round suit cet ordre :
 
 1. **Preuves d'exécution**, toujours en premier : toutes les commandes du manifeste, plus le
-   parcours réel de l'application quand c'est possible. Le moindre rouge est corrigé avant de
-   continuer.
+   parcours réel de l'application quand c'est possible. Le moindre rouge est corrigé et le round
+   recommence ; si les preuves ne passent pas au vert dans le plafond, le verdict est `FAIL`.
 2. **Revues par lentilles**, chacune dans un contexte neuf : correctness et sécurité (`/code-review`
    natif sur Claude Code), lisibilité, performance, puis design / SEO / a11y si le diff touche ces
    surfaces. Pour le niveau ≥ 2, `thermo-nuclear-code-quality-review` passe en dernier, sur la
@@ -128,13 +128,14 @@ Une boucle bornée, dont chaque round suit cet ordre :
    périmètre).
 
 La boucle converge après deux rounds consécutifs sans nouveau P0/P1, ou s'arrête au plafond du
-niveau.
+niveau (1 round au niveau 1, 3 au niveau 2, 4 aux niveaux 3-4). Exception du niveau 1 : le verdict se
+décide sur ce round unique, une fois les findings confirmés corrigés et les preuves relancées au vert.
 
 | Verdict | Condition |
 |---|---|
 | `PASS` | Toutes les preuves au vert, aucun P0/P1 restant, au moins une preuve exécutable réelle |
 | `CONCERNS` | Plafond atteint sans convergence, preuves trop faibles, ou P1 non corrigé. Un projet sans tests plafonne ici. |
-| `FAIL` | P0 confirmé non corrigé |
+| `FAIL` | P0 confirmé non corrigé, ou preuves d'exécution impossibles à remettre au vert dans le plafond |
 | `WAIVED` | Uniquement sur décision humaine explicite, avec raison, portée, approbateur et date |
 
 Le gate file lie les preuves au diff exact :
@@ -158,7 +159,8 @@ manquants, des commandes inventées et un PASS contenant une commande en échec.
 porte les résultats d'exécution, les findings et les `decisions_prises_en_ton_nom`.
 
 `/gate [niveau]` lance la même boucle à la demande sur n'importe quel diff (niveau 3 par défaut).
-En mode autonome, aucun fichier n'est modifié avant que tu aies arbitré le rapport.
+Dans ce mode standalone, aucun fichier n'est modifié avant que tu aies arbitré le rapport ; appelé
+par `/dev` ou `/ship`, le gate corrige seul.
 
 ---
 
@@ -169,11 +171,13 @@ Non interactif : la prochaine chose que tu vois est l'URL de la PR.
 1. **Pré-vol** : refuse de partir depuis la branche par défaut ou avec un arbre de travail sale.
 2. **Merge** de la branche par défaut résolue (jamais supposée) dans la branche de feature.
 3. **Preuves** : toutes les commandes du manifeste. Rouge → arrêt.
-4. **Gate** : un gate v2 PASS valide, ou WAIVED complet, permet d'avancer. Absent, périmé ou
-   CONCERNS → le gate est relancé ; un CONCERNS demande une décision de waiver explicite, jamais
-   acceptée automatiquement. FAIL → arrêt.
+4. **Gate** : un gate v2 PASS valide, un WAIVED complet ou un ancien gate v1 vérifié
+   (`legacy-valid`, pendant la fenêtre v6.1) permet d'avancer. Absent, périmé, CONCERNS ou FAIL → le
+   gate est relancé. Nouveau CONCERNS → décision de waiver explicite, jamais acceptée
+   automatiquement ; nouveau FAIL → arrêt.
 5. **CHANGELOG** généré depuis les commits de la branche.
-6. **Push** (jamais de force-push) et **PR** avec le gate file dans la description.
+6. **Commits** en petits morceaux cohérents, chacun valide seul.
+7. **Push** (jamais de force-push) et **PR** avec le gate file dans la description.
 
 ---
 

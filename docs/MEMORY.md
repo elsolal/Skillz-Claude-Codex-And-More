@@ -9,8 +9,8 @@ l'agent.
 
 - Les projets activés partent de la tâche et cherchent via `memory context` dans leur collection
   projet déclarée. Sans QMD, la recherche reste bornée aux `entry_pages` du manifeste.
-- Les vaults sans `.agents/memory.yaml` gardent le parcours historique par catalogue (route legacy,
-  hors pilote).
+- Les vaults sans `.agents/memory.yaml` gardent le parcours historique par catalogue, comme route
+  legacy explicite (non-pilot).
 
 > Construit sur [`alirezarezvani/claude-skills`](https://github.com/alirezarezvani/claude-skills)
 > (MIT), voir [`ATTRIBUTION.md`](../skills/ATTRIBUTION.md).
@@ -32,7 +32,7 @@ relancer quand tu veux avec `bash scripts/setup-wiki.sh` (idempotent).
 |---|---|---|---|
 | **Obsidian** | Oui | [obsidian.md/download](https://obsidian.md/download) (gratuit) | Éditeur du vault |
 | **Python 3.10+** | Oui | déjà requis par Skillz-Claude | project-probe, CLI mémoire, scripts du wiki (bibliothèque standard seulement) |
-| **`qmd`** | Recommandé | `npm install -g @tobilu/qmd` (Node 22+) ou `bun install -g @tobilu/qmd`, voir [tobi/qmd](https://github.com/tobi/qmd) | Recherche locale dans le vault quand l'index ne suffit pas. Le script avertit sans bloquer s'il manque. |
+| **`qmd`** (0.9.x) | Recommandé | `npm install -g @tobilu/qmd` (Node 22+) ou `bun install -g @tobilu/qmd`, voir [tobi/qmd](https://github.com/tobi/qmd) | Recherche locale dans le vault quand l'index ne suffit pas. Le script avertit sans bloquer s'il manque. |
 
 ### Ce que fait le bootstrap
 
@@ -114,10 +114,12 @@ memory doctor
 - La commande écrit `.agents/memory.local.json`, `.claude/project-memory.md` et
   `.agents/project-memory.md` (permissions utilisateur seulement quand c'est possible) et les ajoute
   au `info/exclude` local de Git.
-- Des pages d'entrée manquantes donnent un résultat `degraded` utilisable (code de sortie `10`). Un
-  contenu de pointeur non géré est préservé, sauf avec `--replace-managed`.
-- `memory doctor` renvoie `ready`, `degraded` ou `blocked`, une action à copier et la question de
-  départ du manifeste. Sans QMD, les modes `minimal` et `project` restent utilisables.
+- À la configuration, des pages d'entrée manquantes donnent un résultat `degraded` utilisable (code
+  de sortie `10`). Un contenu de pointeur non géré est préservé, sauf avec `--replace-managed`.
+- `memory doctor` est en lecture seule et hors ligne par défaut. Il vérifie les pages, les exclusions
+  Git locales, QMD 0.9.x et la fraîcheur locale, puis renvoie `ready`, `degraded` ou `blocked`, une
+  action à copier et la question de départ du manifeste. Sans QMD, les modes `minimal` et `project`
+  restent utilisables ; des pages d'entrée requises manquantes bloquent l'activation.
 - Un profil optionnel `sources` peut exposer des ADR, docs produit, OpenAPI, schémas JSON et contrats
   SQL du dépôt via une collection QMD distincte. Il est désactivé par défaut, ne copie rien dans
   Obsidian et ne contourne jamais la liste d'exclusion (secrets, logs, build, code).
@@ -163,7 +165,8 @@ memory report --weekly --export-markdown ./memory-weekly.md
 - **`memory test`** valide huit cas golden V1 visibles, puis compare la route projet bornée à un
   rejeu `index-first`. `--holdout` ajoute deux cas locaux ignorés par Git et n'en partage que
   l'agrégat. La qualité des réponses est notée à part (rubrique pondérée importée en métadonnées) ;
-  le gate reste `incomplete` sans note et échoue au-delà de 5 % de dégradation.
+  le gate reste `incomplete` sans note et échoue au-delà de 5 % de dégradation, même si le contexte
+  est réduit de plus de 50 %. Un gate réussi n'autorise jamais à lui seul le déploiement global.
 - **`memory report --weekly`** agrège les événements, runs et notes du projet. Il limite la revue à
   sept dettes ouvertes, classées par risque puis par impact, et vérifie le Markdown final avant
   l'export.

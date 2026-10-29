@@ -1,10 +1,11 @@
 import json
 from pathlib import Path
+import re
 import unittest
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-# Codex-only adapters of the /wiki-* commands; the README documents the commands themselves.
+# Generated adapters of the /wiki-* commands; the README documents the commands themselves.
 GENERATED_SKILL_PREFIX = "source-command-"
 
 
@@ -30,7 +31,11 @@ class ReadmeCatalogTests(unittest.TestCase):
         self.assertEqual(missing, [], "skills missing from README.md")
 
     def test_readme_lists_every_catalog_command(self):
-        missing = [name for name in catalog_names("command") if f"`/{name}" not in self.readme]
+        missing = [
+            name
+            for name in catalog_names("command")
+            if not re.search(rf"`/{re.escape(name)}(?![\w-])", self.readme)
+        ]
         self.assertEqual(missing, [], "commands missing from README.md")
 
 
