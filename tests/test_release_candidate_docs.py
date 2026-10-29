@@ -13,7 +13,7 @@ class ReleaseCandidateDocumentationTests(unittest.TestCase):
         readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("core/catalog.yaml", readme)
         self.assertIn("6.1.0-rc.1", readme)
-        self.assertIn("not stable", readme)
+        self.assertIn("non stable", readme)
         self.assertNotIn("Claude is the source of truth", readme)
         self.assertNotIn("mirror `.claude/` as the single source of truth", readme)
 

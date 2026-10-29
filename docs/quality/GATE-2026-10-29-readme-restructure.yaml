@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 1
+base_sha: "c6baa41a2ed88cb5ef48484634039f60f32ba354"
+head_sha: "f1fcd7e8d5aaa8b9a5218f73a7a0ad8eed529f44"
+code_diff_hash: "70e0a8adfaad96b1b5eb1ce07566da4792fdb7407c2eae30d3ce55e9917f32bc"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-10-29-readme-restructure.json"
+proof_payload_hash: "688b19b8f53c66e28438c964ebe4583e1c2b0dafae2a3a9303b58b419e80ee27"
+integrity_sha256: "a9c3f2d40ac60e91bcd0dca464b9234eaddd6865681ef90a157b4313742b886c"

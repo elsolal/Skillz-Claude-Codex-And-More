@@ -4,6 +4,12 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## [Unreleased] - 2026-10-29
 
+### Documentation
+- README rewritten in French: short and usage-first, with every catalog skill and command listed
+  (enforced by `tests/test_readme_catalog.py`). Install, workflow and memory details moved to
+  `docs/INSTALL.md`, `docs/WORKFLOW.md` (rewritten for v6) and `docs/MEMORY.md`.
+- Removed the obsolete `docs/GUIDE-COMPLET.md`; `install.sh` no longer creates `docs/debates`.
+
 ### Removed
 - 22 skills that were unused, duplicated by installed plugins, or superseded by native runtime
   features: the six copied `figma-*` skills (official `figma@claude-plugins-official` plugin),

@@ -1838,7 +1838,6 @@ mkdir -p "$TARGET_DOCS/planning/prd"
 mkdir -p "$TARGET_DOCS/planning/ui"
 mkdir -p "$TARGET_DOCS/planning/architecture"
 mkdir -p "$TARGET_DOCS/stories"
-mkdir -p "$TARGET_DOCS/debates"
 mkdir -p "$TARGET_DOCS/security"
 echo -e "   ${GREEN}✅ docs/planning/brainstorms/${NC}"
 echo -e "   ${GREEN}✅ docs/planning/ux/${NC}"
@@ -1846,7 +1845,6 @@ echo -e "   ${GREEN}✅ docs/planning/prd/${NC}"
 echo -e "   ${GREEN}✅ docs/planning/ui/${NC}"
 echo -e "   ${GREEN}✅ docs/planning/architecture/${NC}"
 echo -e "   ${GREEN}✅ docs/stories/${NC}"
-echo -e "   ${GREEN}✅ docs/debates/${NC}"
 echo -e "   ${GREEN}✅ docs/security/${NC}"
 
 # Copy knowledge base (always update in UPDATE_MODE)
@@ -2321,7 +2319,6 @@ touch "$TARGET_DOCS/planning/prd/.gitkeep"
 touch "$TARGET_DOCS/planning/ui/.gitkeep"
 touch "$TARGET_DOCS/planning/architecture/.gitkeep"
 touch "$TARGET_DOCS/stories/.gitkeep"
-touch "$TARGET_DOCS/debates/.gitkeep"
 touch "$TARGET_DOCS/security/.gitkeep"
 
 # ============================================================

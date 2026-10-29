@@ -430,5 +430,4 @@ Si le problème persiste :
 
 1. **Lancer `/skillz-doctor`** : diagnostic automatique (première étape)
 2. **Vérifier le dernier gate file** : `docs/quality/GATE-*.yaml`
-3. **Lire la doc** : `docs/GUIDE-COMPLET.md`
-4. **Ouvrir une issue** : https://github.com/elsolal/Skillz-Claude-Codex-And-More/issues
+3. **Lire la doc** : `docs/WORKFLOW.md` (workflow) et `docs/INSTALL.md` (installation)
