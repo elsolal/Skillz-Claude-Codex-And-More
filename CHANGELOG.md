@@ -2,7 +2,7 @@
 
 All notable changes to the D-EPCT+R Workflow are documented in this file.
 
-## [Unreleased]
+## [Unreleased] - 2026-10-29
 
 ### Removed
 - 22 skills that were unused, duplicated by installed plugins, or superseded by native runtime
@@ -14,6 +14,13 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
   `/refactor`, `/changelog` (`/ship` already writes the changelog) and `/metrics`, plus the
   `multi-mind` knowledge and its `.env.example`.
 - See `docs/migrations/v6.1-skill-cleanup.md` for the replacement of each removed artifact.
+
+### Changed
+- Kept skills, `.claude/CLAUDE.md`, README, examples and `install.sh` now point to the official
+  Figma plugin (`figma:figma-*`), `quality-gate`, native `/code-review`, `/security-review` and
+  `/simplify` instead of the removed artifacts.
+- Codex native plugin recertified (C2) on `codex-cli 0.164.0`; evidence moved to
+  `docs/compatibility/codex-plugin-0.164.0.json`.
 
 ## [6.1.0-rc.1] - 2026-09-02
 
