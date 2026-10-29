@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 2
+base_sha: "0de1a6718e71b32e4c4e007c491129b276747a30"
+head_sha: "7e1f08654989acba79294f76ea8bae9431370c92"
+code_diff_hash: "fe3334311ceb8146f12841d9c5a843d60a80a64561a38e167e63203ce1f13bd6"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-10-29-cleanup-unused-skills.json"
+proof_payload_hash: "46a1cfebe210c05c6109c1cb2367767dbf6ec3cf5f41f4d37a3da0a12a32ef06"
+integrity_sha256: "eb27a02fa092f7ee8065c8d2c8ba16786bdefbe150e20191b93ac76ebccda34f"
