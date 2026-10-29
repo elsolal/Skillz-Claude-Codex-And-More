@@ -106,6 +106,22 @@ test_project_update_purges_from_its_manifest() {
     fi
 }
 
+test_project_purge_never_follows_a_linked_skills_folder() {
+    local home project outside
+    home="$(new_home linked)"
+    project="$TEST_ROOT/linked-app"
+    outside="$TEST_ROOT/linked-outside"
+    mkdir -p "$project/.claude/commands" "$outside/precious"
+    printf 'keep\n' >"$outside/precious/data.txt"
+    ln -s "$outside" "$project/.claude/skills"
+    printf 'skill:precious\n' >"$project/.claude/.skillz-manifest"
+
+    run_installer "$home" update "$project" --providers claude
+
+    assert_present "$outside/precious/data.txt"
+    grep -q 'Purge skipped' "$home/install.log" || fail "Linked skills folder was not reported"
+}
+
 test_project_without_manifest_retires_only_unmodified_items() {
     local home project
     home="$(new_home legacy)"
@@ -137,5 +153,6 @@ test_project_without_manifest_retires_only_unmodified_items() {
 
 test_global_update_cleans_every_mirror_and_retired_knowledge
 test_project_update_purges_from_its_manifest
+test_project_purge_never_follows_a_linked_skills_folder
 test_project_without_manifest_retires_only_unmodified_items
 echo "PASS: installer cleanup suite"

@@ -1968,7 +1968,12 @@ fi
 PROJECT_MERGE_SKIPPED=""
 if [ "$PROJECT_IS_SOURCE" != true ] && [ -f "$PROJECT_MANIFEST" ]; then
     echo -e "${CYAN}🧹 Checking for skills/commands removed from the source...${NC}"
-    purge_manifest_orphans "$PROJECT_MANIFEST" "$TARGET_CLAUDE" "$SOURCE_CLAUDE"
+    # The manifest ships with the repository: never follow a linked folder out of it.
+    if [ -L "$TARGET_CLAUDE" ] || [ -L "$TARGET_CLAUDE/skills" ] || [ -L "$TARGET_CLAUDE/commands" ]; then
+        echo -e "   ${YELLOW}⚠️  Purge skipped: .claude, .claude/skills or .claude/commands is a symlink${NC}"
+    else
+        purge_manifest_orphans "$PROJECT_MANIFEST" "$TARGET_CLAUDE" "$SOURCE_CLAUDE"
+    fi
 fi
 
 # Copy skills
