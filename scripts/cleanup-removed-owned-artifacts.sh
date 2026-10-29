@@ -75,6 +75,11 @@ while read -r action expected_hash relative_path replacement_path; do
     delete)
       rm -f -- "$target"
       removed=$((removed + 1))
+      # Drop the parent folder only when the deletion left it empty.
+      parent="$(dirname "$target")"
+      if [ "$parent" != "$target_root" ]; then
+        rmdir -- "$parent" 2>/dev/null || true
+      fi
       ;;
     replace)
       if ! validate_relative_path "${replacement_path:-}"; then

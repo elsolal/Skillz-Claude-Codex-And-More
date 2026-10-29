@@ -4,6 +4,13 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ## [Unreleased] - 2026-10-29
 
+### Fixed
+- `install.sh update` now finishes its own cleanup: dead links to removed Skillz skills are swept
+  from every agent mirror (Codex, Gemini, OpenCode, generic agents), retired knowledge files are
+  deleted only while unmodified, and project installs record `.claude/.skillz-manifest` so later
+  updates purge what the source stopped shipping. Older project installs are cleaned once, deleting
+  only files identical to the last shipped version.
+
 ### Documentation
 - README rewritten in French: short and usage-first, with every catalog skill and command listed
   (enforced by `tests/test_readme_catalog.py`). Install, workflow and memory details moved to
