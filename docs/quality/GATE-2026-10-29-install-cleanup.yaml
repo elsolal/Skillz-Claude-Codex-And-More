@@ -1,0 +1,10 @@
+schema_version: 2
+verdict: "PASS"
+level: 2
+base_sha: "73f0739e2e2b78ca3e0ba04b2dd8a0f70b053bca"
+head_sha: "8d7fa3b7ef33c9e0ec9d95f001ba4e155d71808b"
+code_diff_hash: "415edf873d6103086f5e95de591add0408684ab504a83da816bdd9809e9805b2"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-10-29-install-cleanup.json"
+proof_payload_hash: "000033ff32a0090d0735f175d9acd6eff01ddc448305e2be93da470a3ab430d3"
+integrity_sha256: "2a9993076ef5a59a058856bd9523869ccab348ff6f25d39451b2ac4c9792554b"
