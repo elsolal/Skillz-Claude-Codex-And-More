@@ -1,531 +1,190 @@
-# 🚀 D-EPCT+R Workflow - Kit Complet Claude Code
+# Le workflow D-EPCT+R v6
 
-## 📋 Table des matières
+> Retour au [README](../README.md). La source de vérité reste les skills `discovery-workflow`,
+> `dev-workflow`, `quality-gate` et `ship-workflow` sous `core/skills/` : cette page les résume.
 
-1. [Qu'est-ce que c'est ?](#quest-ce-que-cest-)
-2. [Structure du bundle](#structure-du-bundle)
-3. [Installation pas à pas](#installation-pas-à-pas)
-4. [Utilisation](#utilisation)
-5. [Le workflow détaillé](#le-workflow-détaillé)
-6. [Personnalisation](#personnalisation)
-7. [Troubleshooting](#troubleshooting)
-
----
-
-## Qu'est-ce que c'est ?
-
-Un ensemble de **Skills** et **Commands** pour Claude Code qui automatise ton workflow de développement :
+L'orchestrateur (le fil principal de la conversation) garde **tout** le contexte. La rigueur s'adapte
+au niveau de la tâche. Quand le périmètre grandit, la tâche est reclassée dans la grille en
+réutilisant tout le travail déjà fait : on monte de niveau, on ne repart jamais de zéro.
 
 ```
-DISCOVERY → PROBE → EXPLORE → PLAN ⛔ (stop unique) → RED (conditionnel) → IMPLEMENT (séquentiel) → GATE (boucle quality-gate) → HANDOFF
-```
-
-### Pourquoi Skills plutôt qu'Agents ?
-
-| Aspect | Skills ✅ | Agents (ancien) |
-|--------|----------|-----------------|
-| Déclenchement | Automatique | Manuel |
-| Réutilisabilité | Portable entre projets | Spécifique |
-| Maintenance | Modulaire | Monolithique |
-| Tokens | Chargé à la demande | Tout en contexte |
-
-**Les Skills sont la nouvelle approche recommandée par Anthropic.**
-
----
-
-## Structure du bundle
-
-```
-d-epct-workflow/
-│
-├── 📄 README.md                          ← CE FICHIER
-├── 📄 GUIDE-COMPLET.md                   ← Documentation détaillée
-│
-└── 📁 .claude/                           ← À COPIER DANS TON PROJET
-    │
-    ├── 📄 CLAUDE.md                      ← Instructions globales projet
-    │
-    ├── 📁 commands/                      ← Commandes /slash
-    │   ├── 📄 discovery.md               ← /discovery
-    │   └── 📄 feature.md                 ← /dev
-    │
-    └── 📁 skills/                        ← Skills auto-déclenchés
-        ├── 📁 pm-discovery/
-        │   └── 📄 SKILL.md               ← 🎯 Session PM
-        ├── 📁 github-issue-reader/
-        │   └── 📄 SKILL.md               ← 📋 Lecture issues
-        ├── 📁 code-implementer/
-        │   └── 📄 SKILL.md               ← 💻 Implémentation
-        ├── 📁 test-runner/
-        │   └── 📄 SKILL.md               ← 🧪 Tests
-        └── 📁 code-reviewer/
-            └── 📄 SKILL.md               ← 🔍 Boucle quality-gate
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  PLANIFIER (/discovery — niveaux 0-4)                                       │
+│  [P] mise à l'épreuve → niveau 0-1 : tech-spec directe ────┐               │
+│                       → niveau 2-4 : Brainstorm → [UX] →    ├→ SPEC        │
+│                         PRD → [UI] → Architecture → Stories ┘   APPROUVÉE  │
+│                                                                             │
+│  DÉVELOPPER (/dev — niveaux 0-4)                                            │
+│  PROBE → EXPLORE → PLAN ⛔ → RED → IMPLEMENT → GATE (boucle) → HANDOFF      │
+│  manifeste +niveau  l'unique (cond.) (séquentiel)  gate file    rapport     │
+│                     arrêt                                                   │
+│                                                                             │
+│  LIVRER (/ship)                                                             │
+│  merge de la branche par défaut → preuves → gate → changelog → PR          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  UN SEUL ARRÊT HUMAIN : le PLAN ⛔ — les niveaux 3-4 ajoutent une lecture   │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Installation pas à pas
+## La grille des niveaux
 
-### Prérequis
+`/dev`, `/quick-fix` et `/discovery` partagent la même grille.
 
-- Claude Code installé (`npm install -g @anthropic-ai/claude-code` ou via l'app)
-- Git configuré
-- Accès GitHub (pour la création d'issues)
+| Niveau | Signaux | Circuit de `/dev` |
+|---|---|---|
+| **0** | coquille, constante, style ; ≤ 3 fichiers, ≤ 50 lignes, aucun risque | Correctif → vérification du manifeste → présentation. Ni plan, ni gate file. |
+| **1** | petit bug localisé, un groupe de fichiers | Exploration légère → mini-plan ⛔ → correctif → gate en 1 round, 1 relecteur. |
+| **2** | feature standard, un composant | Circuit complet : plan ⛔, RED, implémentation séquentielle, gate ≤ 3 rounds + lentille finale thermo-nucléaire. |
+| **3** | plusieurs composants, surface publique, UI riche | + lentilles design / SEO / a11y dans le gate, et lecture humaine du handoff. |
+| **4** | epic, migration, auth, schéma de base, données | Refuse de démarrer sans spec approuvée : passer par `/discovery`, puis exécuter story par story en niveau 2-3. |
 
-### Étape 1 : Télécharger et dézipper
-
-```bash
-# Dézipper le bundle
-unzip d-epct-workflow.zip
-cd d-epct-workflow
-```
-
-### Étape 2 : Copier dans ton projet
-
-```bash
-# Copier le dossier .claude dans ton projet
-cp -r .claude /chemin/vers/ton-projet/
-
-# Vérifier
-ls -la /chemin/vers/ton-projet/.claude/
-```
-
-Tu dois voir :
-```
-.claude/
-├── CLAUDE.md
-├── commands/
-│   ├── discovery.md
-│   └── feature.md
-└── skills/
-    ├── pm-discovery/
-    ├── github-issue-reader/
-    ├── code-implementer/
-    ├── test-runner/
-    └── code-reviewer/
-```
-
-### Étape 3 : Commit dans ton repo
-
-```bash
-cd /chemin/vers/ton-projet
-git add .claude/
-git commit -m "chore: add D-EPCT+R workflow skills"
-git push
-```
-
-### Étape 4 : Vérifier l'installation
-
-```bash
-# Lancer Claude Code dans ton projet
-cd /chemin/vers/ton-projet
-claude
-
-# Tester que les skills sont détectés
-> Quels skills sont disponibles ?
-```
-
-Claude doit lister les 7 skills.
+`/quick-fix` démarre au niveau 0 et monte automatiquement si le périmètre grandit.
 
 ---
 
-## Utilisation
+## `/discovery` : de l'idée à la spec approuvée
 
-### Scénario 1 : Tu as une idée mais pas d'issue
+1. **Niveau** : évalué de 0 à 4. `[P]` propose d'abord une mise à l'épreuve socratique de l'idée
+   (rapport : thèse, objections, noyau qui survit, verdict). On n'investit dans le planning que si le
+   noyau tient.
+2. **Niveau 0-1** : tech-spec directe, sans brainstorm ni PRD complet.
+3. **Niveau 2-4** : Brainstorm → [UX] → PRD → [UI] → Architecture → Stories, validés à chaque étape.
+   `[E]` applique une lentille de raisonnement (`/elicit`) avant de valider.
+4. **Sortie obligatoire** : une spec consolidée dans `docs/planning/specs/`, avec
+   `status: approved`, `approved_by` et `approved_at`. Elle est exigée par `/dev` au niveau 4.
+5. Seule la publication des stories sur GitHub est déléguée à un subagent (travail mécanique).
 
-```bash
-# 1. Lancer Claude Code
-claude
-
-# 2. Démarrer une session Discovery
-/discovery
-
-# 3. Expliquer ton besoin (parle librement)
-> J'aimerais qu'on ajoute un système de filtres sur la page produits.
-> Les utilisateurs devraient pouvoir filtrer par catégorie, par prix,
-> et par note. Et il faudrait que ça se souvienne de leurs préférences.
-
-# 4. Répondre aux questions de Claude PM
-# (Il va poser 2-3 questions pour clarifier)
-
-# 5. Valider la synthèse quand il la propose
-
-# 6. Valider les issues avant publication
-
-# 7. Claude crée les issues sur GitHub
-# → Epic #42 + Stories #43, #44, #45
-
-# 8. Lancer l'implémentation d'une story
-/dev #43
-```
-
-### Scénario 2 : Tu as déjà une issue GitHub
-
-```bash
-# Directement lancer l'implémentation
-/dev https://github.com/ton-org/ton-repo/issues/123
-
-# Ou avec juste le numéro (si tu es dans le bon repo)
-/dev #123
-```
-
-### Scénario 3 : Juste utiliser un skill spécifique
-
-```bash
-# Les skills se déclenchent automatiquement selon le contexte
-# Exemples :
-
-> Analyse-moi le codebase pour comprendre l'architecture
-# → Agent Explore (natif)
-
-> Fais une code review de mes dernières modifications
-# → Déclenche code-reviewer
-
-> Aide-moi à planifier l'implémentation de cette feature
-# → L'orchestrateur planifie directement (pas de Plan Mode)
-```
+| Point de contrôle | Phase | Condition |
+|---|---|---|
+| Niveau | 1 | 0-4 évalué, `[P]` proposé |
+| Brainstorm → Stories | 2-7 (niveaux 2-4) | Validé à chaque phase, `[E]` disponible |
+| **Spec** | 7-bis | **Approuvée par l'humain** |
+| Readiness | Stories | Score ≥ 13/15 |
 
 ---
 
-## Le workflow détaillé
+## `/dev` : implémenter avec un seul arrêt
 
-### Vue d'ensemble
+| Phase | Ce qui se passe | Condition de sortie |
+|---|---|---|
+| **0. PROBE** | `project-probe` lit ou rafraîchit `.agents/verification.yaml` | Manifeste à jour |
+| **1. EXPLORE** | Lecture de l'issue (`gh issue view`), exploration du code, détection des surfaces frontend et SEO/GEO, évaluation du niveau | Niveau annoncé et justifié |
+| **2. PLAN ⛔** | Étapes atomiques (quoi, où, comment, contraintes), critères d'acceptance testables, stratégie de test P0-P3 | **L'humain valide** : c'est l'unique arrêt |
+| **3. RED** | Si niveau ≥ 2 et qu'un harnais de test existe : tests d'acceptance écrits et lancés pour prouver qu'ils échouent pour la bonne raison | Tests rouges |
+| **4. IMPLEMENT** | Étapes exécutées dans l'ordre, chacune avec ses tests ; commandes du manifeste au vert avant l'étape suivante | Tout vert |
+| **5. GATE** | Commit, puis boucle `quality-gate` sur le diff commité | Gate file (PASS ou waiver explicite) |
+| **6. HANDOFF** | Rapport : verdict, findings, `decisions_prises_en_ton_nom`, absences, stats du diff | Niveaux 3-4 : l'humain lit les décisions |
 
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│                                                                     │
-│   🎯 DISCOVERY                                                       │
-│   ├─ Tu expliques ton besoin (speech-to-text OK)                    │
-│   ├─ Niveau 0-4 auto-détecté (tech-spec ou chaîne complète)         │
-│   ├─ Synthèse → Tu valides                                          │
-│   └─ Spec consolidée et approuvée → docs/planning/specs/            │
-│                                                                     │
-│   ⏸️ CHECKPOINT — spec approuvée ─────────────────────────────────  │
-│                                                                     │
-│   🔎 PROBE (silencieux)                                              │
-│   └─ Lecture/rafraîchissement de .agents/verification.yaml          │
-│                                                                     │
-│   📋 EXPLORE                                                         │
-│   ├─ Lecture de l'issue #XX                                         │
-│   ├─ Analyse du codebase + détection surface (UI/SEO)               │
-│   └─ Évaluation du niveau 0-4                                       │
-│                                                                     │
-│   📝 PLAN ⛔ (stop unique)                                            │
-│   ├─ Décomposition en étapes + critères d'acceptance                │
-│   └─ Validation utilisateur — seul arrêt avant le handoff           │
-│                                                                     │
-│   🔴 RED (conditionnel, niveau ≥ 2 + harness dispo)                  │
-│   └─ Tests d'acceptance qui échouent pour la bonne raison           │
-│                                                                     │
-│   💻 IMPLEMENT (séquentiel)                                          │
-│   ├─ Étape par étape : code + tests → manifeste vert                │
-│   └─ Respect des conventions                                        │
-│                                                                     │
-│   🔄 GATE (boucle quality-gate)                                      │
-│   ├─ Commit d'abord, gate sur le diff committé                      │
-│   ├─ Design/SEO/a11y = lenses du gate (niv. 3-4)                    │
-│   └─ Verdict PASS/CONCERNS/FAIL → docs/quality/GATE-*.yaml          │
-│                                                                     │
-│   🎨 DESIGN AUDIT (si UI/frontend, lens du gate)                     │
-│   ├─ Tokens + composants + a11y + taste                             │
-│   ├─ Drift Figma/code + surface IA                                  │
-│   └─ /design-audit-squad pour l'audit complet 12 agents             │
-│                                                                     │
-│   📈 SEO/GEO AUDIT (si site public / contenu indexable)              │
-│   ├─ Technique + contenu + SERP + autorité                          │
-│   ├─ llms.txt + visibilité IA + preuves                             │
-│   └─ /seo-geo-squad → SEO/GEO V3, 21 spécialistes routés              │
-│                                                                     │
-│   ✅ HANDOFF                                                         │
-│   ├─ Rapport : verdict, décisions prises en ton nom, absents        │
-│   └─ [S] /ship  [C] commit seul  [R] re-run gate (niv. 1-2)         │
-│                                                                     │
-└──────────────────────────────────────────────────────────────────────┘
-```
+Le handoff propose ensuite **[S] `/ship`**, **[C] commit seulement** ou **[R] relancer le gate**. Ce
+menu est une décision de livraison, pas un second plan.
 
-### Détail de chaque phase
-
-#### 🎯 DISCOVERY (pm-discovery)
-
-**Objectif** : Transformer une idée vague en issues GitHub structurées.
-
-**Ce que fait Claude** :
-1. Écoute ton besoin sans interrompre
-2. Pose des questions de clarification (max 3 à la fois)
-3. Synthétise et te fait valider
-4. Rédige Epic + User Stories au format standard
-5. Publie sur GitHub avec les bons labels
-
-**Format User Story produit** :
-```markdown
-**En tant que** [utilisateur],
-**je veux** [fonctionnalité],
-**afin de** [bénéfice].
-
-## Critères d'acceptance
-- [ ] Given X, when Y, then Z
-```
-
-#### 🔎 PROBE (silencieux)
-
-**Objectif** : établir les preuves d'exécution disponibles avant toute exploration.
-
-**Ce que fait Claude** :
-1. Charge le skill `project-probe`
-2. Lit `.agents/verification.yaml` (lint, types, tests, build) ; le crée ou le rafraîchit s'il est absent ou périmé
-3. Lit les conventions du repo (`CLAUDE.md` / `AGENTS.md`, pointeur mémoire local si présent)
-
-#### 📋 EXPLORE (subagent Explore)
-
-**Objectif** : comprendre le contexte et évaluer le niveau avant de planifier.
-
-**Ce que fait Claude** :
-1. Dispatche un subagent Explore via `SendMessage` (Claude Code) ou explore inline sur les runtimes séquentiels
-2. Le subagent lit et parse l'issue GitHub (ou la spec issue de la discovery)
-3. Analyse l'architecture du projet, les fichiers impactés, les patterns et les risques
-4. Détecte la surface (frontend `.tsx/.jsx/.vue/.css`, SEO/GEO pages publiques) et évalue le niveau 0-4
-5. Retourne une synthèse structurée à l'orchestrateur
-
-#### 📝 PLAN ⛔ (stop unique)
-
-**Objectif** : produire le plan validé — le seul arrêt humain avant le handoff.
-
-**Ce que fait Claude** (l'orchestrateur garde le contexte et planifie directement) :
-1. Décompose en étapes atomiques : quoi / où / comment / contraintes / critères d'acceptance testables / stratégie de tests (P0-P3)
-2. Identifie les composants/tokens à réutiliser (frontend) ou les fichiers publics concernés (SEO/GEO)
-3. Présente un seul écran de validation : synthèse Explore + niveau détecté + plan complet + critères d'acceptance + stratégie de tests
-4. Attend la validation humaine du plan avant toute modification ; une validation explicite couvre ensuite l'exécution séquentielle jusqu'au handoff
-
-#### 🔴 RED (conditionnel)
-
-**Objectif** : prouver que les tests d'acceptance échouent pour la bonne raison avant toute implémentation.
-
-**Ce que fait Claude** :
-1. N'exécute cette phase que si le niveau est ≥ 2 et qu'un harness de test existe dans le manifeste
-2. Écrit les tests d'acceptance dérivés des critères validés en phase PLAN
-3. Les exécute et vérifie qu'ils échouent pour la bonne raison (pas une erreur de setup)
-4. Sans harness : les critères sont vérifiés à l'exécution pendant GATE, et le gate file consigne l'absence dans `absents`
-
-#### 💻 IMPLEMENT (séquentiel)
-
-**Objectif** : implémenter le plan étape par étape.
-
-**Ce que fait Claude** :
-1. Exécute les étapes du plan **séquentiellement** : code + ses tests unitaires ensemble à chaque étape
-2. Lance les commandes du manifeste (lint, types, tests) — vert avant de passer à l'étape suivante
-3. Respecte les conventions du repo, sans refactoring ni édition hors périmètre
-4. Ne parallélise deux étapes que si leurs fichiers sont disjoints, idéalement en worktrees
-
-Pour les apps web, la phase RED (ou IMPLEMENT) peut charger `web-navigator`, qui utilise Playwright CLI comme runtime recommande avant de coder les E2E:
-
-```bash
-npm install -g @playwright/cli@latest
-playwright-cli install --skills
-playwright-cli --help
-```
-
-Playwright pilote un vrai navigateur. Dans Skillz-Claude, `web-navigator` l'utilise surtout pour produire des preuves agentiques reutilisables: pages visitees, screenshots, snapshot DOM, console, reseau, responsive, locators, extraction d'informations et reproduction utilisateur. Les flows critiques sont ensuite convertis en tests Playwright versionnes.
-
-#### 🌐 WEB NAVIGATION (si URL/site a analyser)
-
-**Objectif** : permettre aux agents de naviguer sur un site reel avant de conclure.
-
-`web-navigator` est le skill transverse pour les demandes du type "analyse ce site", "recupere les infos", "compare ces concurrents", "inspecte ce tunnel" ou "observe cette page". Il choisit le runtime disponible:
-
-1. Playwright CLI si `playwright-cli --help` fonctionne.
-2. Browser/MCP ou navigateur integre.
-3. WebFetch/WebSearch pour contenu public statique.
-4. Capture, export HTML ou contenu colle par l'utilisateur.
-
-Le livrable standardise les preuves avec `Confirmé / Déduit / Non vérifié`, puis les skills metier consomment ce rapport: `/qa`, `seo-geo-audit`, `design-audit`, `test-runner`, `taste-critic`.
-
-#### 🔄 GATE (boucle quality-gate)
-
-**Objectif** : prouver la qualité par un gate file plutôt que par une relecture humaine du diff.
-
-**Ce que fait Claude** :
-1. Commit l'implémentation d'abord — le gate évalue le diff committé (`<base>...HEAD`), le travail non committé lui est invisible
-2. Lance le skill `quality-gate` avec le plan validé et le manifeste ; niveau de gate = niveau de la tâche (1 round au niveau 1 avec quick structural-smell check, ≤3 au niveau 2 avec `thermo-nuclear-code-quality-review` en dernière lentille, ≤4 + lenses design/SEO/a11y aux niveaux 3-4 pour les surfaces détectées en EXPLORE, puis `thermo-nuclear-code-quality-review` en dernière lentille)
-3. Boucle jusqu'à un verdict : PASS, CONCERNS (jamais auto-accepté en mode autonome ; attend une décision explicite en mode interactif), ou FAIL (une itération de plus, puis STOP après 3 tentatives)
-4. Commit le gate file avec la branche
-
-| Verdict | Sens | Action |
-|---------|------|--------|
-| **PASS** | Preuves conformes au plan | Proposer `/ship` |
-| **CONCERNS** | Findings non bloquants | Décision humaine explicite (waiver) ou nouvelle itération |
-| **FAIL** | Findings confirmés bloquants | Corriger, jusqu'à 3 itérations, puis STOP |
-
-Le gate file (`docs/quality/GATE-*.yaml`) est la seule preuve de qualité du système — il remplace les 3 passes de review humaines. La revue `thermo-nuclear-code-quality-review` fait partie du gate en dernière lentille de maintenabilité ; ne pas la relancer comme revue séparée après le gate.
-
-#### 🎨 DESIGN AUDIT (si UI/frontend)
-
-**Objectif** : fermer la boucle design avant livraison.
-
-Quand une feature touche `.tsx`, `.jsx`, `.vue`, `.css`, des composants, tokens, Figma ou une UI IA, l'orchestrateur ajoute `design-audit`:
-
-Utilise `/design-audit-squad` quand il faut un audit complet façon Lyse Design Squad: règles communes, orchestrateur, 12 agents, livrables intermédiaires, score statique Lyse optionnel, taste runtime, drift Figma/code et ship-gate final.
-
-1. **Apres Explore** : audit rapide pour transformer les P0/P1 en contraintes de plan.
-2. **Apres la boucle quality-gate** : `design-audit --ship-gate` sur la preview ou les chemins UI modifies.
-3. **Dans `/qa`** : le health score inclut une categorie `Design system`.
-4. **Dans `/ship`** : P0 bloque; P1 bloque sauf risque explicitement accepte.
-
-| Axe | Controle |
-|-----|----------|
-| Tokens | Couleurs, spacing, radius, motion via variables/tokens |
-| Components | Reutilisation DS, variants stricts, imports canoniques |
-| A11y | Labels, alt, roles, keyboard, focus, contrastes |
-| Taste | Hierarchie, densite, typo, motion, copy, responsive |
-| Figma/code | Props, variants, tokens et etats synchronises |
-| AI surface | Marker IA, disclaimer, explainability, feedback, human control |
-
-En mode squad complet, le skill lit les prompts stockés dans `.claude/skills/design-audit/references/lyse-squad/` et conserve les règles dédiées de chaque agent.
-
-#### 📈 SEO/GEO AUDIT (si site public / contenu indexable)
-
-**Objectif** : auditer la capacité d'un site à être trouvé dans Google et cité par les moteurs IA.
-
-Utilise `/seo-geo-audit` quand la feature touche une page publique, une landing, un site vitrine, une page service, du contenu éditorial, `robots.txt`, `sitemap.xml`, `schema`, `llms.txt`, les meta tags ou la stratégie de visibilité.
-
-Utilise `/seo-geo-squad` pour une mission SEO/GEO V3 complète: règles communes, Master Orchestrator, spécialistes routés parmi 21 rôles, Evidence Vault, QA adversariale et livrables client.
-
-Le workflow produit:
-
-1. Une chaîne `source → evidence → fact → finding → action → outcome` avec statuts `observed`, `proxy`, `client_reported`, `inferred`, `not_measured` ou `unknown`.
-2. Les dimensions F (Fondations), V (Visibilité générative), O (Opportunité), E (Exécution) et M (Mesure), toujours séparées avec couverture, confiance et fraîcheur.
-3. Des runs GEO segmentés par moteur, marché, langue, contexte et type de prompt lorsque les mesures existent réellement.
-4. Un plan d'action priorisé avec propriétaires, dépendances, critères d'acceptation et rollback.
-5. Des tâches transformables en `/dev`, sans mutation du site pendant l'audit.
-
-En mode squad complet, le skill charge `.claude/skills/seo-geo-audit/references/seo-geo-v3/`, puis uniquement les cartes cœur et extensions sélectionnées par le Master Orchestrator. Les 21 rôles ne sont jamais lancés mécaniquement.
-
-| Axe | Controle |
-|-----|----------|
-| Technique | HTTP, indexabilité, robots, sitemap, canonical, schema, Core Web Vitals |
-| On-page | title, meta, H1, structure Hn, CTA, preuves, FAQ |
-| Keywords | intentions, SERP dominante, cannibalisation, pages cibles |
-| Content GEO | réponse directe, sources, stats, FAQ, contenus citables IA |
-| Autorité/local | avis, GBP, NAP, mentions, backlinks connus, réseaux sociaux |
-| Visibilité IA | llms.txt, prompts Claude/Google AIO/ChatGPT/Perplexity/Gemini, sources citées |
-
-#### ✅ HANDOFF
-
-**Objectif** : clôturer la tâche avec un rapport et une décision claire, sans rouvrir le plan.
-
-**Ce que fait Claude** :
-1. Présente le rapport final : verdict du gate, nombre de rounds, résumé des findings, `decisions_prises_en_ton_nom` (tout écart au plan validé), `absents`, stats du diff, et la preuve RED→GREEN si la phase RED a tourné
-2. Niveaux 0-2 (mode interactif) : propose **[S] `/ship`** | **[C] commit seul** | **[R] re-run du gate** (niveaux 1-2) — ce menu est la décision de handoff, pas un second checkpoint
-3. Niveaux 3-4 (mode interactif) : exige la lecture complète de `decisions_prises_en_ton_nom` avant de proposer les mêmes options — c'est la seule relecture humaine restante
-4. Mode autonome : enchaîne `/ship` directement si le gate est PASS ; le corps de la PR embarque le gate file
+Sur Claude Code, l'exploration passe par un subagent Explore et les lentilles du gate tournent en
+parallèle. Sur les runtimes séquentiels (Codex, OpenCode, Gemini), les mêmes phases s'exécutent dans
+l'ordre, avec le même gate file.
 
 ---
 
-## Personnalisation
+## Le moteur qualité
 
-### Modifier le format des User Stories
+### `project-probe` : savoir comment vérifier
 
-Édite `.claude/skills/pm-discovery/SKILL.md`, section "Structure User Story".
+`project-probe` détecte une fois les vraies commandes du projet (lint, typecheck, test, build, run)
+et les met en cache dans un manifeste commité :
 
-### Modifier les conventions de code
-
-Édite `.claude/skills/code-implementer/SKILL.md`, section "Principes de code".
-
-### Modifier la checklist de review
-
-Édite `.claude/skills/code-reviewer/SKILL.md`, les 3 sections de Pass.
-
-### Ajouter un nouveau skill
-
-```bash
-# Créer le dossier
-mkdir .claude/skills/mon-skill
-
-# Créer le SKILL.md
-cat > .claude/skills/mon-skill/SKILL.md << 'EOF'
----
-name: mon-skill
-description: Description claire de ce que fait le skill et QUAND l'utiliser.
----
-
-# Mon Skill
-
-## Instructions
-1. Étape 1
-2. Étape 2
-
-## Output attendu
-...
-EOF
-
-# Commit
-git add .claude/skills/mon-skill/
-git commit -m "feat: add mon-skill"
+```yaml
+# .agents/verification.yaml
+fingerprint_schema_version: 2
+generated_by: "project-probe/2.0.0"
+stack: node-js
+python: { required: "collector >=3.10", selected_interpreter: "python3.12" }
+commands: { lint: "npm run lint", test: "npm test" }
+command_sources: { lint: "package.json#scripts.lint", test: "package.json#scripts.test" }
+testability: { harness: vitest, runtime_verify: "npm run dev" }
+absents: ["no e2e harness"]        # explicite, jamais ignoré en silence
 ```
 
-### Utiliser les skills globalement (tous tes projets)
+L'empreinte v2 hache les chemins et le contenu des scripts, skills, manifestes d'agents, CI et
+lockfiles consommés. Dans un dépôt Git, seul l'index compte : les fichiers locaux non suivis
+n'entrent pas dans la vérité du projet. Vérification :
+`bash scripts/run-python310.sh scripts/project_probe.py --root . --check`.
 
-```bash
-# Copier dans ton home
-cp -r .claude/skills/* ~/.claude/skills/
+### `quality-gate` : prouver au lieu de relire
 
-# Les skills seront disponibles dans TOUS tes projets
+Une boucle bornée, dont chaque round suit cet ordre :
+
+1. **Preuves d'exécution**, toujours en premier : toutes les commandes du manifeste, plus le
+   parcours réel de l'application quand c'est possible. Le moindre rouge est corrigé avant de
+   continuer.
+2. **Revues par lentilles**, chacune dans un contexte neuf : correctness et sécurité (`/code-review`
+   natif sur Claude Code), lisibilité, performance, puis design / SEO / a11y si le diff touche ces
+   surfaces. Pour le niveau ≥ 2, `thermo-nuclear-code-quality-review` passe en dernier, sur la
+   maintenabilité structurelle.
+3. **Contre-vérification adverse** : chaque nouveau finding est attaqué par un vérificateur chargé
+   de le réfuter. Seuls les findings confirmés sont corrigés ; dans le doute, un finding est réfuté,
+   sauf en sécurité.
+4. **Correction** des P0/P1 confirmés. Les P2/P3 sont notés sans être corrigés (pas de dérive de
+   périmètre).
+
+La boucle converge après deux rounds consécutifs sans nouveau P0/P1, ou s'arrête au plafond du
+niveau.
+
+| Verdict | Condition |
+|---|---|
+| `PASS` | Toutes les preuves au vert, aucun P0/P1 restant, au moins une preuve exécutable réelle |
+| `CONCERNS` | Plafond atteint sans convergence, preuves trop faibles, ou P1 non corrigé. Un projet sans tests plafonne ici. |
+| `FAIL` | P0 confirmé non corrigé |
+| `WAIVED` | Uniquement sur décision humaine explicite, avec raison, portée, approbateur et date |
+
+Le gate file lie les preuves au diff exact :
+
+```yaml
+# docs/quality/GATE-2026-07-06-my-feature.yaml
+schema_version: 2
+verdict: "PASS"                    # PASS | CONCERNS | FAIL | WAIVED
+level: 2
+base_sha: "<SHA Git complet>"
+head_sha: "<dernier SHA de code>"
+code_diff_hash: "<sha256>"
+code_diff_exclusions: ["CHANGELOG.md"]
+proof_payload: "docs/quality/proofs/2026-07-06-my-feature.json"
+proof_payload_hash: "<sha256>"
+integrity_sha256: "<sha256 scellé>"
 ```
+
+`gate_verify.py verify` rejette un code modifié depuis le gate, des preuves retouchées, des SHAs
+manquants, des commandes inventées et un PASS contenant une commande en échec. Le JSON de preuve
+porte les résultats d'exécution, les findings et les `decisions_prises_en_ton_nom`.
+
+`/gate [niveau]` lance la même boucle à la demande sur n'importe quel diff (niveau 3 par défaut).
+En mode autonome, aucun fichier n'est modifié avant que tu aies arbitré le rapport.
 
 ---
 
-## Troubleshooting
+## `/ship` : de la branche à la PR
 
-### "Claude n'utilise pas mes skills"
+Non interactif : la prochaine chose que tu vois est l'URL de la PR.
 
-1. **Vérifier que le dossier .claude existe**
-   ```bash
-   ls -la .claude/skills/
-   ```
-
-2. **Vérifier la syntaxe YAML** du SKILL.md
-   ```bash
-   head -10 .claude/skills/pm-discovery/SKILL.md
-   # Doit commencer par ---
-   # Puis name: et description:
-   # Puis ---
-   ```
-
-3. **Vérifier la description** - C'est elle qui déclenche le skill. Si trop vague, Claude ne sait pas quand l'utiliser.
-
-### "Les issues ne se créent pas sur GitHub"
-
-1. **Vérifier que gh CLI est installé et authentifié**
-   ```bash
-   gh auth status
-   ```
-
-2. **Vérifier les permissions du repo**
-
-### "Le workflow s'arrête en plein milieu"
-
-C'est normal ! Le workflow attend ta validation à chaque checkpoint.
-Réponds "ok", "continue", "validé" pour passer à l'étape suivante.
-
-### "Je veux skip une étape"
-
-Dis-le à Claude :
-```
-> Skip la phase de test, on verra ça après
-```
+1. **Pré-vol** : refuse de partir depuis la branche par défaut ou avec un arbre de travail sale.
+2. **Merge** de la branche par défaut résolue (jamais supposée) dans la branche de feature.
+3. **Preuves** : toutes les commandes du manifeste. Rouge → arrêt.
+4. **Gate** : un gate v2 PASS valide, ou WAIVED complet, permet d'avancer. Absent, périmé ou
+   CONCERNS → le gate est relancé ; un CONCERNS demande une décision de waiver explicite, jamais
+   acceptée automatiquement. FAIL → arrêt.
+5. **CHANGELOG** généré depuis les commits de la branche.
+6. **Push** (jamais de force-push) et **PR** avec le gate file dans la description.
 
 ---
 
-## Ressources
+## Outils de réflexion
 
-- [Documentation officielle Skills](https://code.claude.com/docs/en/skills)
-- [Best Practices Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/best-practices)
-- [Blog Anthropic sur les Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
-
----
-
-## Changelog
-
-- **v1.0.0** - Version initiale
-  - 5 skills : pm-discovery, github-issue-reader, code-implementer, test-runner, code-reviewer
-  - 2 commands : /discovery, /dev
-  - Documentation complète
+- **`/elicit [lentille] [cible]`** : ré-examine une sortie existante sous **une** lentille nommée
+  (Pre-mortem, Inversion, First Principles, Red/Blue Team, Steelman-then-attack, Chesterton's Fence,
+  10-10-10, Second-Order Effects, Occam's Razor, Constraint Removal, Persona Shift, Cost-of-Delay).
+  La lentille révèle sans réécrire : findings et révisions proposées, tu arbitres. Disponible à
+  chaque étape de `/discovery` (`[E]`).
+- **`/rodin`** : challenge socratique anti-complaisance (steelman → affirmations classées →
+  objections fortes → tests de réalité → verdict), inspiré du
+  [rodin.md de Benjamin Debon](https://gist.github.com/bdebon/e22d0b728abc5f393227440907b334cf).
+- **`/plan-review`** : relecture CEO/fondateur d'un plan ou d'un PRD (Expansion / Hold / Reduction).
