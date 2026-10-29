@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "provider": "codex",
-  "runtime": {"name": "Codex CLI", "version_observed": "0.152.0"},
+  "runtime": {"name": "Codex CLI", "version_observed": "0.164.0"},
   "certification": "C2",
   "package": "supported",
   "capabilities": {
