@@ -1,0 +1,156 @@
+{
+  "absents": [
+    "no configured typecheck command",
+    "no configured build command",
+    "installer behaviour verified in sandboxed HOME and project directories (tests/test-install-cleanup.sh, tests/test-removed-owned-artifacts.sh, tests/test-install-memory-cli.sh); not run against Linux GNU coreutils in this session"
+  ],
+  "decisions_prises_en_ton_nom": [
+    "the parallel retired-artifacts manifest from the first implementation was replaced by a delete-tree action in the existing checksum removal script, after the structural lens flagged it as duplication",
+    "delete-tree removes a retired skill folder whole when its SKILL.md is unmodified, including files a user added inside it; an edited SKILL.md keeps the folder",
+    "retired commands now defer to the checksum layer in the global purge too, so an edited global copy is kept instead of purged",
+    "the project purge runs whenever a project manifest exists (install, merge or update), and is skipped when .claude, .claude/skills or .claude/commands is a symlink",
+    "project mode never manages the Skillz source checkout or the global ~/.claude (physical paths compared)",
+    "the dead-link sweep only removes dead links pointing into the Skillz skills folder; the Codex skill sweep is narrowed accordingly, while the pre-existing Codex prompt sweep is unchanged",
+    "manifests no longer carry a timestamp and are written atomically",
+    "tests/test-install-cleanup.sh added to the manifest test command"
+  ],
+  "executions": [
+    {
+      "command": "bash scripts/lint-shell.sh",
+      "exit_code": 0,
+      "name": "lint",
+      "status": "passed",
+      "summary": "21 shell files parsed successfully"
+    },
+    {
+      "command": "bash tests/test-install-memory-cli.sh && bash tests/test-install-cleanup.sh && bash tests/run-python310.sh -m unittest discover -s tests -p 'test_*.py' && bash tests/run-python310.sh -m unittest discover -s .claude/skills/llm-wiki/tests -p 'test_*.py' && bash tests/run-python310.sh scripts/validate_planning_lifecycle.py --root . && bash tests/run-python310.sh tooling/migration/migrate_catalog.py --root . --report docs/compatibility/catalog-migration-v6.1.json && bash tests/run-python310.sh tooling/evals/router_pilot.py --root . --output docs/compatibility/router-pilot-figma-generate-library.json --check && bash tests/run-python310.sh tooling/build/compiler.py check --root . --output dist && bash tests/run-python310.sh tooling/testing/golden_distribution.py --dist-root dist --output docs/compatibility/golden/v6.1-p0-distribution.json --check && bash tests/run-python310.sh tooling/runtime/certify_install_lifecycle.py --root . --output docs/compatibility/install-lifecycle-v6.1.json --check && bash tests/test-behavioral.sh && bash tests/run-python310.sh tooling/runtime/certify_codex_plugin.py --bundle dist/codex --output docs/compatibility/codex-plugin-0.164.0.json --check && bash tests/run-python310.sh tooling/upstream/scan.py --root . --output docs/planning/upstream/aidd-v5.9.0.inventory.json --check && bash tests/test-removed-owned-artifacts.sh && bash tests/test-seo-geo-v3.sh",
+      "exit_code": 0,
+      "name": "test",
+      "status": "passed",
+      "summary": "full manifest chain green in one run: installer memory and cleanup suites, 137 repository tests, 273 llm-wiki tests, build, golden, lifecycle, behavioral, Codex C2, removed-artifact and SEO/GEO checks"
+    }
+  ],
+  "manifest_fingerprint": "3c092231cbc8009fffb26e5b1edf639c836ed6ed43ddca58e341e86c3cb0353a",
+  "opinion": {
+    "findings": {
+      "confirmed": 14,
+      "fixed": 14,
+      "refuted": 0,
+      "remaining": 0,
+      "total": 14
+    },
+    "lenses": {
+      "correctness_security": "PASS after fixes: unvalidated manifest names (P0), purge through a symlinked skills folder (P1) and merge-mode ownership loss (P2) confirmed by experiment and fixed; round 3 found no new P0/P1",
+      "performance": "PASS: under 0.5 s installer overhead; cleanup test suite about 17 s",
+      "readability": "PASS after fixes: docs no longer over-claim what the folder removal keeps",
+      "structural_maintainability": "PASS after fixes: duplicate checksum layer removed (P1); manifest writes atomic; install.sh growth noted"
+    },
+    "notes": [
+      "P3 install.sh keeps growing; extracting the ownership helpers into a sourced library would allow unit tests without full installer runs",
+      "P3 the pre-existing ~/.codex/prompts sweep still removes any dead link, unlike the new owned-prefix skill sweep",
+      "P3 a temporary manifest file can be left behind if the installer is interrupted between mktemp and mv"
+    ],
+    "registry": [
+      {
+        "id": "install.sh:security:manifest-names",
+        "severity": "P0",
+        "status": "fixed",
+        "summary": "empty or traversal manifest entries could delete outside skills/ and commands/"
+      },
+      {
+        "id": "install.sh:security:linked-skills",
+        "severity": "P1",
+        "status": "fixed",
+        "summary": "project purge followed a symlinked .claude/skills folder"
+      },
+      {
+        "id": "install.sh:structure:duplicate-checksum",
+        "severity": "P1",
+        "status": "fixed",
+        "summary": "second checksum removal mechanism duplicated the canonical one"
+      },
+      {
+        "id": "install.sh:correctness:merge-ownership",
+        "severity": "P2",
+        "status": "fixed",
+        "summary": "merge-mode install rewrote the manifest without purging"
+      },
+      {
+        "id": "install.sh:correctness:atomic-manifest",
+        "severity": "P2",
+        "status": "fixed",
+        "summary": "manifest truncated in place and rewritten per skipped entry"
+      },
+      {
+        "id": "CHANGELOG.md:accuracy:folder-removal",
+        "severity": "P2",
+        "status": "fixed",
+        "summary": "docs over-claimed that only identical files are deleted"
+      },
+      {
+        "id": "install.sh:correctness:migration-flag",
+        "severity": "P2",
+        "status": "fixed",
+        "summary": "legacy retirement skipped when a merge install wrote the manifest first"
+      },
+      {
+        "id": "install.sh:correctness:project-codex-links",
+        "severity": "P2",
+        "status": "fixed",
+        "summary": "dangling project Codex links after checksum retirement"
+      },
+      {
+        "id": "install.sh:correctness:edited-retired-skill",
+        "severity": "P2",
+        "status": "fixed",
+        "summary": "manifest purge deleted an edited retired skill"
+      },
+      {
+        "id": "install.sh:correctness:symlinked-home",
+        "severity": "P2",
+        "status": "fixed",
+        "summary": "dotfiles-linked ~/.claude treated as a project"
+      },
+      {
+        "id": "tests/test-install-cleanup.sh:test-coverage:home-and-prefix",
+        "severity": "P2",
+        "status": "fixed",
+        "summary": "HOME detection and rule prefix untested (mutations survived)"
+      },
+      {
+        "id": "install.sh:correctness:home-manifest",
+        "severity": "P3",
+        "status": "fixed",
+        "summary": "project install aimed at $HOME dropped binary entries from the global manifest"
+      },
+      {
+        "id": "scripts/cleanup-removed-owned-artifacts.sh:security:dot-segments",
+        "severity": "P3",
+        "status": "fixed",
+        "summary": "dot segments accepted in removal rule paths"
+      },
+      {
+        "id": "install.sh:correctness:missing-skill-md",
+        "severity": "P3",
+        "status": "fixed",
+        "summary": "retired skill without SKILL.md was never purged"
+      }
+    ],
+    "rounds": [
+      {
+        "fixed_confirmed_p0_p1": 3,
+        "new_confirmed_p0_p1": 3,
+        "round": 1
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 2
+      },
+      {
+        "new_confirmed_p0_p1": 0,
+        "round": 3
+      }
+    ]
+  },
+  "schema_version": 1
+}

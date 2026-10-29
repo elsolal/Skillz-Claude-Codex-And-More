@@ -49,6 +49,38 @@ test "$(cat "$target_root/commands/preserved.md")" = "user edit"
 test "$(cat "$target_root/config/settings.json")" = "replacement"
 printf '%s\n' "$output" | grep -q 'removed=1 replaced=1 preserved=1'
 
+mkdir -p "$target_root/skills/retired/references" "$target_root/skills/edited"
+printf 'shipped skill\n' > "$target_root/skills/retired/SKILL.md"
+printf 'shipped reference\n' > "$target_root/skills/retired/references/a.md"
+printf 'user edit\n' > "$target_root/skills/edited/SKILL.md"
+tree_manifest="$fixture_root/tree.sha256"
+{
+  printf 'delete-tree %s skills/retired/SKILL.md\n' "$(sha256_file "$target_root/skills/retired/SKILL.md")"
+  printf 'delete-tree %s skills/edited/SKILL.md\n' "$preserved_original_hash"
+} > "$tree_manifest"
+tree_output="$(bash "$cleanup_script" "$tree_manifest" "$target_root" "$source_root" 2>&1)"
+test ! -e "$target_root/skills/retired"
+test "$(cat "$target_root/skills/edited/SKILL.md")" = "user edit"
+test -d "$target_root/skills"
+printf '%s\n' "$tree_output" | grep -q 'removed=1 replaced=0 preserved=1'
+
+printf 'top level\n' > "$target_root/skills/SKILL.md"
+shallow_manifest="$fixture_root/shallow.sha256"
+printf 'delete-tree %s skills/SKILL.md\n' "$(sha256_file "$target_root/skills/SKILL.md")" > "$shallow_manifest"
+if bash "$cleanup_script" "$shallow_manifest" "$target_root" "$source_root" >/dev/null 2>&1; then
+  echo "Expected a top-level tree removal to be rejected" >&2
+  exit 1
+fi
+test -d "$target_root/skills/edited"
+
+dot_manifest="$fixture_root/dot.sha256"
+printf 'delete-tree %s skills/./SKILL.md\n' "$(sha256_file "$target_root/skills/SKILL.md")" > "$dot_manifest"
+if bash "$cleanup_script" "$dot_manifest" "$target_root" "$source_root" >/dev/null 2>&1; then
+  echo "Expected a dot-segment path to be rejected" >&2
+  exit 1
+fi
+test -d "$target_root/skills/edited"
+
 unsafe_manifest="$fixture_root/unsafe.sha256"
 printf 'delete %s ../outside.md\n' "$owned_hash" > "$unsafe_manifest"
 if bash "$cleanup_script" "$unsafe_manifest" "$target_root" "$source_root" >/dev/null 2>&1; then

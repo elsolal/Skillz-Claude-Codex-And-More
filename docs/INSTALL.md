@@ -44,9 +44,18 @@ Depuis un clone local : `bash install.sh update all`.
 - Ta configuration de chaque agent est conservée.
 - Les prompts gérés par Skillz se mettent à jour (signature de loader) ; les prompts tiers (BMad…)
   ne sont jamais touchés.
-- Le manifeste `~/.claude/.skillz-manifest` protège contre la dérive : les skills retirés de la
-  source sont purgés, ceux que tu as ajoutés sont conservés. Les liens morts de `~/.codex/skills`
-  sont nettoyés.
+- Le manifeste `~/.claude/.skillz-manifest` protège contre la dérive : les skills et commandes
+  retirés de la source sont purgés, ceux que tu as ajoutés sont conservés.
+- Les liens morts vers des skills Skillz sont retirés de `~/.codex`, `~/.gemini`,
+  `~/.config/opencode` et `~/.agents`. Un lien mort qui pointe ailleurs n'est pas touché.
+- Les éléments retirés listés dans `.claude/migrations/v6.1-removed-artifacts.sha256` ne sont
+  supprimés que s'ils sont restés identiques à la version livrée. Pour un skill, c'est son
+  `SKILL.md` qui est comparé, puis tout le dossier est supprimé. Une copie modifiée est conservée
+  et signalée.
+
+En installation par projet, `.claude/.skillz-manifest` joue le même rôle que le manifeste global :
+chaque installation l'écrit, la suivante purge ce qui n'est plus livré. Les projets installés avant
+ce manifeste sont nettoyés par le même contrôle d'empreinte.
 
 <details>
 <summary><strong>Installer ou mettre à jour un seul agent</strong></summary>

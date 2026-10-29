@@ -35,7 +35,7 @@ sha256_file() {
 
 validate_relative_path() {
   case "$1" in
-    ""|/*|..|../*|*/../*|*/..)
+    ""|/*|.|..|./*|../*|*/./*|*/../*|*/.|*/..)
       return 1
       ;;
   esac
@@ -74,6 +74,32 @@ while read -r action expected_hash relative_path replacement_path; do
   case "$action" in
     delete)
       rm -f -- "$target"
+      removed=$((removed + 1))
+      # Drop the parent folder only when the deletion left it empty.
+      parent="$(dirname "$target")"
+      if [ "$parent" != "$target_root" ]; then
+        rmdir -- "$parent" 2>/dev/null || true
+      fi
+      ;;
+    delete-tree)
+      # The unmodified entry file (e.g. skills/<name>/SKILL.md) proves ownership of
+      # its folder. Refuse any entry whose folder is the target root or a top-level
+      # directory, so a rule can never remove a whole skills/ or commands/ tree.
+      tree_relative="$(dirname "$relative_path")"
+      case "$tree_relative" in
+        */*) ;;
+        *)
+          echo "Unsafe tree removal path: $relative_path" >&2
+          exit 2
+          ;;
+      esac
+      tree="$target_root/$tree_relative"
+      if [ -L "$tree" ]; then
+        echo "Preserved non-regular target: $tree_relative" >&2
+        preserved=$((preserved + 1))
+        continue
+      fi
+      rm -rf -- "$tree"
       removed=$((removed + 1))
       ;;
     replace)
