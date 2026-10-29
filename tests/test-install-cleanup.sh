@@ -84,7 +84,10 @@ test_project_update_purges_from_its_manifest() {
     grep -qx 'skill:dev-workflow' "$project/.claude/.skillz-manifest" || \
         fail "Project manifest does not list installed skills"
 
-    printf 'skill:ghost-skill\ncommand:ghost.md\n' >>"$project/.claude/.skillz-manifest"
+    printf 'skill:ghost-skill\ncommand:ghost.md\nskill:../../outside\nskill:..\ncommand:../escape.md\n' \
+        >>"$project/.claude/.skillz-manifest"
+    mkdir -p "$project/outside"
+    printf 'keep\n' >"$project/escape.md"
     mkdir -p "$project/.claude/skills/ghost-skill" "$project/.claude/skills/user-skill"
     printf 'ghost\n' >"$project/.claude/commands/ghost.md"
     ln -sfn ../../.claude/skills/ghost-skill "$project/.codex/skills/ghost-skill"
@@ -95,12 +98,15 @@ test_project_update_purges_from_its_manifest() {
     assert_absent "$project/.claude/commands/ghost.md"
     assert_absent "$project/.codex/skills/ghost-skill"
     assert_present "$project/.claude/skills/user-skill"
+    assert_present "$project/outside"
+    assert_present "$project/escape.md"
+    assert_present "$project/.claude/skills"
     if grep -qx 'skill:ghost-skill' "$project/.claude/.skillz-manifest"; then
         fail "Purged skill is still listed in the project manifest"
     fi
 }
 
-test_legacy_project_without_manifest_retires_only_unmodified_items() {
+test_project_without_manifest_retires_only_unmodified_items() {
     local home project
     home="$(new_home legacy)"
     project="$TEST_ROOT/legacy-app"
@@ -121,7 +127,7 @@ test_legacy_project_without_manifest_retires_only_unmodified_items() {
     assert_absent "$project/.claude/commands/init.md"
     assert_present "$project/.claude/skills/figma-use/SKILL.md"
     assert_present "$project/.claude/commands/docs.md"
-    grep -q 'skill: figma-use kept' "$home/install.log" || \
+    grep -q 'Preserved modified target: skills/figma-use/SKILL.md' "$home/install.log" || \
         fail "Preserved retired skill was not reported"
     [ -f "$project/.claude/.skillz-manifest" ] || fail "Legacy project update wrote no manifest"
     if grep -q '[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}' "$project/.claude/.skillz-manifest"; then
@@ -131,5 +137,5 @@ test_legacy_project_without_manifest_retires_only_unmodified_items() {
 
 test_global_update_cleans_every_mirror_and_retired_knowledge
 test_project_update_purges_from_its_manifest
-test_legacy_project_without_manifest_retires_only_unmodified_items
+test_project_without_manifest_retires_only_unmodified_items
 echo "PASS: installer cleanup suite"

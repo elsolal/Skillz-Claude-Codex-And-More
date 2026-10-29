@@ -6,10 +6,11 @@ All notable changes to the D-EPCT+R Workflow are documented in this file.
 
 ### Fixed
 - `install.sh update` now finishes its own cleanup: dead links to removed Skillz skills are swept
-  from every agent mirror (Codex, Gemini, OpenCode, generic agents), retired knowledge files are
-  deleted only while unmodified, and project installs record `.claude/.skillz-manifest` so later
-  updates purge what the source stopped shipping. Older project installs are cleaned once, deleting
-  only files identical to the last shipped version.
+  from every agent mirror (Codex, Gemini, OpenCode, generic agents), and project installs record
+  `.claude/.skillz-manifest` so later runs purge what the source stopped shipping.
+- The checksum-guarded removal manifest gains a `delete-tree` action: the skills, commands and
+  knowledge files removed by the v6.1 cleanup are deleted on any install (projects that predate the
+  manifest included) only while their entry file is unmodified; edited copies are kept and reported.
 
 ### Documentation
 - README rewritten in French: short and usage-first, with every catalog skill and command listed

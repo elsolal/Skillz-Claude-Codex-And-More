@@ -81,6 +81,27 @@ while read -r action expected_hash relative_path replacement_path; do
         rmdir -- "$parent" 2>/dev/null || true
       fi
       ;;
+    delete-tree)
+      # The unmodified entry file (e.g. skills/<name>/SKILL.md) proves ownership of
+      # its folder. Refuse any entry whose folder is the target root or a top-level
+      # directory, so a rule can never remove a whole skills/ or commands/ tree.
+      tree_relative="$(dirname "$relative_path")"
+      case "$tree_relative" in
+        */*) ;;
+        *)
+          echo "Unsafe tree removal path: $relative_path" >&2
+          exit 2
+          ;;
+      esac
+      tree="$target_root/$tree_relative"
+      if [ -L "$tree" ]; then
+        echo "Preserved non-regular target: $tree_relative" >&2
+        preserved=$((preserved + 1))
+        continue
+      fi
+      rm -rf -- "$tree"
+      removed=$((removed + 1))
+      ;;
     replace)
       if ! validate_relative_path "${replacement_path:-}"; then
         echo "Unsafe replacement path: ${replacement_path:-<empty>}" >&2

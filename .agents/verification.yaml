@@ -2,7 +2,7 @@
 fingerprint_schema_version: 2
 generated_by: "project-probe/2.1.0"
 stack: "mixed"
-config_fingerprint: "7e44cfc7fdd0b4b284c9170b5b4663e5f56f07fca19f1c02987d22644758f194"
+config_fingerprint: "db8344282e286cb099d2ad76e53e29a8377c87a37713aa19edee359acb2f5b41"
 fingerprint_sources:
   - ".agents/AGENTS.md"
   - ".agents/README.md"
@@ -584,6 +584,7 @@ fingerprint_sources:
   - "tests/fixtures/project-probe/shell/scripts/test.sh"
   - "tests/run-python310.sh"
   - "tests/test-behavioral.sh"
+  - "tests/test-install-cleanup.sh"
   - "tests/test-install-memory-cli.sh"
   - "tests/test-removed-owned-artifacts.sh"
   - "tests/test-seo-geo-v3.sh"
